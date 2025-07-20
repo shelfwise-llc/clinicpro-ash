@@ -2,6 +2,7 @@ defmodule ClinicproWeb.Router do
   use ClinicproWeb, :router
   use AshAuthentication.Phoenix.Router
   import AshAdmin.Router
+  import ClinicproWeb.RouterBypass
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -29,10 +30,47 @@ defmodule ClinicproWeb.Router do
   end
 
   # Admin routes
-  scope "/admin" do
+  scope "/admin", ClinicproWeb do
     pipe_through :browser
     
-    ash_admin "/"
+    # Admin authentication
+    get "/login", AdminController, :login
+    post "/login", AdminController, :login_submit
+    post "/logout", AdminController, :logout
+    
+    # Admin dashboard
+    get "/dashboard", AdminController, :dashboard
+    
+    # Doctors management
+    get "/doctors", AdminController, :doctors
+    get "/doctors/new", AdminController, :new_doctor
+    post "/doctors", AdminController, :create_doctor
+    get "/doctors/:id/edit", AdminController, :edit_doctor
+    put "/doctors/:id", AdminController, :update_doctor
+    post "/doctors/:id/delete", AdminController, :delete_doctor
+    
+    # Patients management
+    get "/patients", AdminController, :patients
+    get "/patients/new", AdminController, :new_patient
+    post "/patients", AdminController, :create_patient
+    get "/patients/:id/edit", AdminController, :edit_patient
+    put "/patients/:id", AdminController, :update_patient
+    post "/patients/:id/delete", AdminController, :delete_patient
+    
+    # Appointments management
+    get "/appointments", AdminController, :appointments
+    get "/appointments/new", AdminController, :new_appointment
+    post "/appointments", AdminController, :create_appointment
+    get "/appointments/:id/edit", AdminController, :edit_appointment
+    put "/appointments/:id", AdminController, :update_appointment
+    post "/appointments/:id/delete", AdminController, :delete_appointment
+    
+    # Clinic settings
+    get "/settings", AdminController, :settings
+    post "/settings", AdminController, :update_settings
+    
+    # Keep ash_admin at the end for backward compatibility
+    ash_admin "/ash"
   end
 
   # Browser routes
@@ -40,6 +78,9 @@ defmodule ClinicproWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    
+    # Doctor Flow Bypass Routes
+    doctor_flow_bypass_routes()
     
     # Guest Booking Flow
     get "/booking", GuestBookingController, :index
@@ -60,6 +101,21 @@ defmodule ClinicproWeb.Router do
     post "/patient/confirm-details", PatientFlowController, :submit_confirmation
     get "/patient/booking-confirmation", PatientFlowController, :booking_confirmation
     
+    # Patient Medical Records
+    get "/patient/medical-records", PatientFlowController.MedicalRecords, :index
+    get "/patient/medical-records/:id", PatientFlowController.MedicalRecords, :show
+    
+    # Patient Appointment Booking
+    get "/patient/appointments", PatientFlowController.Appointments, :index
+    get "/patient/appointments/new", PatientFlowController.Appointments, :new
+    post "/patient/appointments/doctor", PatientFlowController.Appointments, :select_doctor_submit
+    get "/patient/appointments/date", PatientFlowController.Appointments, :select_date
+    post "/patient/appointments/date", PatientFlowController.Appointments, :select_date_submit
+    get "/patient/appointments/confirm", PatientFlowController.Appointments, :confirm
+    post "/patient/appointments/confirm", PatientFlowController.Appointments, :confirm_submit
+    get "/patient/appointments/:id", PatientFlowController.Appointments, :show
+    post "/patient/appointments/:id/cancel", PatientFlowController.Appointments, :cancel
+    
     # Doctor Flow
     get "/doctor/appointments", DoctorFlowController, :list_appointments
     get "/doctor/appointment/:id", DoctorFlowController, :access_appointment
@@ -67,6 +123,9 @@ defmodule ClinicproWeb.Router do
     post "/doctor/medical-details/:id", DoctorFlowController, :submit_medical_details
     get "/doctor/diagnosis/:id", DoctorFlowController, :record_diagnosis
     post "/doctor/diagnosis/:id", DoctorFlowController, :submit_diagnosis
+    get "/doctor/prescriptions/:id", DoctorFlowController, :manage_prescriptions
+    post "/doctor/prescriptions/:id", DoctorFlowController, :add_prescription
+    post "/doctor/prescriptions/:id/complete", DoctorFlowController, :prescriptions_submit
     get "/doctor/save-profile/:id", DoctorFlowController, :save_to_profile
     post "/doctor/save-profile/:id", DoctorFlowController, :submit_profile_save
     

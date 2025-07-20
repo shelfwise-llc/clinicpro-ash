@@ -1,0 +1,154 @@
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  <h1 class="text-2xl font-bold mb-6">Medical Record Details</h1>
+  
+  <div class="mb-6 p-4 bg-gray-50 rounded-md">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold">Visit Information</h2>
+      <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+        <%= @record.date %>
+      </span>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <p class="text-sm text-gray-600">Doctor</p>
+        <p class="font-medium"><%= @record.doctor_name %></p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600">Specialty</p>
+        <p class="font-medium"><%= @record.doctor_specialty %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="mb-6 p-4 bg-gray-50 rounded-md">
+    <h2 class="text-lg font-semibold mb-4">Vital Signs</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <p class="text-sm text-gray-600">Blood Pressure</p>
+        <p class="font-medium"><%= @record.vitals.blood_pressure %></p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600">Heart Rate</p>
+        <p class="font-medium"><%= @record.vitals.heart_rate %></p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-600">Temperature</p>
+        <p class="font-medium"><%= @record.vitals.temperature %></p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="mb-6 p-4 bg-gray-50 rounded-md">
+    <h2 class="text-lg font-semibold mb-4">Diagnosis & Treatment</h2>
+    
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">Diagnosis</p>
+      <p class="p-2 bg-white rounded"><%= @record.diagnosis %></p>
+    </div>
+    
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">Treatment Plan</p>
+      <p class="p-2 bg-white rounded"><%= @record.treatment_plan %></p>
+    </div>
+    
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">Follow-up Instructions</p>
+      <p class="p-2 bg-white rounded"><%= @record.follow_up %></p>
+    </div>
+    
+    <div class="mb-4">
+      <p class="text-sm text-gray-600">Notes</p>
+      <p class="p-2 bg-white rounded"><%= @record.notes %></p>
+    </div>
+  </div>
+  
+  <div class="mb-6 p-4 bg-gray-50 rounded-md">
+    <h2 class="text-lg font-semibold mb-4">Prescriptions</h2>
+    
+    <%= if Enum.empty?(@record.prescriptions) do %>
+      <p class="text-gray-500 italic">No prescriptions for this visit.</p>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4 text-left">Medication</th>
+              <th class="py-2 px-4 text-left">Dosage</th>
+              <th class="py-2 px-4 text-left">Frequency</th>
+              <th class="py-2 px-4 text-left">Duration</th>
+              <th class="py-2 px-4 text-left">Instructions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for prescription <- @record.prescriptions do %>
+              <tr class="border-t">
+                <td class="py-2 px-4"><%= prescription.medication_name %></td>
+                <td class="py-2 px-4"><%= prescription.dosage %></td>
+                <td class="py-2 px-4"><%= prescription.frequency %></td>
+                <td class="py-2 px-4"><%= prescription.duration %></td>
+                <td class="py-2 px-4"><%= prescription.instructions %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+  
+  <%= if !Enum.empty?(@record.lab_results) do %>
+    <div class="mb-6 p-4 bg-gray-50 rounded-md">
+      <h2 class="text-lg font-semibold mb-4">Lab Results</h2>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="py-2 px-4 text-left">Test</th>
+              <th class="py-2 px-4 text-left">Date</th>
+              <th class="py-2 px-4 text-left">Status</th>
+              <th class="py-2 px-4 text-left">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for lab_result <- @record.lab_results do %>
+              <tr class="border-t">
+                <td class="py-2 px-4"><%= lab_result.test_name %></td>
+                <td class="py-2 px-4"><%= lab_result.date %></td>
+                <td class="py-2 px-4">
+                  <%= if lab_result.status == "Normal" do %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <%= lab_result.status %>
+                    </span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <%= lab_result.status %>
+                    </span>
+                  <% end %>
+                </td>
+                <td class="py-2 px-4"><%= lab_result.notes %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+  
+  <div class="mt-8 flex justify-between">
+    <a 
+      href={~p"/patient/medical-records"} 
+      class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+    >
+      Back to Medical Records
+    </a>
+    
+    <button 
+      type="button"
+      class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      onclick="window.print()"
+    >
+      Print Record
+    </button>
+  </div>
+</div>

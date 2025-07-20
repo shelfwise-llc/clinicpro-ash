@@ -35,3 +35,26 @@ clinicpro-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Sensitive configuration files that might contain secrets
+/config/*.secret.exs
+
+# Local development overrides
+/config/dev.local.exs
+
+# Editor and OS specific files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
