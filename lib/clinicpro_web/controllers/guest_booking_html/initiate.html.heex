@@ -1,0 +1,31 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Book an Appointment</h1>
+  
+  <%= workflow_progress(assigns) %>
+  
+  <div class="bg-white shadow-md rounded-lg p-6 mt-8">
+    <h2 class="text-2xl font-semibold mb-4">Welcome to ClinicPro</h2>
+    
+    <p class="mb-6 text-gray-700">
+      Thank you for choosing ClinicPro for your healthcare needs. Please follow the steps to book your appointment.
+    </p>
+    
+    <div class="bg-blue-50 p-4 rounded-md mb-6">
+      <h3 class="text-lg font-medium text-blue-800 mb-2">What to expect</h3>
+      <ul class="list-disc pl-5 text-blue-700">
+        <li>Select the type of appointment you need</li>
+        <li>Provide your contact information</li>
+        <li>Review your appointment details</li>
+        <li>Create a profile for future appointments (optional)</li>
+      </ul>
+    </div>
+    
+    <.form :let={f} for={%{}} action={~p"/booking/initiate"} method="post">
+      <div class="mt-6">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+          Start Booking Process
+        </button>
+      </div>
+    </.form>
+  </div>
+</div>

@@ -1,0 +1,98 @@
+defmodule Clinicpro.Clinics.Clinic do
+  @moduledoc """
+  Clinic resource for ClinicPro.
+
+  This resource represents a clinic in the system and is the core of the multi-tenancy model.
+  Each clinic has its own staff, patients, appointments, and other related data.
+  """
+  use Ash.Resource,
+    data_layer: AshPostgres.DataLayer,
+    extensions: [Ash.Policy.Authorizer]
+
+  postgres do
+    table "clinics"
+    repo Clinicpro.Repo
+  end
+
+  attributes do
+    uuid_primary_key :id
+
+    attribute :name, :string do
+      allow_nil? false
+      constraints [min_length: 2]
+    end
+
+    attribute :slug, :string do
+      allow_nil? true
+      constraints [min_length: 2]
+    end
+
+    attribute :address, :string do
+      allow_nil? true
+    end
+
+    attribute :phone, :string do
+      allow_nil? true
+    end
+
+    attribute :email, :ci_string do
+      allow_nil? true
+      constraints [match: ~r/^[^\s]+@[^\s]+$/]
+    end
+
+    attribute :website, :string do
+      allow_nil? true
+    end
+
+    attribute :is_active, :boolean do
+      default true
+    end
+
+    timestamps()
+  end
+
+  relationships do
+    has_many :staff, Clinicpro.Clinics.ClinicStaff do
+      destination_attribute :clinic_id
+    end
+  end
+
+  identities do
+    identity :unique_name, [:name]
+    identity :unique_slug, [:slug]
+  end
+
+  actions do
+    defaults [:create, :read, :update]
+
+    create :register do
+      # Accept slug directly to avoid compilation issues
+      accept [:name, :address, :phone, :email, :website, :slug]
+    end
+  end
+
+  code_interface do
+    define_for Clinicpro.Clinics
+    define :get_by_id, args: [:id], action: :read
+    define :get_by_slug, args: [:slug], action: :read
+    define :list_clinics, action: :read
+    define :register, args: [:name, :address, :phone, :email, :website, :slug]
+    define :update_clinic, args: [:id, :name, :address, :phone, :email, :website, :slug, :is_active]
+  end
+
+  # Policies for authorization
+  policies do
+    policy action_type(:read) do
+      authorize_if always()
+    end
+
+    policy action_type(:create) do
+      authorize_if relates_to_actor_via(:roles, where: [name: "Super Admin"])
+    end
+
+    policy action_type(:update) do
+      authorize_if relates_to_actor_via(:roles, where: [name: "Super Admin"])
+      authorize_if relates_to_actor_via(:staff, on_relationship: :user_id, where: [role: :clinic_admin])
+    end
+  end
+end

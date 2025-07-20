@@ -1,0 +1,123 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Contact Information</h1>
+  
+  <%= workflow_progress(assigns) %>
+  
+  <div class="bg-white shadow-md rounded-lg p-6 mt-8">
+    <h2 class="text-2xl font-semibold mb-4">Provide your contact details</h2>
+    
+    <div class="mb-6 bg-gray-50 p-4 rounded-md">
+      <h3 class="text-lg font-medium mb-2">Selected Appointment Type</h3>
+      <p class="text-gray-700"><%= @appointment_type %></p>
+    </div>
+    
+    <.form :let={f} for={%{}} action={~p"/booking/phone"} method="post">
+      <div class="space-y-6">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+            Full Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="contact[name]"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            required
+          />
+        </div>
+        
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="contact[email]"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            required
+          />
+        </div>
+        
+        <div>
+          <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            id="phone"
+            name="contact[phone]"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            required
+          />
+        </div>
+        
+        <div>
+          <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
+            Preferred Date
+          </label>
+          <input
+            type="date"
+            id="date"
+            name="contact[preferred_date]"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            min={Date.utc_today() |> Date.to_string()}
+            required
+          />
+        </div>
+        
+        <div>
+          <label for="time" class="block text-sm font-medium text-gray-700 mb-1">
+            Preferred Time
+          </label>
+          <select
+            id="time"
+            name="contact[preferred_time]"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            required
+          >
+            <option value="">Select a time</option>
+            <option value="morning">Morning (9:00 AM - 12:00 PM)</option>
+            <option value="afternoon">Afternoon (1:00 PM - 5:00 PM)</option>
+            <option value="evening">Evening (6:00 PM - 8:00 PM)</option>
+          </select>
+        </div>
+        
+        <div>
+          <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">
+            Reason for Visit
+          </label>
+          <textarea
+            id="reason"
+            name="contact[reason]"
+            rows="3"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+          ></textarea>
+        </div>
+        
+        <div class="flex items-center">
+          <input
+            id="terms"
+            name="contact[terms_accepted]"
+            type="checkbox"
+            class="h-4 w-4 text-blue-600 border-gray-300 rounded"
+            required
+          />
+          <label for="terms" class="ml-2 block text-sm text-gray-700">
+            I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">terms and conditions</a>
+          </label>
+        </div>
+        
+        <div class="mt-8 flex justify-between">
+          <a href={~p"/booking/type"} class="text-blue-600 hover:text-blue-800">
+            &larr; Back
+          </a>
+          
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+            Continue
+          </button>
+        </div>
+      </div>
+    </.form>
+  </div>
+</div>

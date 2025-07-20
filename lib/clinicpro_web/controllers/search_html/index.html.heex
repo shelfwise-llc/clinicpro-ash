@@ -1,0 +1,91 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Search</h1>
+  
+  <%= workflow_progress(assigns) %>
+  
+  <div class="bg-white shadow-md rounded-lg p-6 mt-8">
+    <h2 class="text-2xl font-semibold mb-4">Find what you're looking for</h2>
+    
+    <.form :let={f} for={%{}} action={~p"/search/query"} method="post">
+      <div class="flex">
+        <div class="relative flex-grow">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            name="query"
+            placeholder="Search for appointments, patients, doctors, or medical records..."
+            class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Search
+        </button>
+      </div>
+    </.form>
+    
+    <%= if length(@recent_searches) > 0 do %>
+      <div class="mt-8">
+        <h3 class="text-lg font-medium mb-3">Recent Searches</h3>
+        <div class="flex flex-wrap gap-2">
+          <%= for search <- @recent_searches do %>
+            <form action={~p"/search/query"} method="post" class="inline">
+              <input type="hidden" name="query" value={search}>
+              <button
+                type="submit"
+                class="inline-flex items-center px-3 py-1 rounded-md text-sm bg-gray-100 hover:bg-gray-200 text-gray-800"
+              >
+                <%= search %>
+              </button>
+            </form>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+    
+    <div class="mt-8">
+      <h3 class="text-lg font-medium mb-3">Quick Filters</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <form action={~p"/search/query"} method="post" class="inline">
+          <input type="hidden" name="query" value="today's appointments">
+          <button
+            type="submit"
+            class="w-full p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+          >
+            <div class="font-medium">Today's Appointments</div>
+            <div class="text-sm text-gray-500">View all appointments scheduled for today</div>
+          </button>
+        </form>
+        
+        <form action={~p"/search/query"} method="post" class="inline">
+          <input type="hidden" name="query" value="my patients">
+          <button
+            type="submit"
+            class="w-full p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+          >
+            <div class="font-medium">My Patients</div>
+            <div class="text-sm text-gray-500">View all your assigned patients</div>
+          </button>
+        </form>
+        
+        <form action={~p"/search/query"} method="post" class="inline">
+          <input type="hidden" name="query" value="pending medical records">
+          <button
+            type="submit"
+            class="w-full p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left"
+          >
+            <div class="font-medium">Pending Records</div>
+            <div class="text-sm text-gray-500">View incomplete medical records</div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

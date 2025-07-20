@@ -1,0 +1,59 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Welcome to ClinicPro</h1>
+  
+  <%= workflow_progress(assigns) %>
+  
+  <div class="bg-white shadow-md rounded-lg p-6 mt-8">
+    <h2 class="text-2xl font-semibold mb-4">Your Appointment Details</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <p class="text-gray-600 mb-2">Doctor</p>
+        <p class="font-medium"><%= @appointment_data.doctor_name %></p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 mb-2">Specialty</p>
+        <p class="font-medium"><%= @appointment_data.specialty %></p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 mb-2">Date</p>
+        <p class="font-medium"><%= @appointment_data.date %></p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 mb-2">Time</p>
+        <p class="font-medium"><%= @appointment_data.time %></p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 mb-2">Duration</p>
+        <p class="font-medium"><%= @appointment_data.duration %> minutes</p>
+      </div>
+      
+      <div>
+        <p class="text-gray-600 mb-2">Location</p>
+        <p class="font-medium"><%= @appointment_data.location %></p>
+      </div>
+    </div>
+    
+    <div class="mt-8 bg-blue-50 p-4 rounded-md">
+      <h3 class="text-lg font-medium text-blue-800 mb-2">What to expect</h3>
+      <ul class="list-disc pl-5 text-blue-700">
+        <li>Please arrive 15 minutes before your appointment time</li>
+        <li>Bring your ID and insurance card</li>
+        <li>Wear comfortable clothing</li>
+        <li>Prepare a list of questions you may have for the doctor</li>
+      </ul>
+    </div>
+    
+    <div class="mt-8">
+      <.form :let={f} for={%{}} action={~p"/patient/welcome"} method="post">
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+          Continue to Confirm Details
+        </button>
+      </.form>
+    </div>
+  </div>
+</div>
