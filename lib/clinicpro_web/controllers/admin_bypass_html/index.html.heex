@@ -1,0 +1,140 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">ClinicPro Admin Dashboard</h1>
+    <.form :let={f} for={%{}} action={~p"/admin_bypass/seed"} method="post">
+      <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        Seed Database
+      </button>
+    </.form>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Doctors</h2>
+      <p class="text-4xl font-bold"><%= length(@recent_activity.doctors) %></p>
+      <div class="mt-4">
+        <.link href={~p"/admin_bypass/doctors"} class="text-blue-600 hover:underline">View all doctors</.link>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Patients</h2>
+      <p class="text-4xl font-bold"><%= length(@recent_activity.patients) %></p>
+      <div class="mt-4">
+        <.link href={~p"/admin_bypass/patients"} class="text-blue-600 hover:underline">View all patients</.link>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-xl font-semibold mb-4">Appointments</h2>
+      <p class="text-4xl font-bold"><%= length(@recent_activity.appointments) %></p>
+      <div class="mt-4">
+        <.link href={~p"/admin_bypass/appointments"} class="text-blue-600 hover:underline">View all appointments</.link>
+      </div>
+    </div>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Recent Activity</h2>
+    
+    <div class="mb-6">
+      <h3 class="text-lg font-medium mb-2">Recent Appointments</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th class="py-2 px-4 border-b text-left">Date</th>
+              <th class="py-2 px-4 border-b text-left">Time</th>
+              <th class="py-2 px-4 border-b text-left">Doctor</th>
+              <th class="py-2 px-4 border-b text-left">Patient</th>
+              <th class="py-2 px-4 border-b text-left">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for appointment <- @recent_activity.appointments do %>
+              <tr>
+                <td class="py-2 px-4 border-b"><%= appointment.date %></td>
+                <td class="py-2 px-4 border-b"><%= appointment.start_time %></td>
+                <td class="py-2 px-4 border-b">
+                  <%= if appointment.doctor do %>
+                    <%= appointment.doctor.first_name %> <%= appointment.doctor.last_name %>
+                  <% else %>
+                    Unknown Doctor
+                  <% end %>
+                </td>
+                <td class="py-2 px-4 border-b">
+                  <%= if appointment.patient do %>
+                    <%= appointment.patient.first_name %> <%= appointment.patient.last_name %>
+                  <% else %>
+                    Unknown Patient
+                  <% end %>
+                </td>
+                <td class="py-2 px-4 border-b"><%= appointment.status %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="mb-6">
+      <h3 class="text-lg font-medium mb-2">Recent Patients</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th class="py-2 px-4 border-b text-left">Name</th>
+              <th class="py-2 px-4 border-b text-left">Email</th>
+              <th class="py-2 px-4 border-b text-left">Phone</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for patient <- @recent_activity.patients do %>
+              <tr>
+                <td class="py-2 px-4 border-b"><%= patient.first_name %> <%= patient.last_name %></td>
+                <td class="py-2 px-4 border-b"><%= patient.email %></td>
+                <td class="py-2 px-4 border-b"><%= patient.phone %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div>
+      <h3 class="text-lg font-medium mb-2">Recent Doctors</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th class="py-2 px-4 border-b text-left">Name</th>
+              <th class="py-2 px-4 border-b text-left">Specialty</th>
+              <th class="py-2 px-4 border-b text-left">Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= for doctor <- @recent_activity.doctors do %>
+              <tr>
+                <td class="py-2 px-4 border-b"><%= doctor.first_name %> <%= doctor.last_name %></td>
+                <td class="py-2 px-4 border-b"><%= doctor.specialty %></td>
+                <td class="py-2 px-4 border-b"><%= doctor.email %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <div class="flex space-x-4">
+    <.link href={~p"/admin_bypass/doctors/new"} class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Add Doctor
+    </.link>
+    <.link href={~p"/admin_bypass/patients/new"} class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Add Patient
+    </.link>
+    <.link href={~p"/admin_bypass/appointments/new"} class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+      Schedule Appointment
+    </.link>
+  </div>
+</div>

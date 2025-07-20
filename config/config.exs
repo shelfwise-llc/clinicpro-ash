@@ -10,7 +10,11 @@ import Config
 config :clinicpro,
   ecto_repos: [Clinicpro.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_apis: [Clinicpro.Accounts, Clinicpro.Clinics]
+  ash_apis: [Clinicpro.Accounts, Clinicpro.Clinics, Clinicpro.Appointments, Clinicpro.Patients, Clinicpro.Prescriptions]
+
+# Disable Ash API resource inclusion warnings
+config :ash, :validate_api_resource_inclusion?, false
+config :ash, :validate_api_config_inclusion?, false
 
 # Configures the endpoint
 config :clinicpro, ClinicproWeb.Endpoint,

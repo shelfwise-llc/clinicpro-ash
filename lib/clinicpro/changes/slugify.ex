@@ -40,7 +40,7 @@ defmodule Clinicpro.Changes.Slugify do
       slug = Slug.generate(source_value)
       
       # Set the target attribute to the generated slug
-      Ash.Changeset.set_attribute(changeset, target, slug)
+      Ash.Changeset.change_attribute(changeset, target, slug)
     end
   end
 end

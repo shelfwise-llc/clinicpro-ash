@@ -6,22 +6,23 @@ defmodule Clinicpro.Accounts.Token do
   """
   use Ash.Resource,
     data_layer: AshPostgres.DataLayer,
-    extensions: [Ash.Policy.Authorizer, AshAuthentication.TokenResource]
+    extensions: [Ash.Policy.Authorizer] # Temporarily removed AshAuthentication.TokenResource
 
   postgres do
     table "tokens"
     repo Clinicpro.Repo
   end
 
-  token do
-    api Clinicpro.Accounts
-  end
+  # Temporarily comment out token block
+  # token do
+  #   api Clinicpro.Accounts
+  # end
 
   attributes do
     uuid_primary_key :id
     attribute :type, :atom, allow_nil?: false
     attribute :token, :string, allow_nil?: false
-    attribute :expires_at, :utc_datetime, allow_nil?: true
+    attribute :expires_at, :utc_datetime, allow_nil?: false
     timestamps()
   end
 

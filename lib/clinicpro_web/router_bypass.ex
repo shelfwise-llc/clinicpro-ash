@@ -10,7 +10,7 @@ defmodule ClinicproWeb.RouterBypass do
     quote do
       # Doctor flow routes that bypass AshAuthentication
       scope "/doctor", ClinicproWeb do
-        pipe_through [:browser]
+        # Removed pipe_through to avoid duplicate pipe_through error
         
         # List appointments
         get "/appointments", DoctorFlowBypassController, :list_appointments

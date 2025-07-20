@@ -19,12 +19,11 @@ defmodule Clinicpro.Accounts.MagicLinkSender do
     :ok
   end
   
-  @impl AshAuthentication.Sender
+  # These functions are not part of the AshAuthentication.Sender behavior
+  # but are used by the AshAuthentication.Phoenix controllers
   def deliver_action, do: :deliver_email
   
-  @impl AshAuthentication.Sender
   def success_message(_user), do: "Magic link sent! Check your email."
   
-  @impl AshAuthentication.Sender
   def failure_message(_user), do: "Failed to send magic link. Please try again."
 end

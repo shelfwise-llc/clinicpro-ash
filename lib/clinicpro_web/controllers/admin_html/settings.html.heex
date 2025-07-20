@@ -1,0 +1,282 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Clinic Settings</h1>
+    <p class="text-gray-600">Configure clinic information and system settings</p>
+  </div>
+  
+  <%= if flash = get_flash(@conn, :error) do %>
+    <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline"><%= flash %></span>
+    </div>
+  <% end %>
+  
+  <%= if flash = get_flash(@conn, :info) do %>
+    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+      <span class="block sm:inline"><%= flash %></span>
+    </div>
+  <% end %>
+  
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Clinic Information</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Basic information about your clinic</p>
+    </div>
+    
+    <div class="border-t border-gray-200">
+      <form action={~p"/admin/settings"} method="post" class="p-6">
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+        <input type="hidden" name="settings[type]" value="clinic_info" />
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="col-span-1">
+            <div class="mb-4">
+              <label for="clinic_name" class="block text-sm font-medium text-gray-700">Clinic Name</label>
+              <input type="text" name="settings[clinic_name]" id="clinic_name" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@settings.clinic_name} />
+            </div>
+            
+            <div class="mb-4">
+              <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+              <textarea name="settings[address]" id="address" rows="3" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"><%= @settings.address %></textarea>
+            </div>
+            
+            <div class="mb-4">
+              <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+              <input type="tel" name="settings[phone]" id="phone" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@settings.phone} />
+            </div>
+          </div>
+          
+          <div class="col-span-1">
+            <div class="mb-4">
+              <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+              <input type="email" name="settings[email]" id="email" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@settings.email} />
+            </div>
+            
+            <div class="mb-4">
+              <label for="website" class="block text-sm font-medium text-gray-700">Website</label>
+              <input type="url" name="settings[website]" id="website" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@settings.website} />
+            </div>
+            
+            <div class="mb-4">
+              <label for="tax_id" class="block text-sm font-medium text-gray-700">Tax ID / Business Number</label>
+              <input type="text" name="settings[tax_id]" id="tax_id" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@settings.tax_id} />
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+          <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Save Clinic Information
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Business Hours</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Set your clinic's operating hours</p>
+    </div>
+    
+    <div class="border-t border-gray-200">
+      <form action={~p"/admin/settings"} method="post" class="p-6">
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+        <input type="hidden" name="settings[type]" value="business_hours" />
+        
+        <div class="space-y-4">
+          <%= for day <- ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] do %>
+            <div class="flex items-center space-x-4">
+              <div class="w-24">
+                <span class="text-sm font-medium text-gray-700"><%= day %></span>
+              </div>
+              
+              <div class="flex-1 flex items-center space-x-2">
+                <div class="flex items-center h-5">
+                  <input id={"#{String.downcase(day)}_closed"} name={"settings[#{String.downcase(day)}_closed]"} type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" checked={Map.get(@settings, "#{String.downcase(day)}_closed", false)} />
+                </div>
+                <div class="text-sm">
+                  <label for={"#{String.downcase(day)}_closed"} class="font-medium text-gray-700">Closed</label>
+                </div>
+              </div>
+              
+              <div class="flex-1 flex items-center space-x-2">
+                <span class="text-sm text-gray-500">From</span>
+                <select name={"settings[#{String.downcase(day)}_from]"} class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                  <%= for hour <- ["08:00", "08:30", "09:00", "09:30", "10:00"] do %>
+                    <option value={hour} selected={Map.get(@settings, "#{String.downcase(day)}_from") == hour}><%= hour %></option>
+                  <% end %>
+                </select>
+              </div>
+              
+              <div class="flex-1 flex items-center space-x-2">
+                <span class="text-sm text-gray-500">To</span>
+                <select name={"settings[#{String.downcase(day)}_to]"} class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                  <%= for hour <- ["17:00", "17:30", "18:00", "18:30", "19:00"] do %>
+                    <option value={hour} selected={Map.get(@settings, "#{String.downcase(day)}_to") == hour}><%= hour %></option>
+                  <% end %>
+                </select>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+          <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Save Business Hours
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Notification Settings</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Configure email and SMS notification settings</p>
+    </div>
+    
+    <div class="border-t border-gray-200">
+      <form action={~p"/admin/settings"} method="post" class="p-6">
+        <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+        <input type="hidden" name="settings[type]" value="notifications" />
+        
+        <div class="space-y-4">
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="appointment_reminders" name="settings[appointment_reminders]" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" checked={@settings.appointment_reminders} />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="appointment_reminders" class="font-medium text-gray-700">Appointment Reminders</label>
+              <p class="text-gray-500">Send appointment reminders to patients</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="appointment_confirmations" name="settings[appointment_confirmations]" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" checked={@settings.appointment_confirmations} />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="appointment_confirmations" class="font-medium text-gray-700">Appointment Confirmations</label>
+              <p class="text-gray-500">Send appointment confirmations to patients</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="doctor_notifications" name="settings[doctor_notifications]" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" checked={@settings.doctor_notifications} />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="doctor_notifications" class="font-medium text-gray-700">Doctor Notifications</label>
+              <p class="text-gray-500">Send appointment notifications to doctors</p>
+            </div>
+          </div>
+          
+          <div class="flex items-start">
+            <div class="flex items-center h-5">
+              <input id="admin_notifications" name="settings[admin_notifications]" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" checked={@settings.admin_notifications} />
+            </div>
+            <div class="ml-3 text-sm">
+              <label for="admin_notifications" class="font-medium text-gray-700">Admin Notifications</label>
+              <p class="text-gray-500">Send important system notifications to administrators</p>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <label for="reminder_time" class="block text-sm font-medium text-gray-700">Reminder Time (hours before appointment)</label>
+            <select name="settings[reminder_time]" id="reminder_time" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+              <%= for hours <- [24, 48, 72] do %>
+                <option value={hours} selected={@settings.reminder_time == hours}><%= hours %> hours</option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+          <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Save Notification Settings
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Admin Users</h3>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">Manage admin user accounts</p>
+    </div>
+    
+    <div class="border-t border-gray-200">
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <%= for admin <- @admins do %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= admin.name %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= admin.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= admin.role %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= if admin.active do %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Active
+                      </span>
+                    <% else %>
+                      <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        Inactive
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex justify-end space-x-2">
+                      <button type="button" class="text-blue-600 hover:text-blue-900">
+                        Edit
+                      </button>
+                      <button type="button" class="text-red-600 hover:text-red-900">
+                        <%= if admin.active, do: "Deactivate", else: "Activate" %>
+                      </button>
+                      <button type="button" class="text-green-600 hover:text-green-900">
+                        Reset Password
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="mt-6 flex justify-end">
+          <button type="button" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Add Admin User
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

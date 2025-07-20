@@ -1,6 +1,7 @@
 defmodule ClinicproWeb.Router do
   use ClinicproWeb, :router
-  use AshAuthentication.Phoenix.Router
+  # Temporarily disabled AshAuthentication
+  # use AshAuthentication.Phoenix.Router
   import AshAdmin.Router
   import ClinicproWeb.RouterBypass
 
@@ -11,23 +12,24 @@ defmodule ClinicproWeb.Router do
     plug :put_root_layout, html: {ClinicproWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
-    plug :load_from_session
+    # Temporarily disabled AshAuthentication plugs
+    # plug :load_from_session
   end
 
   pipeline :api do
     plug :accepts, ["json-api"]
     plug AshJsonApi.Plug
-    plug :load_from_bearer
+    # plug :load_from_bearer
   end
 
-  # Authentication routes
-  scope "/auth" do
-    pipe_through :browser
-    
-    auth_routes_for Clinicpro.Accounts.User, to: ClinicproWeb.AuthController
-    
-    delete "/sign-out", ClinicproWeb.AuthController, :sign_out
-  end
+  # Authentication routes - temporarily disabled
+  # scope "/auth" do
+  #   pipe_through :browser
+  #   
+  #   auth_routes_for Clinicpro.Accounts.User, to: ClinicproWeb.AuthController
+  #   
+  #   delete "/sign-out", ClinicproWeb.AuthController, :sign_out
+  # end
 
   # Admin routes
   scope "/admin", ClinicproWeb do
@@ -71,6 +73,41 @@ defmodule ClinicproWeb.Router do
     
     # Keep ash_admin at the end for backward compatibility
     ash_admin "/ash"
+  end
+
+  # Admin Bypass Routes (Direct Ecto operations)
+  scope "/admin_bypass", ClinicproWeb do
+    pipe_through :browser
+    
+    # Admin dashboard
+    get "/", AdminBypassController, :index
+    
+    # Database seeding
+    post "/seed", AdminBypassController, :seed_database
+    
+    # Doctors management
+    get "/doctors", AdminBypassController, :doctors
+    get "/doctors/new", AdminBypassController, :new_doctor
+    post "/doctors", AdminBypassController, :create_doctor
+    get "/doctors/:id/edit", AdminBypassController, :edit_doctor
+    put "/doctors/:id", AdminBypassController, :update_doctor
+    delete "/doctors/:id", AdminBypassController, :delete_doctor
+    
+    # Patients management
+    get "/patients", AdminBypassController, :patients
+    get "/patients/new", AdminBypassController, :new_patient
+    post "/patients", AdminBypassController, :create_patient
+    get "/patients/:id/edit", AdminBypassController, :edit_patient
+    put "/patients/:id", AdminBypassController, :update_patient
+    delete "/patients/:id", AdminBypassController, :delete_patient
+    
+    # Appointments management
+    get "/appointments", AdminBypassController, :appointments
+    get "/appointments/new", AdminBypassController, :new_appointment
+    post "/appointments", AdminBypassController, :create_appointment
+    get "/appointments/:id/edit", AdminBypassController, :edit_appointment
+    put "/appointments/:id", AdminBypassController, :update_appointment
+    delete "/appointments/:id", AdminBypassController, :delete_appointment
   end
 
   # Browser routes

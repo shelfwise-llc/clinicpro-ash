@@ -63,7 +63,9 @@ defmodule Clinicpro.Appointments do
     appointment_params = params.appointment
 
     # Transaction to ensure both patient and appointment are created together
-    Ash.transaction(fn ->
+    # Using Ecto.Multi for transaction since we're bypassing Ash APIs temporarily
+    Ecto.Multi.new()
+    |> Ecto.Multi.run(:patient, fn _repo, _changes ->
       # First, try to find existing patient by email
       patient_result =
         require Ash.Query
@@ -74,30 +76,31 @@ defmodule Clinicpro.Appointments do
             {:ok, existing_patient}
           {:error, _} ->
             # Create new patient if not found
-            Clinicpro.Patients.register(
-              patient_params.first_name,
-              patient_params.last_name,
-              patient_params.email,
-              patient_params.phone,
-              patient_params.date_of_birth,
-              patient_params.gender,
-              nil,  # medical_history
-              nil   # user_id (no user account yet)
-            )
+            # Using direct Ecto operations instead of Ash APIs
+            Clinicpro.Patient.create(%{
+              first_name: patient_params.first_name,
+              last_name: patient_params.last_name,
+              email: patient_params.email,
+              phone: patient_params.phone,
+              date_of_birth: patient_params.date_of_birth,
+              gender: patient_params.gender,
+              active: true
+            })
         end
 
-      with {:ok, patient} <- patient_result do
-        # Create appointment with patient
-        appointment_result = create_new_appointment(Map.put(appointment_params, :patient_id, patient.id))
-
-        case appointment_result do
-          {:ok, appointment} ->
-            {:ok, %{patient: patient, appointment: appointment}}
-          {:error, error} ->
-            {:error, error}
-        end
-      end
+      patient_result
     end)
+    |> Ecto.Multi.run(:appointment, fn _repo, %{patient: patient} ->
+      # Create appointment with patient
+      Clinicpro.Appointment.create(Map.put(appointment_params, :patient_id, patient.id))
+    end)
+    |> Clinicpro.Repo.transaction()
+    |> case do
+      {:ok, %{patient: patient, appointment: appointment}} ->
+        {:ok, %{patient: patient, appointment: appointment}}
+      {:error, _failed_operation, failed_value, _changes} ->
+        {:error, failed_value}
+    end
   end
 
   @doc """
@@ -110,7 +113,7 @@ defmodule Clinicpro.Appointments do
 
   """
   def create_new_appointment(params) do
-    Clinicpro.Appointments.Appointment
-    |> Ash.create(params)
+    # Using direct Ecto operations instead of Ash APIs
+    Clinicpro.Appointment.create(params)
   end
 end

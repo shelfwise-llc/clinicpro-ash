@@ -1,0 +1,61 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <.input field={f[:doctor_id]} type="select" label="Doctor" 
+        options={Enum.map(@doctors, &{&1.first_name <> " " <> &1.last_name <> " (" <> &1.specialty <> ")", &1.id})} />
+    </div>
+
+    <div>
+      <.input field={f[:patient_id]} type="select" label="Patient" 
+        options={Enum.map(@patients, &{&1.first_name <> " " <> &1.last_name <> " (" <> &1.email <> ")", &1.id})} />
+    </div>
+
+    <div>
+      <.input field={f[:date]} type="date" label="Date" />
+    </div>
+
+    <div>
+      <.input field={f[:status]} type="select" label="Status" 
+        options={["scheduled", "completed", "cancelled", "in_progress"]} />
+    </div>
+
+    <div>
+      <.input field={f[:start_time]} type="time" label="Start Time" />
+    </div>
+
+    <div>
+      <.input field={f[:end_time]} type="time" label="End Time" />
+    </div>
+  </div>
+
+  <div>
+    <.input field={f[:reason]} type="text" label="Reason" />
+  </div>
+
+  <div>
+    <.input field={f[:notes]} type="textarea" label="Notes" rows={3} />
+  </div>
+
+  <div>
+    <.input field={f[:diagnosis]} type="textarea" label="Diagnosis" rows={3} />
+  </div>
+
+  <div>
+    <.input field={f[:treatment]} type="textarea" label="Treatment" rows={3} />
+  </div>
+
+  <div>
+    <.input field={f[:follow_up]} type="text" label="Follow Up" />
+  </div>
+
+  <:actions>
+    <.button>Save</.button>
+    <.link navigate={~p"/admin_bypass/appointments"} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+      Cancel
+    </.link>
+  </:actions>
+</.simple_form>

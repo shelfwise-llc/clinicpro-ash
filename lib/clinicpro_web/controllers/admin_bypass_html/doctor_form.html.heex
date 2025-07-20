@@ -1,0 +1,42 @@
+<.simple_form :let={f} for={@changeset} action={@action}>
+  <.error :if={@changeset.action}>
+    Oops, something went wrong! Please check the errors below.
+  </.error>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <.input field={f[:first_name]} type="text" label="First Name" />
+    </div>
+
+    <div>
+      <.input field={f[:last_name]} type="text" label="Last Name" />
+    </div>
+
+    <div>
+      <.input field={f[:email]} type="email" label="Email" />
+    </div>
+
+    <div>
+      <.input field={f[:phone]} type="tel" label="Phone" />
+    </div>
+
+    <div>
+      <.input field={f[:specialty]} type="select" label="Specialty" options={["Cardiology", "Dermatology", "Endocrinology", "Family Medicine", "Gastroenterology", "Neurology", "Obstetrics", "Oncology", "Ophthalmology", "Orthopedics", "Pediatrics", "Psychiatry", "Radiology", "Surgery", "Urology"]} />
+    </div>
+
+    <div>
+      <.input field={f[:active]} type="checkbox" label="Active" />
+    </div>
+  </div>
+
+  <div>
+    <.input field={f[:bio]} type="textarea" label="Bio" rows={4} />
+  </div>
+
+  <:actions>
+    <.button>Save</.button>
+    <.link navigate={~p"/admin_bypass/doctors"} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+      Cancel
+    </.link>
+  </:actions>
+</.simple_form>

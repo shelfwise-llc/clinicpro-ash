@@ -70,6 +70,7 @@ defmodule Clinicpro.MixProject do
       {:ash_authentication, "~> 3.12.4"},
       {:argon2_elixir, "~> 3.0"},  # For secure password hashing
       {:ash_authentication_phoenix, "~> 1.9"},
+      {:bcrypt_elixir, "~> 3.0"},  # For admin authentication
       
       # Admin Interface
       {:ash_admin, "~> 0.8"},
