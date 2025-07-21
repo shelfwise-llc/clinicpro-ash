@@ -1,0 +1,289 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Invoice Reports & Analytics</h1>
+    <div>
+      <.link href={~p"/admin_bypass/invoices"} class="text-blue-600 hover:text-blue-800">
+        Back to Invoices
+      </.link>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white rounded-lg shadow p-4">
+      <p class="text-sm text-gray-500">Total Invoices</p>
+      <p class="text-2xl font-bold"><%= @stats.total_count %></p>
+      <p class="text-sm text-gray-500 mt-2">
+        Total Value: <%= Number.Currency.number_to_currency(@stats.total_amount) %>
+      </p>
+    </div>
+    
+    <div class="bg-green-50 rounded-lg shadow p-4">
+      <p class="text-sm text-gray-500">Paid Invoices</p>
+      <p class="text-2xl font-bold text-green-700"><%= @stats.paid_count %></p>
+      <p class="text-sm text-gray-500 mt-2">
+        <%= Number.Currency.number_to_currency(@stats.paid_amount) %> 
+        (<%= format_percentage(@stats.paid_count, @stats.total_count) %>)
+      </p>
+    </div>
+    
+    <div class="bg-yellow-50 rounded-lg shadow p-4">
+      <p class="text-sm text-gray-500">Pending Invoices</p>
+      <p class="text-2xl font-bold text-yellow-700"><%= @stats.pending_count %></p>
+      <p class="text-sm text-gray-500 mt-2">
+        <%= Number.Currency.number_to_currency(@stats.pending_amount) %>
+        (<%= format_percentage(@stats.pending_count, @stats.total_count) %>)
+      </p>
+    </div>
+    
+    <div class="bg-blue-50 rounded-lg shadow p-4">
+      <p class="text-sm text-gray-500">Partial Payments</p>
+      <p class="text-2xl font-bold text-blue-700"><%= @stats.partial_count %></p>
+      <p class="text-sm text-gray-500 mt-2">
+        <%= Number.Currency.number_to_currency(@stats.partial_amount) %>
+        (<%= format_percentage(@stats.partial_count, @stats.total_count) %>)
+      </p>
+    </div>
+  </div>
+
+  <!-- Payment Trends Chart -->
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4">Payment Trends</h2>
+    <div class="h-64">
+      <canvas id="payment-trends-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Filter Form -->
+  <div class="bg-white rounded-lg shadow p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4">Filter Invoices</h2>
+    <.form :let={f} for={@filter_form} action={~p"/admin_bypass/invoices/reports"} method="get">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <%= date_input f, :start_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            </div>
+            <div>
+              <%= date_input f, :end_date, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <%= select f, :status, ["All": "", "Pending": "pending", "Paid": "paid", "Partial": "partial", "Cancelled": "cancelled"], class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Patient</label>
+          <%= select f, :patient_id, [{"All Patients", ""}] ++ Enum.map(@patients, &{&1.first_name <> " " <> &1.last_name, &1.id}), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Clinic</label>
+          <%= select f, :clinic_id, [{"All Clinics", ""}] ++ Enum.map(@clinics, &{&1.name, &1.id}), class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Min Amount</label>
+          <%= number_input f, :min_amount, step: "0.01", min: "0", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Max Amount</label>
+          <%= number_input f, :max_amount, step: "0.01", min: "0", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+        </div>
+      </div>
+      
+      <div class="mt-4 flex justify-between">
+        <div>
+          <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Apply Filters
+          </button>
+          <a href={~p"/admin_bypass/invoices/reports"} class="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Reset
+          </a>
+        </div>
+        <div>
+          <button type="button" id="export-csv" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+    </.form>
+  </div>
+
+  <!-- Filtered Invoices Table -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold">Filtered Invoices</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice #</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Patient</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clinic</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <%= if length(@filtered_invoices) > 0 do %>
+            <%= for invoice <- @filtered_invoices do %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <%= invoice.invoice_number %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= Calendar.strftime(invoice.inserted_at, "%b %d, %Y") %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= if invoice.patient do %>
+                    <%= invoice.patient.first_name %> <%= invoice.patient.last_name %>
+                  <% else %>
+                    <span class="text-gray-400">Not specified</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= invoice.clinic.name %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= Number.Currency.number_to_currency(invoice.amount) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= case invoice.status do %>
+                    <% "pending" -> %>
+                      <span class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
+                        Pending
+                      </span>
+                    <% "paid" -> %>
+                      <span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                        Paid
+                      </span>
+                    <% "partial" -> %>
+                      <span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+                        Partial
+                      </span>
+                    <% "cancelled" -> %>
+                      <span class="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
+                        Cancelled
+                      </span>
+                    <% _ -> %>
+                      <span class="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800">
+                        <%= String.capitalize(invoice.status) %>
+                      </span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <.link href={~p"/admin_bypass/invoices/#{invoice}"} class="text-blue-600 hover:text-blue-900 mr-3">View</.link>
+                  <%= if invoice.status in ["pending", "partial"] do %>
+                    <.link href={~p"/admin_bypass/invoices/#{invoice}/payment"} class="text-green-600 hover:text-green-900">Pay</.link>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                No invoices found matching the selected filters.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="px-6 py-4 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing <span class="font-medium"><%= length(@filtered_invoices) %></span> invoices
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Payment trends chart
+    const ctx = document.getElementById('payment-trends-chart').getContext('2d');
+    
+    // Parse data from server
+    const monthlyData = <%= Jason.encode!(@monthly_data) %>;
+    
+    // Extract labels and datasets
+    const labels = monthlyData.map(item => item.month);
+    const paidData = monthlyData.map(item => item.paid_amount);
+    const pendingData = monthlyData.map(item => item.pending_amount);
+    const partialData = monthlyData.map(item => item.partial_amount);
+    
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Paid',
+            data: paidData,
+            backgroundColor: 'rgba(34, 197, 94, 0.5)',
+            borderColor: 'rgb(34, 197, 94)',
+            borderWidth: 1
+          },
+          {
+            label: 'Pending',
+            data: pendingData,
+            backgroundColor: 'rgba(234, 179, 8, 0.5)',
+            borderColor: 'rgb(234, 179, 8)',
+            borderWidth: 1
+          },
+          {
+            label: 'Partial',
+            data: partialData,
+            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+            borderColor: 'rgb(59, 130, 246)',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Amount'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Month'
+            }
+          }
+        }
+      }
+    });
+    
+    // Export to CSV functionality
+    document.getElementById('export-csv').addEventListener('click', function() {
+      // Get current filter form values
+      const form = document.querySelector('form');
+      const formData = new FormData(form);
+      const queryParams = new URLSearchParams(formData).toString();
+      
+      // Redirect to export endpoint with current filters
+      window.location.href = `/admin_bypass/invoices/export_csv?${queryParams}`;
+    });
+  });
+</script>

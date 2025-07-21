@@ -31,6 +31,13 @@ defmodule Clinicpro.Appointment do
     |> foreign_key_constraint(:doctor_id)
     |> foreign_key_constraint(:patient_id)
   end
+  
+  @doc """
+  Returns a changeset for tracking appointment changes.
+  """
+  def change(%__MODULE__{} = appointment, attrs \\ %{}) do
+    changeset(appointment, attrs)
+  end
 
   @doc """
   Validates that end_time is after start_time.
@@ -70,6 +77,55 @@ defmodule Clinicpro.Appointment do
     |> Repo.all()
     |> Repo.preload([:doctor, :patient])
   end
+  
+  @doc """
+  Lists appointments with optional filtering.
+  
+  ## Options
+  
+  * `:limit` - Limits the number of results
+  * `:status` - Filter by appointment status
+  * `:date` - Filter by specific date
+  * `:doctor_id` - Filter by doctor
+  * `:patient_id` - Filter by patient
+  * `:type` - Filter by appointment type
+  """
+  def list(opts) do
+    __MODULE__
+    |> filter_by_status(opts)
+    |> filter_by_date(opts)
+    |> filter_by_doctor_id(opts)
+    |> filter_by_patient_id(opts)
+    |> filter_by_type(opts)
+    |> limit_query(opts)
+    |> Repo.all()
+    |> Repo.preload([:doctor, :patient])
+  end
+  
+  # Private filter functions
+  defp filter_by_status(query, %{status: status}) when is_binary(status) and status != "", 
+    do: where(query, [a], a.status == ^status)
+  defp filter_by_status(query, _), do: query
+  
+  defp filter_by_date(query, %{date: date}) when not is_nil(date), 
+    do: where(query, [a], a.date == ^date)
+  defp filter_by_date(query, _), do: query
+  
+  defp filter_by_doctor_id(query, %{doctor_id: doctor_id}) when not is_nil(doctor_id), 
+    do: where(query, [a], a.doctor_id == ^doctor_id)
+  defp filter_by_doctor_id(query, _), do: query
+  
+  defp filter_by_patient_id(query, %{patient_id: patient_id}) when not is_nil(patient_id), 
+    do: where(query, [a], a.patient_id == ^patient_id)
+  defp filter_by_patient_id(query, _), do: query
+  
+  defp filter_by_type(query, %{type: type}) when is_binary(type) and type != "", 
+    do: where(query, [a], a.type == ^type)
+  defp filter_by_type(query, _), do: query
+  
+  defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0, 
+    do: limit(query, ^limit)
+  defp limit_query(query, _), do: query
 
   @doc """
   Lists appointments for a specific date.
@@ -97,6 +153,15 @@ defmodule Clinicpro.Appointment do
   def list_by_patient(patient_id) do
     __MODULE__
     |> where(patient_id: ^patient_id)
+    |> Repo.all()
+    |> Repo.preload([:doctor, :patient])
+  end
+  
+  @doc """
+  Lists all appointments with doctor and patient associations preloaded.
+  """
+  def list_with_associations do
+    __MODULE__
     |> Repo.all()
     |> Repo.preload([:doctor, :patient])
   end

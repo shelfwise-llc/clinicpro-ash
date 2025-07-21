@@ -78,9 +78,8 @@ defmodule Clinicpro.MPesa.Helpers do
     Logger.debug("M-Pesa API request to #{url}: #{inspect(sanitized_payload)}")
 
     case HTTPoison.post(url, Jason.encode!(payload), headers) do
-      {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
-      when status_code in 200..299 ->
-        case Jason.decode(body) do
+      {:ok, response} when is_map(response) and response.status_code in 200..299 ->
+        case Jason.decode(response.body) do
           {:ok, decoded} ->
             # Log response (without sensitive data)
             sanitized_response = sanitize_response(decoded)
@@ -95,17 +94,17 @@ defmodule Clinicpro.MPesa.Helpers do
             end
 
           {:error, _} ->
-            Logger.error("Failed to decode M-Pesa API response: #{body}")
+            Logger.error("Failed to decode M-Pesa API response: #{response.body}")
             {:error, :invalid_response_format}
         end
 
-      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-        Logger.error("M-Pesa API error: #{status_code} - #{body}")
-        {:error, %{status_code: status_code, body: body}}
+      {:ok, response} when is_map(response) ->
+        Logger.error("M-Pesa API error: #{response.status_code} - #{response.body}")
+        {:error, %{status_code: response.status_code, body: response.body}}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.error("HTTP request failed: #{inspect(reason)}")
-        {:error, reason}
+      {:error, error} ->
+        Logger.error("HTTP request failed: #{inspect(error)}")
+        {:error, error}
     end
   end
 

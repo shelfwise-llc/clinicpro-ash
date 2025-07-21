@@ -30,6 +30,13 @@ defmodule Clinicpro.Doctor do
   end
   
   @doc """
+  Returns a changeset for tracking doctor changes.
+  """
+  def change(%__MODULE__{} = doctor, attrs \\ %{}) do
+    changeset(doctor, attrs)
+  end
+  
+  @doc """
   Gets a doctor by ID.
   """
   def get(id), do: Repo.get(__MODULE__, id)
@@ -51,6 +58,27 @@ defmodule Clinicpro.Doctor do
   end
 
   @doc """
+  Lists doctors with optional filtering.
+  
+  ## Options
+  
+  * `:limit` - Limits the number of results
+  * `:active` - Filter by active status
+  * `:name` - Filter by name (partial match)
+  * `:email` - Filter by email (partial match)
+  * `:specialty` - Filter by specialty
+  """
+  def list(opts) do
+    __MODULE__
+    |> filter_by_active(opts)
+    |> filter_by_name(opts)
+    |> filter_by_email(opts)
+    |> filter_by_specialty(opts)
+    |> limit_query(opts)
+    |> Repo.all()
+  end
+
+  @doc """
   Lists all active doctors.
   """
   def list_active do
@@ -58,6 +86,26 @@ defmodule Clinicpro.Doctor do
     |> where(active: true)
     |> Repo.all()
   end
+  
+  # Private filter functions
+  defp filter_by_active(query, %{active: active}) when is_boolean(active), do: where(query, [d], d.active == ^active)
+  defp filter_by_active(query, _), do: query
+  
+  defp filter_by_name(query, %{name: name}) when is_binary(name) and name != "", 
+    do: where(query, [d], ilike(d.name, ^"%#{name}%"))
+  defp filter_by_name(query, _), do: query
+  
+  defp filter_by_email(query, %{email: email}) when is_binary(email) and email != "", 
+    do: where(query, [d], ilike(d.email, ^"%#{email}%"))
+  defp filter_by_email(query, _), do: query
+  
+  defp filter_by_specialty(query, %{specialty: specialty}) when is_binary(specialty) and specialty != "", 
+    do: where(query, [d], d.specialty == ^specialty)
+  defp filter_by_specialty(query, _), do: query
+  
+  defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0, 
+    do: limit(query, ^limit)
+  defp limit_query(query, _), do: query
 
   @doc """
   Creates a new doctor.

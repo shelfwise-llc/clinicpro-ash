@@ -4,7 +4,7 @@ defmodule Clinicpro.Repo.Migrations.CreateMpesaTables do
   def change do
     # M-Pesa configurations per clinic
     create table(:mpesa_configs) do
-      add :clinic_id, references(:admin_bypass_doctors, on_delete: :delete_all), null: false
+      add :clinic_id, references(:admin_bypass_doctors, on_delete: :delete_all, type: :uuid), null: false
       add :consumer_key, :string, null: false
       add :consumer_secret, :string, null: false
       add :passkey, :string, null: false
@@ -24,7 +24,7 @@ defmodule Clinicpro.Repo.Migrations.CreateMpesaTables do
 
     # M-Pesa transactions
     create table(:mpesa_transactions) do
-      add :clinic_id, references(:admin_bypass_doctors, on_delete: :nilify_all)
+      add :clinic_id, references(:admin_bypass_doctors, on_delete: :nilify_all, type: :uuid)
       add :checkout_request_id, :string
       add :merchant_request_id, :string
       add :reference, :string, null: false

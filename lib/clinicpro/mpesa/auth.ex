@@ -109,8 +109,8 @@ defmodule Clinicpro.MPesa.Auth do
     Logger.debug("Fetching new M-Pesa access token")
 
     case HTTPoison.get(url, headers) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        case Jason.decode(body) do
+      {:ok, response} when is_map(response) and response.status_code == 200 ->
+        case Jason.decode(response.body) do
           {:ok, %{"access_token" => token, "expires_in" => expires_in}} ->
             Logger.debug("Successfully obtained M-Pesa access token")
             {:ok, token, expires_in}
@@ -124,13 +124,13 @@ defmodule Clinicpro.MPesa.Auth do
             {:error, :invalid_token_response}
         end
 
-      {:ok, %HTTPoison.Response{status_code: code, body: body}} ->
-        Logger.error("Failed to obtain token: #{code} - #{body}")
-        {:error, %{status_code: code, body: body}}
+      {:ok, response} when is_map(response) ->
+        Logger.error("Failed to obtain token: #{response.status_code} - #{response.body}")
+        {:error, %{status_code: response.status_code, body: response.body}}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        Logger.error("HTTP request failed: #{inspect(reason)}")
-        {:error, reason}
+      {:error, error} ->
+        Logger.error("HTTP request failed: #{inspect(error)}")
+        {:error, error}
     end
   end
 end

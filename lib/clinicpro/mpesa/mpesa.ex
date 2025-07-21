@@ -193,4 +193,32 @@ defmodule Clinicpro.MPesa do
       transaction -> {:ok, transaction}
     end
   end
+
+  @doc """
+  Creates or updates M-Pesa configuration for a clinic.
+
+  ## Parameters
+
+  - attrs: Map containing configuration attributes including:
+    - consumer_key: The M-Pesa API consumer key
+    - consumer_secret: The M-Pesa API consumer secret
+    - passkey: The M-Pesa passkey
+    - shortcode: The M-Pesa shortcode
+    - environment: "sandbox" or "production"
+    - clinic_id: The ID of the clinic this configuration belongs to
+
+  ## Returns
+
+  - {:ok, config} on success
+  - {:error, changeset} on validation failure
+  """
+  def create_config(attrs) do
+    clinic_id = attrs["clinic_id"] || attrs[:clinic_id]
+    
+    if is_nil(clinic_id) do
+      {:error, :missing_clinic_id}
+    else
+      Config.upsert_config(clinic_id, attrs)
+    end
+  end
 end

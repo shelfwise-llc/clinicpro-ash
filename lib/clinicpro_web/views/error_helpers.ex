@@ -6,15 +6,15 @@ defmodule ClinicproWeb.ErrorHelpers do
   # Use the recommended approach for Phoenix HTML v4.0
   import Phoenix.HTML
   import Phoenix.HTML.Form
-  import Phoenix.HTML.Tag
-  use PhoenixHTMLHelpers
+  # Remove the direct import of Tag and use the module directly
+  # import Phoenix.HTML.Tag
 
   @doc """
   Generates tag for inlined form input errors.
   """
   def error_tag(form, field) do
     Enum.map(Keyword.get_values(form.errors, field), fn error ->
-      content_tag(:span, translate_error(error),
+      Phoenix.HTML.Tag.content_tag(:span, translate_error(error),
         class: "invalid-feedback",
         phx_feedback_for: input_name(form, field)
       )

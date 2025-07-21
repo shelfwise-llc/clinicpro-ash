@@ -41,7 +41,13 @@ defmodule ClinicproWeb.Router do
     post "/logout", AdminController, :logout
 
     # Admin dashboard
+    get "/", AdminController, :dashboard
     get "/dashboard", AdminController, :dashboard
+
+    # Admin edit routes with ID parameter
+    get "/edit_doctor/:id", AdminController, :edit_doctor
+    get "/edit_patient/:id", AdminController, :edit_patient
+    get "/edit_appointment/:id", AdminController, :edit_appointment
 
     # Doctors management
     get "/doctors", AdminController, :doctors
@@ -127,6 +133,17 @@ defmodule ClinicproWeb.Router do
     get "/appointments/:id/edit", AdminBypassController, :edit_appointment
     put "/appointments/:id", AdminBypassController, :update_appointment
     delete "/appointments/:id", AdminBypassController, :delete_appointment
+
+    # Invoices management
+    scope "/clinics/:clinic_id", ClinicproWeb do
+      get "/invoices", InvoiceController, :index
+      get "/invoices/new", InvoiceController, :new
+      post "/invoices", InvoiceController, :create
+      get "/invoices/:id", InvoiceController, :show
+      get "/invoices/:id/edit", InvoiceController, :edit
+      put "/invoices/:id", InvoiceController, :update
+      delete "/invoices/:id", InvoiceController, :delete
+    end
   end
 
   # Browser routes
@@ -142,48 +159,81 @@ defmodule ClinicproWeb.Router do
     get "/booking", GuestBookingController, :index
     get "/booking/type", GuestBookingController, :type
     post "/booking/type", GuestBookingController, :type_submit
+    get "/guest_booking/phone", GuestBookingController, :phone
+    post "/guest_booking/phone", GuestBookingController, :phone_submit
+    get "/guest_booking/invoice", GuestBookingController, :invoice
+    post "/guest_booking/invoice", GuestBookingController, :invoice_submit
+    get "/guest_booking/profile", GuestBookingController, :profile
+    post "/guest_booking/profile", GuestBookingController, :profile_submit
+    get "/guest_booking/complete", GuestBookingController, :complete
+    # Keep the original paths as well for backward compatibility
     get "/booking/phone", GuestBookingController, :phone
     post "/booking/phone", GuestBookingController, :phone_submit
     get "/booking/invoice", GuestBookingController, :invoice
     post "/booking/invoice", GuestBookingController, :invoice_submit
-    get "/booking/profile", GuestBookingController, :profile
-    post "/booking/profile", GuestBookingController, :profile_submit
+    get "/booking/profile", GuestBookingController, :profile_submit
     get "/booking/complete", GuestBookingController, :complete
 
-    # Patient Flow
-    get "/patient/receive-link/:token", PatientFlowController, :receive_link
-    get "/patient/welcome", PatientFlowController, :welcome
-    get "/patient/confirm-details", PatientFlowController, :confirm_details
-    post "/patient/confirm-details", PatientFlowController, :submit_confirmation
-    get "/patient/booking-confirmation", PatientFlowController, :booking_confirmation
+    # Public Patient Authentication Routes
+    scope "/patient", ClinicproWeb do
+      pipe_through :browser
 
-    # Patient Medical Records
-    get "/patient/medical-records", PatientFlowController.MedicalRecords, :index
-    get "/patient/medical-records/:id", PatientFlowController.MedicalRecords, :show
+      # Patient Authentication with OTP
+      get "/request-otp", PatientAuthController, :request_otp
+      post "/send-otp", PatientAuthController, :send_otp
+      get "/verify-otp", PatientAuthController, :verify_otp_form
+      post "/verify-otp", PatientAuthController, :verify_otp
+      post "/logout", PatientAuthController, :logout
+    end
 
-    # Patient Appointment Booking
-    get "/patient/appointments", PatientFlowController.Appointments, :index
-    get "/patient/appointments/new", PatientFlowController.Appointments, :new
-    post "/patient/appointments/doctor", PatientFlowController.Appointments, :select_doctor_submit
-    get "/patient/appointments/date", PatientFlowController.Appointments, :select_date
-    post "/patient/appointments/date", PatientFlowController.Appointments, :select_date_submit
-    get "/patient/appointments/confirm", PatientFlowController.Appointments, :confirm
-    post "/patient/appointments/confirm", PatientFlowController.Appointments, :confirm_submit
-    get "/patient/appointments/:id", PatientFlowController.Appointments, :show
-    post "/patient/appointments/:id/cancel", PatientFlowController.Appointments, :cancel
+    # Protected Patient Routes
+    scope "/patient", ClinicproWeb do
+      pipe_through [:browser, :patient_auth]
+
+      # Patient Dashboard
+      get "/dashboard", PatientAuthController, :dashboard
+
+      # Patient Flow
+      get "/receive-link/:token", PatientFlowController, :receive_link
+      get "/welcome", PatientFlowController, :welcome
+      get "/confirm-details", PatientFlowController, :confirm_details
+      post "/confirm-details", PatientFlowController, :submit_confirmation
+      get "/booking-confirmation", PatientFlowController, :booking_confirmation
+
+      # Patient Medical Records
+      get "/medical-records", PatientFlowController.MedicalRecords, :index
+      get "/medical-records/:id", PatientFlowController.MedicalRecords, :show
+
+      # Patient Appointment Booking
+      get "/appointments", PatientFlowController.Appointments, :index
+      get "/appointments/new", PatientFlowController.Appointments, :new
+      post "/appointments/doctor", PatientFlowController.Appointments, :select_doctor_submit
+      get "/appointments/date", PatientFlowController.Appointments, :select_date
+      post "/appointments/date", PatientFlowController.Appointments, :select_date_submit
+      get "/appointments/confirm", PatientFlowController.Appointments, :confirm
+      post "/appointments/confirm", PatientFlowController.Appointments, :confirm_submit
+      get "/appointments/:id", PatientFlowController.Appointments, :show
+      post "/appointments/:id/cancel", PatientFlowController.Appointments, :cancel
+    end
 
     # Doctor Flow
     get "/doctor/appointments", DoctorFlowController, :list_appointments
     get "/doctor/appointment/:id", DoctorFlowController, :access_appointment
+    post "/doctor/appointment/:id", DoctorFlowController, :access_appointment_submit
     get "/doctor/medical-details/:id", DoctorFlowController, :fill_medical_details
-    post "/doctor/medical-details/:id", DoctorFlowController, :submit_medical_details
+    post "/doctor/medical-details/:id", DoctorFlowController, :fill_medical_details_submit
+    # Add missing doctor flow routes
+    get "/doctor/medical_details", DoctorFlowController, :fill_medical_details
+    get "/doctor/diagnosis", DoctorFlowController, :diagnosis
+    get "/doctor/save_profile/:id", DoctorFlowController, :save_to_profile
     get "/doctor/diagnosis/:id", DoctorFlowController, :record_diagnosis
     post "/doctor/diagnosis/:id", DoctorFlowController, :submit_diagnosis
     get "/doctor/prescriptions/:id", DoctorFlowController, :manage_prescriptions
     post "/doctor/prescriptions/:id", DoctorFlowController, :add_prescription
     post "/doctor/prescriptions/:id/complete", DoctorFlowController, :prescriptions_submit
     get "/doctor/save-profile/:id", DoctorFlowController, :save_to_profile
-    post "/doctor/save-profile/:id", DoctorFlowController, :submit_profile_save
+    post "/doctor/save-profile/:id", DoctorFlowController, :save_to_profile_submit
+    get "/doctor/dashboard", DoctorFlowController, :dashboard
 
     # Search Flow
     get "/search", SearchController, :index

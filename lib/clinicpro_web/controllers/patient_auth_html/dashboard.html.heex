@@ -1,0 +1,320 @@
+<!-- Patient Dashboard -->
+<div class="min-h-screen bg-gray-100">
+  <!-- Navigation -->
+  <nav class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex">
+          <div class="flex-shrink-0 flex items-center">
+            <span class="text-xl font-bold text-indigo-600">ClinicPro</span>
+          </div>
+          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <a
+              href="#"
+              class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+            >
+              Dashboard
+            </a>
+            <a
+              href={~p"/patient/appointments"}
+              class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+            >
+              Appointments
+            </a>
+            <a
+              href={~p"/patient/medical-records"}
+              class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+            >
+              Medical Records
+            </a>
+            <a
+              href="#"
+              class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+            >
+              Prescriptions
+            </a>
+          </div>
+        </div>
+        <div class="hidden sm:ml-6 sm:flex sm:items-center">
+          <div class="ml-3 relative">
+            <div>
+              <form action={~p"/patient/logout"} method="post">
+                <button
+                  type="submit"
+                  class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  Sign out
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- Main Content -->
+  <div class="py-10">
+    <header>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold leading-tight text-gray-900">Patient Dashboard</h1>
+      </div>
+    </header>
+    <main>
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <!-- Dashboard Content -->
+        <div class="px-4 py-8 sm:px-0">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Upcoming Appointments Card -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-5">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3">
+                    <svg
+                      class="h-6 w-6 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">
+                        Upcoming Appointments
+                      </dt>
+                      <dd>
+                        <div class="text-lg font-medium text-gray-900">
+                          2
+                        </div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-5 py-3">
+                <div class="text-sm">
+                  <a
+                    href={~p"/patient/appointments"}
+                    class="font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    View all
+                  </a>
+                </div>
+              </div>
+            </div>
+            <!-- Medical Records Card -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-5">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
+                    <svg
+                      class="h-6 w-6 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">
+                        Medical Records
+                      </dt>
+                      <dd>
+                        <div class="text-lg font-medium text-gray-900">
+                          5
+                        </div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-5 py-3">
+                <div class="text-sm">
+                  <a
+                    href={~p"/patient/medical-records"}
+                    class="font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    View all
+                  </a>
+                </div>
+              </div>
+            </div>
+            <!-- Payments Card -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+              <div class="p-5">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
+                    <svg
+                      class="h-6 w-6 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div class="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt class="text-sm font-medium text-gray-500 truncate">
+                        Recent Payments
+                      </dt>
+                      <dd>
+                        <div class="text-lg font-medium text-gray-900">
+                          3
+                        </div>
+                      </dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 px-5 py-3">
+                <div class="text-sm">
+                  <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    View all
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Quick Actions -->
+          <div class="mt-8">
+            <h2 class="text-lg leading-6 font-medium text-gray-900">Quick Actions</h2>
+            <div class="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-indigo-100 rounded-md p-3">
+                      <svg
+                        class="h-6 w-6 text-indigo-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="text-lg font-medium text-gray-900">Book Appointment</h3>
+                      <p class="mt-1 text-sm text-gray-500">
+                        Schedule a new appointment with a doctor
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-5">
+                    <a
+                      href={~p"/patient/appointments/new"}
+                      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    >
+                      Book Now
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-green-100 rounded-md p-3">
+                      <svg
+                        class="h-6 w-6 text-green-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="text-lg font-medium text-gray-900">Refill Prescription</h3>
+                      <p class="mt-1 text-sm text-gray-500">
+                        Request a refill for your current prescriptions
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-5">
+                    <a
+                      href="#"
+                      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    >
+                      Request Refill
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0 bg-yellow-100 rounded-md p-3">
+                      <svg
+                        class="h-6 w-6 text-yellow-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="ml-4">
+                      <h3 class="text-lg font-medium text-gray-900">Make Payment</h3>
+                      <p class="mt-1 text-sm text-gray-500">
+                        Pay for services using M-Pesa
+                      </p>
+                    </div>
+                  </div>
+                  <div class="mt-5">
+                    <a
+                      href="#"
+                      class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                    >
+                      Pay Now
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

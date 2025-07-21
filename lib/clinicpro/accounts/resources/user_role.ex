@@ -16,7 +16,13 @@ defmodule Clinicpro.Accounts.UserRole do
 
   attributes do
     uuid_primary_key :id
+    attribute :user_id, :uuid, allow_nil?: false
+    attribute :role, :string, allow_nil?: false
     timestamps()
+  end
+
+  relationships do
+    belongs_to :user, Clinicpro.Accounts.User
   end
 
   actions do

@@ -40,7 +40,8 @@ defmodule Clinicpro.MixProject do
       {:phoenix_html, "~> 4.1"},
       {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.18"},  # Downgraded to match ash_authentication_phoenix requirements
+      # Downgraded to match ash_authentication_phoenix requirements
+      {:phoenix_live_view, "~> 0.18"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
@@ -53,34 +54,43 @@ defmodule Clinicpro.MixProject do
        compile: false,
        depth: 1},
       {:swoosh, "~> 1.5"},
-      {:finch, "~> 0.18.0"},  # Updated to match ash_authentication requirements
+      # Updated to match ash_authentication requirements
+      {:finch, "~> 0.18.0"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
-      
+
       # Ash Framework
       {:ash, "~> 2.17"},
       {:ash_phoenix, "~> 1.3"},
       {:ash_postgres, "~> 1.3"},
       {:ash_json_api, "~> 0.34"},
-      
+
       # Authentication
       {:ash_authentication, "~> 3.12.4"},
-      {:argon2_elixir, "~> 3.0"},  # For secure password hashing
+      # For secure password hashing
+      {:argon2_elixir, "~> 3.0"},
       {:ash_authentication_phoenix, "~> 1.9"},
-      {:bcrypt_elixir, "~> 3.0"},  # For admin authentication
-      
+      # For admin authentication
+      {:bcrypt_elixir, "~> 3.0"},
+
       # Admin Interface
       {:ash_admin, "~> 0.8"},
-      
+
       # Development Tools
       {:live_debugger, "~> 0.1.0", only: :dev},
-      
+
       # Testing Tools
-      {:mox, "~> 1.0", only: :test}
+      {:mox, "~> 1.0", only: :test},
+
+      # HTTP Client for M-Pesa Integration
+      {:httpoison, "~> 2.0"},
+
+      # OTP Authentication
+      {:nimble_totp, "~> 1.0"}
     ]
   end
 

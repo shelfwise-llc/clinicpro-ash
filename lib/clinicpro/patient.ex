@@ -64,6 +64,50 @@ defmodule Clinicpro.Patient do
   end
 
   @doc """
+  Lists patients with optional filtering.
+
+  ## Parameters
+
+  - filters: Map of filters to apply, such as:
+    - :active - boolean to filter active/inactive patients
+    - :name - string to search in first_name or last_name
+    - :email - string to search in email
+    - :phone - string to search in phone
+
+  ## Examples
+
+      # Get active patients
+      Patient.list(%{active: true})
+
+      # Search by name
+      Patient.list(%{name: "John"})
+  """
+  def list(filters) when is_map(filters) do
+    __MODULE__
+    |> filter_query(filters)
+    |> Repo.all()
+  end
+
+  defp filter_query(query, filters) do
+    Enum.reduce(filters, query, fn
+      {:active, active}, query ->
+        where(query, [p], p.active == ^active)
+
+      {:name, name}, query when is_binary(name) and name != "" ->
+        name_pattern = "%#{name}%"
+        where(query, [p], ilike(p.first_name, ^name_pattern) or ilike(p.last_name, ^name_pattern))
+
+      {:email, email}, query when is_binary(email) and email != "" ->
+        where(query, [p], ilike(p.email, ^("%#{email}%")))
+
+      {:phone, phone}, query when is_binary(phone) and phone != "" ->
+        where(query, [p], ilike(p.phone, ^("%#{phone}%")))
+
+      {_, _}, query -> query
+    end)
+  end
+
+  @doc """
   Lists all active patients.
   """
   def list_active do
