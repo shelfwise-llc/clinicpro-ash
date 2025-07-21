@@ -38,6 +38,7 @@ defmodule Clinicpro.MixProject do
       {:ecto_sql, "~> 3.10"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.1"},
+      {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.18"},  # Downgraded to match ash_authentication_phoenix requirements
       {:floki, ">= 0.30.0", only: :test},

@@ -1,5 +1,12 @@
 defmodule ClinicproWeb.MPesaAdminView do
   use ClinicproWeb, :view
+  
+  # Use the recommended approach for Phoenix HTML v4.0
+  import Phoenix.HTML
+  import Phoenix.HTML.Form
+  import Phoenix.HTML.Link
+  import Phoenix.HTML.Tag
+  use PhoenixHTMLHelpers
 
   @doc """
   Returns a formatted string for the transaction status.

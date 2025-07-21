@@ -249,7 +249,7 @@ defmodule ClinicproWeb.MPesaAdminController do
   end
 
   defp require_admin(conn, _opts) do
-    # In a real app, check if the current user is an admin
+    # In a real app, ENSURE current user is an admin. IMPORTANT!
     # For now, we'll just pass through
     conn
   end

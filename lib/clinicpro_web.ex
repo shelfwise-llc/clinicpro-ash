@@ -49,6 +49,21 @@ defmodule ClinicproWeb do
       unquote(verified_routes())
     end
   end
+  
+  def view do
+    quote do
+      use Phoenix.View,
+        root: "lib/clinicpro_web/templates",
+        namespace: ClinicproWeb
+
+      # Import convenience functions from controllers
+      import Phoenix.Controller,
+        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
+
+      # Include shared imports and aliases for views
+      unquote(view_helpers())
+    end
+  end
 
   def live_view do
     quote do
@@ -98,12 +113,30 @@ defmodule ClinicproWeb do
     end
   end
 
-  def verified_routes do
+  defp verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
         endpoint: ClinicproWeb.Endpoint,
         router: ClinicproWeb.Router,
         statics: ClinicproWeb.static_paths()
+    end
+  end
+
+  defp view_helpers do
+    quote do
+      # Use all HTML functionality (forms, tags, etc)
+      import Phoenix.HTML
+      import Phoenix.HTML.Form
+      import Phoenix.HTML.Link
+      import Phoenix.HTML.Tag
+      use PhoenixHTMLHelpers
+
+      # Import basic rendering functionality (render, render_layout, etc)
+      import Phoenix.View
+
+      import ClinicproWeb.ErrorHelpers
+      import ClinicproWeb.Gettext
+      alias ClinicproWeb.Router.Helpers, as: Routes
     end
   end
 

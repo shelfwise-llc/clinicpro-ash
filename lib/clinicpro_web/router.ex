@@ -73,7 +73,7 @@ defmodule ClinicproWeb.Router do
 
     # Admin M-Pesa routes
     scope "/clinics/:clinic_id/mpesa", ClinicproWeb do
-      pipe_through [:browser, :auth]
+      # Removed duplicate pipe_through as it's already defined in the parent scope
 
       get "/", MPesaAdminController, :index
       get "/new", MPesaAdminController, :new
