@@ -1,0 +1,29 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Edit M-Pesa Configuration</h1>
+    <%= link("Back to Overview",
+      to: Routes.mpesa_admin_path(@conn, :index, @clinic_id),
+      class: "btn btn-outline-secondary"
+    ) %>
+  </div>
+
+  <div class="alert alert-warning">
+    <div class="d-flex">
+      <div class="me-3">
+        <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+      </div>
+      <div>
+        <strong>Editing M-Pesa Configuration for <%= @clinic_name %></strong>
+        <p class="mb-0">
+          You are modifying the M-Pesa integration settings. Changes will take effect immediately.
+          Sensitive fields will be re-encrypted upon save.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <%= render(
+    "form.html",
+    Map.put(assigns, :action, Routes.mpesa_admin_path(@conn, :update, @clinic_id, @config.id))
+  ) %>
+</div>

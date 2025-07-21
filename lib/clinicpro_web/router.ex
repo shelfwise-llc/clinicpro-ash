@@ -25,24 +25,24 @@ defmodule ClinicproWeb.Router do
   # Authentication routes - temporarily disabled
   # scope "/auth" do
   #   pipe_through :browser
-  #   
+  #
   #   auth_routes_for Clinicpro.Accounts.User, to: ClinicproWeb.AuthController
-  #   
+  #
   #   delete "/sign-out", ClinicproWeb.AuthController, :sign_out
   # end
 
   # Admin routes
   scope "/admin", ClinicproWeb do
     pipe_through :browser
-    
+
     # Admin authentication
     get "/login", AdminController, :login
     post "/login", AdminController, :login_submit
     post "/logout", AdminController, :logout
-    
+
     # Admin dashboard
     get "/dashboard", AdminController, :dashboard
-    
+
     # Doctors management
     get "/doctors", AdminController, :doctors
     get "/doctors/new", AdminController, :new_doctor
@@ -50,7 +50,7 @@ defmodule ClinicproWeb.Router do
     get "/doctors/:id/edit", AdminController, :edit_doctor
     put "/doctors/:id", AdminController, :update_doctor
     post "/doctors/:id/delete", AdminController, :delete_doctor
-    
+
     # Patients management
     get "/patients", AdminController, :patients
     get "/patients/new", AdminController, :new_patient
@@ -58,7 +58,7 @@ defmodule ClinicproWeb.Router do
     get "/patients/:id/edit", AdminController, :edit_patient
     put "/patients/:id", AdminController, :update_patient
     post "/patients/:id/delete", AdminController, :delete_patient
-    
+
     # Appointments management
     get "/appointments", AdminController, :appointments
     get "/appointments/new", AdminController, :new_appointment
@@ -66,25 +66,44 @@ defmodule ClinicproWeb.Router do
     get "/appointments/:id/edit", AdminController, :edit_appointment
     put "/appointments/:id", AdminController, :update_appointment
     post "/appointments/:id/delete", AdminController, :delete_appointment
-    
+
     # Clinic settings
     get "/settings", AdminController, :settings
     post "/settings", AdminController, :update_settings
-    
+
+    # Admin M-Pesa routes
+    scope "/clinics/:clinic_id/mpesa", ClinicproWeb do
+      pipe_through [:browser, :auth]
+
+      get "/", MPesaAdminController, :index
+      get "/new", MPesaAdminController, :new
+      post "/", MPesaAdminController, :create
+      get "/:id/edit", MPesaAdminController, :edit
+      put "/:id", MPesaAdminController, :update
+      delete "/:id", MPesaAdminController, :delete
+      get "/transactions", MPesaAdminController, :transactions
+      get "/transactions/:id", MPesaAdminController, :transaction_details
+
+      # New routes for STK Push testing and URL registration
+      get "/test-stk-push", MPesaAdminController, :test_stk_push_form
+      post "/test-stk-push", MPesaAdminController, :test_stk_push
+      post "/register-urls", MPesaAdminController, :register_urls
+    end
+
     # Keep ash_admin at the end for backward compatibility
-    ash_admin "/ash"
+    ash_admin("/ash")
   end
 
   # Admin Bypass Routes (Direct Ecto operations)
   scope "/admin_bypass", ClinicproWeb do
     pipe_through :browser
-    
+
     # Admin dashboard
     get "/", AdminBypassController, :index
-    
+
     # Database seeding
     post "/seed", AdminBypassController, :seed_database
-    
+
     # Doctors management
     get "/doctors", AdminBypassController, :doctors
     get "/doctors/new", AdminBypassController, :new_doctor
@@ -92,7 +111,7 @@ defmodule ClinicproWeb.Router do
     get "/doctors/:id/edit", AdminBypassController, :edit_doctor
     put "/doctors/:id", AdminBypassController, :update_doctor
     delete "/doctors/:id", AdminBypassController, :delete_doctor
-    
+
     # Patients management
     get "/patients", AdminBypassController, :patients
     get "/patients/new", AdminBypassController, :new_patient
@@ -100,7 +119,7 @@ defmodule ClinicproWeb.Router do
     get "/patients/:id/edit", AdminBypassController, :edit_patient
     put "/patients/:id", AdminBypassController, :update_patient
     delete "/patients/:id", AdminBypassController, :delete_patient
-    
+
     # Appointments management
     get "/appointments", AdminBypassController, :appointments
     get "/appointments/new", AdminBypassController, :new_appointment
@@ -115,10 +134,10 @@ defmodule ClinicproWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    
+
     # Doctor Flow Bypass Routes
     doctor_flow_bypass_routes()
-    
+
     # Guest Booking Flow
     get "/booking", GuestBookingController, :index
     get "/booking/type", GuestBookingController, :type
@@ -130,18 +149,18 @@ defmodule ClinicproWeb.Router do
     get "/booking/profile", GuestBookingController, :profile
     post "/booking/profile", GuestBookingController, :profile_submit
     get "/booking/complete", GuestBookingController, :complete
-    
+
     # Patient Flow
     get "/patient/receive-link/:token", PatientFlowController, :receive_link
     get "/patient/welcome", PatientFlowController, :welcome
     get "/patient/confirm-details", PatientFlowController, :confirm_details
     post "/patient/confirm-details", PatientFlowController, :submit_confirmation
     get "/patient/booking-confirmation", PatientFlowController, :booking_confirmation
-    
+
     # Patient Medical Records
     get "/patient/medical-records", PatientFlowController.MedicalRecords, :index
     get "/patient/medical-records/:id", PatientFlowController.MedicalRecords, :show
-    
+
     # Patient Appointment Booking
     get "/patient/appointments", PatientFlowController.Appointments, :index
     get "/patient/appointments/new", PatientFlowController.Appointments, :new
@@ -152,7 +171,7 @@ defmodule ClinicproWeb.Router do
     post "/patient/appointments/confirm", PatientFlowController.Appointments, :confirm_submit
     get "/patient/appointments/:id", PatientFlowController.Appointments, :show
     post "/patient/appointments/:id/cancel", PatientFlowController.Appointments, :cancel
-    
+
     # Doctor Flow
     get "/doctor/appointments", DoctorFlowController, :list_appointments
     get "/doctor/appointment/:id", DoctorFlowController, :access_appointment
@@ -165,7 +184,7 @@ defmodule ClinicproWeb.Router do
     post "/doctor/prescriptions/:id/complete", DoctorFlowController, :prescriptions_submit
     get "/doctor/save-profile/:id", DoctorFlowController, :save_to_profile
     post "/doctor/save-profile/:id", DoctorFlowController, :submit_profile_save
-    
+
     # Search Flow
     get "/search", SearchController, :index
     post "/search", SearchController, :submit_query
@@ -178,10 +197,11 @@ defmodule ClinicproWeb.Router do
   # JSON:API routes
   scope "/api" do
     pipe_through :api
-    
-    forward "/json-api", AshJsonApi.Router, json_api_config: [
-      apis: [Clinicpro.Accounts, Clinicpro.Clinics]
-    ]
+
+    forward "/json-api", AshJsonApi.Router,
+      json_api_config: [
+        apis: [Clinicpro.Accounts, Clinicpro.Clinics]
+      ]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

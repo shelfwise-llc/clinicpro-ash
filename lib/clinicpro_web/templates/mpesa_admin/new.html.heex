@@ -1,0 +1,29 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>New M-Pesa Configuration</h1>
+    <%= link("Back to Overview",
+      to: Routes.mpesa_admin_path(@conn, :index, @clinic_id),
+      class: "btn btn-outline-secondary"
+    ) %>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="d-flex">
+      <div class="me-3">
+        <i class="bi bi-info-circle-fill fs-4"></i>
+      </div>
+      <div>
+        <strong>Setting up M-Pesa for <%= @clinic_name %></strong>
+        <p class="mb-0">
+          Enter your M-Pesa API credentials provided by Safaricom. For testing purposes,
+          you can use the sandbox environment. All sensitive information will be encrypted.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <%= render(
+    "form.html",
+    Map.put(assigns, :action, Routes.mpesa_admin_path(@conn, :create, @clinic_id))
+  ) %>
+</div>

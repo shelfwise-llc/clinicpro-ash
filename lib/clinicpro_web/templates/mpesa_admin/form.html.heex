@@ -1,0 +1,137 @@
+<%= form_for @changeset, @action, fn f -> %>
+  <%= if @changeset.action do %>
+    <div class="alert alert-danger">
+      <p>Oops, something went wrong! Please check the errors below.</p>
+    </div>
+  <% end %>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">M-Pesa API Credentials</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= label(f, :environment, class: "form-label") %>
+          <%= select(f, :environment, [sandbox: "sandbox", production: "production"],
+            class: "form-select",
+            required: true
+          ) %>
+          <%= error_tag(f, :environment) %>
+          <div class="form-text">
+            Select "sandbox" for testing or "production" for live transactions.
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <%= label(f, :shortcode, "M-Pesa Shortcode", class: "form-label") %>
+          <%= text_input(f, :shortcode, class: "form-control", required: true) %>
+          <%= error_tag(f, :shortcode) %>
+          <div class="form-text">Your M-Pesa paybill or till number.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= label(f, :c2b_shortcode, "C2B Shortcode (Optional)", class: "form-label") %>
+          <%= text_input(f, :c2b_shortcode, class: "form-control") %>
+          <%= error_tag(f, :c2b_shortcode) %>
+          <div class="form-text">
+            If your C2B shortcode is different from your main shortcode.
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <%= label(f, :passkey, "M-Pesa Passkey", class: "form-label") %>
+          <%= password_input(f, :passkey, class: "form-control", required: true) %>
+          <%= error_tag(f, :passkey) %>
+          <div class="form-text">The passkey provided by Safaricom for STK Push.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= label(f, :consumer_key, "Consumer Key", class: "form-label") %>
+          <%= password_input(f, :consumer_key, class: "form-control", required: true) %>
+          <%= error_tag(f, :consumer_key) %>
+          <div class="form-text">The consumer key from your Daraja app.</div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <%= label(f, :consumer_secret, "Consumer Secret", class: "form-label") %>
+          <%= password_input(f, :consumer_secret, class: "form-control", required: true) %>
+          <%= error_tag(f, :consumer_secret) %>
+          <div class="form-text">The consumer secret from your Daraja app.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Callback URLs</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-12 mb-3">
+          <%= label(f, :stk_callback_url, "STK Push Callback URL", class: "form-label") %>
+          <%= text_input(f, :stk_callback_url,
+            class: "form-control",
+            placeholder: "https://yourdomain.com/api/mpesa/callbacks/stk"
+          ) %>
+          <%= error_tag(f, :stk_callback_url) %>
+          <div class="form-text">
+            URL where M-Pesa will send STK Push transaction results. Leave blank to use system default.
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <%= label(f, :c2b_validation_url, "C2B Validation URL", class: "form-label") %>
+          <%= text_input(f, :c2b_validation_url,
+            class: "form-control",
+            placeholder: "https://yourdomain.com/api/mpesa/callbacks/c2b/validation"
+          ) %>
+          <%= error_tag(f, :c2b_validation_url) %>
+          <div class="form-text">
+            URL for validating C2B transactions. Leave blank to use system default.
+          </div>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <%= label(f, :c2b_confirmation_url, "C2B Confirmation URL", class: "form-label") %>
+          <%= text_input(f, :c2b_confirmation_url,
+            class: "form-control",
+            placeholder: "https://yourdomain.com/api/mpesa/callbacks/c2b/confirmation"
+          ) %>
+          <%= error_tag(f, :c2b_confirmation_url) %>
+          <div class="form-text">
+            URL for confirming C2B transactions. Leave blank to use system default.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Configuration Status</h5>
+    </div>
+    <div class="card-body">
+      <div class="form-check form-switch">
+        <%= checkbox(f, :active, class: "form-check-input") %>
+        <%= label(f, :active, "Active", class: "form-check-label") %>
+        <div class="form-text">Enable or disable this M-Pesa configuration.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-between">
+    <%= link("Cancel",
+      to: Routes.mpesa_admin_path(@conn, :index, @clinic_id),
+      class: "btn btn-secondary"
+    ) %>
+    <%= submit("Save Configuration", class: "btn btn-primary") %>
+  </div>
+<% end %>

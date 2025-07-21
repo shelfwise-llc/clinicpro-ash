@@ -1,0 +1,110 @@
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Test STK Push</h1>
+    <%= link "Back to Configuration", to: Routes.mpesa_admin_path(@conn, :index, @clinic_id), class: "btn btn-outline-secondary" %>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="d-flex">
+      <div class="me-3">
+        <i class="bi bi-info-circle-fill fs-4"></i>
+      </div>
+      <div>
+        <strong>Testing M-Pesa STK Push for <%= @clinic_name %></strong>
+        <p class="mb-0">
+          This form allows you to test the M-Pesa STK Push functionality. A payment prompt will be sent to the phone number you provide.
+          <%= if @config.environment == "sandbox" do %>
+            <strong>Note:</strong> You are in sandbox mode. No real money will be deducted.
+          <% else %>
+            <strong>Warning:</strong> You are in production mode. Real money will be deducted from the phone number provided.
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">STK Push Test Parameters</h5>
+    </div>
+    <div class="card-body">
+      <%= form_for @conn, Routes.mpesa_admin_path(@conn, :test_stk_push, @clinic_id), [as: :stk_push], fn f -> %>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= label f, :phone, "Phone Number", class: "form-label" %>
+            <%= text_input f, :phone, class: "form-control", placeholder: "254712345678", required: true %>
+            <div class="form-text">Enter the phone number in international format (e.g., 254712345678).</div>
+          </div>
+
+          <div class="col-md-6">
+            <%= label f, :amount, "Amount (KES)", class: "form-label" %>
+            <%= number_input f, :amount, class: "form-control", min: "1", step: "1", value: "1", required: true %>
+            <div class="form-text">
+              <%= if @config.environment == "sandbox" do %>
+                For sandbox testing, use small amounts like 1 KES.
+              <% else %>
+                Minimum amount is 1 KES.
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= label f, :reference, "Reference", class: "form-label" %>
+            <%= text_input f, :reference, class: "form-control", placeholder: "Test Payment", value: "Test Payment" %>
+            <div class="form-text">A reference for this transaction.</div>
+          </div>
+
+          <div class="col-md-6">
+            <%= label f, :description, "Description", class: "form-label" %>
+            <%= text_input f, :description, class: "form-control", placeholder: "Test STK Push", value: "Test STK Push" %>
+            <div class="form-text">Description that appears on the STK prompt.</div>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <div>
+            <span class="badge <%= if @config.environment == "sandbox", do: "bg-info", else: "bg-danger" %>">
+              <%= String.upcase(@config.environment) %> MODE
+            </span>
+            <span class="ms-2">Using shortcode: <%= @config.shortcode %></span>
+          </div>
+
+          <div>
+            <%= submit "Send STK Push", class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="mb-0">Testing Guidelines</h5>
+    </div>
+    <div class="card-body">
+      <h6>Sandbox Testing</h6>
+      <ul>
+        <li>In sandbox mode, use the test phone numbers provided by Safaricom (e.g., 254708374149).</li>
+        <li>No real money will be deducted in sandbox mode.</li>
+        <li>Sandbox responses are simulated and may not reflect actual transaction behavior.</li>
+      </ul>
+
+      <h6>Production Testing</h6>
+      <ul>
+        <li>In production mode, real money will be deducted from the phone number provided.</li>
+        <li>The user will receive an actual STK push notification on their phone.</li>
+        <li>The transaction will be processed by M-Pesa and reflected in your M-Pesa account.</li>
+      </ul>
+
+      <h6>Troubleshooting</h6>
+      <ul>
+        <li>Ensure the phone number is in the correct format (254XXXXXXXXX).</li>
+        <li>Verify that the phone number has sufficient funds.</li>
+        <li>Check that the M-Pesa configuration is correct and active.</li>
+        <li>If the STK push fails, check the transaction details for error codes and descriptions.</li>
+      </ul>
+    </div>
+  </div>
+</div>

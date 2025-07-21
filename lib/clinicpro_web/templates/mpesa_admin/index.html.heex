@@ -1,0 +1,213 @@
+<div class="container py-4">
+  <h1 class="mb-4">M-Pesa Configuration</h1>
+
+  <%= if @config do %>
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3 text-center">
+                <h6 class="text-muted">Total Transactions</h6>
+                <h3 class="mb-0"><%= @stats.total_count %></h3>
+              </div>
+              <div class="col-md-3 text-center">
+                <h6 class="text-muted">Completed</h6>
+                <h3 class="mb-0 text-success"><%= @stats.completed_count %></h3>
+                <small><%= @stats.completed_percentage %>% of total</small>
+              </div>
+              <div class="col-md-3 text-center">
+                <h6 class="text-muted">Pending</h6>
+                <h3 class="mb-0 text-warning"><%= @stats.pending_count %></h3>
+                <small><%= @stats.pending_percentage %>% of total</small>
+              </div>
+              <div class="col-md-3 text-center">
+                <h6 class="text-muted">Total Amount</h6>
+                <h3 class="mb-0 text-primary"><%= format_amount(@stats.total_amount) %></h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Configuration Details</h5>
+          <%= if @config do %>
+            <%= link "Edit", to: Routes.mpesa_admin_path(@conn, :edit, @clinic_id, @config.id), class: "btn btn-sm btn-primary" %>
+          <% else %>
+            <%= link "Create New", to: Routes.mpesa_admin_path(@conn, :new, @clinic_id), class: "btn btn-sm btn-success" %>
+          <% end %>
+        </div>
+        <div class="card-body">
+          <%= if @config do %>
+            <table class="table">
+              <tbody>
+                <tr>
+                  <th scope="row" style="width: 30%">Environment</th>
+                  <td><span class="badge <%= environment_class(@config.environment) %>"><%= String.capitalize(@config.environment) %></span></td>
+                </tr>
+                <tr>
+                  <th scope="row">Consumer Key</th>
+                  <td><%= mask_sensitive(@config.consumer_key) %></td>
+                </tr>
+                <tr>
+                  <th scope="row">Consumer Secret</th>
+                  <td><%= mask_sensitive(@config.consumer_secret) %></td>
+                </tr>
+                <tr>
+                  <th scope="row">Passkey</th>
+                  <td><%= mask_sensitive(@config.passkey) %></td>
+                </tr>
+                <tr>
+                  <th scope="row">Shortcode</th>
+                  <td><%= @config.shortcode %></td>
+                </tr>
+                <tr>
+                  <th scope="row">C2B Shortcode</th>
+                  <td><%= @config.c2b_shortcode || @config.shortcode %></td>
+                </tr>
+                <tr>
+                  <th scope="row">STK Callback URL</th>
+                  <td><%= @config.stk_callback_url || "Using system default" %></td>
+                </tr>
+                <tr>
+                  <th scope="row">C2B Validation URL</th>
+                  <td><%= @config.c2b_validation_url || "Using system default" %></td>
+                </tr>
+                <tr>
+                  <th scope="row">C2B Confirmation URL</th>
+                  <td><%= @config.c2b_confirmation_url || "Using system default" %></td>
+                </tr>
+                <tr>
+                  <th scope="row">Status</th>
+                  <td>
+                    <span class="badge <%= if @config.active, do: "bg-success", else: "bg-secondary" %>">
+                      <%= if @config.active, do: "Active", else: "Inactive" %>
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Last Updated</th>
+                  <td><%= format_datetime(@config.updated_at) %></td>
+                </tr>
+              </tbody>
+            </table>
+          <% else %>
+            <div class="alert alert-info">
+              <div class="d-flex">
+                <div class="me-3">
+                  <i class="bi bi-info-circle-fill fs-4"></i>
+                </div>
+                <div>
+                  <strong>No M-Pesa Configuration Found</strong>
+                  <p class="mb-0">
+                    To enable M-Pesa payments for this clinic, you need to set up the integration with Safaricom's
+                    Daraja API. Click "Create New" to get started.
+                  </p>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Recent Transactions</h5>
+          <%= link "View All", to: Routes.mpesa_admin_path(@conn, :transactions, @clinic_id), class: "btn btn-sm btn-outline-primary" %>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Phone</th>
+                  <th>Amount</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= if Enum.empty?(@recent_transactions) do %>
+                  <tr>
+                    <td colspan="7" class="text-center py-4">
+                      <p class="text-muted mb-0">No transactions found.</p>
+                    </td>
+                  </tr>
+                <% else %>
+                  <%= for transaction <- @recent_transactions do %>
+                    <tr>
+                      <td><%= transaction.reference %></td>
+                      <td><%= format_phone(transaction.phone) %></td>
+                      <td><%= format_amount(transaction.amount) %></td>
+                      <td><span class="badge bg-info"><%= format_type(transaction.type) %></span></td>
+                      <td><span class="badge <%= status_class(transaction.status) %>"><%= format_status(transaction.status) %></span></td>
+                      <td><%= format_datetime(transaction.transaction_date || transaction.inserted_at) %></td>
+                      <td>
+                        <%= link "View", to: Routes.mpesa_admin_path(@conn, :transaction_details, @clinic_id, transaction.id), class: "btn btn-sm btn-outline-primary" %>
+                      </td>
+                    </tr>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">M-Pesa Actions</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Register C2B URLs</h5>
+                  <p class="card-text">Register your validation and confirmation URLs with M-Pesa.</p>
+                  <%= if @config && @config.active do %>
+                    <%= link "Register URLs", to: Routes.mpesa_admin_path(@conn, :register_urls, @clinic_id), method: :post, class: "btn btn-primary" %>
+                  <% else %>
+                    <button class="btn btn-primary" disabled>Register URLs</button>
+                    <div class="form-text mt-2">Requires active M-Pesa configuration</div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Test STK Push</h5>
+                  <p class="card-text">Send a test STK Push request to verify your configuration.</p>
+                  <%= if @config && @config.active do %>
+                    <%= link "Test STK Push", to: Routes.mpesa_admin_path(@conn, :test_stk_push_form, @clinic_id), class: "btn btn-primary" %>
+                  <% else %>
+                    <button class="btn btn-primary" disabled>Test STK Push</button>
+                    <div class="form-text mt-2">Requires active M-Pesa configuration</div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
