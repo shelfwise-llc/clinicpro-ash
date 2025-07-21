@@ -20,6 +20,9 @@ defmodule Clinicpro.Application do
       ClinicproWeb.Endpoint
     ]
 
+    # Initialize OTP rate limiter
+    Clinicpro.Auth.OTPRateLimiter.init()
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Clinicpro.Supervisor]

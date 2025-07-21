@@ -13,7 +13,7 @@ defmodule Clinicpro.Auth.OTPSecret do
 
     # Multi-tenant fields
     belongs_to :patient, Clinicpro.Patient
-    belongs_to :clinic, Clinicpro.Clinic
+    field :clinic_identifier, :string
 
     timestamps()
   end
@@ -23,16 +23,15 @@ defmodule Clinicpro.Auth.OTPSecret do
   """
   def changeset(otp_secret, attrs) do
     otp_secret
-    |> cast(attrs, [:secret, :active, :last_used_at, :expires_at, :patient_id, :clinic_id])
-    |> validate_required([:secret, :patient_id, :clinic_id])
+    |> cast(attrs, [:secret, :active, :last_used_at, :expires_at, :patient_id, :clinic_identifier])
+    |> validate_required([:secret, :patient_id, :clinic_identifier])
     |> foreign_key_constraint(:patient_id)
-    |> foreign_key_constraint(:clinic_id)
   end
 
   @doc """
   Generates a new OTP secret for a patient in a specific clinic.
   """
-  def generate_for_patient(patient_id, clinic_id) do
+  def generate_for_patient(patient_id, clinic_identifier) do
     # Generate a random secret
     secret = :crypto.strong_rand_bytes(20) |> Base.encode32()
 
@@ -46,7 +45,7 @@ defmodule Clinicpro.Auth.OTPSecret do
       active: true,
       expires_at: expires_at,
       patient_id: patient_id,
-      clinic_id: clinic_id
+      clinic_identifier: clinic_identifier
     })
     |> Repo.insert()
   end
@@ -54,12 +53,12 @@ defmodule Clinicpro.Auth.OTPSecret do
   @doc """
   Deactivates all existing OTP secrets for a patient in a specific clinic.
   """
-  def deactivate_for_patient(patient_id, clinic_id) do
+  def deactivate_for_patient(patient_id, clinic_identifier) do
     import Ecto.Query
 
     from(s in __MODULE__,
       where: s.patient_id == ^patient_id and
-             s.clinic_id == ^clinic_id and
+             s.clinic_identifier == ^clinic_identifier and
              s.active == true
     )
     |> Repo.update_all(set: [active: false])
@@ -68,12 +67,12 @@ defmodule Clinicpro.Auth.OTPSecret do
   @doc """
   Finds an active OTP secret for a patient in a specific clinic.
   """
-  def find_active_for_patient(patient_id, clinic_id) do
+  def find_active_for_patient(patient_id, clinic_identifier) do
     import Ecto.Query
 
     from(s in __MODULE__,
       where: s.patient_id == ^patient_id and
-             s.clinic_id == ^clinic_id and
+             s.clinic_identifier == ^clinic_identifier and
              s.active == true and
              (is_nil(s.expires_at) or s.expires_at > ^DateTime.utc_now())
     )

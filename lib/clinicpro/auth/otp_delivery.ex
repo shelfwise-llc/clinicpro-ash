@@ -12,15 +12,14 @@ defmodule Clinicpro.Auth.OTPDelivery do
   Sends an OTP to a patient via their preferred contact method (SMS or email).
   Returns {:ok, contact_method} on success or {:error, reason} on failure.
   """
-  def send_otp(patient_id, clinic_id, otp) do
+  def send_otp(patient_id, clinic_identifier, otp) do
     with {:ok, patient} <- get_patient(patient_id),
-         {:ok, clinic} <- get_clinic(clinic_id),
          {:ok, delivery_method} <- determine_delivery_method(patient),
-         {:ok, config} <- get_delivery_config(clinic, delivery_method) do
+         {:ok, config} <- get_delivery_config(clinic_identifier, delivery_method) do
 
       case delivery_method do
-        :sms -> send_sms(patient, clinic, otp, config)
-        :email -> send_email(patient, clinic, otp, config)
+        :sms -> send_sms(patient, clinic_identifier, otp, config)
+        :email -> send_email(patient, clinic_identifier, otp, config)
       end
     else
       error -> error
@@ -46,23 +45,23 @@ defmodule Clinicpro.Auth.OTPDelivery do
   Gets the delivery configuration for a specific clinic and method.
   This follows the same pattern as the M-Pesa configuration management.
   """
-  def get_delivery_config(clinic, method) do
+  def get_delivery_config(clinic_identifier, method) do
     # In a real implementation, this would fetch configuration from the database
-    # For now, we'll return a mock configuration based on the clinic
+    # For now, we'll return a mock configuration based on the clinic identifier
     config = case method do
       :sms ->
         %{
-          provider: get_sms_provider(clinic),
-          sender_id: clinic.name || "ClinicPro",
-          api_key: get_sms_api_key(clinic),
+          provider: get_sms_provider(clinic_identifier),
+          sender_id: clinic_identifier || "ClinicPro",
+          api_key: get_sms_api_key(clinic_identifier),
           enabled: true
         }
 
       :email ->
         %{
-          provider: get_email_provider(clinic),
-          from_email: "noreply@#{String.downcase(String.replace(clinic.name || "clinicpro", " ", ""))}.com",
-          api_key: get_email_api_key(clinic),
+          provider: get_email_provider(clinic_identifier),
+          from_email: "noreply@#{String.downcase(String.replace(clinic_identifier || "clinicpro", " ", ""))}.com",
+          api_key: get_email_api_key(clinic_identifier),
           enabled: true
         }
     end
@@ -79,12 +78,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
     end
   end
 
-  defp get_clinic(clinic_id) do
-    case Repo.get(Clinic, clinic_id) do
-      nil -> {:error, :clinic_not_found}
-      clinic -> {:ok, clinic}
-    end
-  end
+  # No longer need the get_clinic function since we're using clinic_identifier string
 
   defp is_valid_phone?(nil), do: false
   defp is_valid_phone?(""), do: false
@@ -100,10 +94,10 @@ defmodule Clinicpro.Auth.OTPDelivery do
     String.contains?(email, "@") && String.contains?(email, ".")
   end
 
-  defp send_sms(patient, clinic, otp, config) do
+  defp send_sms(patient, clinic_identifier, otp, config) do
     # In production, integrate with actual SMS provider like Twilio, AfricasTalking, etc.
     # For now, we'll just log the message
-    message = "Your #{clinic.name} verification code is: #{otp}"
+    message = "Your #{clinic_identifier} verification code is: #{otp}"
 
     # Log the SMS for development
     IO.puts("DEVELOPMENT: SMS to #{patient.phone_number} via #{config.provider}: #{message}")
@@ -121,19 +115,19 @@ defmodule Clinicpro.Auth.OTPDelivery do
     {:ok, %{method: :sms, contact: patient.phone_number}}
   end
 
-  defp send_email(patient, clinic, otp, config) do
+  defp send_email(patient, clinic_identifier, otp, config) do
     # In production, integrate with actual email provider like SendGrid, Mailgun, etc.
     # For now, we'll just log the message
-    subject = "Your #{clinic.name} Verification Code"
+    subject = "Your #{clinic_identifier} Verification Code"
     body = """
     Hello #{patient.first_name || "Patient"},
 
-    Your verification code for #{clinic.name} is: #{otp}
+    Your verification code for #{clinic_identifier} is: #{otp}
 
     This code will expire in 5 minutes.
 
     Thank you,
-    #{clinic.name} Team
+    #{clinic_identifier} Team
     """
 
     # Log the email for development
@@ -159,7 +153,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
   # These functions would typically fetch configuration from a database
   # Similar to how the M-Pesa integration handles configuration
 
-  defp get_sms_provider(clinic) do
+  defp get_sms_provider(_clinic) do
     # This would be fetched from the clinic's configuration
     # For now, we'll return a default provider
     "AfricasTalking"
@@ -171,7 +165,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
     "sms_#{clinic.id}_key"
   end
 
-  defp get_email_provider(clinic) do
+  defp get_email_provider(_clinic) do
     # This would be fetched from the clinic's configuration
     # For now, we'll return a default provider
     "SendGrid"

@@ -7,8 +7,6 @@ defmodule ClinicproWeb.Plugs.EnsurePatientAuth do
   import Plug.Conn
   import Phoenix.Controller
 
-  alias ClinicproWeb.Router.Helpers, as: Routes
-
   def init(opts), do: opts
 
   def call(conn, _opts) do
@@ -23,7 +21,7 @@ defmodule ClinicproWeb.Plugs.EnsurePatientAuth do
       # Patient is not authenticated
       conn
       |> put_flash(:error, "You must be logged in to access this page")
-      |> redirect(to: ~p"/")
+      |> redirect(to: "/")
       |> halt()
     end
   end

@@ -19,16 +19,15 @@ defmodule Clinicpro.Auth.OTP do
   Generates a new OTP for a patient in a specific clinic.
   Returns a tuple with the OTP and the secret.
   """
-  def generate_otp(patient_id, clinic_id) do
-    # First check if the patient and clinic exist and are valid
-    with {:ok, _patient} <- get_patient(patient_id),
-         {:ok, _clinic} <- get_clinic(clinic_id) do
+  def generate_otp(patient_id, clinic_identifier) do
+    # First check if the patient exists and is valid
+    with {:ok, _patient} <- get_patient(patient_id) do
 
       # Deactivate any existing OTP secrets for this patient in this clinic
-      OTPSecret.deactivate_for_patient(patient_id, clinic_id)
+      OTPSecret.deactivate_for_patient(patient_id, clinic_identifier)
 
       # Generate a new OTP secret
-      case OTPSecret.generate_for_patient(patient_id, clinic_id) do
+      case OTPSecret.generate_for_patient(patient_id, clinic_identifier) do
         {:ok, otp_secret} ->
           # Generate the current OTP using NimbleTOTP
           otp = NimbleTOTP.verification_code(otp_secret.secret)
@@ -43,9 +42,9 @@ defmodule Clinicpro.Auth.OTP do
   Validates an OTP for a patient in a specific clinic.
   Returns :ok if valid, {:error, reason} otherwise.
   """
-  def validate_otp(patient_id, clinic_id, otp) do
+  def validate_otp(patient_id, clinic_identifier, otp) do
     # Find active OTP secret for this patient in this clinic
-    case OTPSecret.find_active_for_patient(patient_id, clinic_id) do
+    case OTPSecret.find_active_for_patient(patient_id, clinic_identifier) do
       nil ->
         {:error, :no_active_secret}
 
@@ -67,13 +66,12 @@ defmodule Clinicpro.Auth.OTP do
   @doc """
   Generates a QR code URL for setting up OTP in authenticator apps.
   """
-  def generate_qr_code_url(patient_id, clinic_id) do
+  def generate_qr_code_url(patient_id, clinic_identifier) do
     with {:ok, patient} <- get_patient(patient_id),
-         {:ok, clinic} <- get_clinic(clinic_id),
-         otp_secret when not is_nil(otp_secret) <- OTPSecret.find_active_for_patient(patient_id, clinic_id) do
+         otp_secret when not is_nil(otp_secret) <- OTPSecret.find_active_for_patient(patient_id, clinic_identifier) do
 
       # Create a provisioning URI for authenticator apps
-      issuer = "ClinicPro-#{clinic.name}"
+      issuer = "ClinicPro-#{clinic_identifier}"
       account = "#{patient.email || patient.phone_number}"
 
       NimbleTOTP.otpauth_uri(issuer, account, otp_secret.secret, period: @otp_validity_period)
@@ -87,11 +85,11 @@ defmodule Clinicpro.Auth.OTP do
   Sends an OTP to a patient via SMS or email using the OTPDelivery module.
   Returns {:ok, %{otp: otp, contact: contact}} on success or {:error, reason} on failure.
   """
-  def send_otp(patient_id, clinic_id) do
-    case generate_otp(patient_id, clinic_id) do
+  def send_otp(patient_id, clinic_identifier) do
+    case generate_otp(patient_id, clinic_identifier) do
       {:ok, %{otp: otp, secret: _secret}} ->
         # Use the OTPDelivery module to send the OTP
-        case OTPDelivery.send_otp(patient_id, clinic_id, otp) do
+        case OTPDelivery.send_otp(patient_id, clinic_identifier, otp) do
           {:ok, %{method: method, contact: contact}} ->
             # Return the OTP and contact info for development purposes
             # In production, you would not expose the OTP in the response
@@ -113,10 +111,5 @@ defmodule Clinicpro.Auth.OTP do
     end
   end
 
-  defp get_clinic(clinic_id) do
-    case Repo.get(Clinic, clinic_id) do
-      nil -> {:error, :clinic_not_found}
-      clinic -> {:ok, clinic}
-    end
-  end
+  # No longer need the get_clinic function since we're using clinic_identifier string
 end

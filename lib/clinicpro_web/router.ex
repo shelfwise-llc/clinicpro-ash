@@ -22,6 +22,10 @@ defmodule ClinicproWeb.Router do
     # plug :load_from_bearer
   end
 
+  pipeline :patient_auth do
+    plug ClinicproWeb.Plugs.EnsurePatientAuth
+  end
+
   # Authentication routes - temporarily disabled
   # scope "/auth" do
   #   pipe_through :browser
@@ -176,8 +180,6 @@ defmodule ClinicproWeb.Router do
 
     # Public Patient Authentication Routes
     scope "/patient", ClinicproWeb do
-      pipe_through :browser
-
       # Patient Authentication with OTP
       get "/request-otp", PatientAuthController, :request_otp
       post "/send-otp", PatientAuthController, :send_otp
@@ -188,7 +190,7 @@ defmodule ClinicproWeb.Router do
 
     # Protected Patient Routes
     scope "/patient", ClinicproWeb do
-      pipe_through [:browser, :patient_auth]
+      pipe_through [:patient_auth]
 
       # Patient Dashboard
       get "/dashboard", PatientAuthController, :dashboard
