@@ -12,6 +12,8 @@ defmodule Clinicpro.AdminBypass.Appointment do
     field :reason, :string
     field :diagnosis, :string
     field :prescription, :string
+    field :appointment_type, :string, default: "onsite" # onsite or virtual
+    field :meeting_link, :string # For virtual appointments
 
     belongs_to :doctor, Clinicpro.AdminBypass.Doctor
     belongs_to :patient, Clinicpro.AdminBypass.Patient
@@ -22,8 +24,9 @@ defmodule Clinicpro.AdminBypass.Appointment do
   @doc false
   def changeset(appointment, attrs) do
     appointment
-    |> cast(attrs, [:doctor_id, :patient_id, :date, :start_time, :end_time, :status, :notes, :reason, :diagnosis, :prescription])
+    |> cast(attrs, [:doctor_id, :patient_id, :date, :start_time, :end_time, :status, :notes, :reason, :diagnosis, :prescription, :appointment_type, :meeting_link])
     |> validate_required([:doctor_id, :patient_id, :date, :start_time, :end_time])
+    |> validate_inclusion(:appointment_type, ["onsite", "virtual"], message: "must be either onsite or virtual")
     |> foreign_key_constraint(:doctor_id)
     |> foreign_key_constraint(:patient_id)
   end

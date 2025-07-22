@@ -38,6 +38,32 @@ defmodule Clinicpro.MPesa.Transaction do
   end
 
   @doc """
+  Validates transaction data without creating a transaction.
+  
+  ## Parameters
+  
+  - attrs: Transaction attributes to validate
+  
+  ## Returns
+  
+  - {:ok, changeset} - Data is valid
+  - {:error, changeset} - Data is invalid with validation errors
+  """
+  def validate_transaction_data(attrs) do
+    changeset = %__MODULE__{}
+                |> cast(attrs, [:clinic_id, :phone, :amount, :reference, :description, :type])
+                |> validate_required([:clinic_id, :phone, :amount, :reference, :type])
+                |> validate_inclusion(:type, ["stk_push", "c2b"])
+                |> validate_number(:amount, greater_than: 0)
+    
+    if changeset.valid? do
+      {:ok, changeset}
+    else
+      {:error, changeset}
+    end
+  end
+
+  @doc """
   Creates a pending transaction.
 
   ## Parameters
@@ -50,13 +76,14 @@ defmodule Clinicpro.MPesa.Transaction do
   - {:error, changeset} on validation failure
   """
   def create_pending(attrs) do
-    %__MODULE__{}
-    |> cast(attrs, [:clinic_id, :phone, :amount, :reference, :description, :type])
-    |> validate_required([:clinic_id, :phone, :amount, :reference, :type])
-    |> validate_inclusion(:type, ["stk_push", "c2b"])
-    |> validate_number(:amount, greater_than: 0)
-    |> put_change(:status, "pending")
-    |> Repo.insert()
+    case validate_transaction_data(attrs) do
+      {:ok, changeset} ->
+        changeset
+        |> put_change(:status, "pending")
+        |> Repo.insert()
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 
   @doc """
@@ -239,6 +266,29 @@ defmodule Clinicpro.MPesa.Transaction do
   def list_by_status(clinic_id, status, page \\ 1, per_page \\ 20) do
     from(t in __MODULE__,
       where: t.clinic_id == ^clinic_id and t.status == ^status,
+      order_by: [desc: t.inserted_at],
+      limit: ^per_page,
+      offset: ^((page - 1) * per_page)
+    )
+    |> Repo.all()
+  end
+
+  @doc """
+  Lists all transactions for a specific clinic.
+
+  ## Parameters
+
+  - clinic_id: The ID of the clinic to list transactions for
+  - page: Page number (default: 1)
+  - per_page: Number of transactions per page (default: 20)
+
+  ## Returns
+
+  - List of all transactions for the clinic
+  """
+  def list_by_clinic(clinic_id, page \\ 1, per_page \\ 20) do
+    from(t in __MODULE__,
+      where: t.clinic_id == ^clinic_id,
       order_by: [desc: t.inserted_at],
       limit: ^per_page,
       offset: ^((page - 1) * per_page)

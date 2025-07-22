@@ -19,7 +19,10 @@ defmodule Clinicpro.MockAsh.AppointmentsBehaviour do
   @callback get_appointment(String.t()) :: map()
   @callback list_appointments(String.t()) :: [map()]
   @callback create_appointment(map()) :: {:ok, map()} | {:error, any()}
+  @callback update_appointment(map(), map()) :: {:ok, map()} | {:error, any()}
   @callback update_appointment(String.t(), map()) :: {:ok, map()} | {:error, any()}
+  @callback delete_appointment(String.t()) :: {:ok, map()} | {:error, any()}
+  @callback get_appointment!(String.t()) :: map() | no_return()
 end
 
 defmodule Clinicpro.MockAsh.PatientsBehaviour do

@@ -349,6 +349,46 @@ ALTER SEQUENCE public.mpesa_transactions_id_seq OWNED BY public.mpesa_transactio
 
 
 --
+-- Name: otp_configs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.otp_configs (
+    id uuid NOT NULL,
+    clinic_identifier character varying(255) NOT NULL,
+    sms_provider character varying(255),
+    sms_api_key character varying(255),
+    sms_sender_id character varying(255),
+    sms_enabled boolean DEFAULT true,
+    email_provider character varying(255),
+    email_api_key character varying(255),
+    email_from_address character varying(255),
+    email_enabled boolean DEFAULT true,
+    preferred_method character varying(255) DEFAULT 'sms'::character varying,
+    otp_expiry_minutes integer DEFAULT 5,
+    max_attempts_per_hour integer DEFAULT 5,
+    lockout_minutes integer DEFAULT 30,
+    inserted_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: otp_secrets; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.otp_secrets (
+    id uuid NOT NULL,
+    secret character varying(255) NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    expires_at timestamp(0) without time zone,
+    patient_id bigint NOT NULL,
+    clinic_identifier character varying(255) NOT NULL,
+    inserted_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
 -- Name: patients; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -550,6 +590,22 @@ ALTER TABLE ONLY public.mpesa_configs
 
 ALTER TABLE ONLY public.mpesa_transactions
     ADD CONSTRAINT mpesa_transactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: otp_configs otp_configs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.otp_configs
+    ADD CONSTRAINT otp_configs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: otp_secrets otp_secrets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.otp_secrets
+    ADD CONSTRAINT otp_secrets_pkey PRIMARY KEY (id);
 
 
 --
@@ -772,6 +828,34 @@ CREATE INDEX mpesa_transactions_status_index ON public.mpesa_transactions USING 
 
 
 --
+-- Name: otp_configs_clinic_identifier_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX otp_configs_clinic_identifier_index ON public.otp_configs USING btree (clinic_identifier);
+
+
+--
+-- Name: otp_secrets_active_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX otp_secrets_active_index ON public.otp_secrets USING btree (active);
+
+
+--
+-- Name: otp_secrets_clinic_identifier_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX otp_secrets_clinic_identifier_index ON public.otp_secrets USING btree (clinic_identifier);
+
+
+--
+-- Name: otp_secrets_patient_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX otp_secrets_patient_id_index ON public.otp_secrets USING btree (patient_id);
+
+
+--
 -- Name: patients_email_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -851,6 +935,14 @@ ALTER TABLE ONLY public.mpesa_transactions
 
 
 --
+-- Name: otp_secrets otp_secrets_patient_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.otp_secrets
+    ADD CONSTRAINT otp_secrets_patient_id_fkey FOREIGN KEY (patient_id) REFERENCES public.patients(id) ON DELETE CASCADE;
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -862,3 +954,5 @@ INSERT INTO public."schema_migrations" (version) VALUES (20250720185124);
 INSERT INTO public."schema_migrations" (version) VALUES (20250720230745);
 INSERT INTO public."schema_migrations" (version) VALUES (20250721102600);
 INSERT INTO public."schema_migrations" (version) VALUES (20250721183600);
+INSERT INTO public."schema_migrations" (version) VALUES (20250722000000);
+INSERT INTO public."schema_migrations" (version) VALUES (20250722100000);

@@ -1,0 +1,129 @@
+defmodule ClinicproWeb.PaymentController do
+  use ClinicproWeb, :controller
+  
+  alias Clinicpro.MPesa
+  alias Clinicpro.Invoices
+  alias Clinicpro.Appointments
+  
+  @doc """
+  Show payment details for an invoice.
+  """
+  def show(conn, %{"invoice_id" => invoice_id}) do
+    case Invoices.get_invoice(invoice_id) do
+      nil ->
+        conn
+        |> put_flash(:error, "Invoice not found.")
+        |> redirect(to: ~p"/patient/dashboard")
+        
+      invoice ->
+        render(conn, :show, invoice: invoice)
+    end
+  end
+  
+  @doc """
+  Initiate M-Pesa STK push payment for an invoice.
+  """
+  def initiate_mpesa(conn, %{"invoice_id" => invoice_id, "phone" => phone}) do
+    # Get the current patient from the session
+    patient = conn.assigns.current_patient
+    
+    case Invoices.get_invoice(invoice_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{success: false, message: "Invoice not found"})
+        
+      invoice ->
+        # Get the clinic ID from the invoice
+        clinic_id = invoice.clinic_id
+        
+        # Format phone number to ensure it's in the correct format (254XXXXXXXXX)
+        formatted_phone = format_phone_number(phone)
+        
+        # Prepare transaction data
+        transaction_data = %{
+          clinic_id: clinic_id,
+          phone: formatted_phone,
+          amount: invoice.amount,
+          reference: invoice.reference_number,
+          description: "Payment for #{invoice.description}",
+          type: "stk_push",
+          metadata: %{
+            "invoice_id" => invoice.id,
+            "patient_id" => patient.id,
+            "appointment_type" => get_appointment_type(invoice.id)
+          }
+        }
+        
+        # Update invoice status to pending
+        {:ok, updated_invoice} = Invoices.update_invoice_status(invoice, "pending")
+        
+        # Initiate STK push
+        case MPesa.initiate_stk_push(clinic_id, formatted_phone, invoice.amount, 
+                                    invoice.reference_number, "Payment for #{invoice.description}") do
+          {:ok, transaction} ->
+            conn
+            |> put_status(:ok)
+            |> json(%{
+              success: true, 
+              message: "Payment initiated successfully",
+              transaction_id: transaction.id,
+              checkout_request_id: transaction.checkout_request_id
+            })
+            
+          {:error, reason} ->
+            # Revert invoice status back to unpaid if payment initiation fails
+            {:ok, _} = Invoices.update_invoice_status(updated_invoice, "unpaid")
+            
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{success: false, message: "Payment initiation failed: #{inspect(reason)}"})
+        end
+    end
+  end
+  
+  @doc """
+  Check the status of an M-Pesa transaction.
+  """
+  def check_status(conn, %{"transaction_id" => transaction_id}) do
+    case MPesa.get_transaction(transaction_id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{success: false, message: "Transaction not found"})
+        
+      transaction ->
+        conn
+        |> put_status(:ok)
+        |> json(%{
+          success: true,
+          status: transaction.status,
+          result_code: transaction.result_code,
+          result_desc: transaction.result_desc
+        })
+    end
+  end
+  
+  # Helper functions
+  
+  defp format_phone_number(phone) do
+    # Remove any non-digit characters
+    digits = String.replace(phone, ~r/\D/, "")
+    
+    # Ensure the number starts with 254 (Kenya country code)
+    cond do
+      String.starts_with?(digits, "254") -> digits
+      String.starts_with?(digits, "0") -> "254" <> String.slice(digits, 1..-1)
+      String.starts_with?(digits, "+254") -> String.slice(digits, 1..-1)
+      true -> "254" <> digits
+    end
+  end
+  
+  defp get_appointment_type(invoice_id) do
+    # Get the appointment associated with this invoice
+    case Appointments.get_appointment_by_invoice(invoice_id) do
+      nil -> "unknown"
+      appointment -> appointment.appointment_type || "onsite" # Default to onsite if not specified
+    end
+  end
+end

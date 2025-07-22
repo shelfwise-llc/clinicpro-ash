@@ -107,10 +107,16 @@ defmodule Clinicpro.MPesa.Config do
     }
   end
 
-  # Private functions
-
-  # Get config from environment variables
-  defp get_from_env do
+  @doc """
+  Gets M-Pesa configuration from environment variables.
+  Used as a fallback when clinic-specific configuration is not found.
+  
+  ## Returns
+  
+  - {:ok, config} - Configuration from environment variables
+  - {:error, :config_not_found} - Required environment variables not set
+  """
+  def get_from_env do
     # Check if required env vars are set
     case System.get_env("MPESA_CONSUMER_KEY") do
       nil ->

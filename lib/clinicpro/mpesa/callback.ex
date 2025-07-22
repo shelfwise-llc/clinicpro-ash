@@ -67,6 +67,12 @@ defmodule Clinicpro.MPesa.Callback do
 
           # Broadcast the event
           broadcast_transaction_update(updated_transaction)
+          
+          # Process invoice update if payment was successful
+          if status == "completed" do
+            # This will update the invoice and handle appointment-specific actions
+            Clinicpro.Invoices.process_completed_payment(updated_transaction)
+          end
 
           {:ok, updated_transaction}
 
@@ -156,6 +162,9 @@ defmodule Clinicpro.MPesa.Callback do
 
               # Broadcast the event
               broadcast_transaction_update(updated_transaction)
+              
+              # Try to find and update an invoice with this reference
+              Clinicpro.Invoices.process_completed_payment(updated_transaction)
 
               {:ok, updated_transaction}
 
@@ -176,6 +185,9 @@ defmodule Clinicpro.MPesa.Callback do
 
           # Broadcast the event
           broadcast_transaction_update(updated_transaction)
+          
+          # Process invoice update
+          Clinicpro.Invoices.process_completed_payment(updated_transaction)
 
           {:ok, updated_transaction}
       end

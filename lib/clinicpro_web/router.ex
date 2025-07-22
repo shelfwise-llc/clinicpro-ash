@@ -246,6 +246,33 @@ defmodule ClinicproWeb.Router do
     get "/search/detail/:id", SearchController, :detail
   end
 
+  # Patient-facing routes with versioning in path structure
+  scope "/q", ClinicproWeb do
+    pipe_through [:browser, :patient_auth]
+    
+    # Payment routes
+    get "/payment/:invoice_id", PaymentController, :show
+    post "/payment/mpesa/initiate", PaymentController, :initiate_mpesa
+    get "/payment/mpesa/status/:transaction_id", PaymentController, :check_status
+    
+    # Appointment routes with type differentiation
+    get "/appointment/:id", AppointmentController, :show
+    get "/appointment/virtual/:id", AppointmentController, :virtual_link
+    get "/appointment/onsite/:id", AppointmentController, :onsite_details
+  end
+
+  # M-Pesa callback routes - no authentication required for callbacks from Safaricom
+  scope "/api/mpesa/callbacks", ClinicproWeb do
+    pipe_through :api
+    
+    # STK Push callback
+    post "/stk", MPesaCallbackController, :stk_callback
+    
+    # C2B callbacks
+    post "/c2b/validation", MPesaCallbackController, :c2b_validation
+    post "/c2b/confirmation", MPesaCallbackController, :c2b_confirmation
+  end
+
   # JSON:API routes
   scope "/api" do
     pipe_through :api

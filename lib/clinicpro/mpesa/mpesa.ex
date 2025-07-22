@@ -34,15 +34,20 @@ defmodule Clinicpro.MPesa do
   - {:error, reason} on failure
   """
   def initiate_stk_push(clinic_id, phone, amount, reference, description) do
-    with {:ok, config} <- Config.get_for_clinic(clinic_id),
-         {:ok, transaction} <- Transaction.create_pending(%{
-           clinic_id: clinic_id,
-           phone: phone,
-           amount: amount,
-           reference: reference,
-           description: description,
-           type: "stk_push"
-         }),
+    # Prepare transaction data
+    transaction_data = %{
+      clinic_id: clinic_id,
+      phone: phone,
+      amount: amount,
+      reference: reference,
+      description: description,
+      type: "stk_push"
+    }
+    
+    # First validate the transaction data
+    with {:ok, _valid_changeset} <- Transaction.validate_transaction_data(transaction_data),
+         {:ok, config} <- Config.get_for_clinic(clinic_id),
+         {:ok, transaction} <- Transaction.create_pending(transaction_data),
          {:ok, response} <- STKPush.request(config, phone, amount, reference, description) do
 
       # Update transaction with M-Pesa request details
@@ -58,7 +63,7 @@ defmodule Clinicpro.MPesa do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         Logger.error("Invalid transaction data: #{inspect(changeset.errors)}")
-        {:error, :invalid_transaction_data}
+        {:error, :invalid_transaction_data, changeset}
 
       {:error, reason} ->
         Logger.error("M-Pesa STK push failed: #{inspect(reason)}")
@@ -172,7 +177,7 @@ defmodule Clinicpro.MPesa do
   - List of transactions
   """
   def list_transactions(clinic_id, page \\ 1, per_page \\ 20) do
-    Transaction.list_for_clinic(clinic_id, page, per_page)
+    Transaction.list_by_clinic(clinic_id, page, per_page)
   end
 
   @doc """
