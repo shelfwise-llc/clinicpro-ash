@@ -90,7 +90,14 @@ defmodule Clinicpro.MixProject do
       {:httpoison, "~> 2.0"},
 
       # OTP Authentication
-      {:nimble_totp, "~> 1.0"}
+      {:nimble_totp, "~> 1.0"},
+
+      # Google API Integration
+      {:google_api_calendar, "~> 0.26.0"},
+      {:goth, "~> 1.3"},
+
+      # HTTP Client for API Integration
+      {:oauth2, "~> 2.0"}
     ]
   end
 
@@ -107,12 +114,8 @@ defmodule Clinicpro.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind clinicpro", "esbuild clinicpro"],
-      "assets.deploy": [
-        "tailwind clinicpro --minify",
-        "esbuild clinicpro --minify",
-        "phx.digest"
-      ]
+      "assets.build": ["tailwind default", "esbuild default"],
+      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
     ]
   end
 end

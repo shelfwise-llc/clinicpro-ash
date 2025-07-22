@@ -64,7 +64,7 @@ While AshAuthentication issues are being resolved, you can use the bypass contro
    ```elixir
    # In lib/clinicpro_web/router.ex
    import ClinicproWeb.RouterBypass
-   
+
    # Then in the appropriate scope:
    doctor_flow_bypass_routes()
    ```
@@ -79,6 +79,51 @@ The project uses AshAuthentication with magic link strategy. The configuration a
 2. Magic link strategy configuration at the User resource level
 3. MagicLinkSender module implementing the required behavior
 4. Token configuration at the API level only
+
+## Test Organization
+
+The test files have been reorganized into a more structured directory layout:
+
+### Test Directory Structure
+
+```
+test/
+├── clinicpro/
+│   ├── mpesa/             # M-Pesa integration tests
+│   ├── admin_bypass/      # Admin bypass tests
+│   ├── auth/              # Authentication tests
+│   ├── workflow/          # Workflow tests
+│   └── integration/       # Integration tests
+│
+└── support/
+    ├── scripts/           # Test runner scripts
+    └── shell/             # Shell scripts for test setup
+```
+
+### Running Tests
+
+To run specific test groups, use the following scripts:
+
+- `mix run run_mpesa_tests.exs` - Run all M-Pesa tests
+- `mix run run_admin_bypass_tests.exs` - Run all admin bypass tests
+- `mix run run_workflow_tests.exs` - Run all workflow tests
+
+For more detailed information about the M-Pesa integration, see the [M-Pesa documentation](docs/mpesa/README.md).
+
+## M-Pesa and Virtual Meetings Integration
+
+The project includes a comprehensive integration between M-Pesa payment processing and virtual meeting generation with the following features:
+
+- **Multi-tenant architecture**: Each clinic has isolated configurations for M-Pesa and virtual meetings
+- **Real API integrations**: Support for Google Meet and Zoom with proper authentication
+- **Fallback mechanisms**: SimpleAdapter fallback for API failures
+- **Comprehensive testing**: Unit, integration, and real API tests
+
+For detailed information about this integration, see the following documentation:
+
+- [Integration Summary](docs/mpesa_virtual_meetings_integration_summary.md)
+- [Deployment Guide](docs/mpesa_virtual_meetings_deployment.md)
+- [Testing Checklist](docs/integration_testing_checklist.md)
 
 ## Learn More
 
