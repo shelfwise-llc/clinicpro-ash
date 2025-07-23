@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50 antialiased">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Patient Profile – ClinicPro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] } } } }
+  </script>
+</head>
+<body class="h-full flex">
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex lg:flex-col w-60 border-r bg-white">
+    <div class="flex h-16 items-center gap-2 px-6 border-b">
+      <div class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center">
+        <i data-lucide="heartbeat" class="w-4 h-4 text-white"></i>
+      </div>
+      <span class="font-semibold">ClinicPro</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto">
+      <ul class="flex flex-col gap-1 p-4 text-sm">
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+            <i data-lucide="home" class="w-4 h-4"></i> Home
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+            <i data-lucide="calendar" class="w-4 h-4"></i> Appointments
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium">
+            <i data-lucide="users" class="w-4 h-4"></i> Patients
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+            <i data-lucide="pill" class="w-4 h-4"></i> Prescriptions
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+            <i data-lucide="flask-conical" class="w-4 h-4"></i> Lab Orders
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+            <i data-lucide="credit-card" class="w-4 h-4"></i> Billing
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+            <i data-lucide="settings" class="w-4 h-4"></i> Settings
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="h-16 flex items-center justify-center text-xs text-gray-500 border-t">
+      © 2025 ClinicPro. All rights reserved.
+    </div>
+  </aside>
+
+  <!-- Mobile sidebar button -->
+  <button id="openNav" class="lg:hidden fixed top-4 left-4 z-20 bg-white shadow rounded-full p-2">
+    <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
+  </button>
+
+  <!-- Mobile sidebar drawer -->
+  <div id="drawer" class="fixed inset-0 z-40 lg:hidden hidden">
+    <div class="absolute inset-0 bg-black/50" id="backdrop"></div>
+    <aside class="relative w-64 bg-white h-full shadow-lg">
+      <div class="flex h-16 items-center gap-2 px-6 border-b">
+        <div class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center">
+          <i data-lucide="heartbeat" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-semibold">ClinicPro</span>
+      </div>
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="flex flex-col gap-1 p-4 text-sm">
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+              <i data-lucide="home" class="w-4 h-4"></i> Home
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+              <i data-lucide="calendar" class="w-4 h-4"></i> Appointments
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md bg-gray-100 text-gray-900 font-medium">
+              <i data-lucide="users" class="w-4 h-4"></i> Patients
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+              <i data-lucide="pill" class="w-4 h-4"></i> Prescriptions
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+              <i data-lucide="flask-conical" class="w-4 h-4"></i> Lab Orders
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+              <i data-lucide="credit-card" class="w-4 h-4"></i> Billing
+            </a>
+          </li>
+          <li>
+            <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700">
+              <i data-lucide="settings" class="w-4 h-4"></i> Settings
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+
+  <!-- Main -->
+  <main class="flex-1 overflow-y-auto p-6 lg:p-10">
+    <div class="max-w-7xl mx-auto space-y-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl font-semibold">Patient Profile</h1>
+        <div class="flex gap-3">
+          <button class="flex items-center gap-2 px-4 py-2 rounded-md border text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <i data-lucide="edit-3" class="w-4 h-4"></i> Edit
+          </button>
+          <button class="flex items-center gap-2 px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-500">
+            <i data-lucide="calendar-plus" class="w-4 h-4"></i> Book Appointment
+          </button>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-6">
+        <!-- Patient Card -->
+        <section class="col-span-1 bg-white border rounded-lg">
+          <div class="p-6 flex flex-col items-center text-center gap-4">
+            <div class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center">
+              <i data-lucide="user" class="w-10 h-10 text-gray-400"></i>
+            </div>
+            <div>
+              <h2 class="font-semibold text-lg">Sarah Johnson</h2>
+              <p class="text-sm text-gray-500">ID: P-2025-001</p>
+            </div>
+            <span class="px-2 py-0.5 text-xs rounded-md bg-green-100 text-green-700">Active Patient</span>
+          </div>
+          <div class="border-t px-6 py-4 text-sm space-y-4">
+            <div>
+              <p class="font-medium">Email</p>
+              <p class="text-gray-600">sarah.j@email.com</p>
+            </div>
+            <div>
+              <p class="font-medium">Phone</p>
+              <p class="text-gray-600">(1) 555 123-4567</p>
+            </div>
+            <div>
+              <p class="font-medium">Date of Birth</p>
+              <p class="text-gray-600">March 15, 1991 (34 years)</p>
+            </div>
+            <div>
+              <p class="font-medium">Address</p>
+              <p class="text-gray-600 leading-snug">123 Main St, Anytown, ST 12345</p>
+            </div>
+            <div>
+              <p class="font-medium">Emergency Contact</p>
+              <p class="text-gray-600 leading-snug">John Johnson<br>+1 (555) 323-4568</p>
+            </div>
+            <div>
+              <p class="font-medium">Allergies</p>
+              <div class="flex flex-wrap gap-1">
+                <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Penicillin</span>
+                <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Shellfish</span>
+              </div>
+            </div>
+            <div>
+              <p class="font-medium">Insurance</p>
+              <p class="text-gray-600 leading-snug">Blue Cross Blue Shield<br>Policy: 8923456789</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right Column -->
+        <div class="col-span-2 space-y-6">
+          <!-- Recent Appointments -->
+          <section class="bg-white border rounded-lg">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+              <h3 class="font-medium">Recent Appointments</h3>
+              <a href="#" class="text-sm text-indigo-600 hover:underline">View All</a>
+            </div>
+            <ul class="divide-y text-sm">
+              <li class="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Annual Checkup</p>
+                  <p class="text-gray-500">Jan 15, 2025 at 10:00 AM</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Completed</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+              <li class="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Follow-up Visit</p>
+                  <p class="text-gray-500">Dec 20, 2024 at 2:30 PM</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Completed</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+              <li class="flex items-center justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Consultation</p>
+                  <p class="text-gray-500">Jan 25, 2025 at 3:00 PM</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Scheduled</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <!-- Prescriptions -->
+          <section class="bg-white border rounded-lg">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+              <h3 class="font-medium">Prescriptions</h3>
+              <button class="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-md border text-gray-700 hover:bg-gray-50">
+                <i data-lucide="plus" class="w-4 h-4"></i> New Prescription
+              </button>
+            </div>
+            <ul class="divide-y text-sm">
+              <li class="flex items-start justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Amoxicillin 500mg</p>
+                  <p class="text-gray-500">Take 3 times daily for 7 days<br>Prescribed: Jan 15, 2025</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Active</span>
+                  <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+              <li class="flex items-start justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Ibuprofen 400mg</p>
+                  <p class="text-gray-500">As needed for pain, max 3 per day<br>Prescribed: Dec 20, 2024</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Completed</span>
+                  <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <!-- Lab Orders -->
+          <section class="bg-white border rounded-lg">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+              <h3 class="font-medium">Lab Orders</h3>
+              <button class="flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-md border text-gray-700 hover:bg-gray-50">
+                <i data-lucide="plus" class="w-4 h-4"></i> New Lab Order
+              </button>
+            </div>
+            <ul class="divide-y text-sm">
+              <li class="flex items-start justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Complete Blood Count (CBC)</p>
+                  <p class="text-gray-500">Ordered: Jan 15, 2025<br>Lab: Quest Diagnostics</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Pending</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+              <li class="flex items-start justify-between px-6 py-4">
+                <div>
+                  <p class="font-medium">Lipid Panel</p>
+                  <p class="text-gray-500">Ordered: Dec 20, 2024<br>Lab: LabCorp</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Completed</span>
+                  <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                </div>
+              </li>
+            </ul>
+            <div class="flex justify-end gap-4 text-xs px-6 py-3 text-gray-500 border-t">
+              <a href="#" class="hover:underline">Support</a>
+              <a href="#" class="hover:underline">Privacy</a>
+            </div>
+          </section>
+
+          <!-- Medical History -->
+          <section class="bg-white border rounded-lg">
+            <div class="px-6 py-4 border-b">
+              <h3 class="font-medium">Medical History</h3>
+            </div>
+            <div class="p-6 text-sm space-y-4">
+              <div>
+                <p class="font-medium mb-1">Chronic Conditions</p>
+                <div class="flex flex-wrap gap-1">
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Hypertension</span>
+                  <span class="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Type 2 Diabetes</span>
+                </div>
+              </div>
+              <div>
+                <p class="font-medium mb-1">Previous Surgeries</p>
+                <p class="text-gray-600">Appendectomy (2018)</p>
+              </div>
+              <div>
+                <p class="font-medium mb-1">Family History</p>
+                <p class="text-gray-600">Father: Hypertension, Mother: Osteoporosis</p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    lucide.createIcons();
+
+    const drawer = document.getElementById('drawer');
+    const openNav = document.getElementById('openNav');
+    const backdrop = document.getElementById('backdrop');
+
+    openNav.addEventListener('click', () => drawer.classList.remove('hidden'));
+    backdrop.addEventListener('click', () => drawer.classList.add('hidden'));
+  </script>
+</body>
+</html>

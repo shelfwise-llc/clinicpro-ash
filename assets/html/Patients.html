@@ -1,0 +1,837 @@
+<html lang="en" class="h-full"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patients – ClinicPro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #c4c4c4; border-radius: 3px; }
+  </style>
+</head>
+<body class="h-full bg-gray-50 text-gray-800">
+  <div class="flex h-full">
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 z-50 w-64 shrink-0 bg-white border-r transform lg:translate-x-0 transition-transform duration-200 flex flex-col">
+      <div class="flex items-center gap-2 h-16 px-6 border-b">
+        <div class="w-8 h-8 bg-indigo-600 rounded-md flex items-center justify-center">
+          <i data-lucide="heart-pulse" class="w-4 h-4 text-white"></i>
+        </div>
+        <span class="font-semibold text-lg tracking-tight">ClinicPro</span>
+      </div>
+      <div class="flex-1 overflow-y-auto py-4">
+        <nav class="space-y-1 px-4">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Home</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Appointments</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md bg-indigo-50 text-indigo-700">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Patients</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="pill" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Prescriptions</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Lab Orders</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="credit-card" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Billing</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Settings</span>
+          </a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3 h-16 px-6 border-t">
+        <img src="https://api.dicebear.com/7.x/personas/svg?seed=doctor" alt="" class="w-8 h-8 rounded-full">
+        <div class="min-w-0">
+          <p class="text-sm font-medium truncate">Dr. Taylor</p>
+          <p class="text-xs text-gray-500 truncate">Administrator</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden lg:ml-64">
+      <!-- Patients Table View -->
+      <div id="patientsTable" class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 border-b bg-white">
+          <div class="flex items-center gap-3">
+            <h1 class="text-xl font-semibold tracking-tight">Patients</h1>
+          </div>
+          <div class="flex items-center gap-4">
+            <button class="relative text-gray-600 hover:text-gray-900">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center" style="font-size: 10px;">3</span>
+            </button>
+            <img src="https://api.dicebear.com/7.x/personas/svg?seed=doctor" alt="" class="w-8 h-8 rounded-full">
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <div class="max-w-7xl mx-auto">
+            <!-- Actions Bar -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+              <div class="flex items-center gap-3">
+                <button class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2 rounded-md">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  Add Patient
+                </button>
+                <button class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium px-4 py-2 rounded-md border">
+                  <i data-lucide="download" class="w-4 h-4"></i>
+                  Export
+                </button>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="relative">
+                  <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                  <input type="text" placeholder="Search patients..." class="pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <button class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium px-4 py-2 rounded-md border">
+                  <i data-lucide="filter" class="w-4 h-4"></i>
+                  Filter
+                </button>
+              </div>
+            </div>
+
+            <!-- Patients Table -->
+            <div class="bg-white rounded-lg border shadow-sm">
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-gray-50 border-b">
+                    <tr>
+                      <th class="text-left py-3 px-4 font-medium text-sm text-gray-900">Patient</th>
+                      <th class="text-left py-3 px-4 font-medium text-sm text-gray-900">Age</th>
+                      <th class="text-left py-3 px-4 font-medium text-sm text-gray-900">Contact</th>
+                      <th class="text-left py-3 px-4 font-medium text-sm text-gray-900">Last Visit</th>
+                      <th class="text-left py-3 px-4 font-medium text-sm text-gray-900">Status</th>
+                      <th class="text-left py-3 px-4 font-medium text-sm text-gray-900">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50">
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=patient1" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-sm cursor-pointer hover:text-indigo-600" onclick="showPatientDetails('patient1')">Sarah Johnson</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-001</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 px-4 text-sm">34</td>
+                      <td class="py-4 px-4">
+                        <p class="text-sm">sarah.j@email.com</p>
+                        <p class="text-xs text-gray-500">(555) 123-4567</p>
+                      </td>
+                      <td class="py-4 px-4 text-sm">Jan 15, 2025</td>
+                      <td class="py-4 px-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                      </td>
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-2">
+                          <button onclick="showPatientDetails('patient1')" class="text-gray-600 hover:text-gray-900" title="View Details">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                          </button>
+                          <button class="text-gray-600 hover:text-gray-900" title="Edit">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button class="text-gray-600 hover:text-gray-900" title="More">
+                            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=patient2" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-sm cursor-pointer hover:text-indigo-600" onclick="showPatientDetails('patient2')">Michael Chen</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-002</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 px-4 text-sm">28</td>
+                      <td class="py-4 px-4">
+                        <p class="text-sm">m.chen@email.com</p>
+                        <p class="text-xs text-gray-500">(555) 987-6543</p>
+                      </td>
+                      <td class="py-4 px-4 text-sm">Jan 12, 2025</td>
+                      <td class="py-4 px-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                      </td>
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-2">
+                          <button onclick="showPatientDetails('patient2')" class="text-gray-600 hover:text-gray-900" title="View Details">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                          </button>
+                          <button class="text-gray-600 hover:text-gray-900" title="Edit">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button class="text-gray-600 hover:text-gray-900" title="More">
+                            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=patient3" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-sm cursor-pointer hover:text-indigo-600" onclick="showPatientDetails('patient3')">Emily Rodriguez</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-003</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 px-4 text-sm">42</td>
+                      <td class="py-4 px-4">
+                        <p class="text-sm">e.rodriguez@email.com</p>
+                        <p class="text-xs text-gray-500">(555) 456-7890</p>
+                      </td>
+                      <td class="py-4 px-4 text-sm">Jan 10, 2025</td>
+                      <td class="py-4 px-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                      </td>
+                      <td class="py-4 px-4">
+                        <div class="flex items-center gap-2">
+                          <button onclick="showPatientDetails('patient3')" class="text-gray-600 hover:text-gray-900" title="View Details">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                          </button>
+                          <button class="text-gray-600 hover:text-gray-900" title="Edit">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                          </button>
+                          <button class="text-gray-600 hover:text-gray-900" title="More">
+                            <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- Patient Details View -->
+      <div id="patientDetails" class="flex-1 flex-col hidden">
+        <!-- Header -->
+        <header class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 border-b bg-white">
+          <div class="flex items-center gap-3">
+            <button onclick="showPatientsTable()" class="text-gray-600 hover:text-gray-900">
+              <i data-lucide="arrow-left" class="w-5 h-5"></i>
+            </button>
+            <h1 class="text-xl font-semibold tracking-tight">Patient Profile</h1>
+          </div>
+          <div class="flex items-center gap-4">
+            <button class="relative text-gray-600 hover:text-gray-900">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs text-white flex items-center justify-center" style="font-size: 10px;">3</span>
+            </button>
+            <img src="https://api.dicebear.com/7.x/personas/svg?seed=doctor" alt="" class="w-8 h-8 rounded-full">
+          </div>
+        </header>
+
+        <!-- Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <div class="max-w-7xl mx-auto space-y-6">
+            <!-- Header Actions -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <button onclick="showPatientsTable()" class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium px-4 py-2 rounded-md border">
+                  <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                  Back to Patients
+                </button>
+              </div>
+              <div class="flex items-center gap-3">
+                <button class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium px-4 py-2 rounded-md border">
+                  <i data-lucide="edit-3" class="w-4 h-4"></i>
+                  Edit
+                </button>
+                <button onclick="showBookAppointmentModal()" class="inline-flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2 rounded-md">
+                  <i data-lucide="calendar-plus" class="w-4 h-4"></i>
+                  Book Appointment
+                </button>
+              </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6">
+              <!-- Patient Card -->
+              <section class="col-span-1 bg-white border rounded-lg">
+                <div class="p-6 flex flex-col items-center text-center gap-4">
+                  <img id="patientAvatar" src="https://api.dicebear.com/7.x/personas/svg?seed=patient1" alt="" class="w-20 h-20 rounded-full">
+                  <div>
+                    <h2 id="patientName" class="font-semibold text-lg tracking-tight">Sarah Johnson</h2>
+                    <p id="patientId" class="text-sm text-gray-500">ID: P-2025-001</p>
+                  </div>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active Patient</span>
+                </div>
+                <div class="border-t px-6 py-4 text-sm space-y-4">
+                  <div>
+                    <p class="font-medium">Email</p>
+                    <p id="patientEmail" class="text-gray-600">sarah.j@email.com</p>
+                  </div>
+                  <div>
+                    <p class="font-medium">Phone</p>
+                    <p id="patientPhone" class="text-gray-600">(555) 123-4567</p>
+                  </div>
+                  <div>
+                    <p class="font-medium">Date of Birth</p>
+                    <p id="patientDob" class="text-gray-600">March 15, 1991 (34 years)</p>
+                  </div>
+                  <div>
+                    <p class="font-medium">Address</p>
+                    <p id="patientAddress" class="text-gray-600 leading-snug">123 Main St, Anytown, ST 12345</p>
+                  </div>
+                  <div>
+                    <p class="font-medium">Emergency Contact</p>
+                    <p id="patientEmergency" class="text-gray-600 leading-snug">John Johnson<br>(555) 323-4568</p>
+                  </div>
+                  <div>
+                    <p class="font-medium">Allergies</p>
+                    <div id="patientAllergies" class="flex flex-wrap gap-1">
+                      <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">Penicillin</span>
+                      <span class="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded">Shellfish</span>
+                    </div>
+                  </div>
+                  <div>
+                    <p class="font-medium">Insurance</p>
+                    <p id="patientInsurance" class="text-gray-600 leading-snug">Blue Cross Blue Shield<br>Policy: 8923456789</p>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Right Column -->
+              <div class="col-span-2 space-y-6">
+                <!-- Recent Appointments -->
+                <section class="bg-white border rounded-lg">
+                  <div class="flex items-center justify-between px-6 py-4 border-b">
+                    <h3 class="font-medium">Recent Appointments</h3>
+                    <a href="#" class="text-sm text-indigo-600 hover:underline">View All</a>
+                  </div>
+                  <ul class="divide-y text-sm">
+                    <li class="flex items-center justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Annual Checkup</p>
+                        <p class="text-gray-500">Jan 15, 2025 at 10:00 AM</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                    <li class="flex items-center justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Follow-up Visit</p>
+                        <p class="text-gray-500">Dec 20, 2024 at 2:30 PM</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                    <li class="flex items-center justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Consultation</p>
+                        <p class="text-gray-500">Jan 25, 2025 at 3:00 PM</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Scheduled</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                  </ul>
+                </section>
+
+                <!-- Prescriptions -->
+                <section class="bg-white border rounded-lg">
+                  <div class="flex items-center justify-between px-6 py-4 border-b">
+                    <h3 class="font-medium">Prescriptions</h3>
+                    <button class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium px-3 py-1.5 rounded-md border">
+                      <i data-lucide="plus" class="w-4 h-4"></i>
+                      New Prescription
+                    </button>
+                  </div>
+                  <ul class="divide-y text-sm">
+                    <li class="flex items-start justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Amoxicillin 500mg</p>
+                        <p class="text-gray-500">Take 3 times daily for 7 days<br>Prescribed: Jan 15, 2025</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                        <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                    <li class="flex items-start justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Ibuprofen 400mg</p>
+                        <p class="text-gray-500">As needed for pain, max 3 per day<br>Prescribed: Dec 20, 2024</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Completed</span>
+                        <i data-lucide="download" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                  </ul>
+                </section>
+
+                <!-- Lab Orders -->
+                <section class="bg-white border rounded-lg">
+                  <div class="flex items-center justify-between px-6 py-4 border-b">
+                    <h3 class="font-medium">Lab Orders</h3>
+                    <button class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-900 text-sm font-medium px-3 py-1.5 rounded-md border">
+                      <i data-lucide="plus" class="w-4 h-4"></i>
+                      New Lab Order
+                    </button>
+                  </div>
+                  <ul class="divide-y text-sm">
+                    <li class="flex items-start justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Complete Blood Count (CBC)</p>
+                        <p class="text-gray-500">Ordered: Jan 15, 2025<br>Lab: Quest Diagnostics</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                    <li class="flex items-start justify-between px-6 py-4">
+                      <div>
+                        <p class="font-medium">Lipid Panel</p>
+                        <p class="text-gray-500">Ordered: Dec 20, 2024<br>Lab: LabCorp</p>
+                      </div>
+                      <div class="flex items-center gap-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                      </div>
+                    </li>
+                  </ul>
+                </section>
+
+                <!-- Medical History -->
+                <section class="bg-white border rounded-lg">
+                  <div class="px-6 py-4 border-b">
+                    <h3 class="font-medium">Medical History</h3>
+                  </div>
+                  <div class="p-6 text-sm space-y-4">
+                    <div>
+                      <p class="font-medium mb-2">Chronic Conditions</p>
+                      <div class="flex flex-wrap gap-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Hypertension</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Type 2 Diabetes</span>
+                      </div>
+                    </div>
+                    <div>
+                      <p class="font-medium mb-1">Previous Surgeries</p>
+                      <p class="text-gray-600">Appendectomy (2018)</p>
+                    </div>
+                    <div>
+                      <p class="font-medium mb-1">Family History</p>
+                      <p class="text-gray-600">Heart Disease (Father), Diabetes (Mother)</p>
+                    </div>
+                    <div>
+                      <p class="font-medium mb-1">Current Medications</p>
+                      <p class="text-gray-600">Lisinopril 10mg daily, Metformin 500mg twice daily</p>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Book Appointment Modal -->
+  <div id="bookAppointmentModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50" onclick="closeBookAppointmentModal()"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        
+        <!-- Step 1: Appointment Details -->
+        <div id="appointmentStep1" class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold">Book Appointment</h2>
+            <button onclick="closeBookAppointmentModal()" class="text-gray-400 hover:text-gray-600">
+              <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-indigo-600">Step 1 of 2</span>
+              <span class="text-sm text-gray-500">Appointment Details</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-indigo-600 h-2 rounded-full" style="width: 50%"></div>
+            </div>
+          </div>
+
+          <!-- Patient Info -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <div class="flex items-center gap-3">
+              <img id="modalPatientAvatar" src="https://api.dicebear.com/7.x/personas/svg?seed=patient1" alt="" class="w-12 h-12 rounded-full">
+              <div>
+                <h3 id="modalPatientName" class="font-medium">Sarah Johnson</h3>
+                <p id="modalPatientId" class="text-sm text-gray-500">ID: P-2025-001</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Appointment Form -->
+          <form class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+                <select class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option>Consultation</option>
+                  <option>Follow-up</option>
+                  <option>Annual Checkup</option>
+                  <option>Lab Review</option>
+                  <option>Urgent Care</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Doctor</label>
+                <select class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option>Dr. Taylor (Primary)</option>
+                  <option>Dr. Martinez</option>
+                  <option>Dr. Wilson</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                <input type="date" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                <select class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                  <option>9:00 AM</option>
+                  <option>10:00 AM</option>
+                  <option>11:00 AM</option>
+                  <option>2:00 PM</option>
+                  <option>3:00 PM</option>
+                  <option>4:00 PM</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+              <select class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <option>30 minutes</option>
+                <option>45 minutes</option>
+                <option>60 minutes</option>
+                <option>90 minutes</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
+              <textarea rows="3" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Describe the reason for this appointment..."></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
+              <textarea rows="2" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Any special instructions or requirements..."></textarea>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <input type="checkbox" id="sendReminder" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+              <label for="sendReminder" class="text-sm text-gray-700">Send appointment reminder to patient</label>
+            </div>
+          </form>
+
+          <!-- Step 1 Actions -->
+          <div class="flex justify-between pt-6 border-t mt-6">
+            <button onclick="closeBookAppointmentModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+              Cancel
+            </button>
+            <button onclick="showAppointmentStep2()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700">
+              Next: Payment Details
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Payment Details -->
+        <div id="appointmentStep2" class="p-6 hidden">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold">Payment Details</h2>
+            <button onclick="closeBookAppointmentModal()" class="text-gray-400 hover:text-gray-600">
+              <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-indigo-600">Step 2 of 2</span>
+              <span class="text-sm text-gray-500">Payment Information</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-indigo-600 h-2 rounded-full" style="width: 100%"></div>
+            </div>
+          </div>
+
+          <!-- Appointment Summary -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 class="font-medium mb-3">Appointment Summary</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600">Patient:</span>
+                <span class="font-medium">Sarah Johnson</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Type:</span>
+                <span>Consultation</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Date &amp; Time:</span>
+                <span>Jan 28, 2025 at 10:00 AM</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Duration:</span>
+                <span>30 minutes</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Doctor:</span>
+                <span>Dr. Taylor</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Insurance Information -->
+          <div class="mb-6">
+            <h3 class="font-medium mb-3">Insurance Information</h3>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-center gap-2 mb-2">
+                <i data-lucide="shield-check" class="w-5 h-5 text-blue-600"></i>
+                <span class="font-medium text-blue-900">Blue Cross Blue Shield</span>
+              </div>
+              <p class="text-sm text-blue-700">Policy: 8923456789</p>
+              <p class="text-sm text-blue-700">Copay: $25.00</p>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="mb-6">
+            <h3 class="font-medium mb-3">Payment Method</h3>
+            <div class="space-y-3">
+              <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="radio" name="paymentMethod" value="insurance" class="text-indigo-600 focus:ring-indigo-500" checked="">
+                <div class="flex-1">
+                  <p class="font-medium">Insurance Copay</p>
+                  <p class="text-sm text-gray-500">$25.00 copay will be charged</p>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                <input type="radio" name="paymentMethod" value="self" class="text-indigo-600 focus:ring-indigo-500">
+                <div class="flex-1">
+                  <p class="font-medium">Self Pay</p>
+                  <p class="text-sm text-gray-500">$150.00 consultation fee</p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Payment Summary -->
+          <div class="bg-gray-50 rounded-lg p-4 mb-6">
+            <h3 class="font-medium mb-3">Payment Summary</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between">
+                <span>Consultation Fee:</span>
+                <span>$150.00</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Insurance Coverage:</span>
+                <span class="text-green-600">-$125.00</span>
+              </div>
+              <div class="flex justify-between font-medium text-lg border-t pt-2">
+                <span>Total Due:</span>
+                <span>$25.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Details -->
+          <div class="mb-6">
+            <h3 class="font-medium mb-3">Payment Details</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                <input type="text" placeholder="1234 5678 9012 3456" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                  <input type="text" placeholder="MM/YY" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                  <input type="text" placeholder="123" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+                <input type="text" placeholder="Sarah Johnson" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 Actions -->
+          <div class="flex justify-between pt-6 border-t">
+            <button onclick="showAppointmentStep1()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+              Back
+            </button>
+            <button onclick="confirmAppointment()" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700">
+              Confirm Appointment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 z-50 hidden">
+    <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+    <div class="fixed inset-0 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="check" class="w-8 h-8 text-green-600"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Appointment Confirmed!</h3>
+        <p class="text-sm text-gray-600 mb-6">The appointment has been successfully booked and a confirmation email has been sent to the patient.</p>
+        <button onclick="closeSuccessModal()" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 font-medium">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Patient data
+    const patients = {
+      patient1: {
+        name: 'Sarah Johnson',
+        id: 'P-2025-001',
+        email: 'sarah.j@email.com',
+        phone: '(555) 123-4567',
+        age: 34,
+        avatar: 'https://api.dicebear.com/7.x/personas/svg?seed=patient1'
+      },
+      patient2: {
+        name: 'Michael Chen',
+        id: 'P-2025-002',
+        email: 'm.chen@email.com',
+        phone: '(555) 987-6543',
+        age: 28,
+        avatar: 'https://api.dicebear.com/7.x/personas/svg?seed=patient2'
+      },
+      patient3: {
+        name: 'Emily Rodriguez',
+        id: 'P-2025-003',
+        email: 'e.rodriguez@email.com',
+        phone: '(555) 456-7890',
+        age: 42,
+        avatar: 'https://api.dicebear.com/7.x/personas/svg?seed=patient3'
+      }
+    };
+
+    let currentPatient = null;
+
+    // Show patient details
+    function showPatientDetails(patientId) {
+      const patient = patients[patientId];
+      if (!patient) return;
+
+      currentPatient = patient;
+      
+      // Update patient details
+      document.getElementById('patientName').textContent = patient.name;
+      document.getElementById('patientId').textContent = `ID: ${patient.id}`;
+      document.getElementById('patientEmail').textContent = patient.email;
+      document.getElementById('patientPhone').textContent = patient.phone;
+      document.getElementById('patientAvatar').src = patient.avatar;
+
+      // Hide table view and show details view
+      document.getElementById('patientsTable').classList.add('hidden');
+      document.getElementById('patientDetails').classList.remove('hidden');
+      document.getElementById('patientDetails').classList.add('flex');
+    }
+
+    // Show patients table
+    function showPatientsTable() {
+      document.getElementById('patientDetails').classList.add('hidden');
+      document.getElementById('patientDetails').classList.remove('flex');
+      document.getElementById('patientsTable').classList.remove('hidden');
+    }
+
+    // Show book appointment modal
+    function showBookAppointmentModal() {
+      if (currentPatient) {
+        document.getElementById('modalPatientName').textContent = currentPatient.name;
+        document.getElementById('modalPatientId').textContent = `ID: ${currentPatient.id}`;
+        document.getElementById('modalPatientAvatar').src = currentPatient.avatar;
+      }
+      document.getElementById('bookAppointmentModal').classList.remove('hidden');
+    }
+
+    // Close book appointment modal
+    function closeBookAppointmentModal() {
+      document.getElementById('bookAppointmentModal').classList.add('hidden');
+      showAppointmentStep1();
+    }
+
+    // Show appointment step 1
+    function showAppointmentStep1() {
+      document.getElementById('appointmentStep1').classList.remove('hidden');
+      document.getElementById('appointmentStep2').classList.add('hidden');
+    }
+
+    // Show appointment step 2
+    function showAppointmentStep2() {
+      document.getElementById('appointmentStep1').classList.add('hidden');
+      document.getElementById('appointmentStep2').classList.remove('hidden');
+    }
+
+    // Confirm appointment
+    function confirmAppointment() {
+      closeBookAppointmentModal();
+      document.getElementById('successModal').classList.remove('hidden');
+    }
+
+    // Close success modal
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.add('hidden');
+    }
+  </script>
+
+</body></html>

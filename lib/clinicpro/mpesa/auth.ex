@@ -1,136 +1,153 @@
 defmodule Clinicpro.MPesa.Auth do
   @moduledoc """
-  Handles authentication with the M-Pesa API.
-
-  This module is responsible for:
-  1. Obtaining access tokens from the M-Pesa API
-  2. Caching tokens to reduce API calls
-  3. Handling token expiration and refresh
+  Handles M-Pesa authentication with multi-tenant support.
+  This module manages authentication with the Safaricom Daraja API,
+  ensuring proper isolation between clinics.
   """
 
   require Logger
-  alias Clinicpro.MPesa.Helpers
-
-  @sandbox_auth_url "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-  @prod_auth_url "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
-
-  # Token cache with ETS
-  @table_name :mpesa_tokens
+  alias Clinicpro.MPesa.Config
 
   @doc """
-  Gets an access token for the M-Pesa API.
-  Uses cached token if available and not expired.
+  Generates an access token for M-Pesa API calls.
 
   ## Parameters
 
-  - config: M-Pesa configuration for the clinic
+  - `clinic_id` - The ID of the clinic to generate an access token for
 
   ## Returns
 
-  - {:ok, token} on success
-  - {:error, reason} on failure
+  - `{:ok, %{access_token: token, expires_in: seconds}}` - If the token was generated successfully
+  - `{:error, reason}` - If the token generation failed
   """
-  def get_access_token(config) do
-    # Initialize ETS table if not exists
-    ensure_table_exists()
+  def generate_access_token(clinic_id) do
+    # Get the clinic's M-Pesa configuration
+    config = Config.get_config(clinic_id)
 
-    # Generate cache key based on credentials
-    cache_key = "#{config.consumer_key}:#{config.consumer_secret}"
+    # Build the authorization header
+    auth_string = Base.encode64("#{config.consumer_key}:#{config.consumer_secret}")
+    headers = [
+      {"Authorization", "Basic #{auth_string}"},
+      {"Content-Type", "application/json"}
+    ]
 
-    case lookup_token(cache_key) do
-      {:ok, token, _expiry} ->
+    # Make the request to the M-Pesa API
+    url = "#{config.base_url}/oauth/v1/generate?grant_type=client_credentials"
+
+    case HTTPoison.get(url, headers) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        # Parse the response
+        case Jason.decode(body) do
+          {:ok, %{"access_token" => token, "expires_in" => expires_in}} ->
+            # Cache the token (optional)
+            cache_token(clinic_id, token, expires_in)
+
+            {:ok, %{access_token: token, expires_in: expires_in}}
+
+          {:error, _} = error ->
+            Logger.error("Failed to parse M-Pesa access token response: #{inspect(error)}")
+            {:error, :invalid_response}
+        end
+
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        Logger.error("M-Pesa access token request failed with status #{status_code}: #{body}")
+        {:error, :request_failed}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.error("M-Pesa access token request failed: #{inspect(reason)}")
+        {:error, :request_failed}
+    end
+  end
+
+  @doc """
+  Gets a cached access token for a clinic if available, otherwise generates a new one.
+
+  ## Parameters
+
+  - `clinic_id` - The ID of the clinic to get an access token for
+
+  ## Returns
+
+  - `{:ok, token}` - If a valid token was found or generated
+  - `{:error, reason}` - If the token retrieval failed
+  """
+  def get_access_token(clinic_id) do
+    case get_cached_token(clinic_id) do
+      {:ok, token} ->
         {:ok, token}
 
-      :not_found ->
-        # Fetch new token
-        with {:ok, token, expires_in} <- fetch_new_token(config),
-             # Calculate expiry time (slightly before actual expiry)
-             expiry = :os.system_time(:seconds) + expires_in - 60 do
-          # Cache the token
-          :ets.insert(@table_name, {cache_key, token, expiry})
-          {:ok, token}
+      {:error, _} ->
+        # No valid cached token, generate a new one
+        case generate_access_token(clinic_id) do
+          {:ok, %{access_token: token}} -> {:ok, token}
+          error -> error
         end
     end
   end
 
   @doc """
-  Invalidates a cached token for a specific configuration.
-  Useful when a token is rejected by the API.
+  Generates a password for STK Push requests.
 
   ## Parameters
 
-  - config: M-Pesa configuration for the clinic
+  - `shortcode` - The M-Pesa shortcode
+  - `passkey` - The M-Pesa passkey
+  - `timestamp` - The timestamp to use in the password
+
+  ## Returns
+
+  - The generated password
   """
-  def invalidate_token(config) do
-    # Initialize ETS table if not exists
-    ensure_table_exists()
+  def generate_password(shortcode, passkey, timestamp) do
+    Base.encode64("#{shortcode}#{passkey}#{timestamp}")
+  end
 
-    # Generate cache key based on credentials
-    cache_key = "#{config.consumer_key}:#{config.consumer_secret}"
+  @doc """
+  Generates a timestamp for M-Pesa API calls in the format YYYYMMDDHHmmss.
 
-    # Delete the token from cache
-    :ets.delete(@table_name, cache_key)
+  ## Returns
 
-    :ok
+  - The generated timestamp
+  """
+  def generate_timestamp do
+    DateTime.utc_now()
+    |> DateTime.to_naive()
+    |> NaiveDateTime.to_string()
+    |> String.replace(~r/[^\d]/, "")
+    |> String.slice(0, 14)
   end
 
   # Private functions
 
-  defp ensure_table_exists do
-    if :ets.whereis(@table_name) == :undefined do
-      :ets.new(@table_name, [:named_table, :set, :public])
-    end
+  # These functions implement a simple in-memory cache for access tokens
+  # In a production environment, you might want to use a more robust caching solution
+
+  defp cache_token(clinic_id, token, expires_in) do
+    # Calculate expiry time (subtract a buffer to ensure we don't use an expired token)
+    buffer = 60 # 1 minute buffer
+    expiry = :os.system_time(:second) + expires_in - buffer
+
+    # Store the token in the process dictionary
+    # In a real application, you would use a proper cache like ETS or Redis
+    Process.put({:mpesa_token, clinic_id}, {token, expiry})
+
+    :ok
   end
 
-  defp lookup_token(cache_key) do
-    case :ets.lookup(@table_name, cache_key) do
-      [{^cache_key, token, expiry}] ->
-        if expiry > :os.system_time(:seconds) do
-          {:ok, token, expiry}
+  defp get_cached_token(clinic_id) do
+    case Process.get({:mpesa_token, clinic_id}) do
+      nil ->
+        {:error, :no_cached_token}
+
+      {token, expiry} ->
+        # Check if the token is still valid
+        if :os.system_time(:second) < expiry do
+          {:ok, token}
         else
-          :not_found
+          # Token has expired
+          Process.delete({:mpesa_token, clinic_id})
+          {:error, :token_expired}
         end
-
-      [] ->
-        :not_found
-    end
-  end
-
-  defp fetch_new_token(config) do
-    url = if config.environment == "production", do: @prod_auth_url, else: @sandbox_auth_url
-
-    auth_header = "Basic " <> Base.encode64("#{config.consumer_key}:#{config.consumer_secret}")
-
-    headers = [
-      {"Authorization", auth_header},
-      {"Content-Type", "application/json"}
-    ]
-
-    Logger.debug("Fetching new M-Pesa access token")
-
-    case HTTPoison.get(url, headers) do
-      {:ok, response} when is_map(response) and response.status_code == 200 ->
-        case Jason.decode(response.body) do
-          {:ok, %{"access_token" => token, "expires_in" => expires_in}} ->
-            Logger.debug("Successfully obtained M-Pesa access token")
-            {:ok, token, expires_in}
-
-          {:ok, decoded} ->
-            Logger.error("Invalid token response format: #{inspect(decoded)}")
-            {:error, :invalid_token_response}
-
-          {:error, reason} ->
-            Logger.error("Failed to decode token response: #{inspect(reason)}")
-            {:error, :invalid_token_response}
-        end
-
-      {:ok, response} when is_map(response) ->
-        Logger.error("Failed to obtain token: #{response.status_code} - #{response.body}")
-        {:error, %{status_code: response.status_code, body: response.body}}
-
-      {:error, error} ->
-        Logger.error("HTTP request failed: #{inspect(error)}")
-        {:error, error}
     end
   end
 end

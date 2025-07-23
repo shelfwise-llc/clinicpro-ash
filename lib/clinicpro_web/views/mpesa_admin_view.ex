@@ -1,164 +1,316 @@
 defmodule ClinicproWeb.MPesaAdminView do
-  # Temporarily use a minimal view definition to avoid circular dependencies
-  use Phoenix.View,
-    root: "lib/clinicpro_web/templates",
-    namespace: ClinicproWeb
+  use ClinicproWeb, :view
+
+  # Explicitly import required modules
+  import Phoenix.HTML
+  import Phoenix.HTML.Form
+  import PhoenixHTMLHelpers.Tag
+  import PhoenixHTMLHelpers.Link
 
   @doc """
-  Returns a formatted string for the transaction status.
+  Returns the appropriate CSS class for configuration status display.
   """
-  def format_status("pending"), do: "Pending"
-  def format_status("completed"), do: "Completed"
-  def format_status("failed"), do: "Failed"
-  def format_status(status), do: String.capitalize(status)
-
-  @doc """
-  Returns a CSS class for the transaction status.
-  """
-  def status_class("pending"), do: "bg-warning text-dark"
-  def status_class("completed"), do: "bg-success text-white"
-  def status_class("failed"), do: "bg-danger text-white"
-  def status_class(_), do: "bg-secondary text-white"
-
-  @doc """
-  Formats a decimal amount with currency.
-  """
-  def format_amount(amount) when is_nil(amount), do: "-"
-
-  def format_amount(amount) do
-    "KES #{Decimal.round(amount, 2)}"
+  def config_status_class(active) do
+    if active, do: "bg-green-100 text-green-800", else: "bg-red-100 text-red-800"
   end
 
   @doc """
-  Formats a datetime in a readable format.
+  Returns the appropriate text for configuration status display.
   """
-  def format_datetime(nil), do: "-"
-
-  def format_datetime(datetime) do
-    Calendar.strftime(datetime, "%d %b %Y, %H:%M:%S")
+  def config_status_text(active) do
+    if active, do: "Active", else: "Inactive"
   end
 
   @doc """
-  Formats a phone number for display.
+  Returns the appropriate CSS class for transaction status display.
   """
-  def format_phone(nil), do: "-"
-
-  def format_phone("254" <> rest = _phone) do
-    "+254 #{String.slice(rest, 0, 3)} #{String.slice(rest, 3, 3)} #{String.slice(rest, 6, 10)}"
-  end
-
-  def format_phone(phone), do: phone
-
-  @doc """
-  Returns pagination links for transactions.
-  """
-  # Temporarily commented out to fix compilation issues
-  # def pagination_links(conn, page, total_count, per_page) do
-  #   total_pages = ceil(total_count / per_page)
-  # 
-  #   # Preserve any existing query parameters
-  #   query_params = Map.drop(conn.params, ["clinic_id", "page"])
-  # 
-  #   for p <- max(1, page - 2)..min(total_pages, page + 2) do
-  #     Phoenix.HTML.Tag.content_tag :li, class: if(p == page, do: "page-item active", else: "page-item") do
-  #       Phoenix.HTML.Link.link to:
-  #              Routes.mpesa_admin_path(
-  #                conn,
-  #                :transactions,
-  #                conn.params["clinic_id"],
-  #                Map.put(query_params, :page, p)
-  #              ),
-  #            class: "page-link" do
-  #         "#{p}"
-  #       end
-  #     end
-  #   end
-  # end
-  
-  # Simple placeholder function to avoid compilation errors
-  def pagination_links(_conn, _page, _total_count, _per_page) do
-    []
+  def transaction_status_class(status) do
+    case status do
+      "completed" -> "bg-green-100 text-green-800"
+      "success" -> "bg-green-100 text-green-800"
+      "pending" -> "bg-blue-100 text-blue-800"
+      "processing" -> "bg-blue-100 text-blue-800"
+      "failed" -> "bg-red-100 text-red-800"
+      "cancelled" -> "bg-gray-100 text-gray-800"
+      _ -> "bg-gray-100 text-gray-800"
+    end
   end
 
   @doc """
-  Masks sensitive information for display.
+  Returns the appropriate CSS class for callback type display.
   """
-  def mask_sensitive(nil), do: nil
+  def callback_type_class(type) do
+    case type do
+      "stk_push" -> "bg-purple-100 text-purple-800"
+      "c2b_validation" -> "bg-blue-100 text-blue-800"
+      "c2b_confirmation" -> "bg-indigo-100 text-indigo-800"
+      "transaction_status" -> "bg-yellow-100 text-yellow-800"
+      _ -> "bg-gray-100 text-gray-800"
+    end
+  end
+
+  @doc """
+  Formats a callback type for display.
+  """
+  def format_callback_type(type) do
+    case type do
+      "stk_push" -> "STK Push"
+      "c2b_validation" -> "C2B Validation"
+      "c2b_confirmation" -> "C2B Confirmation"
+      "transaction_status" -> "Transaction Status"
+      _ -> String.replace(type || "", "_", " ") |> String.capitalize()
+    end
+  end
+
+  @doc """
+  Formats a date for display.
+  """
+  def format_date(nil), do: "-"
+
+  def format_date(%DateTime{} = date) do
+    Calendar.strftime(date, "%d %b %Y, %H:%M:%S")
+  end
+
+  def format_date(%NaiveDateTime{} = date) do
+    Calendar.strftime(date, "%d %b %Y, %H:%M:%S")
+  end
+
+  def format_date(date), do: date
+
+  @doc """
+  Formats a date and time for display.
+  """
+  def format_date_time(nil), do: "-"
+
+  def format_date_time(%DateTime{} = date) do
+    Calendar.strftime(date, "%d %b %Y, %H:%M:%S")
+  end
+
+  def format_date_time(%NaiveDateTime{} = date) do
+    Calendar.strftime(date, "%d %b %Y, %H:%M:%S")
+  end
+
+  def format_date_time(date), do: date
+
+  @doc """
+  Formats an amount for display.
+  """
+  def format_amount(nil), do: "-"
+
+  def format_amount(amount) when is_float(amount) do
+    "KES #{:erlang.float_to_binary(amount, decimals: 2)}"
+  end
+
+  def format_amount(amount) when is_integer(amount) do
+    "KES #{amount}.00"
+  end
+
+  def format_amount(amount), do: "KES #{amount}"
+
+  @doc """
+  Formats JSON for display.
+  """
+  def format_json(nil), do: "No data available"
+
+  def format_json(json) when is_binary(json) do
+    case Jason.decode(json) do
+      {:ok, decoded} ->
+        Jason.encode!(decoded, pretty: true)
+
+      _ ->
+        json
+    end
+  end
+
+  def format_json(data) do
+    case Jason.encode(data, pretty: true) do
+      {:ok, encoded} -> encoded
+      _ -> inspect(data)
+    end
+  end
+
+  @doc """
+  Masks sensitive data for display.
+  """
+  def mask_sensitive(nil), do: "-"
 
   def mask_sensitive(value) when is_binary(value) do
-    if String.length(value) > 4 do
-      first_chars = String.slice(value, 0, 2)
-      last_chars = String.slice(value, -2, 2)
-      middle_length = String.length(value) - 4
+    cond do
+      String.length(value) <= 4 ->
+        String.duplicate("*", String.length(value))
 
-      first_chars <> String.duplicate("*", middle_length) <> last_chars
-    else
-      "****"
+      String.length(value) <= 8 ->
+        "#{String.slice(value, 0, 2)}#{String.duplicate("*", String.length(value) - 4)}#{String.slice(value, -2, 2)}"
+
+      true ->
+        "#{String.slice(value, 0, 4)}#{String.duplicate("*", String.length(value) - 8)}#{String.slice(value, -4, 4)}"
+    end
+  end
+
+  def mask_sensitive(value), do: value
+
+  @doc """
+  Returns the environment name with appropriate styling.
+  """
+  def environment_badge(env) do
+    case env do
+      "production" ->
+        content_tag(:span, "Production",
+          class:
+            "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+        )
+
+      "sandbox" ->
+        content_tag(:span, "Sandbox",
+          class:
+            "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+        )
+
+      _ ->
+        content_tag(:span, env,
+          class:
+            "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"
+        )
     end
   end
 
   @doc """
-  Formats transaction statistics for display.
+  Returns pagination links for transaction listing.
   """
-  def format_stats(nil),
-    do: %{
-      total_count: 0,
-      completed_count: 0,
-      pending_count: 0,
-      failed_count: 0,
-      total_amount: Decimal.new(0)
-    }
+  def pagination_links(conn, params, total_pages) do
+    current_page = Map.get(params, "page", "1") |> String.to_integer()
 
-  def format_stats(stats) do
-    stats
-    |> Map.put(:total_amount_formatted, format_amount(stats.total_amount))
-    |> Map.put(
-      :completed_percentage,
-      calculate_percentage(stats.completed_count, stats.total_count)
-    )
-    |> Map.put(:pending_percentage, calculate_percentage(stats.pending_count, stats.total_count))
-    |> Map.put(:failed_percentage, calculate_percentage(stats.failed_count, stats.total_count))
-  end
-
-  @doc """
-  Calculates percentage for statistics.
-  """
-  def calculate_percentage(_count, 0), do: 0
-
-  def calculate_percentage(count, total) do
-    Float.round(count / total * 100, 1)
-  end
-
-  @doc """
-  Returns a CSS class for the environment badge.
-  """
-  def environment_class("sandbox"), do: "bg-info text-white"
-  def environment_class("production"), do: "bg-danger text-white"
-  def environment_class(_), do: "bg-secondary text-white"
-
-  @doc """
-  Returns a formatted string for the transaction type.
-  """
-  def format_type("stk_push"), do: "STK PUSH"
-  def format_type("c2b"), do: "C2B"
-
-  def format_type(type) when is_binary(type),
-    do: String.replace(type, "_", " ") |> String.upcase()
-
-  def format_type(_), do: "UNKNOWN"
-
-  @doc """
-  Returns a shortened version of a string for display.
-  """
-  def truncate(nil, _), do: "-"
-
-  def truncate(string, length) when is_binary(string) do
-    if String.length(string) > length do
-      "#{String.slice(string, 0, length)}..."
-    else
-      string
+    content_tag :div,
+      class: "flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6" do
+      [
+        content_tag(:div, class: "flex flex-1 justify-between sm:hidden") do
+          [
+            if current_page > 1 do
+              link("Previous",
+                to:
+                  Routes.mpesa_admin_path(
+                    conn,
+                    :transactions,
+                    Map.put(params, "page", current_page - 1)
+                  ),
+                class:
+                  "relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              )
+            else
+              content_tag(:span, "Previous",
+                class:
+                  "relative inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500"
+              )
+            end,
+            if current_page < total_pages do
+              link("Next",
+                to:
+                  Routes.mpesa_admin_path(
+                    conn,
+                    :transactions,
+                    Map.put(params, "page", current_page + 1)
+                  ),
+                class:
+                  "relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              )
+            else
+              content_tag(:span, "Next",
+                class:
+                  "relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500"
+              )
+            end
+          ]
+        end,
+        content_tag(:div, class: "hidden sm:flex sm:flex-1 sm:items-center sm:justify-between") do
+          [
+            content_tag(:div) do
+              content_tag(:p, class: "text-sm text-gray-700") do
+                [
+                  "Showing ",
+                  content_tag(:span, class: "font-medium") do
+                    "#{(current_page - 1) * 20 + 1}"
+                  end,
+                  " to ",
+                  content_tag(:span, class: "font-medium") do
+                    "#{min(current_page * 20, total_pages * 20)}"
+                  end,
+                  " of ",
+                  content_tag(:span, class: "font-medium") do
+                    "#{total_pages * 20}"
+                  end,
+                  " results"
+                ]
+              end
+            end,
+            content_tag(:div) do
+              content_tag(:nav,
+                class: "isolate inline-flex -space-x-px rounded-md shadow-sm",
+                "aria-label": "Pagination"
+              ) do
+                [
+                  if current_page > 1 do
+                    link to:
+                           Routes.mpesa_admin_path(
+                             conn,
+                             :transactions,
+                             Map.put(params, "page", current_page - 1)
+                           ),
+                         class:
+                           "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" do
+                      content_tag(:span, "Previous", class: "sr-only")
+                    end
+                  else
+                    content_tag(:span,
+                      class:
+                        "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 focus:outline-offset-0"
+                    ) do
+                      content_tag(:span, "Previous", class: "sr-only")
+                    end
+                  end,
+                  for page <- max(1, current_page - 2)..min(total_pages, current_page + 2) do
+                    if page == current_page do
+                      content_tag(:span, "#{page}",
+                        class:
+                          "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      )
+                    else
+                      link("#{page}",
+                        to:
+                          Routes.mpesa_admin_path(
+                            conn,
+                            :transactions,
+                            Map.put(params, "page", page)
+                          ),
+                        class:
+                          "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
+                      )
+                    end
+                  end,
+                  if current_page < total_pages do
+                    link to:
+                           Routes.mpesa_admin_path(
+                             conn,
+                             :transactions,
+                             Map.put(params, "page", current_page + 1)
+                           ),
+                         class:
+                           "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" do
+                      content_tag(:span, "Next", class: "sr-only")
+                    end
+                  else
+                    content_tag(:span,
+                      class:
+                        "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 focus:outline-offset-0"
+                    ) do
+                      content_tag(:span, "Next", class: "sr-only")
+                    end
+                  end
+                ]
+              end
+            end
+          ]
+        end
+      ]
     end
   end
-
-  def truncate(_, _), do: "-"
 end

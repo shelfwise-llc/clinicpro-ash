@@ -77,7 +77,7 @@ defmodule Clinicpro.Invoices do
       {:ok, updated_invoice}
     else
       {:error, :not_found} ->
-        Logger.warn("No invoice found for reference: #{transaction.reference}")
+        Logger.warning("No invoice found for reference: #{transaction.reference}")
         {:error, :invoice_not_found}
 
       {:error, reason} ->

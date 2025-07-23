@@ -86,18 +86,27 @@ defmodule ClinicproWeb.Router do
       # Removed duplicate pipe_through as it's already defined in the parent scope
 
       get "/", MPesaAdminController, :index
-      get "/new", MPesaAdminController, :new
-      post "/", MPesaAdminController, :create
-      get "/:id/edit", MPesaAdminController, :edit
-      put "/:id", MPesaAdminController, :update
+      get "/new", MPesaAdminController, :new_config
+      post "/", MPesaAdminController, :create_config
+      get "/:id/edit", MPesaAdminController, :edit_config
+      put "/:id", MPesaAdminController, :update_config
       delete "/:id", MPesaAdminController, :delete
-      get "/transactions", MPesaAdminController, :transactions
+      get "/transactions", MPesaAdminController, :list_transactions
       get "/transactions/:id", MPesaAdminController, :transaction_details
+      
+      # Configuration details
+      get "/configurations/:id", MPesaAdminController, :configuration_details
+      post "/configurations/:id/activate", MPesaAdminController, :activate_config
+      post "/configurations/:id/deactivate", MPesaAdminController, :deactivate_config
+      
+      # Callback logs
+      get "/callbacks", MPesaAdminController, :callback_logs
+      get "/callbacks/:id", MPesaAdminController, :callback_details
 
-      # New routes for STK Push testing and URL registration
+      # STK Push testing and URL registration
       get "/test-stk-push", MPesaAdminController, :test_stk_push_form
       post "/test-stk-push", MPesaAdminController, :test_stk_push
-      post "/register-urls", MPesaAdminController, :register_urls
+      post "/register-urls/:id", MPesaAdminController, :register_urls
     end
 
     # Keep ash_admin at the end for backward compatibility
@@ -249,28 +258,28 @@ defmodule ClinicproWeb.Router do
   # Patient-facing routes with versioning in path structure
   scope "/q", ClinicproWeb do
     pipe_through [:browser, :patient_auth]
-    
+
     # Payment routes
     get "/payment/:invoice_id", PaymentController, :show
     post "/payment/mpesa/initiate", PaymentController, :initiate_mpesa
     get "/payment/mpesa/status/:transaction_id", PaymentController, :check_status
-    
+
     # Appointment routes with type differentiation
     get "/appointment/:id", AppointmentController, :show
     get "/appointment/virtual/:id", AppointmentController, :virtual_link
     get "/appointment/onsite/:id", AppointmentController, :onsite_details
   end
 
-  # M-Pesa callback routes - no authentication required for callbacks from Safaricom
+  # M-Pesa callback routes with clinic-specific paths
   scope "/api/mpesa/callbacks", ClinicproWeb do
     pipe_through :api
-    
-    # STK Push callback
-    post "/stk", MPesaCallbackController, :stk_callback
-    
-    # C2B callbacks
-    post "/c2b/validation", MPesaCallbackController, :c2b_validation
-    post "/c2b/confirmation", MPesaCallbackController, :c2b_confirmation
+
+    # STK Push callback route with clinic_id parameter
+    post "/:clinic_id/stk", MPesaCallbackController, :stk_callback
+
+    # C2B validation and confirmation routes with clinic_id parameter
+    post "/:clinic_id/validation", MPesaCallbackController, :c2b_validation
+    post "/:clinic_id/confirmation", MPesaCallbackController, :c2b_confirmation
   end
 
   # JSON:API routes

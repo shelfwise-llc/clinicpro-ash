@@ -1,0 +1,128 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-lg shadow-lg p-6">
+    <h1 class="text-2xl font-bold mb-6">Invoice Payment</h1>
+
+    <div class="mb-6 border-b pb-4">
+      <h2 class="text-xl font-semibold mb-2">Invoice Details</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <p class="text-gray-600">Invoice Number</p>
+          <p class="font-medium"><%= @invoice.id %></p>
+        </div>
+        <div>
+          <p class="text-gray-600">Date</p>
+          <p class="font-medium"><%= @invoice.date %></p>
+        </div>
+        <div>
+          <p class="text-gray-600">Patient</p>
+          <p class="font-medium"><%= @invoice.patient_name %></p>
+        </div>
+        <div>
+          <p class="text-gray-600">Amount</p>
+          <p class="font-medium text-lg">KES <%= :erlang.float_to_binary(@invoice.amount, [decimals: 2]) %></p>
+        </div>
+        <div>
+          <p class="text-gray-600">Status</p>
+          <p class="font-medium" style="color: <%= if @payment_status == :paid, do: "#059669", else: if @payment_status == :partial, do: "#d97706", else: "#dc2626" %>;">
+            <%= String.upcase(to_string(@payment_status)) %>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {#if @payment_status != :paid}
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-4">Pay with M-Pesa</h2>
+        <p class="text-gray-600 mb-4">Enter your phone number below to receive an STK Push payment request.</p>
+
+        <form action={Routes.invoice_path(@conn, :initiate_payment, @invoice.id)} method="post" class="space-y-4">
+          <input type="hidden" name="_csrf_token" value={Plug.CSRFProtection.get_csrf_token()}>
+
+          <div>
+            <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <div class="flex">
+              <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                +
+              </span>
+              <input
+                type="text"
+                id="phone_number"
+                name="phone_number"
+                value={@default_phone}
+                placeholder="254712345678"
+                class="flex-1 min-w-0 block w-full px-3 py-2 rounded-r-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+              >
+            </div>
+            <p class="mt-1 text-sm text-gray-500">Enter your phone number in international format (e.g., 254712345678)</p>
+          </div>
+
+          <div>
+            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+              </svg>
+              Pay with M-Pesa
+            </button>
+          </div>
+        </form>
+      </div>
+    {/if}
+
+    <div>
+      <h2 class="text-xl font-semibold mb-4">Payment Transactions</h2>
+
+      {#if Enum.empty?(@transactions)}
+        <div class="bg-gray-50 p-4 rounded-md">
+          <p class="text-gray-600 text-center">No payment transactions found for this invoice.</p>
+        </div>
+      {#else}
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <%= for transaction <- @transactions do %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= transaction.inserted_at %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    KES <%= :erlang.float_to_binary(transaction.amount, [decimals: 2]) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= transaction_status_color(transaction.status) %>">
+                      <%= String.upcase(transaction.status) %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= transaction.transaction_id || transaction.checkout_request_id || "-" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= transaction.phone_number %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      {/if}
+    </div>
+
+    <div class="mt-6">
+      <a href={Routes.invoice_path(@conn, :index)} class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Back to Invoices
+      </a>
+    </div>
+  </div>
+</div>

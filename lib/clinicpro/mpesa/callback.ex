@@ -1,115 +1,46 @@
 defmodule Clinicpro.MPesa.Callback do
   @moduledoc """
-  Processes callbacks from M-Pesa.
-
-  This module is responsible for:
-  1. Processing STK Push callbacks
-  2. Processing C2B callbacks
-  3. Validating callback payloads
-  4. Updating transaction records
-  5. Broadcasting payment events
+  Handles M-Pesa callback processing with multi-tenant support.
+  This module processes callbacks from Safaricom's M-Pesa API,
+  ensuring proper isolation between clinics.
   """
 
   require Logger
   alias Clinicpro.MPesa.Transaction
-  alias Phoenix.PubSub
+  alias Clinicpro.Invoices.PaymentProcessor
 
   @doc """
   Processes an STK Push callback from M-Pesa.
 
   ## Parameters
 
-  - payload: The callback payload from M-Pesa
+  - `params` - The callback parameters from M-Pesa
 
   ## Returns
 
-  - {:ok, transaction} on success
-  - {:error, reason} on failure
+  - `{:ok, transaction}` - If the callback was processed successfully
+  - `{:error, reason}` - If the callback processing failed
   """
-  def process_stk(payload) do
-    # Extract the Body from the callback payload
-    with %{"Body" => body} <- payload,
-         # Extract the stkCallback from the body
-         %{"stkCallback" => stk_callback} <- body,
-         # Extract the CheckoutRequestID
-         %{"CheckoutRequestID" => checkout_request_id} <- stk_callback do
+  def process_stk_callback(params) do
+    # Extract the necessary data from the callback
+    with {:ok, data} <- extract_stk_callback_data(params),
+         {:ok, transaction} <- find_transaction(data),
+         :ok <- validate_clinic_transaction(transaction, data),
+         {:ok, updated_transaction} <- update_transaction_status(transaction, data) do
 
-      # Find the transaction
-      case Transaction.find_by_checkout_request_id(checkout_request_id) do
-        {:ok, transaction} ->
-          # Update transaction with callback data
-          result_code = get_in(stk_callback, ["ResultCode"])
-          result_desc = get_in(stk_callback, ["ResultDesc"])
-
-          # Extract receipt number and other details if successful
-          metadata = if result_code == "0" do
-            item = get_in(stk_callback, ["CallbackMetadata", "Item"]) || []
-
-            %{
-              mpesa_receipt_number: find_item_value(item, "MpesaReceiptNumber"),
-              transaction_date: parse_transaction_date(find_item_value(item, "TransactionDate")),
-              phone: find_item_value(item, "PhoneNumber"),
-              amount: find_item_value(item, "Amount")
-            }
-          else
-            %{}
-          end
-
-          # Update transaction status
-          status = if result_code == "0", do: "completed", else: "failed"
-
-          {:ok, updated_transaction} = Transaction.update(transaction, Map.merge(%{
-            status: status,
-            result_code: result_code,
-            result_desc: result_desc,
-            raw_response: payload
-          }, metadata))
-
-          # Broadcast the event
-          broadcast_transaction_update(updated_transaction)
-          
-          # Process invoice update if payment was successful
-          if status == "completed" do
-            # This will update the invoice and handle appointment-specific actions
-            Clinicpro.Invoices.process_completed_payment(updated_transaction)
-          end
-
-          {:ok, updated_transaction}
-
-        {:error, :not_found} ->
-          # Log unknown transaction
-          Logger.warn("Unknown M-Pesa transaction: #{checkout_request_id}")
-          {:error, :transaction_not_found}
+      # Process payment if successful
+      if data.result_code == "0" do
+        process_successful_payment(updated_transaction)
+      else
+        process_failed_payment(updated_transaction)
       end
+
+      {:ok, updated_transaction}
     else
       error ->
-        Logger.error("Invalid M-Pesa STK callback format: #{inspect(error)}")
-        {:error, :invalid_callback_format}
+        Logger.error("Failed to process STK callback: #{inspect(error)}")
+        error
     end
-  end
-
-  @doc """
-  Processes a C2B validation callback from M-Pesa.
-
-  ## Parameters
-
-  - payload: The callback payload from M-Pesa
-
-  ## Returns
-
-  - {:ok, response} - The response to send back to M-Pesa
-  """
-  def process_c2b_validation(payload) do
-    # For validation, we typically just accept all transactions
-    # You can add custom validation logic here if needed
-
-    Logger.info("C2B validation received: #{inspect(payload)}")
-
-    # Return a success response
-    {:ok, %{
-      "ResultCode" => 0,
-      "ResultDesc" => "Accepted"
-    }}
   end
 
   @doc """
@@ -117,153 +48,228 @@ defmodule Clinicpro.MPesa.Callback do
 
   ## Parameters
 
-  - payload: The callback payload from M-Pesa
+  - `params` - The callback parameters from M-Pesa
 
   ## Returns
 
-  - {:ok, transaction} on success
-  - {:error, reason} on failure
+  - `{:ok, transaction}` - If the callback was processed successfully
+  - `{:error, reason}` - If the callback processing failed
   """
-  def process_c2b(payload) do
-    # Extract transaction details from the payload
-    with %{
-           "TransID" => trans_id,
-           "TransAmount" => amount,
-           "BillRefNumber" => reference,
-           "MSISDN" => phone,
-           "TransactionType" => transaction_type,
-           "BusinessShortCode" => shortcode
-         } <- payload do
+  def process_c2b_confirmation(params) do
+    # Extract the necessary data from the callback
+    with {:ok, data} <- extract_c2b_callback_data(params),
+         {:ok, transaction} <- find_or_create_c2b_transaction(data),
+         :ok <- validate_clinic_transaction(transaction, data),
+         {:ok, updated_transaction} <- update_transaction_status(transaction, data) do
 
-      # Try to find an existing transaction by reference
-      case Transaction.find_by_reference(reference) do
-        nil ->
-          # This is a new C2B payment, not linked to an existing transaction
-          # We need to find which clinic this payment belongs to
-          case find_clinic_by_shortcode(shortcode) do
-            {:ok, clinic_id} ->
-              # Create a new transaction record
-              {:ok, transaction} = Transaction.create_pending(%{
-                clinic_id: clinic_id,
-                reference: reference,
-                phone: phone,
-                amount: amount,
-                type: "c2b",
-                description: "C2B Payment: #{transaction_type}"
-              })
+      # Process payment (C2B confirmations are always successful)
+      process_successful_payment(updated_transaction)
 
-              # Update with the payment details
-              {:ok, updated_transaction} = Transaction.update(transaction, %{
-                status: "completed",
-                mpesa_receipt_number: trans_id,
-                transaction_date: DateTime.utc_now(),
-                raw_response: payload
-              })
-
-              # Broadcast the event
-              broadcast_transaction_update(updated_transaction)
-              
-              # Try to find and update an invoice with this reference
-              Clinicpro.Invoices.process_completed_payment(updated_transaction)
-
-              {:ok, updated_transaction}
-
-            {:error, reason} ->
-              Logger.error("Could not determine clinic for C2B payment: #{inspect(reason)}")
-              {:error, :clinic_not_found}
-          end
-
-        transaction ->
-          # This is a C2B payment for an existing transaction
-          # Update the transaction with payment details
-          {:ok, updated_transaction} = Transaction.update(transaction, %{
-            status: "completed",
-            mpesa_receipt_number: trans_id,
-            transaction_date: DateTime.utc_now(),
-            raw_response: payload
-          })
-
-          # Broadcast the event
-          broadcast_transaction_update(updated_transaction)
-          
-          # Process invoice update
-          Clinicpro.Invoices.process_completed_payment(updated_transaction)
-
-          {:ok, updated_transaction}
-      end
+      {:ok, updated_transaction}
     else
       error ->
-        Logger.error("Invalid M-Pesa C2B callback format: #{inspect(error)}")
-        {:error, :invalid_callback_format}
+        Logger.error("Failed to process C2B confirmation: #{inspect(error)}")
+        error
     end
   end
 
   # Private functions
 
-  defp find_item_value(items, name) do
-    Enum.find_value(items, fn item ->
-      if item["Name"] == name, do: item["Value"], else: nil
-    end)
+  defp extract_stk_callback_data(params) do
+    body = params["Body"] || %{}
+    stkCallback = body["stkCallback"] || %{}
+
+    # Extract metadata to get clinic_id and invoice_id
+    metadata =
+      case stkCallback["CallbackMetadata"] do
+        %{"Item" => items} -> extract_metadata_items(items)
+        _ -> %{}
+      end
+
+    # Extract merchant request ID and checkout request ID
+    merchant_request_id = stkCallback["MerchantRequestID"]
+    checkout_request_id = stkCallback["CheckoutRequestID"]
+    result_code = to_string(stkCallback["ResultCode"])
+    result_description = stkCallback["ResultDesc"]
+
+    # Return the extracted data
+    {:ok, %{
+      merchant_request_id: merchant_request_id,
+      checkout_request_id: checkout_request_id,
+      result_code: result_code,
+      result_description: result_description,
+      transaction_id: metadata["TransID"],
+      transaction_date: metadata["TransactionDate"],
+      phone_number: metadata["PhoneNumber"],
+      amount: metadata["Amount"]
+    }}
   end
 
-  defp parse_transaction_date(nil), do: nil
-  defp parse_transaction_date(timestamp) do
-    # Parse the timestamp from M-Pesa format (YYYYMMDDHHmmss) to DateTime
-    case Regex.run(~r/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/, "#{timestamp}") do
-      [_, year, month, day, hour, minute, second] ->
-        {:ok, datetime} = NaiveDateTime.new(
-          String.to_integer(year),
-          String.to_integer(month),
-          String.to_integer(day),
-          String.to_integer(hour),
-          String.to_integer(minute),
-          String.to_integer(second)
-        )
-        DateTime.from_naive!(datetime, "Africa/Nairobi")
+  defp extract_c2b_callback_data(params) do
+    # Extract the necessary data from the C2B callback
+    transaction_type = params["TransactionType"]
+    transaction_id = params["TransID"]
+    transaction_time = params["TransTime"]
+    amount = params["TransAmount"]
+    phone_number = params["MSISDN"]
+    shortcode = params["BusinessShortCode"]
+    reference = params["BillRefNumber"]
+    invoice_id = reference
 
-      _ ->
-        nil
+    # Determine clinic_id from the shortcode
+    # This assumes you have a way to map shortcodes to clinic_ids
+    clinic_id = get_clinic_id_from_shortcode(shortcode)
+
+    if clinic_id do
+      {:ok, %{
+        transaction_type: transaction_type,
+        transaction_id: transaction_id,
+        transaction_date: transaction_time,
+        amount: amount,
+        phone_number: phone_number,
+        shortcode: shortcode,
+        reference: reference,
+        invoice_id: invoice_id,
+        clinic_id: clinic_id,
+        result_code: "0", # C2B confirmations are always successful
+        result_description: "Success"
+      }}
+    else
+      {:error, :invalid_shortcode}
     end
   end
 
-  defp broadcast_transaction_update(transaction) do
-    # Broadcast to clinic-specific channel
-    PubSub.broadcast(
-      Clinicpro.PubSub,
-      "mpesa:transactions:#{transaction.clinic_id}",
-      {:mpesa_transaction_updated, transaction}
-    )
+  defp extract_metadata_items(items) do
+    Enum.reduce(items, %{}, fn item, acc ->
+      name = item["Name"]
+      value = item["Value"]
+      Map.put(acc, name, value)
+    end)
+  end
 
-    # Broadcast to reference-specific channel
-    PubSub.broadcast(
-      Clinicpro.PubSub,
-      "mpesa:transaction:#{transaction.reference}",
-      {:mpesa_transaction_updated, transaction}
-    )
+  defp find_transaction(%{checkout_request_id: checkout_request_id, merchant_request_id: merchant_request_id}) do
+    # Try to find by checkout request ID first
+    case Transaction.get_by_checkout_request_id(checkout_request_id, nil) do
+      nil ->
+        # If not found, try by merchant request ID
+        case Transaction.get_by_merchant_request_id(merchant_request_id, nil) do
+          nil -> {:error, :transaction_not_found}
+          transaction -> {:ok, transaction}
+        end
+      transaction ->
+        {:ok, transaction}
+    end
+  end
 
-    # Broadcast to global channel
-    PubSub.broadcast(
-      Clinicpro.PubSub,
-      "mpesa:transactions",
-      {:mpesa_transaction_updated, transaction}
+  defp find_or_create_c2b_transaction(%{transaction_id: transaction_id, clinic_id: clinic_id} = data) do
+    # Try to find by transaction ID first
+    case Transaction.get_by_transaction_id(transaction_id, clinic_id) do
+      nil ->
+        # If not found, create a new transaction
+        attrs = %{
+          clinic_id: data.clinic_id,
+          invoice_id: data.invoice_id,
+          patient_id: get_patient_id_from_invoice(data.invoice_id, data.clinic_id),
+          amount: data.amount,
+          phone_number: data.phone_number,
+          status: "completed",
+          transaction_id: data.transaction_id,
+          reference: data.reference,
+          result_code: data.result_code,
+          result_description: data.result_description,
+          merchant_request_id: "C2B-#{data.transaction_id}",
+          checkout_request_id: "C2B-#{data.transaction_id}"
+        }
+
+        case Transaction.create(attrs) do
+          {:ok, transaction} -> {:ok, transaction}
+          {:error, _} = error -> error
+        end
+      transaction ->
+        {:ok, transaction}
+    end
+  end
+
+  defp validate_clinic_transaction(transaction, %{clinic_id: clinic_id}) when not is_nil(clinic_id) do
+    if transaction.clinic_id == clinic_id do
+      :ok
+    else
+      {:error, :clinic_mismatch}
+    end
+  end
+
+  defp validate_clinic_transaction(_transaction, _data), do: :ok
+
+  defp update_transaction_status(transaction, %{result_code: "0"} = data) do
+    # Update transaction for successful payment
+    attrs = %{
+      status: "completed",
+      transaction_id: data.transaction_id,
+      result_code: data.result_code,
+      result_description: data.result_description
+    }
+
+    Transaction.update(transaction, attrs)
+  end
+
+  defp update_transaction_status(transaction, data) do
+    # Update transaction for failed payment
+    attrs = %{
+      status: "failed",
+      result_code: data.result_code,
+      result_description: data.result_description
+    }
+
+    Transaction.update(transaction, attrs)
+  end
+
+  defp process_successful_payment(transaction) do
+    # Get the payment processor module
+    payment_processor = Application.get_env(:clinicpro, :payment_processor, PaymentProcessor)
+
+    # Process the payment
+    payment_processor.process_completed_payment(
+      transaction.invoice_id,
+      transaction.clinic_id,
+      %{
+        transaction_id: transaction.transaction_id,
+        amount: transaction.amount,
+        phone_number: transaction.phone_number
+      }
     )
   end
 
-  defp find_clinic_by_shortcode(shortcode) do
-    # This function would look up which clinic the shortcode belongs to
-    # For now, we'll implement a simple lookup using the mpesa_configs table
+  defp process_failed_payment(transaction) do
+    # Get the payment processor module
+    payment_processor = Application.get_env(:clinicpro, :payment_processor, PaymentProcessor)
 
+    # Process the failed payment
+    payment_processor.process_failed_payment(
+      transaction.invoice_id,
+      transaction.clinic_id,
+      %{
+        result_code: transaction.result_code,
+        result_description: transaction.result_description
+      }
+    )
+  end
+
+  defp get_clinic_id_from_shortcode(shortcode) do
+    # Query the database to find the clinic with this shortcode
+    # This is a simplified example - you would need to implement this based on your schema
     import Ecto.Query
-    alias Clinicpro.MPesa.Config
+    case Clinicpro.Repo.one(from c in Clinicpro.MPesa.Config, where: c.shortcode == ^shortcode) do
+      nil -> nil
+      config -> config.clinic_id
+    end
+  end
 
-    query = from c in Config,
-      where: c.shortcode == ^shortcode or c.c2b_shortcode == ^shortcode,
-      select: c.clinic_id,
-      limit: 1
-
-    case Clinicpro.Repo.one(query) do
-      nil -> {:error, :shortcode_not_found}
-      clinic_id -> {:ok, clinic_id}
+  defp get_patient_id_from_invoice(invoice_id, clinic_id) do
+    # Query the database to find the patient ID associated with this invoice
+    # This is a simplified example - you would need to implement this based on your schema
+    case Clinicpro.Invoices.get_invoice(invoice_id, clinic_id) do
+      nil -> nil
+      invoice -> invoice.patient_id
     end
   end
 end

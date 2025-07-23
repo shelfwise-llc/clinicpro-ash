@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ClinicPro – Billing & Finance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = {theme:{extend:{fontFamily:{sans:['Inter', 'ui-sans-serif','system-ui']}}}}</script>
+</head>
+<body class="font-sans antialiased text-gray-900 flex min-h-screen bg-gray-50">
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex lg:flex-col w-60 border-r bg-white">
+    <div class="px-6 py-4 flex items-center space-x-3">
+      <div class="h-8 w-8 rounded bg-gray-900 flex items-center justify-center">
+        <i data-lucide="shield-plus" class="text-white h-4 w-4"></i>
+      </div>
+      <span class="text-xl font-semibold">ClinicPro</span>
+    </div>
+    <nav class="flex-1 px-2 mt-4 space-y-1 text-sm">
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 space-x-3 text-gray-700">
+        <i data-lucide="home" class="h-4 w-4"></i><span>Home</span>
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 space-x-3 text-gray-700">
+        <i data-lucide="calendar" class="h-4 w-4"></i><span>Appointments</span>
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 space-x-3 text-gray-700">
+        <i data-lucide="users" class="h-4 w-4"></i><span>Patients</span>
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 space-x-3 text-gray-700">
+        <i data-lucide="prescription" class="h-4 w-4"></i><span>Prescriptions</span>
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 space-x-3 text-gray-700">
+        <i data-lucide="flask-conical" class="h-4 w-4"></i><span>Lab Orders</span>
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md bg-gray-100 space-x-3 text-gray-900 font-medium">
+        <i data-lucide="file-text" class="h-4 w-4"></i><span>Billing</span>
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-gray-100 space-x-3 text-gray-700">
+        <i data-lucide="settings" class="h-4 w-4"></i><span>Settings</span>
+      </a>
+    </nav>
+    <div class="px-6 py-4 border-t text-xs text-gray-500">
+      © 2025 ClinicPro
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="flex-1 flex flex-col">
+    <!-- Header -->
+    <header class="flex items-center justify-between px-4 lg:px-8 py-4 border-b bg-white">
+      <h1 class="text-xl font-semibold">Billing &amp; Finance</h1>
+      <button class="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium rounded-md bg-gray-900 text-white hover:bg-gray-800 focus:outline-none">
+        <i data-lucide="plus" class="h-4 w-4"></i>
+        <span>Create Invoice</span>
+      </button>
+    </header>
+
+    <!-- Content -->
+    <section class="flex-1 overflow-y-auto px-4 lg:px-8 py-6">
+      <!-- Tabs -->
+      <div class="flex space-x-2 border-b mb-6">
+        <button class="px-3 py-2 text-sm font-medium border-b-2 border-gray-900">Invoicing</button>
+        <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">Reports</button>
+        <button class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900">Inventory</button>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="flex flex-col md:flex-row md:items-center md:space-x-4 space-y-3 md:space-y-0 mb-6">
+        <div class="flex-1 relative">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i data-lucide="search" class="h-4 w-4 text-gray-400"></i>
+          </span>
+          <input type="text" placeholder="Search invoices, patient name..." class="w-full rounded-md border-gray-300 pl-10 pr-3 py-2 text-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900">
+        </div>
+        <select class="md:w-40 w-full rounded-md border-gray-300 py-2 px-3 text-sm focus:ring-2 focus:ring-gray-900 focus:border-gray-900">
+          <option>All Status</option>
+          <option>Paid</option>
+          <option>Pending</option>
+          <option>Overdue</option>
+        </select>
+        <div class="flex items-center space-x-2 md:ml-auto">
+          <button class="px-3 py-2 text-sm rounded-md border hover:bg-gray-50">Export</button>
+          <button class="px-3 py-2 text-sm rounded-md border hover:bg-gray-50">Table</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white border rounded-lg p-4">
+          <div class="flex items-start justify-between">
+            <span class="text-sm text-gray-600">Total Revenue</span>
+            <i data-lucide="dollar-sign" class="h-4 w-4 text-gray-400"></i>
+          </div>
+          <p class="text-2xl font-semibold mt-2">$24,580</p>
+        </div>
+        <div class="bg-white border rounded-lg p-4">
+          <div class="flex items-start justify-between">
+            <span class="text-sm text-gray-600">Pending</span>
+            <i data-lucide="clock" class="h-4 w-4 text-gray-400"></i>
+          </div>
+          <p class="text-2xl font-semibold mt-2">$3,420</p>
+        </div>
+        <div class="bg-white border rounded-lg p-4">
+          <div class="flex items-start justify-between">
+            <span class="text-sm text-gray-600">Overdue</span>
+            <i data-lucide="alert-triangle" class="h-4 w-4 text-gray-400"></i>
+          </div>
+          <p class="text-2xl font-semibold mt-2">$1,280</p>
+        </div>
+        <div class="bg-white border rounded-lg p-4">
+          <div class="flex items-start justify-between">
+            <span class="text-sm text-gray-600">This Month</span>
+            <i data-lucide="calendar-days" class="h-4 w-4 text-gray-400"></i>
+          </div>
+          <p class="text-2xl font-semibold mt-2">$8,640</p>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="bg-white border rounded-lg overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="border-b bg-gray-50 text-gray-600">
+            <tr>
+              <th class="px-6 py-3 text-left font-medium">Invoice</th>
+              <th class="px-6 py-3 text-left font-medium">Patient</th>
+              <th class="px-6 py-3 text-left font-medium">Amount</th>
+              <th class="px-6 py-3 text-left font-medium">Date</th>
+              <th class="px-6 py-3 text-left font-medium">Status</th>
+              <th class="px-6 py-3 text-left font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr>
+              <td class="px-6 py-4">
+                <span class="font-medium">INV-2025-001</span>
+                <p class="text-xs text-gray-500">Consultation</p>
+              </td>
+              <td class="px-6 py-4 flex items-center space-x-2">
+                <i data-lucide="smile" class="h-5 w-5 text-gray-600"></i>
+                <span>Sarah Johnson</span>
+              </td>
+              <td class="px-6 py-4">$150.00</td>
+              <td class="px-6 py-4">Jan 15, 2025</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Paid</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex space-x-3">
+                  <button class="text-gray-500 hover:text-gray-700" aria-label="View"><i data-lucide="eye" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700" aria-label="Download"><i data-lucide="download" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700" aria-label="Send"><i data-lucide="send" class="h-4 w-4"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4">
+                <span class="font-medium">INV-2025-002</span>
+                <p class="text-xs text-gray-500">Follow-up</p>
+              </td>
+              <td class="px-6 py-4 flex items-center space-x-2">
+                <i data-lucide="user" class="h-5 w-5 text-gray-600"></i>
+                <span>Michael Chen</span>
+              </td>
+              <td class="px-6 py-4">$100.00</td>
+              <td class="px-6 py-4">Jan 14, 2025</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex space-x-3">
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="eye" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="download" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="send" class="h-4 w-4"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4">
+                <span class="font-medium">INV-2025-003</span>
+                <p class="text-xs text-gray-500">Lab Tests</p>
+              </td>
+              <td class="px-6 py-4 flex items-center space-x-2">
+                <i data-lucide="user" class="h-5 w-5 text-gray-600"></i>
+                <span>Emily Davis</span>
+              </td>
+              <td class="px-6 py-4">$280.00</td>
+              <td class="px-6 py-4">Jan 10, 2025</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Overdue</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex space-x-3">
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="eye" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="download" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="send" class="h-4 w-4"></i></button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-6 py-4">
+                <span class="font-medium">INV-2025-004</span>
+                <p class="text-xs text-gray-500">Consultation</p>
+              </td>
+              <td class="px-6 py-4 flex items-center space-x-2">
+                <i data-lucide="smile" class="h-5 w-5 text-gray-600"></i>
+                <span>Robert Wilson</span>
+              </td>
+              <td class="px-6 py-4">$150.00</td>
+              <td class="px-6 py-4">Jan 16, 2025</td>
+              <td class="px-6 py-4">
+                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Paid</span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex space-x-3">
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="eye" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="download" class="h-4 w-4"></i></button>
+                  <button class="text-gray-500 hover:text-gray-700"><i data-lucide="send" class="h-4 w-4"></i></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Footer -->
+        <div class="flex items-center justify-between px-6 py-3 bg-white border-t text-sm">
+          <p>Showing 4 of 23 invoices</p>
+          <nav class="inline-flex space-x-1">
+            <button class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-50">Previous</button>
+            <button class="px-3 py-1 rounded border bg-gray-900 text-white">1</button>
+            <button class="px-3 py-1 rounded border hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 rounded border hover:bg-gray-50">3</button>
+            <button class="px-3 py-1 rounded border text-gray-600 hover:bg-gray-50">Next</button>
+          </nav>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

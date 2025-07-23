@@ -1,229 +1,311 @@
 defmodule Clinicpro.MPesa do
   @moduledoc """
-  Multi-tenant M-Pesa integration service for ClinicPro.
+  Main M-Pesa module that provides a unified interface for M-Pesa operations.
 
-  This module serves as the main entry point for all M-Pesa operations,
-  supporting multiple clinics with their own payment configurations.
-
-  ## Examples
-
-      # Initiate STK Push payment
-      Clinicpro.MPesa.initiate_stk_push(clinic_id, phone, amount, reference, description)
-
-      # Register C2B URLs for a clinic
-      Clinicpro.MPesa.register_c2b_urls(clinic_id)
+  This module coordinates all M-Pesa functionality with multi-tenant support,
+  ensuring proper isolation between clinics. It serves as the primary entry point
+  for M-Pesa operations in the ClinicPro application.
   """
 
-  require Logger
-  alias Clinicpro.MPesa.{Config, Auth, STKPush, C2B, Transaction, Callback}
+  alias Clinicpro.MPesa.{
+    STKPush,
+    Config,
+    Transaction,
+    Callback
+  }
 
   @doc """
-  Initiates an STK push request for a specific clinic.
+  Initiates an STK Push payment request.
 
   ## Parameters
 
-  - clinic_id: The ID of the clinic initiating the payment
-  - phone: Customer's phone number
-  - amount: Amount to be paid
-  - reference: Your reference for this transaction
-  - description: Transaction description
+  - `phone_number` - The phone number to send the STK Push to
+  - `amount` - The amount to charge
+  - `reference` - The reference for the transaction (usually invoice number)
+  - `description` - Description of the transaction
+  - `clinic_id` - The ID of the clinic initiating the payment
 
   ## Returns
 
-  - {:ok, transaction} on success
-  - {:error, reason} on failure
+  - `{:ok, %{checkout_request_id: id, transaction: transaction}}` - If the request was successful
+  - `{:error, reason}` - If the request failed
   """
-  def initiate_stk_push(clinic_id, phone, amount, reference, description) do
-    # Prepare transaction data
-    transaction_data = %{
-      clinic_id: clinic_id,
-      phone: phone,
-      amount: amount,
-      reference: reference,
-      description: description,
-      type: "stk_push"
-    }
-    
-    # First validate the transaction data
-    with {:ok, _valid_changeset} <- Transaction.validate_transaction_data(transaction_data),
-         {:ok, config} <- Config.get_for_clinic(clinic_id),
-         {:ok, transaction} <- Transaction.create_pending(transaction_data),
-         {:ok, response} <- STKPush.request(config, phone, amount, reference, description) do
+  def initiate_stk_push(phone_number, amount, reference, description, clinic_id) do
+    # Create a pending transaction
+    with {:ok, transaction} <- create_pending_transaction(phone_number, amount, reference, description, clinic_id),
+         # Get the STK Push module (allows for mocking in tests)
+         stk_push_module <- get_stk_push_module(),
+         # Send the STK Push request
+         {:ok, response} <- stk_push_module.send_stk_push(phone_number, amount, reference, description, clinic_id) do
 
-      # Update transaction with M-Pesa request details
-      Transaction.update(transaction, %{
-        checkout_request_id: response["CheckoutRequestID"],
-        merchant_request_id: response["MerchantRequestID"],
-        raw_request: response
+      # Update the transaction with the checkout request ID and merchant request ID
+      {:ok, updated_transaction} = Transaction.update(transaction, %{
+        checkout_request_id: response.checkout_request_id,
+        merchant_request_id: response.merchant_request_id
       })
-    else
-      {:error, :config_not_found} ->
-        Logger.error("M-Pesa configuration not found for clinic #{clinic_id}")
-        {:error, :mpesa_config_not_found}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        Logger.error("Invalid transaction data: #{inspect(changeset.errors)}")
-        {:error, :invalid_transaction_data, changeset}
-
-      {:error, reason} ->
-        Logger.error("M-Pesa STK push failed: #{inspect(reason)}")
-        {:error, reason}
+      # Return the checkout request ID and transaction
+      {:ok, %{
+        checkout_request_id: response.checkout_request_id,
+        transaction: updated_transaction
+      }}
     end
   end
 
   @doc """
-  Registers C2B validation and confirmation URLs for a clinic.
-  Must be called once after setting up a clinic's M-Pesa credentials.
+  Checks the status of an STK Push payment.
 
   ## Parameters
 
-  - clinic_id: The ID of the clinic to register URLs for
+  - `checkout_request_id` - The checkout request ID to check
+  - `clinic_id` - The ID of the clinic that initiated the payment
 
   ## Returns
 
-  - {:ok, response} on success
-  - {:error, reason} on failure
+  - `{:ok, transaction}` - If the transaction was found
+  - `{:error, reason}` - If the transaction was not found or the status check failed
   """
-  def register_c2b_urls(clinic_id) do
-    with {:ok, config} <- Config.get_for_clinic(clinic_id) do
-      C2B.register_urls(config)
-    else
-      {:error, :config_not_found} ->
-        Logger.error("M-Pesa configuration not found for clinic #{clinic_id}")
-        {:error, :mpesa_config_not_found}
+  def check_stk_push_status(checkout_request_id, clinic_id) do
+    # Get the transaction
+    case Transaction.get_by_checkout_request_id(checkout_request_id, clinic_id) do
+      nil ->
+        {:error, :transaction_not_found}
 
-      {:error, reason} ->
-        Logger.error("Failed to register C2B URLs: #{inspect(reason)}")
-        {:error, reason}
+      transaction ->
+        # If the transaction is still pending, check with M-Pesa
+        if transaction.status == "pending" do
+          # Get the STK Push module
+          stk_push_module = get_stk_push_module()
+
+          # Check the status with M-Pesa
+          case stk_push_module.query_stk_push_status(checkout_request_id, transaction.merchant_request_id, clinic_id) do
+            {:ok, status_response} ->
+              # Update the transaction based on the status response
+              update_transaction_from_status(transaction, status_response)
+
+            {:error, _reason} ->
+              # If the status check fails, just return the transaction as is
+              {:ok, transaction}
+          end
+        else
+          # If the transaction is not pending, just return it
+          {:ok, transaction}
+        end
     end
   end
 
   @doc """
-  Process a C2B callback from M-Pesa.
-
-  This function is called by the callback controller when
-  M-Pesa sends a payment notification.
+  Processes an STK Push callback from M-Pesa.
 
   ## Parameters
 
-  - payload: The callback payload from M-Pesa
+  - `params` - The callback parameters from M-Pesa
 
   ## Returns
 
-  - {:ok, transaction} on success
-  - {:error, reason} on failure
+  - `{:ok, transaction}` - If the callback was processed successfully
+  - `{:error, reason}` - If the callback processing failed
   """
-  def process_c2b_callback(payload) do
-    Callback.process_c2b(payload)
+  def process_stk_callback(params) do
+    Callback.process_stk_callback(params)
   end
 
   @doc """
-  Process an STK Push callback from M-Pesa.
-
-  This function is called by the callback controller when
-  M-Pesa sends an STK push result.
+  Processes a C2B confirmation callback from M-Pesa.
 
   ## Parameters
 
-  - payload: The callback payload from M-Pesa
+  - `params` - The callback parameters from M-Pesa
 
   ## Returns
 
-  - {:ok, transaction} on success
-  - {:error, reason} on failure
+  - `{:ok, transaction}` - If the callback was processed successfully
+  - `{:error, reason}` - If the callback processing failed
   """
-  def process_stk_callback(payload) do
-    Callback.process_stk(payload)
+  def process_c2b_confirmation(params) do
+    Callback.process_c2b_confirmation(params)
   end
 
   @doc """
-  Query the status of an STK push transaction.
+  Gets a transaction by its checkout request ID.
 
   ## Parameters
 
-  - checkout_request_id: The CheckoutRequestID returned by the STK push request
-  - clinic_id: The ID of the clinic that initiated the payment
+  - `checkout_request_id` - The checkout request ID to search for
+  - `clinic_id` - The ID of the clinic that initiated the payment
 
   ## Returns
 
-  - {:ok, response} on success
-  - {:error, reason} on failure
+  - `transaction` - If the transaction was found
+  - `nil` - If the transaction was not found
   """
-  def query_stk_status(checkout_request_id, clinic_id) do
-    with {:ok, config} <- Config.get_for_clinic(clinic_id),
-         {:ok, transaction} <- Transaction.find_by_checkout_request_id(checkout_request_id),
-         {:ok, response} <- STKPush.query_status(config, checkout_request_id) do
-
-      # Update transaction with status response
-      Transaction.update(transaction, %{
-        result_code: response["ResultCode"],
-        result_desc: response["ResultDesc"],
-        raw_response: Map.merge(transaction.raw_response || %{}, %{"query_response" => response})
-      })
-    end
+  def get_transaction_by_checkout_request_id(checkout_request_id, clinic_id) do
+    Transaction.get_by_checkout_request_id(checkout_request_id, clinic_id)
   end
 
   @doc """
-  List transactions for a specific clinic with pagination.
+  Gets a transaction by its merchant request ID.
 
   ## Parameters
 
-  - clinic_id: The ID of the clinic to list transactions for
-  - page: Page number (default: 1)
-  - per_page: Number of transactions per page (default: 20)
+  - `merchant_request_id` - The merchant request ID to search for
+  - `clinic_id` - The ID of the clinic that initiated the payment
+
+  ## Returns
+
+  - `transaction` - If the transaction was found
+  - `nil` - If the transaction was not found
+  """
+  def get_transaction_by_merchant_request_id(merchant_request_id, clinic_id) do
+    Transaction.get_by_merchant_request_id(merchant_request_id, clinic_id)
+  end
+
+  @doc """
+  Lists all transactions for a specific clinic.
+
+  ## Parameters
+
+  - `clinic_id` - The ID of the clinic to list transactions for
 
   ## Returns
 
   - List of transactions
   """
-  def list_transactions(clinic_id, page \\ 1, per_page \\ 20) do
-    Transaction.list_by_clinic(clinic_id, page, per_page)
+  def list_transactions_by_clinic(clinic_id) do
+    Transaction.list_by_clinic_id(clinic_id)
   end
 
   @doc """
-  Get a transaction by its reference.
+  Lists all transactions for a specific invoice.
 
   ## Parameters
 
-  - reference: The transaction reference
+  - `invoice_id` - The ID of the invoice to list transactions for
 
   ## Returns
 
-  - {:ok, transaction} if found
-  - {:error, :not_found} if not found
+  - List of transactions
   """
-  def get_transaction_by_reference(reference) do
-    case Transaction.find_by_reference(reference) do
-      nil -> {:error, :not_found}
-      transaction -> {:ok, transaction}
+  def list_transactions_by_invoice(invoice_id) do
+    Transaction.list_by_invoice_id(invoice_id)
+  end
+
+  @doc """
+  Lists all transactions for a specific patient within a clinic.
+
+  ## Parameters
+
+  - `patient_id` - The ID of the patient to list transactions for
+  - `clinic_id` - The ID of the clinic (for multi-tenant support)
+
+  ## Returns
+
+  - List of transactions
+  """
+  def list_transactions_by_patient(patient_id, clinic_id) do
+    Transaction.list_by_patient_id(patient_id, clinic_id)
+  end
+
+  @doc """
+  Gets the M-Pesa configuration for a specific clinic.
+
+  ## Parameters
+
+  - `clinic_id` - The ID of the clinic to get the configuration for
+
+  ## Returns
+
+  - `config` - The configuration for the clinic
+  """
+  def get_config(clinic_id) do
+    Config.get_config(clinic_id)
+  end
+
+  @doc """
+  Updates the M-Pesa configuration for a specific clinic.
+
+  ## Parameters
+
+  - `clinic_id` - The ID of the clinic to update the configuration for
+  - `attrs` - Map of attributes to update
+
+  ## Returns
+
+  - `{:ok, config}` - If the configuration was updated successfully
+  - `{:error, changeset}` - If the configuration update failed
+  """
+  def update_config(clinic_id, attrs) do
+    case Config.get_by_clinic_id(clinic_id) do
+      nil ->
+        # If no configuration exists, create a new one
+        Config.create(Map.put(attrs, :clinic_id, clinic_id))
+
+      config ->
+        # If a configuration exists, update it
+        Config.update(config, attrs)
     end
   end
 
-  @doc """
-  Creates or updates M-Pesa configuration for a clinic.
+  # Private functions
 
-  ## Parameters
+  defp create_pending_transaction(phone_number, amount, reference, description, clinic_id) do
+    # Extract invoice_id and patient_id from reference
+    # This assumes that reference is the invoice ID
+    invoice_id = reference
+    patient_id = get_patient_id_from_invoice(invoice_id, clinic_id)
 
-  - attrs: Map containing configuration attributes including:
-    - consumer_key: The M-Pesa API consumer key
-    - consumer_secret: The M-Pesa API consumer secret
-    - passkey: The M-Pesa passkey
-    - shortcode: The M-Pesa shortcode
-    - environment: "sandbox" or "production"
-    - clinic_id: The ID of the clinic this configuration belongs to
+    # Create the transaction
+    Transaction.create(%{
+      clinic_id: clinic_id,
+      invoice_id: invoice_id,
+      patient_id: patient_id,
+      amount: amount,
+      phone_number: phone_number,
+      status: "pending",
+      reference: reference,
+      merchant_request_id: "",
+      checkout_request_id: "",
+      result_code: "",
+      result_description: description
+    })
+  end
 
-  ## Returns
+  defp update_transaction_from_status(transaction, status_response) do
+    # Extract the result code and description
+    result_code = status_response.result_code
+    result_description = status_response.result_desc
 
-  - {:ok, config} on success
-  - {:error, changeset} on validation failure
-  """
-  def create_config(attrs) do
-    clinic_id = attrs["clinic_id"] || attrs[:clinic_id]
-    
-    if is_nil(clinic_id) do
-      {:error, :missing_clinic_id}
+    # Determine the new status
+    new_status = if result_code == "0", do: "completed", else: "failed"
+
+    # Update the transaction
+    attrs = %{
+      status: new_status,
+      result_code: result_code,
+      result_description: result_description
+    }
+
+    # Add transaction_id if available
+    attrs = if Map.has_key?(status_response, :transaction_id) do
+      Map.put(attrs, :transaction_id, status_response.transaction_id)
     else
-      Config.upsert_config(clinic_id, attrs)
+      attrs
+    end
+
+    # Update the transaction
+    Transaction.update(transaction, attrs)
+  end
+
+  defp get_stk_push_module do
+    Application.get_env(:clinicpro, :stk_push_module, STKPush)
+  end
+
+  defp get_patient_id_from_invoice(invoice_id, clinic_id) do
+    # Query the database to find the patient ID associated with this invoice
+    # This is a simplified example - you would need to implement this based on your schema
+    case Clinicpro.Invoices.get_invoice(invoice_id, clinic_id) do
+      nil -> nil
+      invoice -> invoice.patient_id
     end
   end
 end

@@ -11,19 +11,19 @@ config :clinicpro, Clinicpro.Repo,
   hostname: "localhost",
   database: "clinicpro_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+  pool_size: 10
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :clinicpro, ClinicproWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
-  secret_key_base: "PdBs5WMFxWYf2INXa1R8rodSpgX536iv+sxU6O+aEOYrkJtWcpvsOJI7bkwPHLaj",
+  secret_key_base: "Dn0Uf+oDMIwVFQGQNLLBxnXkZQJYRMdnqVGJXcXxCvKrZPLZZnKnQJXZMDnQGQJZ",
   server: false
 
-# In test we don't send emails
+# In test we don't send emails.
 config :clinicpro, Clinicpro.Mailer, adapter: Swoosh.Adapters.Test
 
-# Disable swoosh api client as it is only required for production adapters
+# Disable swoosh api client as it is only required for production adapters.
 config :swoosh, :api_client, false
 
 # Print only warnings and errors during test
@@ -31,6 +31,18 @@ config :logger, level: :warning
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
+
+# Configure M-Pesa mock modules for testing
+config :clinicpro, :mpesa_stk_push_module, Clinicpro.MPesa.STKPushMock
+config :clinicpro, :payment_processor_module, Clinicpro.Invoices.PaymentProcessorMock
+
+# Configure the default clinic ID for tests
+config :clinicpro, :default_clinic_id, "test-clinic-id"
+
+# Configure the OTP rate limiter for tests
+config :clinicpro, Clinicpro.Auth.OTPRateLimiter,
+  max_attempts_per_hour: 10,
+  lockout_minutes: 5
 
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
@@ -41,11 +53,6 @@ config :clinicpro, :token_signing_secret, "test_secret_key_for_ash_authenticatio
 
 # Enable test bypass mode
 config :clinicpro, :test_bypass_enabled, true
-
-# Configure mock modules for tests
-config :clinicpro, :accounts_api, Clinicpro.Mocks.Accounts
-config :clinicpro, :appointments_api, Clinicpro.Mocks.Appointments
-config :clinicpro, :auth_module, Clinicpro.Mocks.Accounts
 
 # Bypass AshAuthentication compilation in tests
 config :ash_authentication, :bypass_compile_time_checks, true

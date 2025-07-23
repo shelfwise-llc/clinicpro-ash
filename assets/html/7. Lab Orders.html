@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClinicPro – Lab Orders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full bg-gray-50 text-gray-900 antialiased" style="font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;">
+<div class="flex h-full w-full">
+  <!-- Mobile nav toggle -->
+  <button id="mobile-nav-toggle" class="lg:hidden fixed top-4 left-4 z-20 p-2 rounded-md bg-white border border-gray-200 shadow-sm">
+    <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col px-5 py-6 transform lg:translate-x-0 -translate-x-full transition-transform duration-200 ease-in-out">
+    <!-- Brand -->
+    <div class="flex items-center gap-2 mb-8">
+      <div class="h-8 w-8 rounded-md bg-gray-900 flex items-center justify-center">
+        <i data-lucide="shield" class="w-5 h-5 text-white"></i>
+      </div>
+      <span class="text-lg font-semibold">ClinicPro</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1">
+      <ul class="space-y-1">
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-100">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            Home
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-100">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            Appointments
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-100">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            Patients
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-100">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+            Prescriptions
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm bg-gray-100 font-medium">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            Lab Orders
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-100">
+            <i data-lucide="credit-card" class="w-5 h-5"></i>
+            Billing
+          </a>
+        </li>
+        <li>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm hover:bg-gray-100">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            Settings
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Footer -->
+    <div class="text-xs text-gray-500 pt-6 border-t border-gray-200">
+      © 2025 ClinicPro. All rights reserved.
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1 lg:ml-64 ml-0 flex flex-col">
+    <!-- Header -->
+    <header class="h-14 flex items-center justify-end px-6 border-b border-gray-200 bg-white">
+      <div class="flex items-center gap-4">
+        <button class="relative">
+          <i data-lucide="bell" class="w-5 h-5 text-gray-600"></i>
+          <span class="absolute top-0 right-0 inline-flex h-2 w-2 bg-red-500 rounded-full"></span>
+        </button>
+        <img src="https://api.dicebear.com/6.x/notionists-neutral/svg?seed=1" alt="avatar" class="w-8 h-8 rounded-full">
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 p-6 lg:p-10 overflow-y-auto">
+      <!-- Title & CTA -->
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <h1 class="text-2xl font-semibold">Lab Orders</h1>
+        <button class="inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium px-4 py-2 rounded-md">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          New Lab Order
+        </button>
+      </div>
+
+      <!-- Filters -->
+      <div class="mt-6 flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i data-lucide="search" class="w-4 h-4 text-gray-500"></i>
+          </span>
+          <input type="text" placeholder="Search lab orders, patient, test type…" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md bg-white text-sm placeholder-gray-400 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition">
+        </div>
+
+        <select class="sm:w-40 w-full border border-gray-300 rounded-md bg-white text-sm px-3 py-2 focus:ring-2 focus:ring-gray-200 focus:border-gray-400 transition">
+          <option>All Status</option>
+          <option>Pending</option>
+          <option>In Progress</option>
+          <option>Completed</option>
+          <option>Urgent</option>
+        </select>
+      </div>
+
+      <!-- Table Card -->
+      <div class="mt-6 bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <!-- Card Header -->
+        <div class="flex items-center justify-end gap-2 px-4 py-3 border-b border-gray-200">
+          <button class="text-sm px-3 py-1.5 border border-gray-300 rounded-md bg-white hover:bg-gray-50">Export</button>
+          <button class="text-sm px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 font-medium">Table</button>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-50">
+              <tr class="text-left text-gray-600">
+                <th class="px-6 py-3 font-medium">Patient</th>
+                <th class="px-6 py-3 font-medium">Test Type</th>
+                <th class="px-6 py-3 font-medium">Category</th>
+                <th class="px-6 py-3 font-medium">Date Ordered</th>
+                <th class="px-6 py-3 font-medium">Status</th>
+                <th class="px-6 py-3 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <!-- Row 1 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <img src="https://api.dicebear.com/6.x/notionists-neutral/svg?seed=2" class="w-9 h-9 rounded-full" alt="">
+                    <div>
+                      <div class="font-medium text-gray-900">Sarah Johnson</div>
+                      <div class="text-gray-500 text-xs">ID: P-2025-001</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium">Complete Blood Count</div>
+                  <div class="text-xs text-gray-500">CBC with differential</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">Hematology</span>
+                </td>
+                <td class="px-6 py-4">Jan 15, 2025</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs">Pending</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-700 hover:bg-gray-600 text-white">View Details</button>
+                    <button class="p-2 rounded-md hover:bg-gray-100">
+                      <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 2 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <img src="https://api.dicebear.com/6.x/notionists-neutral/svg?seed=3" class="w-9 h-9 rounded-full" alt="">
+                    <div>
+                      <div class="font-medium text-gray-900">Michael Chen</div>
+                      <div class="text-gray-500 text-xs">ID: P-2025-002</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium">Lipid Panel</div>
+                  <div class="text-xs text-gray-500">Cholesterol, HDL, LDL</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">Biochemistry</span>
+                </td>
+                <td class="px-6 py-4">Jan 14, 2025</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 text-xs">In Progress</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-700 hover:bg-gray-600 text-white">View Details</button>
+                    <button class="p-2 rounded-md hover:bg-gray-100">
+                      <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 3 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <img src="https://api.dicebear.com/6.x/notionists-neutral/svg?seed=4" class="w-9 h-9 rounded-full" alt="">
+                    <div>
+                      <div class="font-medium text-gray-900">Emily Davis</div>
+                      <div class="text-gray-500 text-xs">ID: P-2025-003</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium">Thyroid Function</div>
+                  <div class="text-xs text-gray-500">TSH, T3, T4</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">Endocrine</span>
+                </td>
+                <td class="px-6 py-4">Jan 12, 2025</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs">Completed</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-700 hover:bg-gray-600 text-white">View Results</button>
+                    <button class="p-2 rounded-md hover:bg-gray-100">
+                      <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 4 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <img src="https://api.dicebear.com/6.x/notionists-neutral/svg?seed=5" class="w-9 h-9 rounded-full" alt="">
+                    <div>
+                      <div class="font-medium text-gray-900">Robert Wilson</div>
+                      <div class="text-gray-500 text-xs">ID: P-2025-004</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium">HbA1c</div>
+                  <div class="text-xs text-gray-500">Diabetes monitoring</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">Biochemistry</span>
+                </td>
+                <td class="px-6 py-4">Jan 16, 2025</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-xs">Urgent</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-700 hover:bg-gray-600 text-white">View Details</button>
+                    <button class="p-2 rounded-md hover:bg-gray-100">
+                      <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Row 5 -->
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <img src="https://api.dicebear.com/6.x/notionists-neutral/svg?seed=6" class="w-9 h-9 rounded-full" alt="">
+                    <div>
+                      <div class="font-medium text-gray-900">Lisa Thompson</div>
+                      <div class="text-gray-500 text-xs">ID: P-2025-005</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium">Urinalysis</div>
+                  <div class="text-xs text-gray-500">Routine urine test</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 text-xs">Microbiology</span>
+                </td>
+                <td class="px-6 py-4">Jan 13, 2025</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 text-xs">Completed</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button class="px-3 py-1.5 text-xs font-medium rounded-md bg-gray-700 hover:bg-gray-600 text-white">View Results</button>
+                    <button class="p-2 rounded-md hover:bg-gray-100">
+                      <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Card Footer -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 bg-white">
+          <p class="text-sm text-gray-600">Showing 5 of 28 lab orders</p>
+          <nav class="flex items-center gap-1">
+            <button class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">Previous</button>
+            <button class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-gray-800 text-white">1</button>
+            <button class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">2</button>
+            <button class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">3</button>
+            <button class="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50">Next</button>
+          </nav>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Bar (mobile) -->
+    <footer class="lg:hidden flex items-center justify-between px-6 py-3 border-t border-gray-200 text-xs bg-white">
+      <span>© 2025 ClinicPro</span>
+      <div class="flex gap-4">
+        <a href="#" class="hover:underline">Support</a>
+        <a href="#" class="hover:underline">Privacy</a>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<script>
+  lucide.createIcons();
+
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('mobile-nav-toggle');
+
+  toggleBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('-translate-x-full');
+  });
+</script>
+</body>
+</html>

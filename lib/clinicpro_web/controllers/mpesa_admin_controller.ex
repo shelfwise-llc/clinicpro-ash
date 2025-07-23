@@ -1,256 +1,423 @@
 defmodule ClinicproWeb.MPesaAdminController do
   use ClinicproWeb, :controller
 
-  alias Clinicpro.MPesa
   alias Clinicpro.MPesa.Config
   alias Clinicpro.MPesa.Transaction
-  alias Clinicpro.Repo
-
-  plug :require_admin
+  alias Clinicpro.MPesa.CallbackLog
+  alias Clinicpro.MPesa
 
   @doc """
-  Lists M-Pesa configurations for a clinic.
+  Renders the M-Pesa admin dashboard with transaction statistics.
   """
-  def index(conn, %{"clinic_id" => clinic_id}) do
-    with {:ok, clinic} <- get_clinic(clinic_id) do
-      config = Repo.get_by(Config, clinic_id: clinic_id)
+  def index(conn, _params) do
+    clinic_id = get_clinic_id(conn)
 
-      # Get recent transactions for the dashboard
-      recent_transactions =
-        if config do
-          Transaction.list_for_clinic(clinic_id, 1, 5)
-        else
-          []
-        end
-
-      # Get transaction stats
-      stats = Transaction.get_stats_for_clinic(clinic_id)
-
-      render(conn, "index.html",
-        clinic_id: clinic_id,
-        clinic_name: clinic.name,
-        config: config,
-        recent_transactions: recent_transactions,
-        stats: stats
-      )
+    # Get active configuration
+    config = case Config.get_active_config(clinic_id) do
+      {:ok, config} -> config
+      {:error, _} -> nil
     end
+
+    # Get transaction statistics
+    stats = %{
+      total_transactions: Transaction.count_by_clinic(clinic_id),
+      completed_transactions: Transaction.count_by_clinic_and_status(clinic_id, "completed"),
+      pending_transactions: Transaction.count_by_clinic_and_status(clinic_id, "pending"),
+      failed_transactions: Transaction.count_by_clinic_and_status(clinic_id, "failed"),
+      total_amount: Transaction.sum_amount_by_clinic_and_status(clinic_id, "completed")
+    }
+
+    # Get recent transactions
+    recent_transactions = Transaction.list_by_clinic(clinic_id, limit: 10)
+
+    render(conn, "index.html",
+      config: config,
+      stats: stats,
+      recent_transactions: recent_transactions
+    )
   end
 
   @doc """
-  Shows the form to create a new M-Pesa configuration.
+  Renders the M-Pesa configuration form.
   """
-  def new(conn, %{"clinic_id" => clinic_id}) do
-    with {:ok, clinic} <- get_clinic(clinic_id) do
-      changeset = Config.changeset(%Config{}, %{})
+  def new_config(conn, _params) do
+    clinic_id = get_clinic_id(conn)
+    changeset = Config.changeset(%Config{clinic_id: clinic_id}, %{})
 
-      render(conn, "new.html",
-        clinic_id: clinic_id,
-        clinic_name: clinic.name,
-        changeset: changeset
-      )
-    end
+    render(conn, "new_config.html", changeset: changeset)
   end
 
   @doc """
   Creates a new M-Pesa configuration.
   """
-  def create(conn, %{"clinic_id" => clinic_id, "config" => config_params}) do
-    with {:ok, clinic} <- get_clinic(clinic_id) do
-      config_params = Map.put(config_params, "clinic_id", clinic_id)
+  def create_config(conn, %{"config" => config_params}) do
+    clinic_id = get_clinic_id(conn)
+    config_params = Map.put(config_params, "clinic_id", clinic_id)
 
-      case Config.save_config(config_params) do
-        {:ok, _config} ->
-          conn
-          |> put_flash(:info, "M-Pesa configuration created successfully.")
-          |> redirect(to: Routes.mpesa_admin_path(conn, :index, clinic_id))
+    case Config.create(config_params) do
+      {:ok, config} ->
+        # Activate the new configuration
+        {:ok, _} = Config.activate(config.id)
 
-        {:error, %Ecto.Changeset{} = changeset} ->
-          render(conn, "new.html",
-            clinic_id: clinic_id,
-            clinic_name: clinic.name,
-            changeset: changeset
-          )
-      end
+        conn
+        |> put_flash(:info, "M-Pesa configuration created successfully.")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+
+      {:error, changeset} ->
+        render(conn, "new_config.html", changeset: changeset)
     end
   end
 
   @doc """
-  Shows the form to edit an M-Pesa configuration.
+  Renders the edit form for an M-Pesa configuration.
   """
-  def edit(conn, %{"clinic_id" => clinic_id, "id" => id}) do
-    with {:ok, clinic} <- get_clinic(clinic_id),
-         config <- Repo.get!(Config, id) do
-      changeset = Config.changeset(config, %{})
+  def edit_config(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    config = Config.get_by_id(id)
 
-      render(conn, "edit.html",
-        clinic_id: clinic_id,
-        clinic_name: clinic.name,
-        config: config,
-        changeset: changeset
-      )
+    # Ensure the config belongs to this clinic
+    if config && config.clinic_id == clinic_id do
+      changeset = Config.changeset(config, %{})
+      render(conn, "edit_config.html", config: config, changeset: changeset)
+    else
+      conn
+      |> put_flash(:error, "Configuration not found.")
+      |> redirect(to: Routes.mpesa_admin_path(conn, :index))
     end
   end
 
   @doc """
   Updates an M-Pesa configuration.
   """
-  def update(conn, %{"clinic_id" => clinic_id, "id" => id, "config" => config_params}) do
-    with {:ok, clinic} <- get_clinic(clinic_id),
-         config <- Repo.get!(Config, id) do
-      case Config.save_config(config, config_params) do
+  def update_config(conn, %{"id" => id, "config" => config_params}) do
+    clinic_id = get_clinic_id(conn)
+    config = Config.get_by_id(id)
+
+    # Ensure the config belongs to this clinic
+    if config && config.clinic_id == clinic_id do
+      case Config.update(config, config_params) do
         {:ok, _config} ->
           conn
           |> put_flash(:info, "M-Pesa configuration updated successfully.")
-          |> redirect(to: Routes.mpesa_admin_path(conn, :index, clinic_id))
+          |> redirect(to: Routes.mpesa_admin_path(conn, :index))
 
-        {:error, %Ecto.Changeset{} = changeset} ->
-          render(conn, "edit.html",
-            clinic_id: clinic_id,
-            clinic_name: clinic.name,
-            config: config,
-            changeset: changeset
-          )
+        {:error, changeset} ->
+          render(conn, "edit_config.html", config: config, changeset: changeset)
       end
-    end
-  end
-
-  @doc """
-  Deletes an M-Pesa configuration.
-  """
-  def delete(conn, %{"clinic_id" => clinic_id, "id" => id}) do
-    with {:ok, _clinic} <- get_clinic(clinic_id),
-         config <- Repo.get!(Config, id) do
-      {:ok, _config} = Repo.delete(config)
-
+    else
       conn
-      |> put_flash(:info, "M-Pesa configuration deleted successfully.")
-      |> redirect(to: Routes.mpesa_admin_path(conn, :index, clinic_id))
+      |> put_flash(:error, "Configuration not found.")
+      |> redirect(to: Routes.mpesa_admin_path(conn, :index))
     end
   end
 
   @doc """
-  Lists M-Pesa transactions for a clinic with filtering options.
+  Activates an M-Pesa configuration.
   """
-  def transactions(conn, %{"clinic_id" => clinic_id} = params) do
-    with {:ok, clinic} <- get_clinic(clinic_id) do
-      page = Map.get(params, "page", "1") |> String.to_integer()
-      per_page = 20
+  def activate_config(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    config = Config.get_by_id(id)
 
-      # Extract filter parameters
-      status = Map.get(params, "status")
-      type = Map.get(params, "type")
-
-      # Apply filters
-      filters = %{}
-      filters = if status, do: Map.put(filters, :status, status), else: filters
-      filters = if type, do: Map.put(filters, :type, type), else: filters
-
-      transactions = Transaction.list_for_clinic(clinic_id, page, per_page, filters)
-      total_count = Transaction.count_for_clinic(clinic_id, filters)
-
-      render(conn, "transactions.html",
-        clinic_id: clinic_id,
-        clinic_name: clinic.name,
-        transactions: transactions,
-        page: page,
-        per_page: per_page,
-        total_count: total_count,
-        status: status,
-        type: type
-      )
-    end
-  end
-
-  @doc """
-  Shows details of a specific M-Pesa transaction.
-  """
-  def transaction_details(conn, %{"clinic_id" => clinic_id, "id" => id}) do
-    with {:ok, clinic} <- get_clinic(clinic_id),
-         transaction <- Repo.get!(Transaction, id) do
-      render(conn, "transaction_details.html",
-        clinic_id: clinic_id,
-        clinic_name: clinic.name,
-        transaction: transaction
-      )
-    end
-  end
-
-  @doc """
-  Registers C2B URLs with M-Pesa.
-  """
-  def register_urls(conn, %{"clinic_id" => clinic_id}) do
-    with {:ok, _clinic} <- get_clinic(clinic_id),
-         config <- Repo.get_by!(Config, clinic_id: clinic_id) do
-      case MPesa.register_c2b_urls(config) do
-        {:ok, response} ->
+    # Ensure the config belongs to this clinic
+    if config && config.clinic_id == clinic_id do
+      case Config.activate(id) do
+        {:ok, _} ->
           conn
-          |> put_flash(:info, "C2B URLs registered successfully with M-Pesa.")
-          |> redirect(to: Routes.mpesa_admin_path(conn, :index, clinic_id))
+          |> put_flash(:info, "M-Pesa configuration activated successfully.")
+          |> redirect(to: Routes.mpesa_admin_path(conn, :index))
 
+        {:error, _} ->
+          conn
+          |> put_flash(:error, "Failed to activate configuration.")
+          |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+      end
+    else
+      conn
+      |> put_flash(:error, "Configuration not found.")
+      |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+    end
+  end
+
+  @doc """
+  Deactivates an M-Pesa configuration.
+  """
+  def deactivate_config(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    config = Config.get_by_id(id)
+
+    # Ensure the config belongs to this clinic
+    if config && config.clinic_id == clinic_id do
+      case Config.deactivate(id) do
+        {:ok, _} ->
+          conn
+          |> put_flash(:info, "M-Pesa configuration deactivated successfully.")
+          |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+
+        {:error, _} ->
+          conn
+          |> put_flash(:error, "Failed to deactivate configuration.")
+          |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+      end
+    else
+      conn
+      |> put_flash(:error, "Configuration not found.")
+      |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+    end
+  end
+
+  @doc """
+  Lists all transactions for the clinic.
+  """
+  def list_transactions(conn, params) do
+    clinic_id = get_clinic_id(conn)
+
+    # Parse filter parameters
+    filters = %{
+      status: Map.get(params, "status"),
+      invoice_id: Map.get(params, "invoice_id"),
+      patient_id: Map.get(params, "patient_id"),
+      from_date: parse_date(Map.get(params, "from_date")),
+      to_date: parse_date(Map.get(params, "to_date"))
+    }
+
+    # Get paginated transactions
+    page = params["page"] || "1"
+    per_page = params["per_page"] || "20"
+
+    {transactions, pagination} = Transaction.paginate_by_clinic(
+      clinic_id,
+      filters,
+      String.to_integer(page),
+      String.to_integer(per_page)
+    )
+
+    render(conn, "transactions.html",
+      transactions: transactions,
+      pagination: pagination,
+      filters: filters
+    )
+  end
+
+  @doc """
+  Shows details of a specific transaction.
+  """
+  def show_transaction(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+
+    case Transaction.get_by_id_and_clinic(id, clinic_id) do
+      nil ->
+        conn
+        |> put_flash(:error, "Transaction not found.")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :list_transactions))
+
+      transaction ->
+        render(conn, "transaction_details.html", transaction: transaction)
+    end
+  end
+
+  @doc """
+  Initiates a manual STK Push for testing purposes.
+  """
+  def initiate_test_stk_push(conn, %{"phone_number" => phone_number, "amount" => amount}) do
+    clinic_id = get_clinic_id(conn)
+
+    # Create a test invoice ID
+    invoice_id = "TEST-#{System.os_time(:second)}"
+    patient_id = "TEST-PATIENT"
+
+    case MPesa.initiate_stk_push(clinic_id, invoice_id, patient_id, phone_number, String.to_float(amount)) do
+      {:ok, transaction} ->
+        conn
+        |> put_flash(:info, "STK Push initiated successfully. Checkout Request ID: #{transaction.checkout_request_id}")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Failed to initiate STK Push: #{reason}")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+    end
+  end
+
+  @doc """
+  Renders the form for initiating a test STK Push.
+  """
+  def new_test_stk_push(conn, _params) do
+    render(conn, "test_stk_push.html")
+  end
+
+  @doc """
+  Renders the configuration details page.
+  """
+  def configuration_details(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    config = Config.get_by_id(id)
+    
+    # Ensure the config belongs to this clinic
+    if config && config.clinic_id == clinic_id do
+      changeset = Config.changeset(config, %{})
+      render(conn, "configuration_details.html", config: config, changeset: changeset)
+    else
+      conn
+      |> put_flash(:error, "Configuration not found.")
+      |> redirect(to: Routes.mpesa_admin_path(conn, :index))
+    end
+  end
+
+  @doc """
+  Renders the callback logs page with filtering and pagination.
+  """
+  def callback_logs(conn, params) do
+    clinic_id = get_clinic_id(conn)
+    
+    # Parse filter parameters
+    filters = %{
+      type: Map.get(params, "type"),
+      status: Map.get(params, "status"),
+      from_date: parse_date(Map.get(params, "from_date")),
+      to_date: parse_date(Map.get(params, "to_date"))
+    }
+    
+    # Get paginated callback logs
+    page = params["page"] || "1"
+    per_page = params["per_page"] || "20"
+    
+    {callback_logs, pagination} = CallbackLog.paginate_by_clinic(
+      clinic_id,
+      filters,
+      String.to_integer(page),
+      String.to_integer(per_page)
+    )
+    
+    render(conn, "callback_logs.html",
+      callback_logs: callback_logs,
+      pagination: pagination,
+      filters: filters
+    )
+  end
+
+  @doc """
+  Shows details of a specific callback log.
+  """
+  def callback_details(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    
+    case CallbackLog.get_by_id_and_clinic(id, clinic_id) do
+      nil ->
+        conn
+        |> put_flash(:error, "Callback log not found.")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :callback_logs))
+        
+      callback_log ->
+        # Get related transaction if available
+        transaction = if callback_log.transaction_id do
+          Transaction.get_by_id_and_clinic(callback_log.transaction_id, clinic_id)
+        else
+          nil
+        end
+        
+        render(conn, "callback_details.html", callback_log: callback_log, transaction: transaction)
+    end
+  end
+
+  @doc """
+  Renders the form for testing STK Push.
+  """
+  def test_stk_push_form(conn, _params) do
+    clinic_id = get_clinic_id(conn)
+    
+    # Get recent test transactions
+    recent_tests = Transaction.list_by_clinic(clinic_id, limit: 5)
+                   |> Enum.filter(fn t -> String.starts_with?(t.invoice_id || "", "TEST-") end)
+    
+    render(conn, "test_stk_push.html", recent_tests: recent_tests)
+  end
+
+  @doc """
+  Processes an STK Push test request.
+  """
+  def test_stk_push(conn, %{"test" => params}) do
+    clinic_id = get_clinic_id(conn)
+    phone_number = params["phone_number"]
+    amount = String.to_float(params["amount"] || "0.0")
+    reference = params["reference"] || "Test Payment"
+    description = params["description"] || "Test STK Push"
+    
+    # Create a test invoice ID
+    invoice_id = "TEST-#{reference}-#{System.os_time(:second)}"
+    patient_id = "TEST-PATIENT"
+    
+    case MPesa.stk_push(clinic_id, invoice_id, patient_id, phone_number, amount, description) do
+      {:ok, transaction} ->
+        conn
+        |> put_flash(:info, "STK Push initiated successfully. Checkout Request ID: #{transaction.checkout_request_id}")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :test_stk_push_form))
+        
+      {:error, reason} ->
+        conn
+        |> put_flash(:error, "Failed to initiate STK Push: #{reason}")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :test_stk_push_form))
+    end
+  end
+
+  @doc """
+  Registers callback URLs with Safaricom.
+  """
+  def register_urls(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    config = Config.get_by_id(id)
+    
+    # Ensure the config belongs to this clinic
+    if config && config.clinic_id == clinic_id do
+      case MPesa.register_c2b_urls(clinic_id) do
+        {:ok, _response} ->
+          conn
+          |> put_flash(:info, "Callback URLs registered successfully.")
+          |> redirect(to: Routes.mpesa_admin_path(conn, :configuration_details, id))
+          
         {:error, reason} ->
           conn
-          |> put_flash(:error, "Failed to register URLs: #{inspect(reason)}")
-          |> redirect(to: Routes.mpesa_admin_path(conn, :index, clinic_id))
+          |> put_flash(:error, "Failed to register callback URLs: #{reason}")
+          |> redirect(to: Routes.mpesa_admin_path(conn, :configuration_details, id))
       end
+    else
+      conn
+      |> put_flash(:error, "Configuration not found.")
+      |> redirect(to: Routes.mpesa_admin_path(conn, :index))
     end
   end
 
   @doc """
-  Shows the form to test STK Push.
+  Shows details of a specific transaction.
   """
-  def test_stk_push_form(conn, %{"clinic_id" => clinic_id}) do
-    with {:ok, clinic} <- get_clinic(clinic_id),
-         config <- Repo.get_by!(Config, clinic_id: clinic_id) do
-      render(conn, "test_stk_push.html",
-        clinic_id: clinic_id,
-        clinic_name: clinic.name,
-        config: config
-      )
-    end
-  end
-
-  @doc """
-  Processes the STK Push test.
-  """
-  def test_stk_push(conn, %{"clinic_id" => clinic_id, "stk_push" => stk_params}) do
-    with {:ok, _clinic} <- get_clinic(clinic_id),
-         config <- Repo.get_by!(Config, clinic_id: clinic_id) do
-      phone = Map.get(stk_params, "phone")
-      amount = Map.get(stk_params, "amount") |> String.to_integer()
-      reference = Map.get(stk_params, "reference", "Test Payment")
-      description = Map.get(stk_params, "description", "Test STK Push")
-
-      case MPesa.initiate_stk_push(config, phone, amount, reference, description) do
-        {:ok, transaction} ->
-          conn
-          |> put_flash(:info, "STK Push initiated successfully. Check your phone.")
-          |> redirect(
-            to: Routes.mpesa_admin_path(conn, :transaction_details, clinic_id, transaction.id)
-          )
-
-        {:error, reason} ->
-          conn
-          |> put_flash(:error, "Failed to initiate STK Push: #{inspect(reason)}")
-          |> redirect(to: Routes.mpesa_admin_path(conn, :test_stk_push_form, clinic_id))
-      end
+  def transaction_details(conn, %{"id" => id}) do
+    clinic_id = get_clinic_id(conn)
+    
+    case Transaction.get_by_id_and_clinic(id, clinic_id) do
+      nil ->
+        conn
+        |> put_flash(:error, "Transaction not found.")
+        |> redirect(to: Routes.mpesa_admin_path(conn, :transactions))
+        
+      transaction ->
+        # Get related callbacks
+        callbacks = CallbackLog.list_by_transaction(id, clinic_id)
+        render(conn, "transaction_details.html", transaction: transaction, callbacks: callbacks)
     end
   end
 
   # Private functions
 
-  defp get_clinic(clinic_id) do
-    case Repo.get(Clinicpro.AdminBypass.Doctor, clinic_id) do
-      nil ->
-        {:error, :not_found}
-
-      clinic ->
-        {:ok, clinic}
-    end
+  defp get_clinic_id(conn) do
+    # Get the clinic ID from the current user's session
+    # This is a placeholder - implement based on your authentication system
+    conn.assigns.current_user.clinic_id
   end
 
-  defp require_admin(conn, _opts) do
-    # In a real app, ENSURE current user is an admin. IMPORTANT!
-    # For now, we'll just pass through
-    conn
+  defp parse_date(nil), do: nil
+  defp parse_date(date_string) do
+    case Date.from_iso8601(date_string) do
+      {:ok, date} -> date
+      _ -> nil
+    end
   end
 end

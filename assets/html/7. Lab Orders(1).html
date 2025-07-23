@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lab Orders – ClinicPro</title>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif}
+    ::-webkit-scrollbar{width:6px;height:6px}
+    ::-webkit-scrollbar-thumb{background:#c4c4c4;border-radius:3px}
+  </style>
+</head>
+<body class="h-full bg-gray-50 text-gray-800">
+  <div class="flex h-full">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="z-30 flex flex-col w-64 shrink-0 border-r bg-white">
+      <div class="flex items-center gap-2 h-16 px-6 border-b">
+        <button id="sidebarClose" class="lg:hidden text-gray-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+        <i data-lucide="shield-medical" class="w-6 h-6 text-indigo-600"></i>
+        <span class="font-semibold text-lg tracking-tight">ClinicPro</span>
+      </div>
+      <div class="flex-1 overflow-y-auto py-4">
+        <nav class="space-y-1 px-4">
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Home</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="calendar" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Appointments</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Patients</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="clipboard" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Prescriptions</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md bg-indigo-50 text-indigo-700">
+            <i data-lucide="flask-conical" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Lab Orders</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="credit-card" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Billing</span>
+          </a>
+          <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+            <span class="text-sm font-medium">Settings</span>
+          </a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3 h-16 px-6 border-t">
+        <img src="https://api.dicebear.com/7.x/personas/svg?seed=user" alt="" class="w-8 h-8 rounded-full">
+        <div class="min-w-0">
+          <p class="text-sm font-medium truncate">Dr. Taylor</p>
+          <p class="text-xs text-gray-500 truncate">Administrator</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="flex-1 flex flex-col overflow-y-auto">
+      <!-- Topbar -->
+      <header class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8 border-b bg-white">
+        <div class="flex items-center gap-3 lg:hidden">
+          <button id="sidebarOpen" class="text-gray-600">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          <span class="font-semibold">Lab Orders</span>
+        </div>
+        <button class="hidden lg:inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-md shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          New Lab Order
+        </button>
+      </header>
+
+      <!-- Content -->
+      <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        <div class="max-w-full mx-auto space-y-6">
+          <!-- Heading & primary actions for mobile -->
+          <div class="flex items-center justify-between lg:hidden">
+            <h1 class="text-lg font-semibold">Lab Orders</h1>
+            <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-md shadow-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              New Lab Order
+            </button>
+          </div>
+
+          <!-- Card -->
+          <section class="bg-white border rounded-lg shadow-sm">
+            <div class="p-4 sm:p-6 flex flex-col gap-4">
+              <!-- Filters -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex flex-1 gap-3">
+                  <div class="relative flex-1">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                      <i data-lucide="search" class="w-4 h-4"></i>
+                    </span>
+                    <input type="text" placeholder="Search lab orders, patient, test type..."
+                      class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                  </div>
+                  <select class="w-40 border-gray-300 text-sm rounded-md py-2 pl-3 pr-8 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option>All Status</option>
+                    <option>Pending</option>
+                    <option>In Progress</option>
+                    <option>Completed</option>
+                    <option>Urgent</option>
+                  </select>
+                </div>
+                <div class="flex gap-2">
+                  <button class="inline-flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium px-3 py-2 rounded-md">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    Export
+                  </button>
+                  <button class="inline-flex items-center gap-1 bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-3 py-2 rounded-md">
+                    <i data-lucide="table" class="w-4 h-4"></i>
+                    Table
+                  </button>
+                </div>
+              </div>
+
+              <!-- Table -->
+              <div class="overflow-x-auto">
+                <table class="min-w-full whitespace-nowrap text-sm">
+                  <thead>
+                    <tr class="text-left text-gray-600 border-b">
+                      <th class="py-2 pr-8">Patient</th>
+                      <th class="py-2 pr-8">Test Type</th>
+                      <th class="py-2 pr-8">Category</th>
+                      <th class="py-2 pr-8">Date Ordered</th>
+                      <th class="py-2 pr-8">Status</th>
+                      <th class="py-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y">
+                    <!-- Row Template -->
+                    <tr>
+                      <td class="py-4 pr-8">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=Sarah" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-gray-900">Sarah Johnson</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-001</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <p class="font-medium text-gray-900">Complete Blood Count</p>
+                        <p class="text-xs text-gray-500">CBC with differential</p>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Hematology</span>
+                      </td>
+                      <td class="py-4 pr-8">
+                        Jan 15, 2025
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-yellow-700">Pending</span>
+                      </td>
+                      <td class="py-4">
+                        <div class="flex items-center gap-2">
+                          <button class="inline-flex items-center gap-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md">
+                            View Details
+                          </button>
+                          <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td class="py-4 pr-8">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=Michael" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-gray-900">Michael Chen</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-002</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <p class="font-medium text-gray-900">Lipid Panel</p>
+                        <p class="text-xs text-gray-500">Cholesterol, HDL, LDL</p>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Biochemistry</span>
+                      </td>
+                      <td class="py-4 pr-8">
+                        Jan 14, 2025
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">In Progress</span>
+                      </td>
+                      <td class="py-4">
+                        <div class="flex items-center gap-2">
+                          <button class="inline-flex items-center gap-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md">
+                            View Details
+                          </button>
+                          <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td class="py-4 pr-8">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=Emily" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-gray-900">Emily Davis</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-003</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <p class="font-medium text-gray-900">Thyroid Function</p>
+                        <p class="text-xs text-gray-500">TSH, T3, T4</p>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Endocrine</span>
+                      </td>
+                      <td class="py-4 pr-8">
+                        Jan 12, 2025
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">Completed</span>
+                      </td>
+                      <td class="py-4">
+                        <div class="flex items-center gap-2">
+                          <button class="inline-flex items-center gap-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md">
+                            View Results
+                          </button>
+                          <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td class="py-4 pr-8">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=Robert" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-gray-900">Robert Wilson</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-004</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <p class="font-medium text-gray-900">HbA1c</p>
+                        <p class="text-xs text-gray-500">Diabetes monitoring</p>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Biochemistry</span>
+                      </td>
+                      <td class="py-4 pr-8">
+                        Jan 16, 2025
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-1 text-xs font-medium text-red-700">Urgent</span>
+                      </td>
+                      <td class="py-4">
+                        <div class="flex items-center gap-2">
+                          <button class="inline-flex items-center gap-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md">
+                            View Details
+                          </button>
+                          <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td class="py-4 pr-8">
+                        <div class="flex items-center gap-3">
+                          <img src="https://api.dicebear.com/7.x/personas/svg?seed=Lisa" alt="" class="w-8 h-8 rounded-full">
+                          <div>
+                            <p class="font-medium text-gray-900">Lisa Thompson</p>
+                            <p class="text-xs text-gray-500">ID: P-2025-005</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <p class="font-medium text-gray-900">Urinalysis</p>
+                        <p class="text-xs text-gray-500">Routine urine test</p>
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Microbiology</span>
+                      </td>
+                      <td class="py-4 pr-8">
+                        Jan 13, 2025
+                      </td>
+                      <td class="py-4 pr-8">
+                        <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">Completed</span>
+                      </td>
+                      <td class="py-4">
+                        <div class="flex items-center gap-2">
+                          <button class="inline-flex items-center gap-1 bg-gray-700 hover:bg-gray-800 text-white text-xs font-medium px-3 py-1.5 rounded-md">
+                            View Results
+                          </button>
+                          <button class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Footer -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p class="text-sm text-gray-600">Showing 5 of 28 lab orders</p>
+                <!-- Pagination -->
+                <nav class="inline-flex gap-1">
+                  <button disabled class="px-3 py-1.5 rounded-md border text-sm text-gray-400">Previous</button>
+                  <button class="px-3 py-1.5 rounded-md border bg-indigo-600 text-white text-sm">1</button>
+                  <button class="px-3 py-1.5 rounded-md border text-sm text-gray-700 hover:bg-gray-100">2</button>
+                  <button class="px-3 py-1.5 rounded-md border text-sm text-gray-700 hover:bg-gray-100">3</button>
+                  <button class="px-3 py-1.5 rounded-md border text-sm text-gray-700 hover:bg-gray-100">Next</button>
+                </nav>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="border-t bg-white px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:justify-between items-center text-xs py-3 text-gray-500">
+          <p>&copy; 2025 ClinicPro. All rights reserved.</p>
+          <div class="flex gap-4 mt-1 sm:mt-0">
+            <a href="#" class="hover:text-gray-700">Support</a>
+            <a href="#" class="hover:text-gray-700">Privacy</a>
+            <a href="#" class="hover:text-gray-700">Terms</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+    // Mobile sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const openBtn = document.getElementById('sidebarOpen');
+    const closeBtn = document.getElementById('sidebarClose');
+    const toggleSidebar = (show) => {
+      if (show) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    };
+    sidebar.classList.add('transition-transform','duration-200','transform','lg:translate-x-0','-translate-x-full','lg:static','fixed','inset-y-0','left-0','bg-white','w-64');
+    openBtn?.addEventListener('click', () => toggleSidebar(true));
+    closeBtn?.addEventListener('click', () => toggleSidebar(false));
+  </script>
+</body>
+</html>

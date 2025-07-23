@@ -9,7 +9,18 @@ defmodule Clinicpro.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      # Coveralls configuration
+      test_coverage: [
+        tool: ExCoveralls
+      ],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test,
+        "coveralls.json": :test
+      ]
     ]
   end
 
@@ -97,7 +108,12 @@ defmodule Clinicpro.MixProject do
       {:goth, "~> 1.3"},
 
       # HTTP Client for API Integration
-      {:oauth2, "~> 2.0"}
+      {:oauth2, "~> 2.0"},
+      {:ex_typesense, "~> 0.6.0"},
+      
+      # Code quality and test coverage
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:excoveralls, "~> 0.18", only: :test}
     ]
   end
 

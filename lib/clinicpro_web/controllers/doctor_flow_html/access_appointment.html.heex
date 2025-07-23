@@ -48,7 +48,7 @@
     </div>
     
     <div class="mt-8">
-      <.form :let={f} for={%{}} action={~p"/doctor/appointment"} method="post">
+      <.form :let={_f} for={%{}} action={~p"/doctor/appointment"} method="post">
         <input type="hidden" name="appointment_id" value={@appointment_data.id}>
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
           Start Appointment

@@ -110,7 +110,7 @@ defmodule ClinicproWeb.CoreComponents do
 
     ~H"""
     <div
-      :if={msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
+      :if={_msg = render_slot(@inner_block) || Phoenix.Flash.get(@flash, @kind)}
       id={@id}
       phx-click={JS.push("lv:clear-flash", value: %{key: @kind}) |> hide("##{@id}")}
       role="alert"
@@ -123,8 +123,7 @@ defmodule ClinicproWeb.CoreComponents do
     >
       <p :if={@title} class="flex items-center gap-1.5 text-sm font-semibold leading-6">
         <.icon :if={@kind == :info} name="hero-information-circle-mini" class="h-4 w-4" />
-        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" />
-        {@title}
+        <.icon :if={@kind == :error} name="hero-exclamation-circle-mini" class="h-4 w-4" /> {@title}
       </p>
       <p class="mt-2 text-sm leading-5">{msg}</p>
       <button type="button" class="group absolute top-1 right-1 p-2" aria-label={gettext("close")}>
@@ -201,11 +200,11 @@ defmodule ClinicproWeb.CoreComponents do
 
   def simple_form(assigns) do
     ~H"""
-    <.form :let={f} for={@for} as={@as} {@rest}>
+    <.form :let={_f} for={@for} as={@as} {@rest}>
       <div class="mt-10 space-y-8 bg-white">
-        {render_slot(@inner_block, f)}
-        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
-          {render_slot(action, f)}
+        {render_slot(@inner_block, _f)}
+        <div :for={_action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+          {render_slot(_action, _f)}
         </div>
       </div>
     </.form>
@@ -320,8 +319,7 @@ defmodule ClinicproWeb.CoreComponents do
           checked={@checked}
           class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
           {@rest}
-        />
-        {@label}
+        /> {@label}
       </label>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
@@ -477,7 +475,7 @@ defmodule ClinicproWeb.CoreComponents do
       <table class="w-[40rem] mt-11 sm:w-full">
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
-            <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal">{col[:label]}</th>
+            <th :for={_col <- @col} class="p-0 pb-4 pr-6 font-normal">{_col[:label]}</th>
             <th :if={@action != []} class="relative p-0 pb-4">
               <span class="sr-only">{gettext("Actions")}</span>
             </th>
@@ -488,7 +486,11 @@ defmodule ClinicproWeb.CoreComponents do
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
           class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr
+            :for={{row, i} <- Enum.with_index(@rows)}
+            id={@row_id && @row_id.(row)}
+            class="group hover:bg-zinc-50"
+          >
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
@@ -563,8 +565,7 @@ defmodule ClinicproWeb.CoreComponents do
         navigate={@navigate}
         class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
       >
-        <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
-        {render_slot(@inner_block)}
+        <.icon name="hero-arrow-left-solid" class="h-3 w-3" /> {render_slot(@inner_block)}
       </.link>
     </div>
     """

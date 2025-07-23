@@ -169,7 +169,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
     payment_reference = invoice.payment_reference || generate_payment_reference(invoice)
 
     # Update invoice with payment reference
-    {:ok, updated_invoice} = update_invoice(invoice, %{payment_reference: payment_reference})
+    {:ok, _updated_invoice} = update_invoice(invoice, %{payment_reference: payment_reference})
 
     # Initiate M-Pesa payment
     Clinicpro.MPesa.initiate_stk_push(

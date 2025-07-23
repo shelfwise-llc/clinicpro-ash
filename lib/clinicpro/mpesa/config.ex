@@ -1,11 +1,9 @@
 defmodule Clinicpro.MPesa.Config do
   @moduledoc """
-  Manages M-Pesa configurations for multiple clinics.
+  Module for handling M-Pesa configurations with multi-tenant support.
 
-  This module handles:
-  1. Storing and retrieving clinic-specific M-Pesa credentials
-  2. Encrypting sensitive data in the database
-  3. Falling back to environment variables when clinic-specific config is missing
+  This module provides functions for creating, updating, and retrieving M-Pesa configurations
+  for different clinics, ensuring proper isolation in a multi-tenant environment.
   """
 
   use Ecto.Schema
@@ -13,173 +11,249 @@ defmodule Clinicpro.MPesa.Config do
   import Ecto.Query
 
   alias Clinicpro.Repo
-  alias Clinicpro.AdminBypass.Doctor
+  alias __MODULE__
 
   schema "mpesa_configs" do
+    field :clinic_id, :integer
     field :consumer_key, :string
     field :consumer_secret, :string
     field :passkey, :string
     field :shortcode, :string
-    # May differ from STK shortcode
-    field :c2b_shortcode, :string
     field :environment, :string, default: "sandbox"
-    field :stk_callback_url, :string
-    field :c2b_validation_url, :string
-    field :c2b_confirmation_url, :string
+    field :base_url, :string
+    field :callback_url, :string
+    field :validation_url, :string
+    field :confirmation_url, :string
     field :active, :boolean, default: true
-
-    belongs_to :clinic, Doctor, foreign_key: :clinic_id
 
     timestamps()
   end
 
   @doc """
-  Creates a changeset for M-Pesa configuration.
-  Validates required fields and formats.
+  Creates a new M-Pesa configuration for a clinic.
+
+  ## Parameters
+
+  * `attrs` - Map of attributes for the configuration
+
+  ## Returns
+
+  * `{:ok, config}` - On success
+  * `{:error, changeset}` - On failure
   """
-  def changeset(config, attrs) do
+  def create(attrs) do
+    %Config{}
+    |> changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates an existing M-Pesa configuration.
+
+  ## Parameters
+
+  * `config` - The configuration to update
+  * `attrs` - Map of attributes to update
+
+  ## Returns
+
+  * `{:ok, config}` - On success
+  * `{:error, changeset}` - On failure
+  """
+  def update(config, attrs) do
+    config
+    |> changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets a configuration by ID.
+
+  ## Parameters
+
+  * `id` - The ID of the configuration to get
+
+  ## Returns
+
+  * `config` - If found
+  * `nil` - If not found
+  """
+  def get_by_id(id) do
+    Repo.get(Config, id)
+  end
+
+  @doc """
+  Gets the active configuration for a clinic.
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to get the configuration for
+
+  ## Returns
+
+  * `{:ok, config}` - If an active configuration was found
+  * `{:error, :no_active_config}` - If no active configuration was found
+  """
+  def get_active_config(clinic_id) do
+    case Repo.get_by(Config, clinic_id: clinic_id, active: true) do
+      nil -> {:error, :no_active_config}
+      config -> {:ok, config}
+    end
+  end
+
+  @doc """
+  Gets any configuration for a clinic (active or inactive).
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to get the configuration for
+
+  ## Returns
+
+  * `config` - If found
+  * `nil` - If not found
+  """
+  def get_config(clinic_id) do
+    Repo.get_by(Config, clinic_id: clinic_id)
+  end
+
+  @doc """
+  Lists all configurations.
+
+  ## Returns
+
+  * List of configurations
+  """
+  def list_configs do
+    Config
+    |> order_by(asc: :clinic_id)
+    |> Repo.all()
+  end
+
+  @doc """
+  Lists all configurations for a specific clinic.
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to list configurations for
+
+  ## Returns
+
+  * List of configurations
+  """
+  def list_configs(clinic_id) do
+    Config
+    |> where(clinic_id: ^clinic_id)
+    |> order_by(desc: :inserted_at)
+    |> Repo.all()
+  end
+
+  @doc """
+  Activates a configuration.
+
+  This will deactivate all other configurations for the same clinic.
+
+  ## Parameters
+
+  * `id` - The ID of the configuration to activate
+
+  ## Returns
+
+  * `{:ok, config}` - On success
+  * `{:error, changeset}` - On failure
+  """
+  def activate(id) do
+    config = get_by_id(id)
+
+    if config do
+      # Deactivate all other configs for this clinic
+      from(c in Config, where: c.clinic_id == ^config.clinic_id and c.id != ^id)
+      |> Repo.update_all(set: [active: false])
+
+      # Activate this config
+      config
+      |> Ecto.Changeset.change(%{active: true})
+      |> Repo.update()
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @doc """
+  Deactivates a configuration.
+
+  ## Parameters
+
+  * `id` - The ID of the configuration to deactivate
+
+  ## Returns
+
+  * `{:ok, config}` - On success
+  * `{:error, changeset}` - On failure
+  """
+  def deactivate(id) do
+    config = get_by_id(id)
+
+    if config do
+      config
+      |> Ecto.Changeset.change(%{active: false})
+      |> Repo.update()
+    else
+      {:error, :not_found}
+    end
+  end
+
+  @doc """
+  Gets the shortcode for a clinic.
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to get the shortcode for
+
+  ## Returns
+
+  * `{:ok, shortcode}` - If found
+  * `{:error, :no_config}` - If no configuration was found
+  """
+  def get_shortcode(clinic_id) do
+    case get_active_config(clinic_id) do
+      {:ok, config} -> {:ok, config.shortcode}
+      {:error, _} -> {:error, :no_config}
+    end
+  end
+
+  @doc """
+  Gets the clinic ID for a shortcode.
+
+  ## Parameters
+
+  * `shortcode` - The shortcode to get the clinic ID for
+
+  ## Returns
+
+  * `{:ok, clinic_id}` - If found
+  * `{:error, :not_found}` - If not found
+  """
+  def get_clinic_id_from_shortcode(shortcode) do
+    case Repo.get_by(Config, shortcode: shortcode) do
+      nil -> {:error, :not_found}
+      config -> {:ok, config.clinic_id}
+    end
+  end
+
+  # Private functions
+
+  defp changeset(config, attrs) do
     config
     |> cast(attrs, [
-      :consumer_key,
-      :consumer_secret,
-      :passkey,
-      :shortcode,
-      :c2b_shortcode,
-      :environment,
-      :stk_callback_url,
-      :c2b_validation_url,
-      :c2b_confirmation_url,
-      :active,
-      :clinic_id
+      :clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
+      :environment, :base_url, :callback_url, :validation_url, :confirmation_url, :active
     ])
     |> validate_required([
-      :consumer_key,
-      :consumer_secret,
-      :passkey,
-      :shortcode,
-      :environment,
-      :clinic_id
+      :clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
+      :environment, :base_url
     ])
     |> validate_inclusion(:environment, ["sandbox", "production"])
-    |> foreign_key_constraint(:clinic_id)
-    |> maybe_encrypt_sensitive_fields()
+    |> unique_constraint([:shortcode, :environment])
   end
-
-  @doc """
-  Gets the M-Pesa configuration for a specific clinic.
-  Falls back to environment variables if no clinic-specific config exists.
-  """
-  def get_for_clinic(clinic_id) do
-    case Repo.get_by(__MODULE__, clinic_id: clinic_id, active: true) do
-      nil -> get_from_env()
-      config -> {:ok, decrypt_config(config)}
-    end
-  end
-
-  @doc """
-  Creates or updates M-Pesa configuration for a clinic.
-  Encrypts sensitive fields before storing.
-  """
-  def upsert_config(clinic_id, attrs) do
-    # Check if config exists for this clinic
-    config =
-      case Repo.get_by(__MODULE__, clinic_id: clinic_id) do
-        nil -> %__MODULE__{clinic_id: clinic_id}
-        existing -> existing
-      end
-
-    # Update or insert
-    config
-    |> changeset(Map.put(attrs, "clinic_id", clinic_id))
-    |> Repo.insert_or_update()
-  end
-
-  @doc """
-  Returns the default callback URLs based on the application's URL.
-  """
-  def default_callback_urls do
-    base_url = System.get_env("APP_URL") || "https://clinicpro.example.com"
-
-    %{
-      stk_callback_url: "#{base_url}/api/mpesa/stk/callback",
-      c2b_validation_url: "#{base_url}/api/mpesa/c2b/validation",
-      c2b_confirmation_url: "#{base_url}/api/mpesa/c2b/confirmation"
-    }
-  end
-
-  @doc """
-  Gets M-Pesa configuration from environment variables.
-  Used as a fallback when clinic-specific configuration is not found.
-  
-  ## Returns
-  
-  - {:ok, config} - Configuration from environment variables
-  - {:error, :config_not_found} - Required environment variables not set
-  """
-  def get_from_env do
-    # Check if required env vars are set
-    case System.get_env("MPESA_CONSUMER_KEY") do
-      nil ->
-        {:error, :config_not_found}
-
-      _ ->
-        {:ok,
-         %{
-           consumer_key: System.get_env("MPESA_CONSUMER_KEY"),
-           consumer_secret: System.get_env("MPESA_CONSUMER_SECRET"),
-           passkey: System.get_env("MPESA_PASSKEY"),
-           shortcode: System.get_env("MPESA_SHORTCODE"),
-           c2b_shortcode: System.get_env("MPESA_C2B_SHORTCODE"),
-           environment: System.get_env("MPESA_ENVIRONMENT") || "sandbox",
-           stk_callback_url: System.get_env("MPESA_STK_CALLBACK_URL"),
-           c2b_validation_url: System.get_env("MPESA_C2B_VALIDATION_URL"),
-           c2b_confirmation_url: System.get_env("MPESA_C2B_CONFIRMATION_URL"),
-           active: true
-         }}
-    end
-  end
-
-  # Encrypt sensitive fields before saving to database
-  defp maybe_encrypt_sensitive_fields(changeset) do
-    if changeset.valid? do
-      sensitive_fields = [:consumer_key, :consumer_secret, :passkey]
-
-      Enum.reduce(sensitive_fields, changeset, fn field, acc ->
-        case get_change(acc, field) do
-          nil -> acc
-          value -> put_change(acc, field, encrypt_value(value))
-        end
-      end)
-    else
-      changeset
-    end
-  end
-
-  # Encrypt a value using Phoenix's secret_key_base
-  defp encrypt_value(value) do
-    # In a real app, use a proper encryption library
-    # This is a simple placeholder that simulates encryption
-    # by prepending "encrypted:" to the value
-    "encrypted:" <> value
-  end
-
-  # Decrypt a config struct
-  defp decrypt_config(config) do
-    # In a production app, use a proper decryption library
-    sensitive_fields = [:consumer_key, :consumer_secret, :passkey]
-
-    decrypted =
-      Enum.reduce(sensitive_fields, config, fn field, acc ->
-        encrypted_value = Map.get(acc, field)
-        decrypted_value = decrypt_value(encrypted_value)
-        Map.put(acc, field, decrypted_value)
-      end)
-
-    decrypted
-  end
-
-  # Decrypt a value
-  defp decrypt_value(nil), do: nil
-  defp decrypt_value("encrypted:" <> value), do: value
-  defp decrypt_value(value), do: value
 end

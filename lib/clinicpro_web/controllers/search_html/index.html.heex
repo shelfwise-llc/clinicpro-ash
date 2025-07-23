@@ -6,7 +6,7 @@
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <h2 class="text-2xl font-semibold mb-4">Find what you're looking for</h2>
     
-    <.form :let={f} for={%{}} action={~p"/search/query"} method="post">
+    <.form :let={_f} for={%{}} action={~p"/search/query"} method="post">
       <div class="flex">
         <div class="relative flex-grow">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

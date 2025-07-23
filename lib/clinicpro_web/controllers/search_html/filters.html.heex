@@ -15,7 +15,7 @@
     
     <h2 class="text-xl font-semibold mb-4">Refine your search</h2>
     
-    <.form :let={f} for={%{}} action={~p"/search/filters"} method="post">
+    <.form :let={_f} for={%{}} action={~p"/search/filters"} method="post">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">

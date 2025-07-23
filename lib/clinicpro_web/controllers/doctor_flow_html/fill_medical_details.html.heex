@@ -43,7 +43,7 @@
       <div class="bg-white shadow-md rounded-lg p-6">
         <h2 class="text-xl font-semibold mb-4">Enter Medical Details</h2>
         
-        <.form :let={f} for={%{}} action={~p"/doctor/medical_details"} method="post">
+        <.form :let={_f} for={%{}} action={~p"/doctor/medical_details"} method="post">
           <div class="space-y-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">

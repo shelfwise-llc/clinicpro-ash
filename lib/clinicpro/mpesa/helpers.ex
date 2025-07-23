@@ -1,147 +1,219 @@
 defmodule Clinicpro.MPesa.Helpers do
   @moduledoc """
-  Helper functions for M-Pesa integration.
-
-  Provides utility functions for:
-  1. Phone number validation and normalization
-  2. HTTP request handling
-  3. Timestamp generation
-  4. Error handling
+  Provides utility functions for the M-Pesa integration.
+  This module contains helper functions used across the M-Pesa modules.
   """
 
   require Logger
 
   @doc """
-  Validates and normalizes a phone number to the format required by M-Pesa.
-
-  ## Examples
-
-      iex> Clinicpro.MPesa.Helpers.validate_phone_number("0712345678")
-      {:ok, "254712345678"}
-
-      iex> Clinicpro.MPesa.Helpers.validate_phone_number("+254712345678")
-      {:ok, "254712345678"}
-
-      iex> Clinicpro.MPesa.Helpers.validate_phone_number("712345678")
-      {:ok, "254712345678"}
-
-      iex> Clinicpro.MPesa.Helpers.validate_phone_number("invalid")
-      {:error, :invalid_phone_number}
-  """
-  def validate_phone_number(phone) when is_binary(phone) do
-    # Remove any non-digit characters
-    digits_only = String.replace(phone, ~r/\D/, "")
-
-    cond do
-      # If starts with 254, assume it's already in the correct format
-      String.starts_with?(digits_only, "254") and String.length(digits_only) == 12 ->
-        {:ok, digits_only}
-
-      # If starts with 0, replace with 254
-      String.starts_with?(digits_only, "0") and String.length(digits_only) == 10 ->
-        {:ok, "254" <> String.slice(digits_only, 1..-1)}
-
-      # If 9 digits, assume it's missing the leading 0, add 254
-      String.length(digits_only) == 9 ->
-        {:ok, "254" <> digits_only}
-
-      # Invalid format
-      true ->
-        {:error, :invalid_phone_number}
-    end
-  end
-
-  def validate_phone_number(_), do: {:error, :invalid_phone_number}
-
-  @doc """
-  Makes an HTTP request to the M-Pesa API.
+  Validates a phone number and formats it to the required M-Pesa format.
 
   ## Parameters
 
-  - url: The URL to make the request to
-  - payload: The request payload
-  - token: The access token for authentication
+  - `phone_number` - The phone number to validate and format
 
   ## Returns
 
-  - {:ok, response} on success
-  - {:error, reason} on failure
+  - `{:ok, formatted_phone}` - If the phone number is valid
+  - `{:error, :invalid_phone_number}` - If the phone number is invalid
   """
-  def make_request(url, payload, token) do
-    headers = [
-      {"Authorization", "Bearer " <> token},
-      {"Content-Type", "application/json"}
-    ]
+  def validate_phone_number(phone_number) do
+    # Remove any non-digit characters
+    digits = String.replace(phone_number, ~r/\D/, "")
 
-    # Log request (without sensitive data)
-    sanitized_payload = sanitize_payload(payload)
-    Logger.debug("M-Pesa API request to #{url}: #{inspect(sanitized_payload)}")
+    # Format based on different patterns
+    formatted =
+      cond do
+        # If it starts with 254, keep it as is
+        String.starts_with?(digits, "254") ->
+          digits
 
-    case HTTPoison.post(url, Jason.encode!(payload), headers) do
-      {:ok, response} when is_map(response) and response.status_code in 200..299 ->
-        case Jason.decode(response.body) do
-          {:ok, decoded} ->
-            # Log response (without sensitive data)
-            sanitized_response = sanitize_response(decoded)
-            Logger.debug("M-Pesa API response: #{inspect(sanitized_response)}")
+        # If it starts with 0, replace with 254
+        String.starts_with?(digits, "0") ->
+          "254" <> String.slice(digits, 1..-1)
 
-            # Check for M-Pesa API errors
-            if Map.has_key?(decoded, "errorCode") do
-              {:error,
-               %{error_code: decoded["errorCode"], error_message: decoded["errorMessage"]}}
-            else
-              {:ok, decoded}
-            end
+        # If it's 9 digits, assume it's missing the 254 prefix
+        String.length(digits) == 9 ->
+          "254" <> digits
 
-          {:error, _} ->
-            Logger.error("Failed to decode M-Pesa API response: #{response.body}")
-            {:error, :invalid_response_format}
-        end
+        # Otherwise, return as is
+        true ->
+          digits
+      end
 
-      {:ok, response} when is_map(response) ->
-        Logger.error("M-Pesa API error: #{response.status_code} - #{response.body}")
-        {:error, %{status_code: response.status_code, body: response.body}}
-
-      {:error, error} ->
-        Logger.error("HTTP request failed: #{inspect(error)}")
-        {:error, error}
+    # Validate the formatted number
+    if String.length(formatted) >= 12 && String.starts_with?(formatted, "254") do
+      {:ok, formatted}
+    else
+      Logger.error("Invalid phone number format: #{phone_number}")
+      {:error, :invalid_phone_number}
     end
   end
 
   @doc """
-  Generates a timestamp in the format required by M-Pesa (YYYYMMDDHHmmss).
+  Extracts metadata from an STK Push callback.
+
+  ## Parameters
+
+  - `callback_data` - The callback data from M-Pesa
 
   ## Returns
 
-  - {:ok, timestamp} on success
+  - `{:ok, metadata}` - If metadata was successfully extracted
+  - `{:error, reason}` - If metadata extraction failed
   """
-  def get_timestamp do
-    timestamp =
-      DateTime.utc_now()
-      |> DateTime.to_naive()
-      |> NaiveDateTime.to_string()
-      |> String.replace(~r/[^\d]/, "")
-      |> String.slice(0, 14)
+  def extract_stk_push_metadata(callback_data) do
+    try do
+      # Extract the metadata from the callback data
+      metadata =
+        callback_data
+        |> get_in(["Body", "stkCallback", "CallbackMetadata", "Item"])
+        |> Enum.reduce(%{}, fn item, acc ->
+          name = item["Name"]
+          value = item["Value"]
 
-    {:ok, timestamp}
-  end
+          # Map the metadata fields to our internal representation
+          case name do
+            "Amount" -> Map.put(acc, :amount, value)
+            "MpesaReceiptNumber" -> Map.put(acc, :transaction_id, value)
+            "TransactionDate" -> Map.put(acc, :transaction_date, format_transaction_date(value))
+            "PhoneNumber" -> Map.put(acc, :phone_number, value)
+            _ -> acc
+          end
+        end)
 
-  # Private functions
-
-  # Remove sensitive data from logs
-  defp sanitize_payload(payload) do
-    case payload do
-      %{"Password" => _} = p ->
-        Map.put(p, "Password", "[REDACTED]")
-
-      other ->
-        other
+      {:ok, metadata}
+    rescue
+      e ->
+        Logger.error("Failed to extract STK Push metadata: #{inspect(e)}")
+        {:error, :invalid_callback_data}
     end
   end
 
-  # Remove sensitive data from logs
-  defp sanitize_response(response) do
-    # Implement based on response structure
-    response
+  @doc """
+  Formats a transaction date from M-Pesa format to ISO format.
+
+  ## Parameters
+
+  - `date_string` - The date string in M-Pesa format (YYYYMMDDHHmmss)
+
+  ## Returns
+
+  - The formatted date string in ISO format
+  """
+  def format_transaction_date(date_string) when is_binary(date_string) do
+    case String.length(date_string) do
+      14 ->
+        # Format: YYYYMMDDHHmmss
+        <<year::binary-size(4), month::binary-size(2), day::binary-size(2),
+          hour::binary-size(2), minute::binary-size(2), second::binary-size(2)>> = date_string
+
+        "#{year}-#{month}-#{day}T#{hour}:#{minute}:#{second}Z"
+
+      _ ->
+        # If the format is unexpected, return as is
+        date_string
+    end
+  end
+
+  def format_transaction_date(date_value) when is_integer(date_value) do
+    # Convert integer to string and format
+    date_value
+    |> Integer.to_string()
+    |> format_transaction_date()
+  end
+
+  def format_transaction_date(date_value), do: date_value
+
+  @doc """
+  Generates a unique reference for M-Pesa transactions.
+
+  ## Parameters
+
+  - `prefix` - Optional prefix for the reference
+
+  ## Returns
+
+  - A unique reference string
+  """
+  def generate_reference(prefix \\ "CP") do
+    timestamp = :os.system_time(:millisecond)
+    random = :rand.uniform(999)
+    "#{prefix}#{timestamp}#{random}"
+  end
+
+  @doc """
+  Maps a shortcode to a clinic ID.
+
+  ## Parameters
+
+  - `shortcode` - The M-Pesa shortcode
+
+  ## Returns
+
+  - `{:ok, clinic_id}` - If the mapping was successful
+  - `{:error, :shortcode_not_found}` - If the shortcode was not found
+  """
+  def map_shortcode_to_clinic_id(shortcode) do
+    # This would typically query the database to find the clinic with this shortcode
+    # For now, we'll use a simple implementation that delegates to the Config module
+    alias Clinicpro.MPesa.Config
+
+    case Config.find_by_shortcode(shortcode) do
+      nil ->
+        Logger.error("No clinic found for shortcode: #{shortcode}")
+        {:error, :shortcode_not_found}
+
+      config ->
+        {:ok, config.clinic_id}
+    end
+  end
+
+  @doc """
+  Maps an invoice ID to a patient ID.
+
+  ## Parameters
+
+  - `invoice_id` - The invoice ID
+  - `clinic_id` - The clinic ID
+
+  ## Returns
+
+  - `{:ok, patient_id}` - If the mapping was successful
+  - `{:error, :invoice_not_found}` - If the invoice was not found
+  """
+  def map_invoice_to_patient_id(invoice_id, clinic_id) do
+    # This would typically query the database to find the patient associated with this invoice
+    # For now, we'll use a simple implementation that assumes the Invoice module exists
+    alias Clinicpro.Invoice
+
+    case Invoice.get_by_id(invoice_id, clinic_id) do
+      nil ->
+        Logger.error("No invoice found with ID #{invoice_id} for clinic #{clinic_id}")
+        {:error, :invoice_not_found}
+
+      invoice ->
+        {:ok, invoice.patient_id}
+    end
+  end
+
+  @doc """
+  Parses a reference string to extract the invoice ID.
+
+  ## Parameters
+
+  - `reference` - The reference string
+
+  ## Returns
+
+  - `{:ok, invoice_id}` - If the parsing was successful
+  - `{:error, :invalid_reference}` - If the reference was invalid
+  """
+  def parse_reference_for_invoice_id(reference) do
+    # This would parse the reference string to extract the invoice ID
+    # The format depends on how references are generated in your system
+    # For now, we'll assume the reference is the invoice ID
+    {:ok, reference}
   end
 end

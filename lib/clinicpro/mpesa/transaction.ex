@@ -1,11 +1,9 @@
 defmodule Clinicpro.MPesa.Transaction do
   @moduledoc """
-  Tracks M-Pesa transactions for all clinics.
+  Module for handling M-Pesa transactions with multi-tenant support.
 
-  This module is responsible for:
-  1. Creating and updating transaction records
-  2. Querying transactions by various attributes
-  3. Managing transaction lifecycle
+  This module provides functions for creating, updating, and querying M-Pesa transactions,
+  ensuring proper isolation between clinics in a multi-tenant environment.
   """
 
   use Ecto.Schema
@@ -13,192 +11,350 @@ defmodule Clinicpro.MPesa.Transaction do
   import Ecto.Query
 
   alias Clinicpro.Repo
-  alias Clinicpro.AdminBypass.Doctor
+  alias __MODULE__
 
   schema "mpesa_transactions" do
+    field :clinic_id, :integer
+    field :invoice_id, :string
+    field :patient_id, :string
+    field :phone_number, :string
+    field :amount, :float
+    field :status, :string, default: "pending"
+    field :reference, :string
     field :checkout_request_id, :string
     field :merchant_request_id, :string
-    field :reference, :string
-    field :phone, :string
-    field :amount, :decimal
-    field :description, :string
-    field :status, :string, default: "pending"
+    field :transaction_id, :string
+    field :transaction_date, :naive_datetime
     field :result_code, :string
     field :result_desc, :string
-    field :transaction_date, :utc_datetime
-    field :mpesa_receipt_number, :string
-    # "stk_push" or "c2b"
-    field :type, :string
-    field :raw_request, :map
-    field :raw_response, :map
-
-    belongs_to :clinic, Doctor, foreign_key: :clinic_id
 
     timestamps()
   end
 
   @doc """
-  Validates transaction data without creating a transaction.
-  
+  Creates a new M-Pesa transaction.
+
   ## Parameters
-  
-  - attrs: Transaction attributes to validate
-  
+
+  * `attrs` - Map of attributes for the transaction
+
   ## Returns
-  
-  - {:ok, changeset} - Data is valid
-  - {:error, changeset} - Data is invalid with validation errors
+
+  * `{:ok, transaction}` - On success
+  * `{:error, changeset}` - On failure
   """
-  def validate_transaction_data(attrs) do
-    changeset = %__MODULE__{}
-                |> cast(attrs, [:clinic_id, :phone, :amount, :reference, :description, :type])
-                |> validate_required([:clinic_id, :phone, :amount, :reference, :type])
-                |> validate_inclusion(:type, ["stk_push", "c2b"])
-                |> validate_number(:amount, greater_than: 0)
-    
-    if changeset.valid? do
-      {:ok, changeset}
-    else
-      {:error, changeset}
-    end
+  def create(attrs) do
+    %Transaction{}
+    |> changeset(attrs)
+    |> Repo.insert()
   end
 
   @doc """
-  Creates a pending transaction.
+  Updates an existing M-Pesa transaction.
 
   ## Parameters
 
-  - attrs: Transaction attributes
+  * `transaction` - The transaction to update
+  * `attrs` - Map of attributes to update
 
   ## Returns
 
-  - {:ok, transaction} on success
-  - {:error, changeset} on validation failure
-  """
-  def create_pending(attrs) do
-    case validate_transaction_data(attrs) do
-      {:ok, changeset} ->
-        changeset
-        |> put_change(:status, "pending")
-        |> Repo.insert()
-      {:error, changeset} ->
-        {:error, changeset}
-    end
-  end
-
-  @doc """
-  Updates a transaction with new attributes.
-
-  ## Parameters
-
-  - transaction: The transaction to update
-  - attrs: New attributes
-
-  ## Returns
-
-  - {:ok, transaction} on success
-  - {:error, changeset} on validation failure
+  * `{:ok, transaction}` - On success
+  * `{:error, changeset}` - On failure
   """
   def update(transaction, attrs) do
     transaction
-    |> cast(attrs, [
-      :checkout_request_id,
-      :merchant_request_id,
-      :status,
-      :result_code,
-      :result_desc,
-      :transaction_date,
-      :mpesa_receipt_number,
-      :raw_request,
-      :raw_response
-    ])
+    |> changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Finds a transaction by its checkout request ID.
+  Updates a transaction with request IDs.
 
   ## Parameters
 
-  - checkout_request_id: The checkout request ID to search for
+  * `id` - The ID of the transaction to update
+  * `checkout_request_id` - The checkout request ID from M-Pesa
+  * `merchant_request_id` - The merchant request ID from M-Pesa
 
   ## Returns
 
-  - {:ok, transaction} if found
-  - {:error, :not_found} if not found
+  * `{:ok, transaction}` - On success
+  * `{:error, changeset}` - On failure
   """
-  def find_by_checkout_request_id(checkout_request_id) do
-    case Repo.get_by(__MODULE__, checkout_request_id: checkout_request_id) do
-      nil -> {:error, :not_found}
-      transaction -> {:ok, transaction}
+  def update_request_ids(id, checkout_request_id, merchant_request_id) do
+    transaction = get_by_id(id)
+    
+    if transaction do
+      transaction
+      |> Ecto.Changeset.change(%{
+        checkout_request_id: checkout_request_id,
+        merchant_request_id: merchant_request_id
+      })
+      |> Repo.update()
+    else
+      {:error, :not_found}
     end
   end
 
   @doc """
-  Finds a transaction by its M-Pesa receipt number.
+  Updates a transaction's status.
 
   ## Parameters
 
-  - receipt_number: The M-Pesa receipt number to search for
+  * `id` - The ID of the transaction to update
+  * `status` - The new status ("pending", "completed", "failed")
+  * `result_code` - The result code from M-Pesa
+  * `result_desc` - The result description from M-Pesa
+  * `transaction_id` - (Optional) The transaction ID from M-Pesa
+  * `transaction_date` - (Optional) The transaction date from M-Pesa
 
   ## Returns
 
-  - {:ok, transaction} if found
-  - {:error, :not_found} if not found
+  * `{:ok, transaction}` - On success
+  * `{:error, changeset}` - On failure
   """
-  def find_by_receipt_number(receipt_number) do
-    case Repo.get_by(__MODULE__, mpesa_receipt_number: receipt_number) do
-      nil -> {:error, :not_found}
-      transaction -> {:ok, transaction}
+  def update_status(id, status, result_code, result_desc, transaction_id \\ nil, transaction_date \\ nil) do
+    attrs = %{
+      status: status,
+      result_code: result_code,
+      result_desc: result_desc
+    }
+
+    # Add transaction_id if provided
+    attrs = if transaction_id, do: Map.put(attrs, :transaction_id, transaction_id), else: attrs
+
+    # Add transaction_date if provided
+    attrs = if transaction_date, do: Map.put(attrs, :transaction_date, transaction_date), else: attrs
+
+    transaction = get_by_id(id)
+    
+    if transaction do
+      transaction
+      |> Ecto.Changeset.change(attrs)
+      |> Repo.update()
+    else
+      {:error, :not_found}
     end
   end
 
   @doc """
-  Finds a transaction by its reference.
+  Gets a transaction by ID.
 
   ## Parameters
 
-  - reference: The transaction reference to search for
+  * `id` - The ID of the transaction to get
 
   ## Returns
 
-  - transaction if found
-  - nil if not found
+  * `transaction` - If found
+  * `nil` - If not found
   """
-  def find_by_reference(reference) do
-    Repo.get_by(__MODULE__, reference: reference)
+  def get_by_id(id) do
+    Repo.get(Transaction, id)
   end
 
   @doc """
-  Lists transactions for a specific clinic with pagination.
+  Gets a transaction by checkout request ID.
 
   ## Parameters
 
-  - clinic_id: The ID of the clinic to list transactions for
-  - page: Page number (default: 1)
-  - per_page: Number of transactions per page (default: 20)
-  - filters: Map of filters to apply (e.g., %{status: "completed", type: "stk_push"})
+  * `checkout_request_id` - The checkout request ID to search for
+  * `clinic_id` - Optional clinic ID to ensure proper isolation
 
   ## Returns
 
-  - List of transactions
+  * `transaction` - If found
+  * `nil` - If not found
   """
-  def list_for_clinic(clinic_id, page \\ 1, per_page \\ 20, filters \\ %{}) do
-    base_query =
-      from(t in __MODULE__,
-        where: t.clinic_id == ^clinic_id
-      )
+  def get_by_checkout_request_id(checkout_request_id, clinic_id \\ nil) do
+    query = from t in Transaction, where: t.checkout_request_id == ^checkout_request_id
+    query = if clinic_id, do: where(query, [t], t.clinic_id == ^clinic_id), else: query
+    Repo.one(query)
+  end
 
-    # Apply filters
-    filtered_query = apply_filters(base_query, filters)
+  @doc """
+  Gets a transaction by merchant request ID.
 
-    # Apply pagination and ordering
-    from(t in filtered_query,
-      order_by: [desc: t.inserted_at],
-      limit: ^per_page,
-      offset: ^((page - 1) * per_page)
-    )
+  ## Parameters
+
+  * `merchant_request_id` - The merchant request ID to search for
+  * `clinic_id` - Optional clinic ID to ensure proper isolation
+
+  ## Returns
+
+  * `transaction` - If found
+  * `nil` - If not found
+  """
+  def get_by_merchant_request_id(merchant_request_id, clinic_id \\ nil) do
+    query = from t in Transaction, where: t.merchant_request_id == ^merchant_request_id
+    query = if clinic_id, do: where(query, [t], t.clinic_id == ^clinic_id), else: query
+    Repo.one(query)
+  end
+
+  @doc """
+  Gets a transaction by reference and clinic ID.
+
+  ## Parameters
+
+  * `reference` - The reference to search for
+  * `clinic_id` - The clinic ID to search for
+
+  ## Returns
+
+  * `transaction` - If found
+  * `nil` - If not found
+  """
+  def get_by_reference_and_clinic(reference, clinic_id) do
+    Repo.get_by(Transaction, reference: reference, clinic_id: clinic_id)
+  end
+
+  @doc """
+  Lists all transactions for a specific clinic with optional limit.
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to list transactions for
+  * `opts` - Options map with optional :limit key
+
+  ## Returns
+
+  * List of transactions
+  """
+  def list_by_clinic(clinic_id, opts \\ %{}) do
+    limit = Map.get(opts, :limit)
+    
+    query = Transaction
+    |> where(clinic_id: ^clinic_id)
+    |> order_by(desc: :inserted_at)
+    
+    query = if limit, do: limit(query, ^limit), else: query
+    
+    Repo.all(query)
+  end
+
+  @doc """
+  Lists all transactions for a specific invoice.
+
+  ## Parameters
+
+  * `invoice_id` - The ID of the invoice to list transactions for
+  * `clinic_id` - (Optional) The ID of the clinic to filter by
+
+  ## Returns
+
+  * List of transactions
+  """
+  def list_by_invoice(invoice_id, clinic_id \\ nil) do
+    query = Transaction
+    |> where(invoice_id: ^invoice_id)
+    |> order_by(desc: :inserted_at)
+
+    query = if clinic_id do
+      query |> where(clinic_id: ^clinic_id)
+    else
+      query
+    end
+
+    Repo.all(query)
+  end
+
+  @doc """
+  Lists all transactions for a specific patient within a clinic.
+
+  ## Parameters
+
+  * `patient_id` - The ID of the patient to list transactions for
+  * `clinic_id` - The ID of the clinic to filter by
+
+  ## Returns
+
+  * List of transactions
+  """
+  def list_by_patient(patient_id, clinic_id) do
+    Transaction
+    |> where(patient_id: ^patient_id)
+    |> where(clinic_id: ^clinic_id)
+    |> order_by(desc: :inserted_at)
     |> Repo.all()
+  end
+
+  @doc """
+  Lists all transactions with a specific status within a clinic.
+
+  ## Parameters
+
+  * `status` - The status to filter by ("pending", "completed", "failed")
+  * `clinic_id` - The ID of the clinic to filter by
+
+  ## Returns
+
+  * List of transactions
+  """
+  def list_by_status(status, clinic_id) do
+    Transaction
+    |> where(status: ^status)
+    |> where(clinic_id: ^clinic_id)
+    |> order_by(desc: :inserted_at)
+    |> Repo.all()
+  end
+
+  @doc """
+  Lists all transactions within a date range for a specific clinic.
+
+  ## Parameters
+
+  * `start_date` - The start date to filter by
+  * `end_date` - The end date to filter by
+  * `clinic_id` - The ID of the clinic to filter by
+
+  ## Returns
+
+  * List of transactions
+  """
+  def list_by_date_range(start_date, end_date, clinic_id) do
+    Transaction
+    |> where(clinic_id: ^clinic_id)
+    |> where([t], t.inserted_at >= ^start_date)
+    |> where([t], t.inserted_at <= ^end_date)
+    |> order_by(desc: :inserted_at)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a transaction by ID and clinic ID to ensure proper isolation.
+
+  ## Parameters
+
+  * `id` - The ID of the transaction to get
+  * `clinic_id` - The clinic ID to ensure proper isolation
+
+  ## Returns
+
+  * `transaction` - If found and belongs to the clinic
+  * `nil` - If not found or doesn't belong to the clinic
+  """
+  def get_by_id_and_clinic(id, clinic_id) do
+    Repo.get_by(Transaction, id: id, clinic_id: clinic_id)
+  end
+
+  @doc """
+  Gets a transaction by transaction ID.
+
+  ## Parameters
+
+  * `transaction_id` - The transaction ID to search for
+  * `clinic_id` - Optional clinic ID to ensure proper isolation
+
+  ## Returns
+
+  * `transaction` - If found
+  * `nil` - If not found
+  """
+  def get_by_transaction_id(transaction_id, clinic_id \\ nil) do
+    query = from t in Transaction, where: t.transaction_id == ^transaction_id
+    query = if clinic_id, do: where(query, [t], t.clinic_id == ^clinic_id), else: query
+    Repo.one(query)
   end
 
   @doc """
@@ -206,208 +362,137 @@ defmodule Clinicpro.MPesa.Transaction do
 
   ## Parameters
 
-  - clinic_id: The ID of the clinic to count transactions for
-  - filters: Map of filters to apply (e.g., %{status: "completed", type: "stk_push"})
+  * `clinic_id` - The ID of the clinic to count transactions for
 
   ## Returns
 
-  - Count of transactions
+  * Count of transactions
   """
-  def count_for_clinic(clinic_id, filters \\ %{}) do
-    base_query =
-      from(t in __MODULE__,
-        where: t.clinic_id == ^clinic_id
-      )
-
-    # Apply filters
-    filtered_query = apply_filters(base_query, filters)
-
-    from(t in filtered_query,
-      select: count(t.id)
-    )
-    |> Repo.one()
+  def count_by_clinic(clinic_id) do
+    Transaction
+    |> where(clinic_id: ^clinic_id)
+    |> Repo.aggregate(:count, :id)
   end
 
   @doc """
-  Lists recent transactions for a specific clinic.
+  Counts transactions for a specific clinic and status.
 
   ## Parameters
 
-  - clinic_id: The ID of the clinic to list transactions for
-  - limit: Maximum number of transactions to return (default: 10)
+  * `clinic_id` - The ID of the clinic to count transactions for
+  * `status` - The status to filter by
 
   ## Returns
 
-  - List of recent transactions
+  * Count of transactions
   """
-  def list_recent_for_clinic(clinic_id, limit \\ 10) do
-    from(t in __MODULE__,
-      where: t.clinic_id == ^clinic_id,
-      order_by: [desc: t.inserted_at],
-      limit: ^limit
-    )
+  def count_by_clinic_and_status(clinic_id, status) do
+    Transaction
+    |> where(clinic_id: ^clinic_id)
+    |> where(status: ^status)
+    |> Repo.aggregate(:count, :id)
+  end
+
+  @doc """
+  Sums the amount of completed transactions for a specific clinic.
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to sum transactions for
+  * `status` - The status to filter by (usually "completed")
+
+  ## Returns
+
+  * Sum of transaction amounts
+  """
+  def sum_amount_by_clinic_and_status(clinic_id, status) do
+    result = Transaction
+    |> where(clinic_id: ^clinic_id)
+    |> where(status: ^status)
+    |> Repo.aggregate(:sum, :amount)
+    
+    result || 0.0
+  end
+
+  @doc """
+  Paginates transactions for a specific clinic with filtering.
+
+  ## Parameters
+
+  * `clinic_id` - The ID of the clinic to list transactions for
+  * `filters` - Map of filters to apply (status, invoice_id, patient_id, from_date, to_date)
+  * `page` - Page number for pagination
+  * `per_page` - Number of items per page
+
+  ## Returns
+
+  * `{transactions, pagination}` - List of transactions and pagination info
+  """
+  def paginate_by_clinic(clinic_id, filters \\ %{}, page \\ 1, per_page \\ 20) do
+    query = Transaction
+    |> where(clinic_id: ^clinic_id)
+    |> apply_filters(filters)
+    |> order_by(desc: :inserted_at)
+
+    # Get total count for pagination
+    total_count = Repo.aggregate(query, :count, :id)
+    total_pages = ceil(total_count / per_page)
+
+    # Apply pagination
+    transactions = query
+    |> limit(^per_page)
+    |> offset(^((page - 1) * per_page))
     |> Repo.all()
-  end
 
-  @doc """
-  Lists transactions by status for a specific clinic.
-
-  ## Parameters
-
-  - clinic_id: The ID of the clinic to list transactions for
-  - status: Status to filter by (e.g., "pending", "completed", "failed")
-  - page: Page number (default: 1)
-  - per_page: Number of transactions per page (default: 20)
-
-  ## Returns
-
-  - List of transactions with the specified status
-  """
-  def list_by_status(clinic_id, status, page \\ 1, per_page \\ 20) do
-    from(t in __MODULE__,
-      where: t.clinic_id == ^clinic_id and t.status == ^status,
-      order_by: [desc: t.inserted_at],
-      limit: ^per_page,
-      offset: ^((page - 1) * per_page)
-    )
-    |> Repo.all()
-  end
-
-  @doc """
-  Lists all transactions for a specific clinic.
-
-  ## Parameters
-
-  - clinic_id: The ID of the clinic to list transactions for
-  - page: Page number (default: 1)
-  - per_page: Number of transactions per page (default: 20)
-
-  ## Returns
-
-  - List of all transactions for the clinic
-  """
-  def list_by_clinic(clinic_id, page \\ 1, per_page \\ 20) do
-    from(t in __MODULE__,
-      where: t.clinic_id == ^clinic_id,
-      order_by: [desc: t.inserted_at],
-      limit: ^per_page,
-      offset: ^((page - 1) * per_page)
-    )
-    |> Repo.all()
-  end
-
-  @doc """
-  Gets transaction statistics for a specific clinic.
-
-  ## Parameters
-
-  - clinic_id: The ID of the clinic to get statistics for
-
-  ## Returns
-
-  - Map with transaction statistics
-  """
-  def get_statistics(clinic_id) do
-    # Get total count
-    total_query =
-      from(t in __MODULE__,
-        where: t.clinic_id == ^clinic_id,
-        select: count(t.id)
-      )
-
-    # Get count by status
-    status_query =
-      from(t in __MODULE__,
-        where: t.clinic_id == ^clinic_id,
-        group_by: t.status,
-        select: {t.status, count(t.id)}
-      )
-
-    # Get sum of completed transactions
-    sum_query =
-      from(t in __MODULE__,
-        where: t.clinic_id == ^clinic_id and t.status == "completed",
-        select: sum(t.amount)
-      )
-
-    # Execute queries
-    total = Repo.one(total_query) || 0
-    status_counts = Repo.all(status_query) |> Enum.into(%{})
-    total_amount = Repo.one(sum_query) || Decimal.new(0)
-
-    # Return statistics
-    %{
-      total: total,
-      by_status: status_counts,
-      total_amount: total_amount
-    }
-  end
-
-  @doc """
-  Gets comprehensive transaction statistics for a specific clinic.
-  This is used for the admin dashboard.
-
-  ## Parameters
-
-  - clinic_id: The ID of the clinic to get statistics for
-
-  ## Returns
-
-  - Map with detailed transaction statistics
-  """
-  def get_stats_for_clinic(clinic_id) do
-    # Get total count
-    total_count = count_for_clinic(clinic_id)
-
-    # Get counts by status
-    completed_count = count_for_clinic(clinic_id, %{status: "completed"})
-    pending_count = count_for_clinic(clinic_id, %{status: "pending"})
-    failed_count = count_for_clinic(clinic_id, %{status: "failed"})
-
-    # Get total amount of completed transactions
-    total_amount_query =
-      from(t in __MODULE__,
-        where: t.clinic_id == ^clinic_id and t.status == "completed",
-        select: sum(t.amount)
-      )
-
-    total_amount = Repo.one(total_amount_query) || Decimal.new(0)
-
-    # Return comprehensive statistics
-    %{
+    # Return transactions with pagination info
+    {transactions, %{
+      page: page,
+      per_page: per_page,
       total_count: total_count,
-      completed_count: completed_count,
-      pending_count: pending_count,
-      failed_count: failed_count,
-      total_amount: total_amount
-    }
+      total_pages: total_pages
+    }}
   end
 
   # Private functions
 
-  @doc false
+  defp changeset(transaction, attrs) do
+    transaction
+    |> cast(attrs, [
+      :clinic_id, :invoice_id, :patient_id, :phone_number, :amount, :status,
+      :reference, :checkout_request_id, :merchant_request_id, :transaction_id,
+      :transaction_date, :result_code, :result_desc
+    ])
+    |> validate_required([:clinic_id, :invoice_id, :patient_id, :phone_number, :amount, :status])
+    |> validate_inclusion(:status, ["pending", "completed", "failed"])
+    |> validate_number(:amount, greater_than: 0)
+  end
+
   defp apply_filters(query, filters) do
     Enum.reduce(filters, query, fn
-      {:status, status}, query ->
-        from(t in query, where: t.status == ^status)
-
-      {:type, type}, query ->
-        from(t in query, where: t.type == ^type)
-
-      {:date_from, date_from}, query ->
-        from(t in query, where: t.inserted_at >= ^date_from)
-
-      {:date_to, date_to}, query ->
-        from(t in query, where: t.inserted_at <= ^date_to)
-
-      {:reference, reference}, query ->
-        from(t in query, where: ilike(t.reference, ^"%#{reference}%"))
-
-      {:phone, phone}, query ->
-        from(t in query, where: ilike(t.phone, ^"%#{phone}%"))
-
-      _, query ->
-        query
+      {:status, nil}, query -> query
+      {:status, ""}, query -> query
+      {:status, status}, query -> where(query, [t], t.status == ^status)
+      
+      {:invoice_id, nil}, query -> query
+      {:invoice_id, ""}, query -> query
+      {:invoice_id, invoice_id}, query -> where(query, [t], t.invoice_id == ^invoice_id)
+      
+      {:patient_id, nil}, query -> query
+      {:patient_id, ""}, query -> query
+      {:patient_id, patient_id}, query -> where(query, [t], t.patient_id == ^patient_id)
+      
+      {:from_date, nil}, query -> query
+      {:from_date, from_date}, query -> where(query, [t], t.inserted_at >= ^from_date)
+      
+      {:to_date, nil}, query -> query
+      {:to_date, to_date}, query -> 
+        # Add a day to include the entire end date
+        to_date = 
+          to_date
+          |> NaiveDateTime.new!(~T[23:59:59])
+        where(query, [t], t.inserted_at <= ^to_date)
+      
+      _, query -> query
     end)
   end
 end

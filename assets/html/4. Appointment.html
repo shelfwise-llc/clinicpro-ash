@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinicPro – Appointments</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
+  <script>
+    tailwind.config = { theme: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full text-gray-900">
+  <!-- Layout -->
+  <div class="flex h-full">
+    <!-- Sidebar -->
+    <aside class="hidden lg:flex lg:flex-col lg:w-56 bg-white border-r">
+      <div class="flex items-center gap-2 px-4 py-4 border-b">
+        <div id="logo" class="h-8 w-8 bg-gray-200 rounded flex items-center justify-center">
+          <i data-lucide="shield-plus" class="w-5 h-5 text-gray-700"></i>
+        </div>
+        <span class="font-semibold text-lg">ClinicPro</span>
+      </div>
+
+      <nav class="flex-1 px-2 py-4 space-y-2">
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="home" class="w-5 h-5"></i> Home
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+          <i data-lucide="calendar-check" class="w-5 h-5"></i> Appointments
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="users" class="w-5 h-5"></i> Patients
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="clipboard-pills" class="w-5 h-5"></i> Prescriptions
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="flask-conical" class="w-5 h-5"></i> Lab Orders
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="credit-card" class="w-5 h-5"></i> Billing
+        </a>
+        <a href="#" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="settings" class="w-5 h-5"></i> Settings
+        </a>
+      </nav>
+
+      <div class="px-4 py-4 border-t text-xs text-gray-500">
+        © 2023 ClinicPro. All rights reserved
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto">
+      <!-- Header -->
+      <header class="sticky top-0 bg-white border-b z-10">
+        <div class="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
+          <h1 class="text-xl font-semibold">Appointments</h1>
+          <button id="newAppointment" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-md shadow-sm">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            New Appointment
+          </button>
+        </div>
+      </header>
+
+      <!-- Card -->
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-lg border shadow-sm">
+          <!-- Filters -->
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-4 border-b">
+            <div class="flex-1">
+              <div class="relative">
+                <input type="text" placeholder="Search patients, dates..."
+                       class="w-full sm:max-w-xs pl-10 pr-3 py-2 border rounded-md bg-gray-50 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:bg-white">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+              </div>
+            </div>
+            <div class="relative">
+              <button id="statusToggle"
+                      class="flex items-center gap-2 px-3 py-2 border rounded-md bg-gray-50 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                All Status
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </button>
+              <ul id="statusMenu"
+                  class="hidden absolute right-0 mt-1 w-40 bg-white border rounded-md shadow-lg py-1 text-sm z-20">
+                <li><button data-value="all" class="w-full text-left px-3 py-2 hover:bg-gray-50">All Status</button></li>
+                <li><button data-value="paid" class="w-full text-left px-3 py-2 hover:bg-gray-50">Paid</button></li>
+                <li><button data-value="pending" class="w-full text-left px-3 py-2 hover:bg-gray-50">Pending</button></li>
+                <li><button data-value="overdue" class="w-full text-left px-3 py-2 hover:bg-gray-50">Overdue</button></li>
+              </ul>
+            </div>
+
+            <div class="ml-auto flex gap-2">
+              <button class="px-3 py-2 text-xs font-medium rounded-md border bg-gray-50 hover:bg-gray-100">Week</button>
+              <button class="px-3 py-2 text-xs font-medium rounded-md border bg-gray-800 text-white">Table</button>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+              <thead class="bg-white text-gray-500 text-xs uppercase">
+                <tr>
+                  <th scope="col" class="px-6 py-3 text-left font-medium">Date</th>
+                  <th scope="col" class="px-6 py-3 text-left font-medium">Time</th>
+                  <th scope="col" class="px-6 py-3 text-left font-medium">Patient</th>
+                  <th scope="col" class="px-6 py-3 text-left font-medium">Type</th>
+                  <th scope="col" class="px-6 py-3 text-left font-medium">Status</th>
+                  <th scope="col" class="px-6 py-3 text-left font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-sm">
+                <!-- Row 1 -->
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">Jan 15, 2025</td>
+                  <td class="px-6 py-4 whitespace-nowrap">9:00 AM</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <img src="https://api.dicebear.com/5.x/thumbs/svg?seed=Sarah" alt="" class="h-8 w-8 rounded-full">
+                      <div>
+                        <div class="font-medium text-gray-900">Sarah Johnson</div>
+                        <div class="text-gray-500 text-xs">sarah.j@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">General Checkup</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Paid</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <button class="px-3 py-1 text-xs font-medium bg-gray-800 text-white rounded-md">Join Call</button>
+                      <button class="relative">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 2 -->
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">Jan 15, 2025</td>
+                  <td class="px-6 py-4 whitespace-nowrap">10:30 AM</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <img src="https://api.dicebear.com/5.x/thumbs/svg?seed=Michael" alt="" class="h-8 w-8 rounded-full">
+                      <div>
+                        <div class="font-medium text-gray-900">Michael Chen</div>
+                        <div class="text-gray-500 text-xs">m.chen@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">Follow-up</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <button class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-800 rounded-md">Awaiting Payment</button>
+                      <button class="relative">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 3 -->
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">Jan 15, 2025</td>
+                  <td class="px-6 py-4 whitespace-nowrap">2:00 PM</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <img src="https://api.dicebear.com/5.x/thumbs/svg?seed=Emily" alt="" class="h-8 w-8 rounded-full">
+                      <div>
+                        <div class="font-medium text-gray-900">Emily Davis</div>
+                        <div class="text-gray-500 text-xs">emily.d@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">Consultation</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Overdue</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <button class="px-3 py-1 text-xs font-medium bg-gray-800 text-white rounded-md">Send Reminder</button>
+                      <button class="relative">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 4 -->
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">Jan 16, 2025</td>
+                  <td class="px-6 py-4 whitespace-nowrap">11:00 AM</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <img src="https://api.dicebear.com/5.x/thumbs/svg?seed=Robert" alt="" class="h-8 w-8 rounded-full">
+                      <div>
+                        <div class="font-medium text-gray-900">Robert Wilson</div>
+                        <div class="text-gray-500 text-xs">r.wilson@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">Annual Physical</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Paid</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <button class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-800 rounded-md">Scheduled</button>
+                      <button class="relative">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Row 5 -->
+                <tr class="bg-white hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">Jan 16, 2025</td>
+                  <td class="px-6 py-4 whitespace-nowrap">3:30 PM</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <img src="https://api.dicebear.com/5.x/thumbs/svg?seed=Lisa" alt="" class="h-8 w-8 rounded-full">
+                      <div>
+                        <div class="font-medium text-gray-900">Lisa Thompson</div>
+                        <div class="text-gray-500 text-xs">l.thompson@email.com</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">Urgent Care</td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <button class="px-3 py-1 text-xs font-medium bg-gray-200 text-gray-800 rounded-md">Awaiting Payment</button>
+                      <button class="relative">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-600"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4">
+            <p class="text-sm text-gray-500">Showing 5 of 23 appointments</p>
+            <nav class="inline-flex gap-2 mt-4 sm:mt-0">
+              <button class="px-3 py-1 border rounded-md text-xs text-gray-700 bg-white hover:bg-gray-50">Previous</button>
+              <button class="px-3 py-1 border rounded-md text-xs bg-gray-800 text-white">1</button>
+              <button class="px-3 py-1 border rounded-md text-xs text-gray-700 bg-white hover:bg-gray-50">2</button>
+              <button class="px-3 py-1 border rounded-md text-xs text-gray-700 bg-white hover:bg-gray-50">3</button>
+              <button class="px-3 py-1 border rounded-md text-xs text-gray-700 bg-white hover:bg-gray-50">Next</button>
+            </nav>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    lucide.createIcons();
+
+    // Status dropdown
+    const toggleBtn = document.getElementById('statusToggle');
+    const menu = document.getElementById('statusMenu');
+
+    toggleBtn.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+    });
+    document.addEventListener('click', (e) => {
+      if (!toggleBtn.contains(e.target) && !menu.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
+    menu.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        toggleBtn.firstChild.textContent = btn.textContent;
+        menu.classList.add('hidden');
+      });
+    });
+  </script>
+</body>
+</html>

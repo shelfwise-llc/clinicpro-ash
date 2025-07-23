@@ -204,7 +204,7 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
       conferenceData: %ConferenceData{
         createRequest: %CreateConferenceRequest{
           requestId: "#{appointment.id}-#{:os.system_time(:millisecond)}",
-          conferenceSolutionKey: %ConferenceSolution{
+          conferenceSolutionKey: %{
             type: "hangoutsMeet"
           }
         }

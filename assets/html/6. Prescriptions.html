@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>ClinicPro – Prescriptions</title>
+  <link rel="preconnect" href="https://rsms.me/">
+  <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] } } } }
+  </script>
+</head>
+<body class="font-sans antialiased text-gray-900 bg-gray-50">
+  <!-- Mobile top bar -->
+  <header class="md:hidden flex items-center justify-between px-4 h-14 bg-white border-b">
+    <button id="mobile-menu-button" class="p-2 rounded-md hover:bg-gray-100">
+      <i data-lucide="menu" class="w-5 h-5"></i>
+    </button>
+    <div class="flex items-center space-x-2">
+      <i data-lucide="heart-pulse" class="w-5 h-5 text-indigo-600"></i>
+      <span class="font-semibold">ClinicPro</span>
+    </div>
+  </header>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-64 border-r bg-white">
+      <div class="h-16 flex items-center px-6 border-b">
+        <i data-lucide="heart-pulse" class="w-6 h-6 text-indigo-600"></i>
+        <span class="ml-2 font-semibold text-lg">ClinicPro</span>
+      </div>
+
+      <nav class="flex-1 px-2 py-4 space-y-1">
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="home" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-700"></i>
+          Home
+        </a>
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="calendar-check" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-700"></i>
+          Appointments
+        </a>
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="users" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-700"></i>
+          Patients
+        </a>
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium bg-gray-100 text-gray-900">
+          <i data-lucide="pill" class="w-5 h-5 mr-3 text-gray-700"></i>
+          Prescriptions
+        </a>
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="flask-conical" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-700"></i>
+          Lab Orders
+        </a>
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="credit-card" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-700"></i>
+          Billing
+        </a>
+        <a href="#" class="group flex items-center px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">
+          <i data-lucide="settings" class="w-5 h-5 mr-3 text-gray-400 group-hover:text-gray-700"></i>
+          Settings
+        </a>
+      </nav>
+
+      <div class="px-6 py-4 border-t flex items-center space-x-3">
+        <img src="https://i.pravatar.cc/40" alt="Avatar" class="w-8 h-8 rounded-full">
+        <div class="text-sm">
+          <p class="font-medium leading-none">Dr. Kelly Rose</p>
+          <p class="text-gray-500">Physician</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 flex flex-col">
+      <div class="flex items-center justify-between px-6 py-6">
+        <h1 class="text-2xl font-semibold">Prescriptions</h1>
+        <button class="inline-flex items-center bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-md shadow-sm hover:bg-indigo-700">
+          <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+          New Prescription
+        </button>
+      </div>
+
+      <section class="px-6 pb-8">
+        <div class="bg-white border rounded-lg shadow-sm">
+          <!-- Toolbar -->
+          <div class="flex items-center justify-between px-4 py-4 space-x-4">
+            <div class="flex items-center relative flex-1">
+              <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+              <input type="text" placeholder="Search prescriptions, patient, medication…" class="w-full pl-10 pr-4 py-2 text-sm border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div class="w-40 relative">
+              <select class="block w-full text-sm pl-3 pr-8 py-2 border rounded-md appearance-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <option>All Status</option>
+                <option>Active</option>
+                <option>Pending</option>
+                <option>Completed</option>
+                <option>Expired</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <button class="px-3 py-1.5 text-sm font-medium border rounded-md hover:bg-gray-50">Export</button>
+              <button class="px-3 py-1.5 text-sm font-medium border rounded-md bg-gray-100">Table</button>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Patient</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Medication</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Dosage</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Date Issued</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Status</th>
+                  <th class="px-6 py-3 text-left font-medium text-gray-500">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <!-- Row -->
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center space-x-3">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                      </span>
+                      <div>
+                        <p class="font-medium">Sarah Johnson</p>
+                        <p class="text-gray-500">ID: P-2025-001</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">Amoxicillin</p>
+                    <p class="text-gray-500">Antibiotic</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">500mg</p>
+                    <p class="text-gray-500">3× daily, 7 days</p>
+                  </td>
+                  <td class="px-6 py-4">Jan 15, 2025</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                      <button class="px-3 py-1.5 text-xs font-medium border rounded-md hover:bg-gray-50">View Details</button>
+                      <button class="p-2 rounded-md hover:bg-gray-100">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row -->
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center space-x-3">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                      </span>
+                      <div>
+                        <p class="font-medium">Michael Chen</p>
+                        <p class="text-gray-500">ID: P-2025-002</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">Lisinopril</p>
+                    <p class="text-gray-500">ACE Inhibitor</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">10mg</p>
+                    <p class="text-gray-500">1× daily, 30 days</p>
+                  </td>
+                  <td class="px-6 py-4">Jan 10, 2025</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Active</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                      <button class="px-3 py-1.5 text-xs font-medium border rounded-md hover:bg-gray-50">View Details</button>
+                      <button class="p-2 rounded-md hover:bg-gray-100">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row -->
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center space-x-3">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                      </span>
+                      <div>
+                        <p class="font-medium">Emily Davis</p>
+                        <p class="text-gray-500">ID: P-2025-003</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">Ibuprofen</p>
+                    <p class="text-gray-500">NSAID</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">400mg</p>
+                    <p class="text-gray-500">As needed, 5 days</p>
+                  </td>
+                  <td class="px-6 py-4">Dec 20, 2024</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-700">Completed</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                      <button class="px-3 py-1.5 text-xs font-medium border rounded-md hover:bg-gray-50">View Details</button>
+                      <button class="p-2 rounded-md hover:bg-gray-100">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row -->
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center space-x-3">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                      </span>
+                      <div>
+                        <p class="font-medium">Robert Wilson</p>
+                        <p class="text-gray-500">ID: P-2025-004</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">Metformin</p>
+                    <p class="text-gray-500">Antidiabetic</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">500mg</p>
+                    <p class="text-gray-500">2× daily, 30 days</p>
+                  </td>
+                  <td class="px-6 py-4">Jan 16, 2025</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                      <button class="px-3 py-1.5 text-xs font-medium border rounded-md hover:bg-gray-50">View Details</button>
+                      <button class="p-2 rounded-md hover:bg-gray-100">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Row -->
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center space-x-3">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100">
+                        <i data-lucide="user" class="w-4 h-4 text-gray-600"></i>
+                      </span>
+                      <div>
+                        <p class="font-medium">Lisa Thompson</p>
+                        <p class="text-gray-500">ID: P-2025-005</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">Azithromycin</p>
+                    <p class="text-gray-500">Antibiotic</p>
+                  </td>
+                  <td class="px-6 py-4">
+                    <p class="font-medium">250mg</p>
+                    <p class="text-gray-500">1× daily, 5 days</p>
+                  </td>
+                  <td class="px-6 py-4">Jan 12, 2025</td>
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Expired</span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center space-x-2">
+                      <button class="px-3 py-1.5 text-xs font-medium border rounded-md hover:bg-gray-50">View Details</button>
+                      <button class="p-2 rounded-md hover:bg-gray-100">
+                        <i data-lucide="more-vertical" class="w-4 h-4 text-gray-500"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-between px-4 py-4 border-t text-sm text-gray-600">
+            <p>Showing 5 of 32 prescriptions</p>
+            <nav class="inline-flex items-center space-x-1">
+              <button class="px-3 py-1.5 border rounded-md text-gray-500 hover:bg-gray-50">Previous</button>
+              <button class="px-3 py-1.5 border rounded-md bg-indigo-600 text-white">1</button>
+              <button class="px-3 py-1.5 border rounded-md hover:bg-gray-50">2</button>
+              <button class="px-3 py-1.5 border rounded-md hover:bg-gray-50">3</button>
+              <button class="px-3 py-1.5 border rounded-md hover:bg-gray-50">Next</button>
+            </nav>
+          </div>
+        </div>
+      </section>
+
+      <footer class="px-6 py-4 border-t text-sm text-gray-500 flex items-center justify-between">
+        <p>© 2025 ClinicPro. All rights reserved.</p>
+        <nav class="flex space-x-4">
+          <a href="#" class="hover:text-gray-700">Support</a>
+          <a href="#" class="hover:text-gray-700">Privacy</a>
+        </nav>
+      </footer>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    lucide.createIcons();
+
+    // Mobile sidebar toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const sidebar = document.getElementById('sidebar');
+
+    mobileMenuButton?.addEventListener('click', () => {
+      sidebar.classList.toggle('hidden');
+      sidebar.classList.toggle('fixed');
+      sidebar.classList.toggle('inset-y-0');
+      sidebar.classList.toggle('z-50');
+      sidebar.classList.toggle('animate-slide');
+    });
+  </script>
+</body>
+</html>

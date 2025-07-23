@@ -6,7 +6,7 @@
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <h2 class="text-2xl font-semibold mb-4">What type of appointment do you need?</h2>
     
-    <.form :let={f} for={%{}} action={~p"/booking/type"} method="post">
+    <.form :let={_f} for={%{}} action={~p"/booking/type"} method="post">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
           <input type="radio" id="type_consultation" name="appointment_type" value="consultation" class="hidden peer" required>

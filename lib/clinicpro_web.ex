@@ -127,8 +127,8 @@ defmodule ClinicproWeb do
       # Use all HTML functionality (forms, tags, etc)
       import Phoenix.HTML
       import Phoenix.HTML.Form
-      import Phoenix.HTML.Link
-      import Phoenix.HTML.Tag
+      import PhoenixHTMLHelpers.Link
+      import PhoenixHTMLHelpers.Tag
       use PhoenixHTMLHelpers
 
       # Import basic rendering functionality (render, render_layout, etc)

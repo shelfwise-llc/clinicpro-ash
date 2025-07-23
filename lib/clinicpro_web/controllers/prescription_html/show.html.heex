@@ -1,0 +1,191 @@
+<!-- lib/clinicpro_web/controllers/prescription_html/show.html.heex -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-indigo-50 flex justify-between items-center">
+      <div>
+        <h1 class="text-xl font-semibold text-gray-900">Prescription Details</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          Prescribed by Dr. <%= @prescription.doctor.name %> on <%= Calendar.strftime(
+            @prescription.created_at,
+            "%B %d, %Y"
+          ) %>
+        </p>
+      </div>
+      <!-- Clinic Badge -->
+      <div class="rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-800">
+        <%= @prescription.clinic.name %>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200">
+      <dl>
+        <!-- Patient Information -->
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Patient</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @prescription.patient.name %>
+          </dd>
+        </div>
+        <!-- Medication Information -->
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Medication</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <div class="font-medium"><%= @prescription.medication_name %></div>
+            <div class="text-gray-500">
+              <%= if @prescription.medication_form do %>
+                <span class="mr-2"><%= @prescription.medication_form %></span>
+              <% end %>
+              <%= if @prescription.medication_strength do %>
+                <span><%= @prescription.medication_strength %></span>
+              <% end %>
+              <%= if @prescription.is_controlled_substance do %>
+                <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                  Controlled Substance
+                </span>
+              <% end %>
+            </div>
+          </dd>
+        </div>
+        <!-- Dosage Information -->
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Dosage</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @prescription.dosage %>
+          </dd>
+        </div>
+        <!-- Frequency Information -->
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Frequency</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @prescription.frequency %>
+          </dd>
+        </div>
+        <!-- Duration Information -->
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Duration</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @prescription.duration %>
+          </dd>
+        </div>
+        <!-- Refills Information -->
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Refills</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= @prescription.refills || 0 %>
+          </dd>
+        </div>
+        <!-- Instructions Information -->
+        <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Instructions</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <%= if @prescription.instructions && @prescription.instructions != "" do %>
+              <%= @prescription.instructions %>
+            <% else %>
+              <span class="text-gray-500 italic">No special instructions</span>
+            <% end %>
+          </dd>
+        </div>
+        <!-- QR Code for Verification -->
+        <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Verification</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+            <div class="flex items-center">
+              <div class="h-24 w-24 bg-gray-100 rounded-md flex items-center justify-center">
+                <!-- QR Code would be generated here -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-12 w-12 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                  />
+                </svg>
+              </div>
+              <div class="ml-4">
+                <p class="text-sm font-medium text-gray-900">Scan to verify</p>
+                <p class="text-sm text-gray-500">
+                  This prescription can be verified by scanning this code at any pharmacy.
+                </p>
+              </div>
+            </div>
+          </dd>
+        </div>
+      </dl>
+    </div>
+    <!-- Action Buttons -->
+    <div class="px-4 py-5 sm:px-6 flex justify-between">
+      <div>
+        <.link
+          href={~p"/appointments/#{@prescription.appointment_id}/prescriptions"}
+          class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="-ml-1 mr-2 h-5 w-5 text-gray-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          Back to Prescriptions
+        </.link>
+      </div>
+
+      <div class="flex space-x-3">
+        <.link
+          href={~p"/prescriptions/#{@prescription.id}/edit"}
+          class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="-ml-1 mr-2 h-5 w-5 text-gray-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            />
+          </svg>
+          Edit
+        </.link>
+
+        <.link
+          href={~p"/prescriptions/#{@prescription.id}/print"}
+          class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="-ml-1 mr-2 h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+            />
+          </svg>
+          Print
+        </.link>
+      </div>
+    </div>
+  </div>
+</div>

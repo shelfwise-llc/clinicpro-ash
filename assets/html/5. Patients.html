@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50 scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClinicPro – Patients</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    html { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="h-full flex">
+  <!-- Sidebar -->
+  <aside id="sidebar" class="fixed z-30 inset-y-0 left-0 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform lg:static lg:translate-x-0 -translate-x-full lg:translate-x-0">
+    <div class="flex items-center h-16 px-6 border-b border-gray-200">
+      <span class="px-2 py-1 bg-indigo-50 text-indigo-600 rounded">🛡️</span>
+      <span class="ml-3 text-lg font-semibold tracking-tight">ClinicPro</span>
+    </div>
+    <nav class="flex-1 overflow-y-auto">
+      <ul class="py-4 space-y-2">
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <i data-lucide="home" class="w-4 h-4 opacity-70 group-hover:opacity-100"></i>
+            <span class="ml-3">Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <i data-lucide="calendar" class="w-4 h-4 opacity-70 group-hover:opacity-100"></i>
+            <span class="ml-3">Appointments</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-800 bg-gray-100 rounded-r-full">
+            <i data-lucide="users" class="w-4 h-4 opacity-90"></i>
+            <span class="ml-3">Patients</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <i data-lucide="book-open" class="w-4 h-4 opacity-70 group-hover:opacity-100"></i>
+            <span class="ml-3">Prescriptions</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <i data-lucide="beaker" class="w-4 h-4 opacity-70 group-hover:opacity-100"></i>
+            <span class="ml-3">Lab Orders</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <i data-lucide="credit-card" class="w-4 h-4 opacity-70 group-hover:opacity-100"></i>
+            <span class="ml-3">Billing</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="group flex items-center px-6 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100">
+            <i data-lucide="settings" class="w-4 h-4 opacity-70 group-hover:opacity-100"></i>
+            <span class="ml-3">Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="px-6 py-4 border-t border-gray-200 text-xs text-gray-500">
+      © 2025 ClinicPro. All rights reserved
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1 min-h-screen flex flex-col lg:ml-64">
+    <!-- Topbar (mobile) -->
+    <header class="lg:hidden flex items-center justify-between h-14 px-4 border-b border-gray-200 bg-white">
+      <button id="openSidebar" class="text-gray-600">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+      <span class="text-sm font-semibold">Patients</span>
+      <span class="w-5"></span>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1 p-6 lg:p-10">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold tracking-tight">Patients</h1>
+        <button class="inline-flex items-center gap-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md shadow-sm">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          Add Patient
+        </button>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <!-- Filters -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border-b border-gray-200">
+          <div class="flex-1 relative">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+            <input type="text" placeholder="Search patients, phone, email…" class="w-full border border-gray-300 rounded-md pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-gray-400" />
+          </div>
+          <select class="border border-gray-300 rounded-md text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <option>All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+            <option>New</option>
+          </select>
+          <div class="flex gap-2 sm:ml-auto">
+            <button class="text-sm font-medium text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md border border-gray-300 bg-white">Export</button>
+            <button class="text-sm font-medium text-gray-600 hover:text-gray-800 px-3 py-2 rounded-md border border-gray-300 bg-white">Table</button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+              <tr>
+                <th class="px-6 py-3 text-left font-medium">Patient</th>
+                <th class="px-6 py-3 text-left font-medium">Contact</th>
+                <th class="px-6 py-3 text-left font-medium">Age</th>
+                <th class="px-6 py-3 text-left font-medium">Last Visit</th>
+                <th class="px-6 py-3 text-left font-medium">Status</th>
+                <th class="px-6 py-3 text-left font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <!-- Row -->
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                  <span class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs font-semibold">SJ</span>
+                  <div>
+                    <div class="font-medium text-gray-900">Sarah Johnson</div>
+                    <div class="text-gray-500 text-xs">ID: P-2025-001</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-gray-900">sarah.j@email.com</div>
+                  <div class="text-gray-500">+1 (555) 123-4567</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">34</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">Jan 15, 2025</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Active</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
+                  <button class="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">View Profile</button>
+                  <button class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Row -->
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                  <span class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs font-semibold">MC</span>
+                  <div>
+                    <div class="font-medium text-gray-900">Michael Chen</div>
+                    <div class="text-gray-500 text-xs">ID: P-2025-002</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-gray-900">m.chen@email.com</div>
+                  <div class="text-gray-500">+1 (555) 234-5678</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">42</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">Jan 10, 2025</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Active</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
+                  <button class="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">View Profile</button>
+                  <button class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Row -->
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                  <span class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs font-semibold">ED</span>
+                  <div>
+                    <div class="font-medium text-gray-900">Emily Davis</div>
+                    <div class="text-gray-500 text-xs">ID: P-2025-003</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-gray-900">emily.d@email.com</div>
+                  <div class="text-gray-500">+1 (555) 345-6789</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">28</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">Dec 20, 2024</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">Inactive</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
+                  <button class="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">View Profile</button>
+                  <button class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Row -->
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                  <span class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs font-semibold">RW</span>
+                  <div>
+                    <div class="font-medium text-gray-900">Robert Wilson</div>
+                    <div class="text-gray-500 text-xs">ID: P-2025-004</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-gray-900">r.wilson@email.com</div>
+                  <div class="text-gray-500">+1 (555) 456-7890</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">58</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">Jan 16, 2025</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700">Active</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
+                  <button class="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">View Profile</button>
+                  <button class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                  </button>
+                </td>
+              </tr>
+              <!-- Row -->
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-3">
+                  <span class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 text-xs font-semibold">LT</span>
+                  <div>
+                    <div class="font-medium text-gray-900">Lisa Thompson</div>
+                    <div class="text-gray-500 text-xs">ID: P-2025-005</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-gray-900">l.thompson@email.com</div>
+                  <div class="text-gray-500">+1 (555) 567-8901</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">31</td>
+                <td class="px-6 py-4 whitespace-nowrap text-gray-900">Jan 12, 2025</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">New</span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap flex items-center gap-2">
+                  <button class="text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md">View Profile</button>
+                  <button class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table footer -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4">
+          <p class="text-sm text-gray-600">Showing 5 of 47 patients</p>
+          <nav class="inline-flex -space-x-px">
+            <button class="px-3 py-1 border border-gray-300 bg-white text-xs rounded-l-md text-gray-500 hover:bg-gray-50">Previous</button>
+            <button class="px-3 py-1 border-t border-b border-gray-300 bg-indigo-600 text-white text-xs">1</button>
+            <button class="px-3 py-1 border border-gray-300 bg-white text-xs text-gray-600 hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 border border-gray-300 bg-white text-xs text-gray-600 hover:bg-gray-50">3</button>
+            <button class="px-3 py-1 border border-gray-300 bg-white text-xs rounded-r-md text-gray-600 hover:bg-gray-50">Next</button>
+          </nav>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="hidden lg:flex justify-between items-center px-10 py-4 text-xs text-gray-500 border-t border-gray-200 bg-white">
+      <span>© 2025 ClinicPro. All rights reserved.</span>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-gray-700">Support</a>
+        <a href="#" class="hover:text-gray-700">Privacy</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Sidebar toggle for mobile
+    const sidebar = document.getElementById('sidebar');
+    const openBtn = document.getElementById('openSidebar');
+
+    openBtn?.addEventListener('click', () => {
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    });
+
+    // Close sidebar on outside click (mobile)
+    document.addEventListener('click', (e) => {
+      if (!sidebar.contains(e.target) && !openBtn.contains(e.target) && window.innerWidth < 1024) {
+        sidebar.classList.add('-translate-x-full');
+      }
+    });
+
+    // Ensure sidebar state on resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
+        sidebar.classList.remove('-translate-x-full');
+      }
+    });
+  </script>
+</body>
+</html>

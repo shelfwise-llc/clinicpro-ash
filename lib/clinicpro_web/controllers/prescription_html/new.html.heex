@@ -1,0 +1,196 @@
+<!-- lib/clinicpro_web/controllers/prescription_html/new.html.heex -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-indigo-50">
+      <h1 class="text-xl font-semibold text-gray-900">New Prescription</h1>
+      <p class="mt-1 max-w-2xl text-sm text-gray-500">
+        Create a new prescription for <%= @appointment.patient.name %>
+      </p>
+    </div>
+
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+      <.form
+        :let={f}
+        for={@changeset}
+        action={~p"/appointments/#{@appointment.id}/prescriptions"}
+        class="space-y-6"
+      >
+        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+          <!-- Medication Search with Typesense -->
+          <div class="sm:col-span-6">
+            <label for="medication_name" class="block text-sm font-medium text-gray-700">
+              Medication
+            </label>
+            <div class="mt-1">
+              <.live_component
+                module={ClinicproWeb.MedicationSearchComponent}
+                id="medication-search"
+                name="prescription[medication_name]"
+                field_name="prescription[medication_name]"
+                clinic_id={@clinic_id}
+              />
+            </div>
+          </div>
+          <!-- Medication Form -->
+          <div class="sm:col-span-3">
+            <label for="medication_form" class="block text-sm font-medium text-gray-700">
+              Form
+            </label>
+            <div class="mt-1">
+              <select
+                id="medication_form"
+                name="prescription[medication_form]"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+              >
+                <option value="">Select form</option>
+                <%= for form <- @medication_forms do %>
+                  <option value={form}><%= form %></option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+          <!-- Medication Strength -->
+          <div class="sm:col-span-3">
+            <label for="medication_strength" class="block text-sm font-medium text-gray-700">
+              Strength
+            </label>
+            <div class="mt-1">
+              <input
+                type="text"
+                name="prescription[medication_strength]"
+                id="medication_strength"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="e.g., 500mg, 250ml"
+              />
+            </div>
+          </div>
+          <!-- Dosage -->
+          <div class="sm:col-span-2">
+            <label for="dosage" class="block text-sm font-medium text-gray-700">
+              Dosage
+            </label>
+            <div class="mt-1">
+              <input
+                type="text"
+                name="prescription[dosage]"
+                id="dosage"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="e.g., 1 tablet, 2 teaspoons"
+                required
+              />
+            </div>
+          </div>
+          <!-- Frequency -->
+          <div class="sm:col-span-2">
+            <label for="frequency" class="block text-sm font-medium text-gray-700">
+              Frequency
+            </label>
+            <div class="mt-1">
+              <select
+                id="frequency"
+                name="prescription[frequency]"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                required
+              >
+                <option value="">Select frequency</option>
+                <%= for frequency <- @medication_frequencies do %>
+                  <option value={frequency}><%= frequency %></option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+          <!-- Duration -->
+          <div class="sm:col-span-2">
+            <label for="duration" class="block text-sm font-medium text-gray-700">
+              Duration
+            </label>
+            <div class="mt-1">
+              <select
+                id="duration"
+                name="prescription[duration]"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                required
+              >
+                <option value="">Select duration</option>
+                <%= for duration <- @medication_durations do %>
+                  <option value={duration}><%= duration %></option>
+                <% end %>
+              </select>
+            </div>
+          </div>
+          <!-- Refills -->
+          <div class="sm:col-span-2">
+            <label for="refills" class="block text-sm font-medium text-gray-700">
+              Refills
+            </label>
+            <div class="mt-1">
+              <input
+                type="number"
+                name="prescription[refills]"
+                id="refills"
+                min="0"
+                max="12"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                value="0"
+              />
+            </div>
+          </div>
+          <!-- Controlled Substance -->
+          <div class="sm:col-span-4">
+            <div class="flex items-start">
+              <div class="flex items-center h-5">
+                <input
+                  id="is_controlled_substance"
+                  name="prescription[is_controlled_substance]"
+                  type="checkbox"
+                  class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                />
+              </div>
+              <div class="ml-3 text-sm">
+                <label for="is_controlled_substance" class="font-medium text-gray-700">
+                  Controlled Substance
+                </label>
+                <p class="text-gray-500">
+                  Check if this medication is a controlled substance requiring special handling.
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Instructions -->
+          <div class="sm:col-span-6">
+            <label for="instructions" class="block text-sm font-medium text-gray-700">
+              Instructions
+            </label>
+            <div class="mt-1">
+              <textarea
+                id="instructions"
+                name="prescription[instructions]"
+                rows="3"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                placeholder="Special instructions for the patient"
+              ></textarea>
+            </div>
+            <p class="mt-2 text-sm text-gray-500">
+              Include any special instructions for taking this medication.
+            </p>
+          </div>
+        </div>
+        <!-- Form Actions -->
+        <div class="flex justify-end space-x-3">
+          <.link
+            href={~p"/appointments/#{@appointment.id}"}
+            class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Cancel
+          </.link>
+          <button
+            type="submit"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            Create Prescription
+          </button>
+        </div>
+      </.form>
+    </div>
+  </div>
+</div>

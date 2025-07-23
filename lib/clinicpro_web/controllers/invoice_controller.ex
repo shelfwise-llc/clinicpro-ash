@@ -4,6 +4,8 @@ defmodule ClinicproWeb.InvoiceController do
   alias Clinicpro.AdminBypass.{Invoice, Patient, Doctor, Appointment}
   alias Clinicpro.MPesa
   alias Phoenix.PubSub
+  alias Clinicpro.Invoices
+  alias Clinicpro.MPesa.InvoiceIntegration
 
   # List invoices for a clinic
   def index(conn, %{"clinic_id" => clinic_id} = params) do
@@ -50,10 +52,18 @@ defmodule ClinicproWeb.InvoiceController do
         |> put_flash(:error, "Invoice not found")
         |> redirect(to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
       else
+        # Get M-Pesa transactions for this invoice
+        transactions = InvoiceIntegration.get_invoice_transactions(id, clinic_id)
+
+        # Get payment status
+        payment_status = InvoiceIntegration.get_invoice_payment_status(id, clinic_id)
+
         render(conn, :show,
           clinic_id: clinic_id,
           clinic_name: clinic.name,
-          invoice: invoice
+          invoice: invoice,
+          transactions: transactions,
+          payment_status: payment_status
         )
       end
     end
@@ -250,7 +260,7 @@ defmodule ClinicproWeb.InvoiceController do
               conn
               |> put_flash(
                 :info,
-                "Payment initiated. Please check your phone to complete the transaction."
+                "Payment initiated. Please check your phone to complete the payment."
               )
               |> redirect(to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
 
@@ -279,6 +289,31 @@ defmodule ClinicproWeb.InvoiceController do
       patient: patient,
       invoices: invoices
     )
+  end
+
+  # Initiates an STK Push payment for an invoice.
+  def initiate_payment(conn, %{"clinic_id" => clinic_id, "id" => id, "phone_number" => phone_number}) do
+    with {:ok, _clinic} <- get_clinic(clinic_id),
+         invoice <- Invoice.get_invoice!(id) do
+      # Check if invoice belongs to this clinic
+      if invoice.clinic_id != clinic_id do
+        conn
+        |> put_flash(:error, "Invoice not found")
+        |> redirect(to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+      else
+        case InvoiceIntegration.initiate_stk_push_for_invoice(id, clinic_id, phone_number) do
+          {:ok, transaction} ->
+            conn
+            |> put_flash(:info, "Payment request sent to #{phone_number}. Please check your phone to complete the payment.")
+            |> redirect(to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
+
+          {:error, reason} ->
+            conn
+            |> put_flash(:error, "Failed to initiate payment: #{reason}")
+            |> redirect(to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
+        end
+      end
+    end
   end
 
   # Private functions

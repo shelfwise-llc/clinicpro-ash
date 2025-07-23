@@ -11,7 +11,7 @@
       <p class="text-gray-700"><%= @appointment_type %></p>
     </div>
     
-    <.form :let={f} for={%{}} action={~p"/booking/phone"} method="post">
+    <.form :let={_f} for={%{}} action={~p"/booking/phone"} method="post">
       <div class="space-y-6">
         <div>
           <label for="name" class="block text-sm font-medium text-gray-700 mb-1">

@@ -1,0 +1,319 @@
+<.flash_group flash={@flash} />
+
+<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+  <div class="mt-8">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+        Invoice #<%= @invoice.reference_number %>
+      </h1>
+
+      <div class="flex space-x-3">
+        <.link
+          navigate={~p"/invoices/#{@invoice}/pdf"}
+          class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg
+            class="-ml-1 mr-2 h-5 w-5 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+            />
+          </svg>
+          Download PDF
+        </.link>
+
+        <%= if @invoice.status != "paid" && @invoice.status != "cancelled" do %>
+          <.link
+            navigate={~p"/invoices/#{@invoice}/edit"}
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg
+              class="-ml-1 mr-2 h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            Edit Invoice
+          </.link>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+      <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Invoice Details
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            <%= Calendar.strftime(@invoice.date, "%B %d, %Y") %>
+          </p>
+        </div>
+        <div>
+          <%= invoice_status_badge(status: @invoice.status) %>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              Clinic
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @clinic.name %>
+            </dd>
+          </div>
+
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              Due Date
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= Calendar.strftime(@invoice.due_date, "%B %d, %Y") %>
+            </dd>
+          </div>
+
+          <div class="sm:col-span-1">
+            <dt class="text-sm font-medium text-gray-500">
+              Patient
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @patient.first_name %> <%= @patient.last_name %>
+            </dd>
+          </div>
+
+          <%= if @invoice.appointment_id do %>
+            <div class="sm:col-span-1">
+              <dt class="text-sm font-medium text-gray-500">
+                Appointment
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <.link
+                  navigate={~p"/appointments/#{@invoice.appointment_id}"}
+                  class="text-indigo-600 hover:text-indigo-900"
+                >
+                  View Appointment
+                </.link>
+              </dd>
+            </div>
+          <% end %>
+        </dl>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-lg font-medium text-gray-900">Invoice Items</h2>
+
+      <div class="mt-4 flex flex-col">
+        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+              <table class="min-w-full divide-y divide-gray-300">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                    >
+                      Description
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Quantity
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                    >
+                      Unit Price
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900"
+                    >
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                  <%= for item <- @invoice.items do %>
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                        <%= item.description %>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <%= item.quantity %>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        <%= format_currency(item.unit_price) %>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">
+                        <%= format_currency(item.quantity * item.unit_price) %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <!-- Subtotal -->
+                  <tr class="bg-gray-50">
+                    <td
+                      colspan="3"
+                      class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 text-right sm:pl-6"
+                    >
+                      Subtotal
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900 text-right">
+                      <%= format_currency(@invoice.subtotal) %>
+                    </td>
+                  </tr>
+                  <!-- Tax -->
+                  <%= if @invoice.tax_amount && @invoice.tax_amount > 0 do %>
+                    <tr class="bg-gray-50">
+                      <td
+                        colspan="3"
+                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 text-right sm:pl-6"
+                      >
+                        Tax (<%= @invoice.tax_rate %>%)
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900 text-right">
+                        <%= format_currency(@invoice.tax_amount) %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <!-- Discount -->
+                  <%= if @invoice.discount_amount && @invoice.discount_amount > 0 do %>
+                    <tr class="bg-gray-50">
+                      <td
+                        colspan="3"
+                        class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 text-right sm:pl-6"
+                      >
+                        Discount
+                        <%= if @invoice.discount_type == "percentage" do %>
+                          (<%= @invoice.discount_value %>%)
+                        <% end %>
+                      </td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900 text-right">
+                        -<%= format_currency(@invoice.discount_amount) %>
+                      </td>
+                    </tr>
+                  <% end %>
+                  <!-- Total -->
+                  <tr class="bg-gray-100">
+                    <td
+                      colspan="3"
+                      class="whitespace-nowrap py-4 pl-4 pr-3 text-base font-bold text-gray-900 text-right sm:pl-6"
+                    >
+                      Total
+                    </td>
+                    <td class="whitespace-nowrap px-3 py-4 text-base font-bold text-gray-900 text-right">
+                      <%= format_currency(@invoice.total) %>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%= payment_section(assigns) %>
+
+    <%= if @invoice.notes && @invoice.notes != "" do %>
+      <div class="mt-8 border-t border-gray-200 pt-6">
+        <h2 class="text-lg font-medium text-gray-900">Notes</h2>
+        <div class="mt-4 prose prose-sm max-w-none">
+          <p><%= @invoice.notes %></p>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="mt-8 border-t border-gray-200 pt-6 flex justify-between">
+      <.link
+        navigate={~p"/invoices"}
+        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+      >
+        <svg
+          class="-ml-1 mr-2 h-5 w-5 text-gray-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        Back to Invoices
+      </.link>
+
+      <%= if @invoice.status != "paid" && @invoice.status != "cancelled" do %>
+        <div class="flex space-x-3">
+          <button
+            phx-click="mark_as_paid"
+            phx-value-id={@invoice.id}
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+          >
+            <svg
+              class="-ml-1 mr-2 h-5 w-5"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Mark as Paid
+          </button>
+
+          <button
+            phx-click="cancel_invoice"
+            phx-value-id={@invoice.id}
+            data-confirm="Are you sure you want to cancel this invoice? This action cannot be undone."
+            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+          >
+            <svg
+              class="-ml-1 mr-2 h-5 w-5 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+            Cancel Invoice
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

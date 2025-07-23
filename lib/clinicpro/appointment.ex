@@ -5,6 +5,7 @@ defmodule Clinicpro.Appointment do
   alias Clinicpro.Repo
   alias Clinicpro.Doctor
   alias Clinicpro.Patient
+  alias Clinicpro.Clinic
 
   schema "appointments" do
     field :status, :string, default: "Scheduled"
@@ -13,9 +14,13 @@ defmodule Clinicpro.Appointment do
     field :start_time, :time
     field :end_time, :time
     field :notes, :string
+    field :meeting_link, :string
+    # "onsite" or "virtual"
+    field :appointment_type, :string, default: "onsite"
 
     belongs_to :doctor, Doctor
     belongs_to :patient, Patient
+    belongs_to :clinic, Clinic
 
     timestamps(type: :utc_datetime)
   end
@@ -25,13 +30,34 @@ defmodule Clinicpro.Appointment do
   """
   def changeset(appointment, attrs) do
     appointment
-    |> cast(attrs, [:date, :start_time, :end_time, :status, :type, :notes, :doctor_id, :patient_id])
-    |> validate_required([:date, :start_time, :end_time, :type, :doctor_id, :patient_id])
+    |> cast(attrs, [
+      :date,
+      :start_time,
+      :end_time,
+      :status,
+      :type,
+      :notes,
+      :doctor_id,
+      :patient_id,
+      :clinic_id,
+      :meeting_link,
+      :appointment_type
+    ])
+    |> validate_required([
+      :date,
+      :start_time,
+      :end_time,
+      :type,
+      :doctor_id,
+      :patient_id,
+      :appointment_type
+    ])
     |> validate_time_range()
     |> foreign_key_constraint(:doctor_id)
     |> foreign_key_constraint(:patient_id)
+    |> foreign_key_constraint(:clinic_id)
   end
-  
+
   @doc """
   Returns a changeset for tracking appointment changes.
   """
@@ -44,8 +70,12 @@ defmodule Clinicpro.Appointment do
   """
   defp validate_time_range(changeset) do
     case {get_field(changeset, :start_time), get_field(changeset, :end_time)} do
-      {nil, _} -> changeset
-      {_, nil} -> changeset
+      {nil, _} ->
+        changeset
+
+      {_, nil} ->
+        changeset
+
       {start_time, end_time} ->
         if Time.compare(end_time, start_time) == :gt do
           changeset
@@ -66,7 +96,7 @@ defmodule Clinicpro.Appointment do
   def get_with_associations(id) do
     __MODULE__
     |> Repo.get(id)
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
 
   @doc """
@@ -75,14 +105,14 @@ defmodule Clinicpro.Appointment do
   def list do
     __MODULE__
     |> Repo.all()
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
-  
+
   @doc """
   Lists appointments with optional filtering.
-  
+
   ## Options
-  
+
   * `:limit` - Limits the number of results
   * `:status` - Filter by appointment status
   * `:date` - Filter by specific date
@@ -99,32 +129,38 @@ defmodule Clinicpro.Appointment do
     |> filter_by_type(opts)
     |> limit_query(opts)
     |> Repo.all()
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
-  
+
   # Private filter functions
-  defp filter_by_status(query, %{status: status}) when is_binary(status) and status != "", 
+  defp filter_by_status(query, %{status: status}) when is_binary(status) and status != "",
     do: where(query, [a], a.status == ^status)
+
   defp filter_by_status(query, _), do: query
-  
-  defp filter_by_date(query, %{date: date}) when not is_nil(date), 
+
+  defp filter_by_date(query, %{date: date}) when not is_nil(date),
     do: where(query, [a], a.date == ^date)
+
   defp filter_by_date(query, _), do: query
-  
-  defp filter_by_doctor_id(query, %{doctor_id: doctor_id}) when not is_nil(doctor_id), 
+
+  defp filter_by_doctor_id(query, %{doctor_id: doctor_id}) when not is_nil(doctor_id),
     do: where(query, [a], a.doctor_id == ^doctor_id)
+
   defp filter_by_doctor_id(query, _), do: query
-  
-  defp filter_by_patient_id(query, %{patient_id: patient_id}) when not is_nil(patient_id), 
+
+  defp filter_by_patient_id(query, %{patient_id: patient_id}) when not is_nil(patient_id),
     do: where(query, [a], a.patient_id == ^patient_id)
+
   defp filter_by_patient_id(query, _), do: query
-  
-  defp filter_by_type(query, %{type: type}) when is_binary(type) and type != "", 
+
+  defp filter_by_type(query, %{type: type}) when is_binary(type) and type != "",
     do: where(query, [a], a.type == ^type)
+
   defp filter_by_type(query, _), do: query
-  
-  defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0, 
+
+  defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0,
     do: limit(query, ^limit)
+
   defp limit_query(query, _), do: query
 
   @doc """
@@ -134,7 +170,7 @@ defmodule Clinicpro.Appointment do
     __MODULE__
     |> where(date: ^date)
     |> Repo.all()
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
 
   @doc """
@@ -144,7 +180,7 @@ defmodule Clinicpro.Appointment do
     __MODULE__
     |> where(doctor_id: ^doctor_id)
     |> Repo.all()
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
 
   @doc """
@@ -154,16 +190,16 @@ defmodule Clinicpro.Appointment do
     __MODULE__
     |> where(patient_id: ^patient_id)
     |> Repo.all()
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
-  
+
   @doc """
   Lists all appointments with doctor and patient associations preloaded.
   """
   def list_with_associations do
     __MODULE__
     |> Repo.all()
-    |> Repo.preload([:doctor, :patient])
+    |> Repo.preload([:doctor, :patient, :clinic])
   end
 
   @doc """
