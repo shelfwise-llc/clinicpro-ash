@@ -80,6 +80,33 @@ The project uses AshAuthentication with magic link strategy. The configuration a
 3. MagicLinkSender module implementing the required behavior
 4. Token configuration at the API level only
 
+## M-Pesa Integration
+
+The project includes a comprehensive M-Pesa integration with multi-tenant support:
+
+### Key Features
+
+* **Multi-tenant Architecture**: Each clinic has its own M-Pesa configuration
+* **Payment Methods**: Supports both STK Push and C2B payment methods
+* **Transaction Isolation**: Transactions are isolated by clinic
+* **Admin Interface**: Dedicated admin interface for managing M-Pesa configurations
+
+### Components
+
+* `Clinicpro.MPesa` - Main module in `/lib/clinicpro/mpesa/mpesa.ex`
+* `Clinicpro.MPesa.Config` - Configuration management with multi-tenant support
+* `Clinicpro.MPesa.Auth` - Authentication handling for Safaricom Daraja API
+* `Clinicpro.MPesa.STKPush` - STK Push implementation for payment requests
+* `Clinicpro.MPesa.C2B` - C2B URL registration and payment handling
+* `Clinicpro.MPesa.Transaction` - Transaction management with clinic isolation
+* `Clinicpro.MPesa.Callback` - Callback handling for payment notifications
+
+### Running M-Pesa Tests
+
+```bash
+./run_mpesa_tests.exs
+```
+
 ## Test Organization
 
 The test files have been reorganized into a more structured directory layout:
