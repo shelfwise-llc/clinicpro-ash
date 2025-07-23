@@ -58,3 +58,6 @@ npm-debug.log
 *.sqlite
 *.sqlite3
 
+.env-local
+Notes.md
+
