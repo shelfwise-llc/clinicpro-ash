@@ -1,0 +1,32 @@
+#!/bin/sh
+# Docker entrypoint script for Phoenix
+
+# Exit if any command fails
+set -e
+
+# Wait for the database to be ready
+while ! pg_isready -q -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER
+do
+  echo "Waiting for database to be ready..."
+  sleep 2
+done
+
+# Create the database if it doesn't exist
+if [ -z "$DATABASE_SKIP_SETUP" ]; then
+  echo "Creating database if it doesn't exist..."
+  mix ecto.create
+  
+  # Run migrations
+  echo "Running migrations..."
+  mix ecto.migrate
+  
+  # Run seeds if needed
+  if [ "$SEED_DATABASE" = "true" ]; then
+    echo "Running seeds..."
+    mix run priv/repo/seeds.exs
+  fi
+fi
+
+# Start the Phoenix server
+echo "Starting Phoenix server..."
+exec mix phx.server
