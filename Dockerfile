@@ -22,23 +22,19 @@ COPY priv priv
 RUN mix deps.get --only prod
 RUN mix deps.compile
 
-# Copy assets
+# Copy assets and application code
 COPY assets assets
 COPY lib lib
 COPY test test
 
-# Build assets
-WORKDIR /app/assets
-RUN npm install
-RUN npm run deploy
-
-# Compile and build the release
+# Compile the project for production
 WORKDIR /app
 RUN mix compile
-RUN mix phx.digest
 
-# Compile the project for production
-RUN mix compile
+# Build assets using Mix tasks
+RUN mix esbuild default --minify
+RUN mix tailwind default --minify
+RUN mix phx.digest
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
