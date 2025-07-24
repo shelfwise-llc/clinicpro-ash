@@ -2,7 +2,7 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "mix deps.get && mix compile && npm install --prefix assets && npm run deploy --prefix assets && mix phx.digest"
+    "nixpacksConfigPath": "nixpacks.toml"
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE",

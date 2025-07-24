@@ -1,0 +1,16 @@
+[phases.setup]
+nixPkgs = ["nodejs", "elixir", "erlang"]
+
+[phases.install]
+cmds = ["mix local.hex --force", "mix local.rebar --force", "mix deps.get"]
+
+[phases.build]
+cmds = [
+  "mix compile",
+  "npm install --prefix assets",
+  "npm run deploy --prefix assets",
+  "mix phx.digest"
+]
+
+[start]
+cmd = "mix phx.server"
