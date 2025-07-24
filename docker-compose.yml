@@ -7,10 +7,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "4000:4000"
-    depends_on:
-      - db
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/clinicpro_prod
+      # Use Railway's environment variables for database connection
+      # This will be overridden by Railway's DATABASE_URL if present
+      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@db:5432/clinicpro_prod}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-vlW68dorN32H88cYR7HQf0uM0ptg2x8IJeXkSXL8R5HNm6pvD4oGazWkOuIv4d7R}
       PHX_HOST: ${PHX_HOST:-localhost}
       POOL_SIZE: ${POOL_SIZE:-10}
@@ -30,6 +30,8 @@ services:
       retries: 5
       start_period: 60s
 
+  # This PostgreSQL service will be used for local development
+  # Railway will provide its own PostgreSQL service in production
   db:
     image: postgres:15
     volumes:
