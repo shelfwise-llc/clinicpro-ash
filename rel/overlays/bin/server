@@ -4,29 +4,44 @@
 # Exit if any command fails
 set -e
 
-# Wait for the database to be ready
-while ! pg_isready -q -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER
-do
-  echo "Waiting for database to be ready..."
-  sleep 2
-done
-
-# Create the database if it doesn't exist
-if [ -z "$DATABASE_SKIP_SETUP" ]; then
-  echo "Creating database if it doesn't exist..."
-  mix ecto.create
+# Function to wait for PostgreSQL to be ready
+wait_for_postgres() {
+  echo "Waiting for PostgreSQL to be ready..."
   
-  # Run migrations
-  echo "Running migrations..."
-  mix ecto.migrate
+  # Extract host and port from DATABASE_URL
+  if [ -z "$DATABASE_URL" ]; then
+    echo "ERROR: DATABASE_URL is not set"
+    exit 1
+  fi
+  
+  # Wait for database to be ready
+  # We'll use a simple retry mechanism instead of pg_isready
+  # since pg_isready might not be available in the container
+  for i in $(seq 1 30); do
+    echo "Attempt $i: Checking database connection..."
+    /app/bin/clinicpro eval "Clinicpro.Repo.query!('SELECT 1')" && break
+    echo "Database not ready yet. Retrying in 2 seconds..."
+    sleep 2
+  done
+  
+  echo "Database is ready!"
+}
+
+# Wait for the database
+wait_for_postgres
+
+# Create the database if it doesn't exist and run migrations
+if [ -z "$DATABASE_SKIP_SETUP" ]; then
+  echo "Running database migrations..."
+  /app/bin/clinicpro eval "Clinicpro.Release.migrate()"
   
   # Run seeds if needed
   if [ "$SEED_DATABASE" = "true" ]; then
     echo "Running seeds..."
-    mix run priv/repo/seeds.exs
+    /app/bin/clinicpro eval "Clinicpro.Release.seed()"
   fi
 fi
 
 # Start the Phoenix server
 echo "Starting Phoenix server..."
-exec mix phx.server
+exec /app/bin/clinicpro start
