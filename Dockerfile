@@ -1,7 +1,7 @@
 FROM hexpm/elixir:1.14.5-erlang-25.3.2-debian-bullseye-20230522 as build
 
 # Install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git nodejs npm \
+RUN apt-get update -y && apt-get install -y build-essential git nodejs npm postgresql-client \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set environment variables
@@ -26,7 +26,9 @@ RUN mix deps.compile
 RUN mix compile
 
 # Build assets using Mix tasks
-RUN mix assets.deploy
+RUN mix esbuild default --minify
+RUN mix tailwind default --minify
+RUN mix phx.digest
 
 # Build the release
 RUN mix release
@@ -35,7 +37,7 @@ RUN mix release
 # the compiled release and other runtime necessities
 FROM debian:bullseye-20230522-slim
 
-RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales \
+RUN apt-get update -y && apt-get install -y libstdc++6 openssl libncurses5 locales postgresql-client curl \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # Set the locale
@@ -46,19 +48,24 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 WORKDIR "/app"
-RUN chown nobody /app
 
 # Set runner ENV
 ENV MIX_ENV="prod"
+ENV PHX_SERVER="true"
 
 # Only copy the final release from the build stage
-COPY --from=build --chown=nobody:root /app/_build/prod/rel/clinicpro ./
+COPY --from=build /app/_build/prod/rel/clinicpro ./
 
 # Copy the server startup script
-COPY --from=build --chown=nobody:root /app/rel/overlays/bin/server ./bin/
+COPY --from=build /app/rel/overlays/bin/server ./bin/
 RUN chmod +x /app/bin/server
 
-USER nobody
+# Create a healthcheck script
+RUN echo '#!/bin/sh\ncurl -f http://localhost:4000/health || exit 1' > /app/healthcheck.sh \
+    && chmod +x /app/healthcheck.sh
+
+# Expose the port
+EXPOSE 4000
 
 # Command to start the application
 CMD ["/app/bin/server"]

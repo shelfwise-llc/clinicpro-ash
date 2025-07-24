@@ -4,41 +4,53 @@
 # Exit if any command fails
 set -e
 
+# Print environment information (without sensitive data)
+echo "Starting ClinicPro server..."
+echo "PHX_HOST: $PHX_HOST"
+echo "DATABASE_URL: [redacted for security]"
+
 # Function to wait for PostgreSQL to be ready
 wait_for_postgres() {
   echo "Waiting for PostgreSQL to be ready..."
   
-  # Extract host and port from DATABASE_URL
+  # Check if DATABASE_URL is set
   if [ -z "$DATABASE_URL" ]; then
     echo "ERROR: DATABASE_URL is not set"
     exit 1
   fi
   
-  # Wait for database to be ready
-  # We'll use a simple retry mechanism instead of pg_isready
-  # since pg_isready might not be available in the container
+  # Wait for database to be ready with a simple retry mechanism
   for i in $(seq 1 30); do
     echo "Attempt $i: Checking database connection..."
-    /app/bin/clinicpro eval "Clinicpro.Repo.query!('SELECT 1')" && break
-    echo "Database not ready yet. Retrying in 2 seconds..."
-    sleep 2
+    if /app/bin/clinicpro eval "IO.puts(\"Checking DB connection...\"); :ok = Clinicpro.Repo.query!(\"SELECT 1\") && :ok" > /dev/null 2>&1; then
+      echo "Database connection successful!"
+      break
+    elif [ $i -eq 30 ]; then
+      echo "Failed to connect to database after 30 attempts. Exiting."
+      exit 1
+    else
+      echo "Database not ready yet. Retrying in 2 seconds..."
+      sleep 2
+    fi
   done
-  
-  echo "Database is ready!"
 }
 
 # Wait for the database
 wait_for_postgres
 
 # Create the database if it doesn't exist and run migrations
-if [ -z "$DATABASE_SKIP_SETUP" ]; then
+if [ "$DATABASE_SKIP_SETUP" != "true" ]; then
   echo "Running database migrations..."
-  /app/bin/clinicpro eval "Clinicpro.Release.migrate()"
+  /app/bin/clinicpro eval "Clinicpro.Release.migrate()" || {
+    echo "Migration failed but continuing anyway..."
+  }
   
   # Run seeds if needed
   if [ "$SEED_DATABASE" = "true" ]; then
     echo "Running seeds..."
-    /app/bin/clinicpro eval "Clinicpro.Release.seed()"
+    /app/bin/clinicpro eval "Clinicpro.Release.seed()" || {
+      echo "Seeding failed but continuing anyway..."
+    }
   fi
 fi
 

@@ -17,10 +17,15 @@ defmodule ClinicproWeb.Router do
   end
 
   pipeline :api do
-    plug :accepts, ["json-api"]
+    plug :accepts, ["json-api", "json"]
     # Temporarily commenting out AshJsonApi.Plug until properly configured
     # plug AshJsonApi.Plug
     # plug :load_from_bearer
+  end
+  
+  # Simple pipeline for health checks
+  pipeline :health_check do
+    plug :accepts, ["json"]
   end
 
   pipeline :patient_auth do
@@ -327,6 +332,13 @@ defmodule ClinicproWeb.Router do
 
     # Webhook callback route
     post "/webhook", PaystackWebhookController, :handle
+  end
+  
+  # Health check route - accessible without authentication
+  scope "/", ClinicproWeb do
+    pipe_through :health_check
+    
+    get "/health", HealthController, :index
   end
 
   # JSON:API routes
