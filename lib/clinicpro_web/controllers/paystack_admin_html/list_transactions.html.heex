@@ -1,0 +1,145 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Paystack Transactions</h1>
+      <div class="flex space-x-3">
+        <a href={~p"/admin/clinics/#{@clinic_id}/paystack"} class="text-blue-600 hover:text-blue-800">
+          &larr; Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <.form :let={_f} for={@conn} action={~p"/admin/clinics/#{@clinic_id}/paystack/transactions"} method="get" class="flex flex-wrap gap-3 items-end">
+        <div>
+          <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+          <select name="status" id="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            <option value="">All Statuses</option>
+            <option value="completed" selected={@status == "completed"}>Completed</option>
+            <option value="pending" selected={@status == "pending"}>Pending</option>
+            <option value="failed" selected={@status == "failed"}>Failed</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="search" class="block text-sm font-medium text-gray-700">Search</label>
+          <input type="text" name="search" id="search" value={@search} placeholder="Email or Reference"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+        </div>
+
+        <div>
+          <label for="per_page" class="block text-sm font-medium text-gray-700">Per Page</label>
+          <select name="per_page" id="per_page" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+            <option value="10" selected={@per_page == 10}>10</option>
+            <option value="25" selected={@per_page == 25}>25</option>
+            <option value="50" selected={@per_page == 50}>50</option>
+            <option value="100" selected={@per_page == 100}>100</option>
+          </select>
+        </div>
+
+        <div>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            Filter
+          </button>
+        </div>
+      </.form>
+    </div>
+
+    <%= if Enum.empty?(@transactions) do %>
+      <div class="bg-gray-50 p-8 rounded-md text-center">
+        <p class="text-gray-600">No transactions found matching your criteria.</p>
+      </div>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <%= for transaction <- @transactions do %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono">
+                  <%= String.slice(transaction.reference, 0, 16) %>...
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  ₦<%= format_amount(transaction.amount) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                  <%= transaction.email %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class={[
+                    "px-2 inline-flex text-xs leading-5 font-semibold rounded-full",
+                    case transaction.status do
+                      "completed" -> "bg-green-100 text-green-800"
+                      "pending" -> "bg-yellow-100 text-yellow-800"
+                      "failed" -> "bg-red-100 text-red-800"
+                      _ -> "bg-gray-100 text-gray-800"
+                    end
+                  ]}>
+                    <%= humanize_status(transaction.status) %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <%= format_date(transaction.inserted_at) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions/#{transaction.id}"} class="text-blue-600 hover:text-blue-900">
+                    View
+                  </a>
+                  <%= if transaction.status == "pending" do %>
+                    <span class="mx-1">|</span>
+                    <.form :let={_f} for={@conn} action={~p"/admin/clinics/#{@clinic_id}/paystack/transactions/#{transaction.id}/verify"} method="post" class="inline">
+                      <button type="submit" class="text-green-600 hover:text-green-900">
+                        Verify
+                      </button>
+                    </.form>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-6 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing <span class="font-medium"><%= (@page - 1) * @per_page + 1 %></span> to
+          <span class="font-medium"><%= min((@page - 1) * @per_page + length(@transactions), @total_count) %></span> of
+          <span class="font-medium"><%= @total_count %></span> transactions
+        </div>
+
+        <div class="flex space-x-2">
+          <%= if @page > 1 do %>
+            <a href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions?page=#{@page - 1}&per_page=#{@per_page}&status=#{@status}&search=#{@search}"}
+              class="px-3 py-1 border rounded-md text-sm bg-white hover:bg-gray-50">
+              Previous
+            </a>
+          <% else %>
+            <span class="px-3 py-1 border rounded-md text-sm bg-gray-100 text-gray-400 cursor-not-allowed">
+              Previous
+            </span>
+          <% end %>
+
+          <%= if @page * @per_page < @total_count do %>
+            <a href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions?page=#{@page + 1}&per_page=#{@per_page}&status=#{@status}&search=#{@search}"}
+              class="px-3 py-1 border rounded-md text-sm bg-white hover:bg-gray-50">
+              Next
+            </a>
+          <% else %>
+            <span class="px-3 py-1 border rounded-md text-sm bg-gray-100 text-gray-400 cursor-not-allowed">
+              Next
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

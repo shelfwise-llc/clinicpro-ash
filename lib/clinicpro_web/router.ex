@@ -93,12 +93,12 @@ defmodule ClinicproWeb.Router do
       delete "/:id", MPesaAdminController, :delete
       get "/transactions", MPesaAdminController, :list_transactions
       get "/transactions/:id", MPesaAdminController, :transaction_details
-      
+
       # Configuration details
       get "/configurations/:id", MPesaAdminController, :configuration_details
       post "/configurations/:id/activate", MPesaAdminController, :activate_config
       post "/configurations/:id/deactivate", MPesaAdminController, :deactivate_config
-      
+
       # Callback logs
       get "/callbacks", MPesaAdminController, :callback_logs
       get "/callbacks/:id", MPesaAdminController, :callback_details
@@ -107,6 +107,42 @@ defmodule ClinicproWeb.Router do
       get "/test-stk-push", MPesaAdminController, :test_stk_push_form
       post "/test-stk-push", MPesaAdminController, :test_stk_push
       post "/register-urls/:id", MPesaAdminController, :register_urls
+    end
+
+    # Admin Paystack routes
+    scope "/clinics/:clinic_id/paystack", ClinicproWeb do
+      # Configuration management
+      get "/", PaystackAdminController, :index
+      get "/new", PaystackAdminController, :new_config
+      post "/", PaystackAdminController, :create_config
+      get "/:id/edit", PaystackAdminController, :edit_config
+      put "/:id", PaystackAdminController, :update_config
+      delete "/:id", PaystackAdminController, :delete_config
+
+      # Configuration activation/deactivation
+      post "/:id/activate", PaystackAdminController, :activate_config
+      post "/:id/deactivate", PaystackAdminController, :deactivate_config
+
+      # Subaccount management
+      get "/subaccounts/new", PaystackAdminController, :new_subaccount
+      post "/subaccounts", PaystackAdminController, :create_subaccount
+      get "/subaccounts/:id/activate", PaystackAdminController, :activate_subaccount
+      get "/subaccounts/:id/deactivate", PaystackAdminController, :deactivate_subaccount
+      delete "/subaccounts/:id", PaystackAdminController, :delete_subaccount
+
+      # Transaction management
+      get "/transactions", PaystackAdminController, :list_transactions
+      get "/transactions/:id", PaystackAdminController, :transaction_details
+      post "/transactions/:id/verify", PaystackAdminController, :verify_transaction
+
+      # Test payment
+      get "/test-payment", PaystackAdminController, :test_payment_form
+      post "/test-payment", PaystackAdminController, :create_test_payment
+      
+      # Webhook logs
+      get "/webhooks", PaystackAdminController, :webhook_logs
+      get "/webhooks/:id", PaystackAdminController, :webhook_details
+      post "/webhooks/:id/retry", PaystackAdminController, :retry_webhook
     end
 
     # Keep ash_admin at the end for backward compatibility
@@ -156,6 +192,8 @@ defmodule ClinicproWeb.Router do
       get "/invoices/:id/edit", InvoiceController, :edit
       put "/invoices/:id", InvoiceController, :update
       delete "/invoices/:id", InvoiceController, :delete
+      get "/invoices/:id/payment", InvoiceController, :payment
+      post "/invoices/:id/process_payment", InvoiceController, :process_payment
     end
   end
 
@@ -280,6 +318,14 @@ defmodule ClinicproWeb.Router do
     # C2B validation and confirmation routes with clinic_id parameter
     post "/:clinic_id/validation", MPesaCallbackController, :c2b_validation
     post "/:clinic_id/confirmation", MPesaCallbackController, :c2b_confirmation
+  end
+
+  # Paystack webhook route
+  scope "/api/paystack", ClinicproWeb do
+    pipe_through :api
+
+    # Webhook callback route
+    post "/webhook", PaystackWebhookController, :handle
   end
 
   # JSON:API routes

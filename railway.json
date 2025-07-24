@@ -1,0 +1,15 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "mix deps.get && mix compile && npm install --prefix assets && npm run deploy --prefix assets && mix phx.digest"
+  },
+  "deploy": {
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10,
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 15,
+    "numReplicas": 1,
+    "startCommand": "mix phx.server"
+  }
+}

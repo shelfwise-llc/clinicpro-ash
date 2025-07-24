@@ -1,0 +1,215 @@
+<div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-semibold text-gray-800">
+      <%= if @subaccount, do: "Edit Paystack Subaccount", else: "New Paystack Subaccount" %>
+    </h1>
+    <div>
+      <a
+        href={Routes.paystack_admin_path(@conn, :list_subaccounts, @clinic_id)}
+        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        Back to Subaccounts
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg
+          class="h-5 w-5 text-blue-400"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-blue-700">
+          <strong>Note:</strong>
+          Subaccounts are used to split payments with partners. The percentage charge determines how much of each transaction will be allocated to this subaccount.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <.form :let={f} for={@changeset} action={@action} class="space-y-6">
+    <%= if @changeset.action do %>
+      <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-red-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">
+              Please check the errors below.
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= label(f, :business_name, "Business Name",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= text_input(f, :business_name,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          placeholder: "Partner Business Name"
+        ) %>
+      </div>
+      <%= error_tag(f, :business_name) %>
+      <p class="mt-1 text-sm text-gray-500">
+        The name of the business receiving the split payment.
+      </p>
+    </div>
+
+    <div>
+      <%= label(f, :settlement_bank, "Settlement Bank",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= select(
+          f,
+          :settlement_bank,
+          [
+            "Access Bank": "044",
+            Citibank: "023",
+            "Diamond Bank": "063",
+            "Ecobank Nigeria": "050",
+            "Fidelity Bank": "070",
+            "First Bank of Nigeria": "011",
+            "First City Monument Bank": "214",
+            "Guaranty Trust Bank": "058",
+            "Heritage Bank": "030",
+            "Keystone Bank": "082",
+            "Polaris Bank": "076",
+            "Providus Bank": "101",
+            "Stanbic IBTC Bank": "221",
+            "Standard Chartered Bank": "068",
+            "Sterling Bank": "232",
+            "Suntrust Bank": "100",
+            "Union Bank of Nigeria": "032",
+            "United Bank for Africa": "033",
+            "Unity Bank": "215",
+            "Wema Bank": "035",
+            "Zenith Bank": "057"
+          ],
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+        ) %>
+      </div>
+      <%= error_tag(f, :settlement_bank) %>
+      <p class="mt-1 text-sm text-gray-500">The bank where funds will be settled to.</p>
+    </div>
+
+    <div>
+      <%= label(f, :account_number, "Account Number",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= text_input(f, :account_number,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          placeholder: "10-digit account number"
+        ) %>
+      </div>
+      <%= error_tag(f, :account_number) %>
+      <p class="mt-1 text-sm text-gray-500">
+        The 10-digit account number where funds will be settled.
+      </p>
+    </div>
+
+    <div>
+      <%= label(f, :percentage_charge, "Percentage Charge (%)",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= number_input(f, :percentage_charge,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          min: "0",
+          max: "100",
+          step: "0.01"
+        ) %>
+      </div>
+      <%= error_tag(f, :percentage_charge) %>
+      <p class="mt-1 text-sm text-gray-500">
+        Percentage of the transaction amount that will go to this subaccount (0-100).
+      </p>
+    </div>
+
+    <div>
+      <%= label(f, :description, "Description", class: "block text-sm font-medium text-gray-700") %>
+      <div class="mt-1">
+        <%= textarea(f, :description,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          rows: 3,
+          placeholder: "Optional description for this subaccount"
+        ) %>
+      </div>
+      <%= error_tag(f, :description) %>
+      <p class="mt-1 text-sm text-gray-500">A brief description of this subaccount (optional).</p>
+    </div>
+
+    <div class="flex items-center">
+      <%= checkbox(f, :is_active,
+        class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+      ) %>
+      <div class="ml-3">
+        <%= label(f, :is_active, "Set as active subaccount",
+          class: "text-sm font-medium text-gray-700"
+        ) %>
+        <p class="text-xs text-gray-500">Only one subaccount can be active at a time.</p>
+      </div>
+    </div>
+
+    <div class="pt-5">
+      <div class="flex justify-end">
+        <a
+          href={Routes.paystack_admin_path(@conn, :list_subaccounts, @clinic_id)}
+          class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancel
+        </a>
+        <%= submit("Save Subaccount",
+          class:
+            "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        ) %>
+      </div>
+    </div>
+  </.form>
+</div>

@@ -1,0 +1,197 @@
+<div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-xl font-semibold text-gray-800">
+      Create Test Payment
+    </h1>
+    <div>
+      <a
+        href={Routes.paystack_admin_path(@conn, :index, @clinic_id)}
+        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-4 w-4 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg
+          class="h-5 w-5 text-green-400"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm text-green-700">
+          <strong>Test Mode:</strong>
+          This form allows you to create test payments to verify your Paystack integration. No real money will be charged.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <.form :let={f} for={@changeset} action={@action} class="space-y-6">
+    <%= if @changeset.action do %>
+      <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <svg
+              class="h-5 w-5 text-red-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">
+              Please check the errors below.
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= label(f, :email, "Customer Email", class: "block text-sm font-medium text-gray-700") %>
+      <div class="mt-1">
+        <%= email_input(f, :email,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          placeholder: "customer@example.com"
+        ) %>
+      </div>
+      <%= error_tag(f, :email) %>
+      <p class="mt-1 text-sm text-gray-500">Email address of the customer making the payment.</p>
+    </div>
+
+    <div>
+      <%= label(f, :amount, "Amount (₦)", class: "block text-sm font-medium text-gray-700") %>
+      <div class="mt-1 relative rounded-md shadow-sm">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span class="text-gray-500 sm:text-sm">₦</span>
+        </div>
+        <%= number_input(f, :amount,
+          class:
+            "pl-7 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          min: "100",
+          step: "0.01",
+          placeholder: "1000.00"
+        ) %>
+      </div>
+      <%= error_tag(f, :amount) %>
+      <p class="mt-1 text-sm text-gray-500">Amount in Naira (minimum ₦100).</p>
+    </div>
+
+    <div>
+      <%= label(f, :description, "Payment Description",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= textarea(f, :description,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          rows: 2,
+          placeholder: "Test payment for service"
+        ) %>
+      </div>
+      <%= error_tag(f, :description) %>
+      <p class="mt-1 text-sm text-gray-500">Brief description of what the payment is for.</p>
+    </div>
+
+    <div>
+      <%= label(f, :reference, "Custom Reference (Optional)",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= text_input(f, :reference,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          placeholder: "Leave blank to auto-generate"
+        ) %>
+      </div>
+      <%= error_tag(f, :reference) %>
+      <p class="mt-1 text-sm text-gray-500">
+        Optional custom reference for this transaction. If left blank, a reference will be auto-generated.
+      </p>
+    </div>
+
+    <%= if @active_subaccount do %>
+      <div class="bg-gray-50 p-4 rounded-md">
+        <div class="flex items-center">
+          <%= checkbox(f, :use_subaccount,
+            class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+          ) %>
+          <div class="ml-3">
+            <%= label(f, :use_subaccount, "Use active subaccount",
+              class: "text-sm font-medium text-gray-700"
+            ) %>
+            <p class="text-xs text-gray-500">
+              Split payment with <strong><%= @active_subaccount.business_name %></strong>
+              (<%= @active_subaccount.percentage_charge %>% of transaction amount)
+            </p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div>
+      <%= label(f, :callback_url, "Callback URL (Optional)",
+        class: "block text-sm font-medium text-gray-700"
+      ) %>
+      <div class="mt-1">
+        <%= text_input(f, :callback_url,
+          class:
+            "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md",
+          placeholder: "https://example.com/callback"
+        ) %>
+      </div>
+      <%= error_tag(f, :callback_url) %>
+      <p class="mt-1 text-sm text-gray-500">
+        URL to redirect to after payment. If left blank, you'll be redirected back to the dashboard.
+      </p>
+    </div>
+
+    <div class="pt-5">
+      <div class="flex justify-end">
+        <a
+          href={Routes.paystack_admin_path(@conn, :index, @clinic_id)}
+          class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Cancel
+        </a>
+        <%= submit("Proceed to Payment",
+          class:
+            "ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        ) %>
+      </div>
+    </div>
+  </.form>
+</div>

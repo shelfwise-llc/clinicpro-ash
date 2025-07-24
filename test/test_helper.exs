@@ -12,8 +12,11 @@ Code.require_file("support/bypass_ash_compilation.ex", __DIR__)
 # Set up the Ash compilation bypass
 Clinicpro.TestBypass.AshCompilation.setup()
 
-# Start ExUnit
-ExUnit.start()
+# Start ExUnit with custom tag configuration
+ExUnit.start(
+  exclude: [slow: true],
+  include: [critical: true]
+)
 
 # Configure Ecto sandbox mode
 Ecto.Adapters.SQL.Sandbox.mode(Clinicpro.Repo, :manual)
