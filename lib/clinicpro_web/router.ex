@@ -18,7 +18,8 @@ defmodule ClinicproWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json-api"]
-    plug AshJsonApi.Plug
+    # Temporarily commenting out AshJsonApi.Plug until properly configured
+    # plug AshJsonApi.Plug
     # plug :load_from_bearer
   end
 
