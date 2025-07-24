@@ -8,16 +8,32 @@ set -e
 echo "Starting ClinicPro server..."
 echo "PHX_HOST: $PHX_HOST"
 echo "DATABASE_URL: [redacted for security]"
+echo "Running in Docker environment"
 
-# Function to wait for PostgreSQL to be ready
-wait_for_postgres() {
-  echo "Waiting for PostgreSQL to be ready..."
-  
-  # Check if DATABASE_URL is set
+# Parse database connection details from DATABASE_URL
+parse_db_url() {
+  # Extract host and port from DATABASE_URL
   if [ -z "$DATABASE_URL" ]; then
     echo "ERROR: DATABASE_URL is not set"
     exit 1
   fi
+  
+  # Extract host and port using pattern matching
+  DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\).*/\1/p')
+  DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+  
+  if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ]; then
+    echo "WARNING: Could not parse host or port from DATABASE_URL"
+    echo "Using default PostgreSQL connection check"
+  else
+    echo "Database host: $DB_HOST, port: $DB_PORT"
+  fi
+}
+
+# Function to wait for PostgreSQL to be ready
+wait_for_postgres() {
+  echo "Waiting for PostgreSQL to be ready..."
+  parse_db_url
   
   # Wait for database to be ready with a simple retry mechanism
   for i in $(seq 1 30); do

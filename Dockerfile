@@ -15,12 +15,16 @@ RUN mix local.hex --force && \
 # Create app directory and copy the Elixir project into it
 WORKDIR /app
 
-# Copy the entire application
-COPY . .
+# Copy mix files first for better caching
+COPY mix.exs mix.lock ./
+COPY config config
 
 # Install mix dependencies
 RUN mix deps.get --only prod
 RUN mix deps.compile
+
+# Copy the rest of the application
+COPY . .
 
 # Compile the project for production
 RUN mix compile
