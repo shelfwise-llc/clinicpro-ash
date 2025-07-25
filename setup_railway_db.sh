@@ -3,6 +3,12 @@
 # Exit on error
 set -e
 
+# Check for -y flag for non-interactive mode
+NON_INTERACTIVE=false
+if [[ "$1" == "-y" ]]; then
+    NON_INTERACTIVE=true
+fi
+
 echo "Setting up PostgreSQL database on Railway for ClinicPro"
 echo "======================================================="
 
@@ -26,11 +32,17 @@ railway status || {
 }
 
 echo "Adding PostgreSQL database to Railway project..."
-echo "This will open an interactive prompt. Please select PostgreSQL when prompted."
-echo "Press Enter to continue..."
-read
+
+# Skip confirmation if in non-interactive mode
+if [[ "$NON_INTERACTIVE" == false ]]; then
+    echo "This will open an interactive prompt. Please select PostgreSQL when prompted."
+    echo "Press Enter to continue..."
+    read
+fi
 
 # Add PostgreSQL database
+# Note: Railway CLI doesn't currently support a non-interactive mode for 'railway add'
+# so this will still prompt for selection even with -y flag
 railway add
 
 # Get the current DATABASE_URL
