@@ -10,7 +10,7 @@ defmodule Clinicpro.Patients.Patient do
     extensions: [Ash.Policy.Authorizer]
 
   postgres do
-    table "patients"
+    table "_patients"
     repo Clinicpro.Repo
   end
 

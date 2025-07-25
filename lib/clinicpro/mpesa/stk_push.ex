@@ -17,8 +17,8 @@ defmodule Clinicpro.MPesa.STKPush do
 
   - `phone_number` - The phone number to send the STK push to
   - `amount` - The amount to charge
-  - `reference` - The reference number for the transaction
-  - `clinic_id` - The ID of the clinic (for multi-tenant support)
+  - `reference` - The reference number for the _transaction
+  - `_clinic_id` - The ID of the clinic (for multi-tenant support)
 
   ## Returns
 
@@ -26,9 +26,9 @@ defmodule Clinicpro.MPesa.STKPush do
   - `{:error, reason}` - If the request failed
   """
   @impl true
-  def request(phone_number, amount, reference, clinic_id) do
+  def request(phone_number, amount, reference, _clinic_id) do
     # Get clinic-specific configuration
-    config = Config.get_config(clinic_id)
+    config = Config.get_config(_clinic_id)
 
     # Format the phone number if needed
     phone_number = Helpers.format_phone_number(phone_number)
@@ -43,7 +43,7 @@ defmodule Clinicpro.MPesa.STKPush do
     password = Helpers.generate_password(config.shortcode, config.passkey, timestamp)
 
     # Get the access token
-    with {:ok, token} <- Auth.get_access_token(clinic_id),
+    with {:ok, token} <- Auth.get_access_token(_clinic_id),
          {:ok, response} <- do_request(token, phone_number, amount, reference, timestamp, password, config) do
       {:ok, response}
     else
@@ -64,7 +64,7 @@ defmodule Clinicpro.MPesa.STKPush do
       "PartyA" => phone_number,
       "PartyB" => config.shortcode,
       "PhoneNumber" => phone_number,
-      "CallBackURL" => "#{config.callback_url}/api/mpesa/callbacks/#{config.clinic_id}/stk_push",
+      "CallBackURL" => "#{config.callback_url}/api/mpesa/callbacks/#{config._clinic_id}/stk_push",
       "AccountReference" => reference,
       "TransactionDesc" => "Payment for #{reference}"
     }

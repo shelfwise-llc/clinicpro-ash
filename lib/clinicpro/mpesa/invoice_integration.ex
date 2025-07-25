@@ -8,24 +8,24 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
   """
 
   alias Clinicpro.MPesa
-  alias Clinicpro.MPesa.Transaction
+  # # alias Clinicpro.MPesa.Transaction
   alias Clinicpro.Invoices
 
   @doc """
-  Updates an invoice status based on a successful M-Pesa transaction.
+  Updates an invoice status based on a successful M-Pesa _transaction.
 
   ## Parameters
 
-  * `transaction` - The M-Pesa transaction
+  * `_transaction` - The M-Pesa _transaction
 
   ## Returns
 
   * `{:ok, invoice}` - If the invoice was updated successfully
   * `{:error, reason}` - If the invoice update failed
   """
-  def update_invoice_status(%Transaction{} = transaction) do
-    with {:ok, invoice} <- Invoices.get_invoice(transaction.invoice_id, transaction.clinic_id),
-         {:ok, updated_invoice} <- do_update_invoice_status(invoice, transaction) do
+  def update_invoice_status(%Transaction{} = _transaction) do
+    with {:ok, invoice} <- Invoices.get_invoice(_transaction.invoice_id, _transaction._clinic_id),
+         {:ok, updated_invoice} <- do_update_invoice_status(invoice, _transaction) do
       {:ok, updated_invoice}
     else
       {:error, reason} -> {:error, reason}
@@ -38,21 +38,21 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
   ## Parameters
 
   * `invoice_id` - The ID of the invoice to pay
-  * `clinic_id` - The ID of the clinic
+  * `_clinic_id` - The ID of the clinic
   * `phone_number` - The phone number to send the STK Push to
   * `amount` - The amount to pay (optional, defaults to invoice amount)
 
   ## Returns
 
-  * `{:ok, transaction}` - If the STK Push was initiated successfully
+  * `{:ok, _transaction}` - If the STK Push was initiated successfully
   * `{:error, reason}` - If the STK Push initiation failed
   """
-  def initiate_stk_push_for_invoice(invoice_id, clinic_id, phone_number, amount \\ nil) do
-    with {:ok, invoice} <- Invoices.get_invoice(invoice_id, clinic_id),
+  def initiate_stk_push_for_invoice(invoice_id, _clinic_id, phone_number, amount \\ nil) do
+    with {:ok, invoice} <- Invoices.get_invoice(invoice_id, _clinic_id),
          amount = amount || invoice.amount,
          patient_id = invoice.patient_id,
-         {:ok, transaction} <- MPesa.initiate_stk_push(clinic_id, invoice_id, patient_id, phone_number, amount) do
-      {:ok, transaction}
+         {:ok, _transaction} <- MPesa.initiate_stk_push(_clinic_id, invoice_id, patient_id, phone_number, amount) do
+      {:ok, _transaction}
     else
       {:error, reason} -> {:error, reason}
     end
@@ -64,14 +64,14 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
   ## Parameters
 
   * `invoice_id` - The ID of the invoice
-  * `clinic_id` - The ID of the clinic
+  * `_clinic_id` - The ID of the clinic
 
   ## Returns
 
   * List of transactions
   """
-  def get_invoice_transactions(invoice_id, clinic_id) do
-    Transaction.list_by_invoice(invoice_id, clinic_id)
+  def get_invoice_transactions(invoice_id, _clinic_id) do
+    Transaction.list_by_invoice(invoice_id, _clinic_id)
   end
 
   @doc """
@@ -80,7 +80,7 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
   ## Parameters
 
   * `invoice_id` - The ID of the invoice
-  * `clinic_id` - The ID of the clinic
+  * `_clinic_id` - The ID of the clinic
 
   ## Returns
 
@@ -89,9 +89,9 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
   * `:pending` - If there are pending transactions
   * `:unpaid` - If there are no transactions or all have failed
   """
-  def get_invoice_payment_status(invoice_id, clinic_id) do
-    with {:ok, invoice} <- Invoices.get_invoice(invoice_id, clinic_id) do
-      transactions = get_invoice_transactions(invoice_id, clinic_id)
+  def get_invoice_payment_status(invoice_id, _clinic_id) do
+    with {:ok, invoice} <- Invoices.get_invoice(invoice_id, _clinic_id) do
+      transactions = get_invoice_transactions(invoice_id, _clinic_id)
 
       cond do
         Enum.any?(transactions, &(&1.status == "pending")) ->
@@ -113,9 +113,9 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
 
   # Private functions
 
-  defp do_update_invoice_status(invoice, %{status: "completed"} = transaction) do
+  defp do_update_invoice_status(invoice, %{status: "completed"} = _transaction) do
     # Calculate the total amount paid for this invoice
-    total_paid = total_paid_amount(get_invoice_transactions(invoice.id, invoice.clinic_id))
+    total_paid = total_paid_amount(get_invoice_transactions(invoice.id, invoice._clinic_id))
 
     # Determine the new status based on the amount paid
     new_status = if total_paid >= invoice.amount, do: "paid", else: "partially_paid"
@@ -123,7 +123,7 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
     # Update the invoice status
     Invoices.update_invoice(invoice, %{
       payment_status: new_status,
-      last_payment_date: transaction.updated_at,
+      last_payment_date: _transaction.updated_at,
       amount_paid: total_paid
     })
   end

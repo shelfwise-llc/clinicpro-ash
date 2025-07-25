@@ -10,11 +10,11 @@ defmodule Clinicpro.MPesa.CallbackLog do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias __MODULE__
 
   schema "mpesa_callback_logs" do
-    field :clinic_id, :integer
+    field :_clinic_id, :integer
     field :type, :string # stk_push, c2b_validation, c2b_confirmation, transaction_status
     field :status, :string # success, failed
     field :reference, :string
@@ -54,15 +54,15 @@ defmodule Clinicpro.MPesa.CallbackLog do
   ## Parameters
 
   * `id` - The ID of the callback log to get
-  * `clinic_id` - The clinic ID to ensure proper isolation
+  * `_clinic_id` - The clinic ID to ensure proper isolation
 
   ## Returns
 
   * `callback_log` - If found and belongs to the clinic
   * `nil` - If not found or doesn't belong to the clinic
   """
-  def get_by_id_and_clinic(id, clinic_id) do
-    Repo.get_by(CallbackLog, id: id, clinic_id: clinic_id)
+  def get_by_id_and_clinic(id, _clinic_id) do
+    Repo.get_by(CallbackLog, id: id, _clinic_id: _clinic_id)
   end
 
   @doc """
@@ -70,56 +70,56 @@ defmodule Clinicpro.MPesa.CallbackLog do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to list callback logs for
+  * `_clinic_id` - The ID of the clinic to list callback logs for
   * `filters` - Map of filters to apply (type, status, from_date, to_date)
-  * `page` - Page number for pagination
-  * `per_page` - Number of items per page
+  * `_page` - Page number for pagination
+  * `_per_page` - Number of items per _page
 
   ## Returns
 
   * `{callback_logs, pagination}` - List of callback logs and pagination info
   """
-  def paginate_by_clinic(clinic_id, filters \\ %{}, page \\ 1, per_page \\ 20) do
+  def paginate_by_clinic(_clinic_id, filters \\ %{}, _page \\ 1, _per_page \\ 20) do
     query = CallbackLog
-    |> where(clinic_id: ^clinic_id)
+    |> where(_clinic_id: ^_clinic_id)
     |> apply_filters(filters)
     |> order_by(desc: :inserted_at)
 
     # Get total count for pagination
     total_count = Repo.aggregate(query, :count, :id)
-    total_pages = ceil(total_count / per_page)
+    total_pages = ceil(total_count / _per_page)
 
     # Apply pagination
     callback_logs = query
-    |> limit(^per_page)
-    |> offset(^((page - 1) * per_page))
+    |> limit(^_per_page)
+    |> offset(^((_page - 1) * _per_page))
     |> Repo.all()
 
     # Return callback logs with pagination info
     {callback_logs, %{
-      page: page,
-      per_page: per_page,
+      _page: _page,
+      _per_page: _per_page,
       total_count: total_count,
       total_pages: total_pages
     }}
   end
 
   @doc """
-  Lists callback logs for a specific transaction.
+  Lists callback logs for a specific _transaction.
 
   ## Parameters
 
-  * `transaction_id` - The ID of the transaction to list callback logs for
-  * `clinic_id` - The clinic ID to ensure proper isolation
+  * `transaction_id` - The ID of the _transaction to list callback logs for
+  * `_clinic_id` - The clinic ID to ensure proper isolation
 
   ## Returns
 
   * List of callback logs
   """
-  def list_by_transaction(transaction_id, clinic_id) do
+  def list_by_transaction(transaction_id, _clinic_id) do
     CallbackLog
     |> where(transaction_id: ^transaction_id)
-    |> where(clinic_id: ^clinic_id)
+    |> where(_clinic_id: ^_clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
@@ -130,16 +130,16 @@ defmodule Clinicpro.MPesa.CallbackLog do
   ## Parameters
 
   * `type` - The type of callback logs to list
-  * `clinic_id` - The clinic ID to ensure proper isolation
+  * `_clinic_id` - The clinic ID to ensure proper isolation
 
   ## Returns
 
   * List of callback logs
   """
-  def list_by_type(type, clinic_id) do
+  def list_by_type(type, _clinic_id) do
     CallbackLog
     |> where(type: ^type)
-    |> where(clinic_id: ^clinic_id)
+    |> where(_clinic_id: ^_clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
@@ -149,11 +149,11 @@ defmodule Clinicpro.MPesa.CallbackLog do
   defp changeset(callback_log, attrs) do
     callback_log
     |> cast(attrs, [
-      :clinic_id, :type, :status, :reference, :shortcode, :url, 
+      :_clinic_id, :type, :status, :reference, :shortcode, :url, 
       :request_payload, :response_payload, :response_code, 
       :response_description, :processing_time, :transaction_id
     ])
-    |> validate_required([:clinic_id, :type, :status, :request_payload])
+    |> validate_required([:_clinic_id, :type, :status, :request_payload])
     |> validate_inclusion(:type, ["stk_push", "c2b_validation", "c2b_confirmation", "transaction_status"])
     |> validate_inclusion(:status, ["success", "failed"])
   end

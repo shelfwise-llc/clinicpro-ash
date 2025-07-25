@@ -3,7 +3,7 @@ defmodule Clinicpro.Paystack do
   Main module for Paystack payment integration with multi-tenant support.
 
   This module serves as the primary entry point for Paystack payment operations,
-  including transaction initialization, verification, and webhook handling.
+  including _transaction initialization, verification, and webhook handling.
 
   It follows a multi-tenant architecture pattern, ensuring proper isolation
   between different clinics' payment processing.
@@ -12,7 +12,7 @@ defmodule Clinicpro.Paystack do
   alias Clinicpro.Paystack.{API, Config, Subaccount, Transaction, Callback}
 
   @doc """
-  Initializes a payment transaction with Paystack.
+  Initializes a payment _transaction with Paystack.
 
   ## Parameters
 
@@ -20,33 +20,33 @@ defmodule Clinicpro.Paystack do
   * `amount` - Amount in Naira
   * `reference` - Optional custom reference (if not provided, one will be generated)
   * `description` - Description of the payment
-  * `clinic_id` - ID of the clinic
-  * `opts` - Additional options:
+  * `_clinic_id` - ID of the clinic
+  * `_opts` - Additional options:
     * `:callback_url` - URL to redirect to after payment
-    * `:metadata` - Additional data to include with the transaction
+    * `:metadata` - Additional data to include with the _transaction
     * `:use_subaccount` - Whether to use the active subaccount
 
   ## Returns
 
-  * `{:ok, %{transaction: transaction, authorization_url: url}}` - Success
+  * `{:ok, %{_transaction: _transaction, authorization_url: url}}` - Success
   * `{:error, reason}` - Error reason
 
   """
-  def initialize_payment(email, amount, reference \\ nil, description, clinic_id, opts \\ []) do
+  def initialize_payment(email, amount, reference \\ nil, description, _clinic_id, _opts \\ []) do
     # Generate a reference if not provided
-    reference = reference || generate_reference(clinic_id)
+    reference = reference || generate_reference(_clinic_id)
 
     # Extract options
-    callback_url = Keyword.get(opts, :callback_url)
-    metadata = Keyword.get(opts, :metadata)
-    use_subaccount = Keyword.get(opts, :use_subaccount, false)
+    callback_url = Keyword.get(_opts, :callback_url)
+    metadata = Keyword.get(_opts, :metadata)
+    use_subaccount = Keyword.get(_opts, :use_subaccount, false)
 
     # Initialize the payment
     Transaction.initialize_payment(
       email,
       amount,
       description,
-      clinic_id,
+      _clinic_id,
       callback_url,
       metadata,
       use_subaccount
@@ -54,21 +54,21 @@ defmodule Clinicpro.Paystack do
   end
 
   @doc """
-  Verifies a payment transaction with Paystack.
+  Verifies a payment _transaction with Paystack.
 
   ## Parameters
 
   * `reference` - Transaction reference to verify
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
-  * `{:ok, transaction}` - The verified transaction
+  * `{:ok, _transaction}` - The verified _transaction
   * `{:error, reason}` - Error reason
 
   """
-  def verify_payment(reference, clinic_id) do
-    Transaction.verify_payment(reference, clinic_id)
+  def verify_payment(reference, _clinic_id) do
+    Transaction.verify_payment(reference, _clinic_id)
   end
 
   @doc """
@@ -78,32 +78,32 @@ defmodule Clinicpro.Paystack do
 
   * `payload` - The raw payload from the webhook
   * `signature` - The X-Paystack-Signature header value
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
-  * `{:ok, transaction}` - Successfully processed callback
+  * `{:ok, _transaction}` - Successfully processed callback
   * `{:error, reason}` - Error reason
 
   """
-  def process_webhook(payload, signature, clinic_id) do
-    Callback.process_webhook(payload, signature, clinic_id)
+  def process_webhook(payload, signature, _clinic_id) do
+    Callback.process_webhook(payload, signature, _clinic_id)
   end
 
   @doc """
-  Gets transaction statistics for a clinic.
+  Gets _transaction statistics for a clinic.
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
-  * Map with transaction statistics
+  * Map with _transaction statistics
 
   """
-  def get_transaction_stats(clinic_id) do
-    Transaction.get_stats(clinic_id)
+  def get_transaction_stats(_clinic_id) do
+    Transaction.get_stats(_clinic_id)
   end
 
   @doc """
@@ -111,7 +111,7 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
   * `limit` - Maximum number of transactions to return (default: 50)
   * `offset` - Number of transactions to skip (default: 0)
 
@@ -120,8 +120,8 @@ defmodule Clinicpro.Paystack do
   * List of transactions
 
   """
-  def list_transactions(clinic_id, limit \\ 50, offset \\ 0) do
-    Transaction.list_by_clinic(clinic_id, limit, offset)
+  def list_transactions(_clinic_id, limit \\ 50, offset \\ 0) do
+    Transaction.list_by_clinic(_clinic_id, limit, offset)
   end
 
   @doc """
@@ -181,7 +181,7 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
@@ -189,8 +189,8 @@ defmodule Clinicpro.Paystack do
   * `{:error, :not_found}` - No active configuration found
 
   """
-  def get_active_config(clinic_id) do
-    Config.get_active(clinic_id)
+  def get_active_config(_clinic_id) do
+    Config.get_active(_clinic_id)
   end
 
   @doc """
@@ -198,15 +198,15 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
   * List of configurations
 
   """
-  def list_configs(clinic_id) do
-    Config.list_by_clinic(clinic_id)
+  def list_configs(_clinic_id) do
+    Config.list_by_clinic(_clinic_id)
   end
 
   @doc """
@@ -299,7 +299,7 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
@@ -307,8 +307,8 @@ defmodule Clinicpro.Paystack do
   * `{:error, :not_found}` - No active subaccount found
 
   """
-  def get_active_subaccount(clinic_id) do
-    Subaccount.get_active(clinic_id)
+  def get_active_subaccount(_clinic_id) do
+    Subaccount.get_active(_clinic_id)
   end
 
   @doc """
@@ -316,15 +316,15 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
 
   ## Returns
 
   * List of subaccounts
 
   """
-  def list_subaccounts(clinic_id) do
-    Subaccount.list_by_clinic(clinic_id)
+  def list_subaccounts(_clinic_id) do
+    Subaccount.list_by_clinic(_clinic_id)
   end
 
   @doc """
@@ -383,7 +383,7 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `clinic_id` - ID of the clinic
+  * `_clinic_id` - ID of the clinic
   * `country` - Country code (default: "nigeria")
 
   ## Returns
@@ -392,15 +392,15 @@ defmodule Clinicpro.Paystack do
   * `{:error, reason}` - Error reason
 
   """
-  def list_banks(clinic_id, country \\ "nigeria") do
-    API.list_banks(clinic_id, country)
+  def list_banks(_clinic_id, country \\ "nigeria") do
+    API.list_banks(_clinic_id, country)
   end
 
   # Private functions
 
-  defp generate_reference(clinic_id) do
+  defp generate_reference(_clinic_id) do
     timestamp = DateTime.utc_now() |> DateTime.to_unix()
     random = :rand.uniform(1_000_000)
-    "paystack_#{clinic_id}_#{timestamp}_#{random}"
+    "paystack_#{_clinic_id}_#{timestamp}_#{random}"
   end
 end

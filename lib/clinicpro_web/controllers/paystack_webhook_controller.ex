@@ -2,7 +2,6 @@ defmodule ClinicproWeb.PaystackWebhookController do
   use ClinicproWeb, :controller
 
   alias Clinicpro.Paystack
-  alias Clinicpro.Paystack.Callback
 
   require Logger
 
@@ -60,7 +59,7 @@ defmodule ClinicproWeb.PaystackWebhookController do
     {:ok, body, conn}
   end
 
-  # Extract clinic ID from payload metadata or transaction reference
+  # Extract clinic ID from payload metadata or _transaction reference
   defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}}) when is_integer(clinic_id), do: clinic_id
   defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}}) when is_binary(clinic_id) do
     case Integer.parse(clinic_id) do
@@ -69,7 +68,7 @@ defmodule ClinicproWeb.PaystackWebhookController do
     end
   end
 
-  # Fallback to extracting from reference if metadata doesn't contain clinic_id
+  # Fallback to extracting from reference if metadata doesn't contain _clinic_id
   defp extract_clinic_id(%{"data" => %{"reference" => reference}}) when is_binary(reference) do
     case Paystack.extract_clinic_id_from_reference(reference) do
       {:ok, clinic_id} -> clinic_id

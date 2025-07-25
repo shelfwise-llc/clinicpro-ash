@@ -13,19 +13,19 @@ defmodule Clinicpro.MPesa.C2B do
 
   ## Parameters
 
-  - `clinic_id` - The ID of the clinic to register URLs for
+  - `_clinic_id` - The ID of the clinic to register URLs for
 
   ## Returns
 
   - `{:ok, response}` - If the registration was successful
   - `{:error, reason}` - If the registration failed
   """
-  def register_urls(clinic_id) do
+  def register_urls(_clinic_id) do
     # Get the clinic's M-Pesa configuration
-    config = Config.get_config(clinic_id)
+    config = Config.get_config(_clinic_id)
 
     # Get access token
-    with {:ok, access_token} <- Auth.get_access_token(clinic_id) do
+    with {:ok, access_token} <- Auth.get_access_token(_clinic_id) do
       # Build the request payload
       payload = %{
         ShortCode: config.shortcode,
@@ -48,28 +48,28 @@ defmodule Clinicpro.MPesa.C2B do
           # Parse the response
           case Jason.decode(body) do
             {:ok, %{"ResponseCode" => "0", "ResponseDescription" => description}} ->
-              Logger.info("C2B URLs registered successfully for clinic #{clinic_id}: #{description}")
+              Logger.info("C2B URLs registered successfully for clinic #{_clinic_id}: #{description}")
               {:ok, %{description: description}}
 
             {:ok, %{"errorCode" => error_code, "errorMessage" => error_message}} ->
-              Logger.error("C2B URL registration failed for clinic #{clinic_id}: #{error_code} - #{error_message}")
+              Logger.error("C2B URL registration failed for clinic #{_clinic_id}: #{error_code} - #{error_message}")
               {:error, %{code: error_code, message: error_message}}
 
             {:ok, response} ->
-              Logger.error("Unexpected C2B URL registration response for clinic #{clinic_id}: #{inspect(response)}")
+              Logger.error("Unexpected C2B URL registration response for clinic #{_clinic_id}: #{inspect(response)}")
               {:error, :unexpected_response}
 
             {:error, _} = error ->
-              Logger.error("Failed to parse C2B URL registration response for clinic #{clinic_id}: #{inspect(error)}")
+              Logger.error("Failed to parse C2B URL registration response for clinic #{_clinic_id}: #{inspect(error)}")
               {:error, :invalid_response}
           end
 
         {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-          Logger.error("C2B URL registration failed for clinic #{clinic_id} with status #{status_code}: #{body}")
+          Logger.error("C2B URL registration failed for clinic #{_clinic_id} with status #{status_code}: #{body}")
           {:error, :request_failed}
 
         {:error, %HTTPoison.Error{reason: reason}} ->
-          Logger.error("C2B URL registration failed for clinic #{clinic_id}: #{inspect(reason)}")
+          Logger.error("C2B URL registration failed for clinic #{_clinic_id}: #{inspect(reason)}")
           {:error, :request_failed}
       end
     end
@@ -82,28 +82,28 @@ defmodule Clinicpro.MPesa.C2B do
 
   - `phone_number` - The phone number making the payment
   - `amount` - The amount to pay
-  - `reference` - The reference for the transaction
-  - `clinic_id` - The ID of the clinic receiving the payment
+  - `reference` - The reference for the _transaction
+  - `_clinic_id` - The ID of the clinic receiving the payment
 
   ## Returns
 
   - `{:ok, response}` - If the simulation was successful
   - `{:error, reason}` - If the simulation failed
   """
-  def simulate_payment(phone_number, amount, reference, clinic_id) do
+  def simulate_payment(phone_number, amount, reference, _clinic_id) do
     # Get the clinic's M-Pesa configuration
-    config = Config.get_config(clinic_id)
+    config = Config.get_config(_clinic_id)
 
     # Check if we're in sandbox mode
     if config.environment != "sandbox" do
-      Logger.error("C2B simulation is only available in sandbox environment for clinic #{clinic_id}")
+      Logger.error("C2B simulation is only available in sandbox environment for clinic #{_clinic_id}")
       {:error, :simulation_only_in_sandbox}
     else
       # Format the phone number
       formatted_phone = format_phone_number(phone_number)
 
       # Get access token
-      with {:ok, access_token} <- Auth.get_access_token(clinic_id) do
+      with {:ok, access_token} <- Auth.get_access_token(_clinic_id) do
         # Build the request payload
         payload = %{
           ShortCode: config.shortcode,
@@ -127,28 +127,28 @@ defmodule Clinicpro.MPesa.C2B do
             # Parse the response
             case Jason.decode(body) do
               {:ok, %{"ResponseCode" => "0", "ResponseDescription" => description}} ->
-                Logger.info("C2B payment simulation successful for clinic #{clinic_id}: #{description}")
+                Logger.info("C2B payment simulation successful for clinic #{_clinic_id}: #{description}")
                 {:ok, %{description: description}}
 
               {:ok, %{"errorCode" => error_code, "errorMessage" => error_message}} ->
-                Logger.error("C2B payment simulation failed for clinic #{clinic_id}: #{error_code} - #{error_message}")
+                Logger.error("C2B payment simulation failed for clinic #{_clinic_id}: #{error_code} - #{error_message}")
                 {:error, %{code: error_code, message: error_message}}
 
               {:ok, response} ->
-                Logger.error("Unexpected C2B payment simulation response for clinic #{clinic_id}: #{inspect(response)}")
+                Logger.error("Unexpected C2B payment simulation response for clinic #{_clinic_id}: #{inspect(response)}")
                 {:error, :unexpected_response}
 
               {:error, _} = error ->
-                Logger.error("Failed to parse C2B payment simulation response for clinic #{clinic_id}: #{inspect(error)}")
+                Logger.error("Failed to parse C2B payment simulation response for clinic #{_clinic_id}: #{inspect(error)}")
                 {:error, :invalid_response}
             end
 
           {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-            Logger.error("C2B payment simulation failed for clinic #{clinic_id} with status #{status_code}: #{body}")
+            Logger.error("C2B payment simulation failed for clinic #{_clinic_id} with status #{status_code}: #{body}")
             {:error, :request_failed}
 
           {:error, %HTTPoison.Error{reason: reason}} ->
-            Logger.error("C2B payment simulation failed for clinic #{clinic_id}: #{inspect(reason)}")
+            Logger.error("C2B payment simulation failed for clinic #{_clinic_id}: #{inspect(reason)}")
             {:error, :request_failed}
         end
       end
@@ -161,16 +161,16 @@ defmodule Clinicpro.MPesa.C2B do
   ## Parameters
 
   - `params` - The validation request parameters
-  - `clinic_id` - The ID of the clinic receiving the payment
+  - `_clinic_id` - The ID of the clinic receiving the payment
 
   ## Returns
 
   - `{:ok, response}` - If the validation was successful
   - `{:error, reason}` - If the validation failed
   """
-  def process_validation(params, clinic_id) do
+  def process_validation(params, _clinic_id) do
     # Log the validation request
-    Logger.info("Processing C2B validation request for clinic #{clinic_id}: #{inspect(params)}")
+    Logger.info("Processing C2B validation request for clinic #{_clinic_id}: #{inspect(params)}")
 
     # Here you would implement your validation logic
     # For example, check if the account number exists, etc.
@@ -188,16 +188,16 @@ defmodule Clinicpro.MPesa.C2B do
   ## Parameters
 
   - `params` - The confirmation request parameters
-  - `clinic_id` - The ID of the clinic receiving the payment
+  - `_clinic_id` - The ID of the clinic receiving the payment
 
   ## Returns
 
   - `{:ok, response}` - If the confirmation was processed successfully
   - `{:error, reason}` - If the confirmation processing failed
   """
-  def process_confirmation(params, clinic_id) do
+  def process_confirmation(params, _clinic_id) do
     # Log the confirmation request
-    Logger.info("Processing C2B confirmation request for clinic #{clinic_id}: #{inspect(params)}")
+    Logger.info("Processing C2B confirmation request for clinic #{_clinic_id}: #{inspect(params)}")
 
     # Extract relevant information from the params
     _transaction_data = %{
@@ -216,7 +216,7 @@ defmodule Clinicpro.MPesa.C2B do
     }
 
     # Here you would implement your confirmation processing logic
-    # For example, update the transaction status, notify the user, etc.
+    # For example, update the _transaction status, notify the user, etc.
     # This might involve calling other modules like Transaction or PaymentProcessor
 
     # For now, we'll just return a success response

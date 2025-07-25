@@ -9,7 +9,7 @@ defmodule Clinicpro.MPesaTest do
 
   alias Clinicpro.MPesa
   alias Clinicpro.MPesa.{Config, Transaction}
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
 
   @doc """
   Tests the STK Push functionality using the sandbox environment.
@@ -21,7 +21,7 @@ defmodule Clinicpro.MPesaTest do
     # Format the phone number correctly (remove leading 0 and add 254)
     phone = format_phone(System.get_env("MPESA_TEST_PHONE") || "0713701723")
     
-    # Create a test transaction reference
+    # Create a test _transaction reference
     reference = "TEST-#{:rand.uniform(1000000)}"
     
     # Set test amount (use a small amount for testing)
@@ -43,13 +43,13 @@ defmodule Clinicpro.MPesaTest do
     
     # Initiate STK Push using the comprehensive MPesa module
     case MPesa.initiate_stk_push(clinic.id, phone, amount, reference, "Test STK Push") do
-      {:ok, transaction} ->
+      {:ok, _transaction} ->
         IO.puts("\n✅ STK Push initiated successfully!")
-        IO.puts("Transaction ID: #{transaction.id}")
-        IO.puts("Checkout Request ID: #{transaction.checkout_request_id}")
+        IO.puts("Transaction ID: #{_transaction.id}")
+        IO.puts("Checkout Request ID: #{_transaction.checkout_request_id}")
         IO.puts("Please check your phone #{phone} for the STK Push prompt.")
         IO.puts("\nNote: In sandbox mode, no actual prompt will be sent to the phone.")
-        IO.puts("The transaction will remain in 'pending' status.")
+        IO.puts("The _transaction will remain in 'pending' status.")
         
       {:error, reason} ->
         IO.puts("\n❌ Failed to initiate STK Push: #{inspect(reason)}")
@@ -121,8 +121,8 @@ defmodule Clinicpro.MPesaTest do
     end
   end
   
-  defp ensure_test_config(clinic_id) do
-    case Config.get_for_clinic(clinic_id) do
+  defp ensure_test_config(_clinic_id) do
+    case Config.get_for_clinic(_clinic_id) do
       {:ok, config} -> config
       {:error, _reason} ->
         # Create a test configuration using environment variables
@@ -137,7 +137,7 @@ defmodule Clinicpro.MPesaTest do
           "c2b_validation_url" => System.get_env("MPESA_C2B_VALIDATION_URL"),
           "c2b_confirmation_url" => System.get_env("MPESA_C2B_CONFIRMATION_URL"),
           "active" => true,
-          "clinic_id" => clinic_id
+          "_clinic_id" => _clinic_id
         }
         
         {:ok, config} = MPesa.create_config(attrs)

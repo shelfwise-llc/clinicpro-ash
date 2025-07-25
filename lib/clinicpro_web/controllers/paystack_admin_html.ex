@@ -6,17 +6,17 @@ defmodule ClinicproWeb.PaystackAdminHTML do
   embed_templates "paystack_admin_html/*"
   
   # Re-export form helpers for use in templates
-  def checkbox(form, field, opts \\ []), do: Phoenix.HTML.Form.checkbox(form, field, opts)
-  def text_input(form, field, opts \\ []), do: Phoenix.HTML.Form.text_input(form, field, opts)
-  def password_input(form, field, opts \\ []), do: Phoenix.HTML.Form.password_input(form, field, opts)
-  def textarea(form, field, opts \\ []), do: Phoenix.HTML.Form.textarea(form, field, opts)
-  def select(form, field, options, opts \\ []), do: Phoenix.HTML.Form.select(form, field, options, opts)
-  def label(form, field, text \\ nil, opts \\ []), do: Phoenix.HTML.Form.label(form, field, text, opts)
-  def number_input(form, field, opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, opts)
-  def email_input(form, field, opts \\ []), do: Phoenix.HTML.Form.email_input(form, field, opts)
-  def submit(value, opts \\ []), do: Phoenix.HTML.Form.submit(value, opts)
+  def checkbox(form, field, _opts \\ []), do: Phoenix.HTML.Form.checkbox(form, field, _opts)
+  def text_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.text_input(form, field, _opts)
+  def password_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.password_input(form, field, _opts)
+  def textarea(form, field, _opts \\ []), do: Phoenix.HTML.Form.textarea(form, field, _opts)
+  def select(form, field, options, _opts \\ []), do: Phoenix.HTML.Form.select(form, field, options, _opts)
+  def label(form, field, text \\ nil, _opts \\ []), do: Phoenix.HTML.Form.label(form, field, text, _opts)
+  def number_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, _opts)
+  def email_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.email_input(form, field, _opts)
+  def submit(value, _opts \\ []), do: Phoenix.HTML.Form.submit(value, _opts)
   def error_tag(form, field), do: ClinicproWeb.ErrorHelpers.error_tag(form, field)
-  def link(text, opts), do: Phoenix.HTML.Link.link(text, opts)
+  def link(text, _opts), do: Phoenix.HTML.Link.link(text, _opts)
   
   # String masking and formatting functions
   def mask_string(nil), do: "-"

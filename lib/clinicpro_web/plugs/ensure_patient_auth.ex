@@ -1,7 +1,7 @@
 defmodule ClinicproWeb.Plugs.EnsurePatientAuth do
   @moduledoc """
   This plug ensures that a patient is authenticated.
-  If not, it redirects to the login page.
+  If not, it redirects to the login _page.
   """
 
   import Plug.Conn
@@ -20,7 +20,7 @@ defmodule ClinicproWeb.Plugs.EnsurePatientAuth do
     else
       # Patient is not authenticated
       conn
-      |> put_flash(:error, "You must be logged in to access this page")
+      |> put_flash(:error, "You must be logged in to access this _page")
       |> redirect(to: "/")
       |> halt()
     end

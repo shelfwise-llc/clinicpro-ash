@@ -18,9 +18,22 @@ parse_db_url() {
     exit 1
   fi
   
-  # Extract host and port using pattern matching
-  DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^:]*\).*/\1/p')
-  DB_PORT=$(echo $DATABASE_URL | sed -n 's/.*:\([0-9]*\)\/.*/\1/p')
+  # More robust parsing for both internal and external PostgreSQL URLs
+  # This handles both postgres://user:pass@host:port/db and postgresql://user:pass@host:port/db formats
+  if echo "$DATABASE_URL" | grep -q "@"; then
+    # Extract host and port using more robust pattern matching
+    DB_HOST=$(echo "$DATABASE_URL" | sed -E 's/.*@([^:]+)(:[0-9]+)?.*/\1/')
+    DB_PORT=$(echo "$DATABASE_URL" | sed -E 's/.*@[^:]+:([0-9]+).*/\1/')
+    
+    # Handle case where port might not be explicitly specified
+    if [ "$DB_PORT" = "$DATABASE_URL" ]; then
+      DB_PORT="5432" # Default PostgreSQL port
+    fi
+  else
+    echo "WARNING: DATABASE_URL format not recognized"
+    DB_HOST="localhost"
+    DB_PORT="5432"
+  fi
   
   if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ]; then
     echo "WARNING: Could not parse host or port from DATABASE_URL"
@@ -38,15 +51,19 @@ wait_for_postgres() {
   # Wait for database to be ready with a simple retry mechanism
   for i in $(seq 1 30); do
     echo "Attempt $i: Checking database connection..."
-    if /app/bin/clinicpro eval "IO.puts(\"Checking DB connection...\"); :ok = Clinicpro.Repo.query!(\"SELECT 1\") && :ok" > /dev/null 2>&1; then
+    
+    # More robust check that prints error messages for debugging
+    if /app/bin/clinicpro eval "IO.puts(\"Checking DB connection...\"); Clinicpro.Repo.query!(\"SELECT 1\"); IO.puts(\"Connection successful\"); :ok" 2>&1; then
       echo "Database connection successful!"
       break
     elif [ $i -eq 30 ]; then
-      echo "Failed to connect to database after 30 attempts. Exiting."
+      echo "Failed to connect to database after 30 attempts."
+      echo "DATABASE_URL may be incorrect or database is not accessible."
+      echo "Please check your DATABASE_URL environment variable and ensure the database is running."
       exit 1
     else
-      echo "Database not ready yet. Retrying in 2 seconds..."
-      sleep 2
+      echo "Database not ready yet. Retrying in 3 seconds..."
+      sleep 3
     fi
   done
 }

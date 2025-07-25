@@ -8,8 +8,8 @@ defmodule Clinicpro.Invoices do
   """
 
   alias Clinicpro.AdminBypass.{Invoice, Appointment}
-  alias Clinicpro.MPesa.Transaction
-  alias Clinicpro.Repo
+  # # alias Clinicpro.MPesa.Transaction
+  # # alias Clinicpro.Repo
   alias Phoenix.PubSub
   alias Clinicpro.VirtualMeetings.Adapter
 
@@ -21,7 +21,7 @@ defmodule Clinicpro.Invoices do
   def get_invoice(id) do
     Invoice
     |> Repo.get(id)
-    |> Repo.preload([:patient, :clinic, :appointment])
+    |> Repo.preload([:patient, :clinic, :_appointment])
   end
 
   @doc """
@@ -32,12 +32,12 @@ defmodule Clinicpro.Invoices do
   end
 
   @doc """
-  Gets an invoice associated with an appointment.
+  Gets an invoice associated with an _appointment.
   """
   def get_invoice_by_appointment(appointment_id) do
     Invoice
     |> Repo.get_by(appointment_id: appointment_id)
-    |> Repo.preload([:patient, :clinic, :appointment])
+    |> Repo.preload([:patient, :clinic, :_appointment])
   end
 
   @doc """
@@ -49,67 +49,67 @@ defmodule Clinicpro.Invoices do
   end
 
   @doc """
-  Processes a completed M-Pesa transaction and updates the associated invoice.
+  Processes a completed M-Pesa _transaction and updates the associated invoice.
 
   This function is called when a payment is completed via M-Pesa. It:
   1. Updates the invoice status to "paid"
   2. Records the payment details in the invoice notes
   3. Broadcasts an event to notify other parts of the system
-  4. Triggers appointment-specific actions based on the appointment type
+  4. Triggers _appointment-specific actions based on the _appointment type
 
   Returns:
   - {:ok, invoice} on success
   - {:error, reason} on failure
   """
-  def process_completed_payment(transaction = %Transaction{status: "completed"}) do
-    with {:ok, invoice} <- Invoice.find_invoice_by_reference(transaction.reference),
-         {:ok, updated_invoice} <- update_invoice_with_payment(invoice, transaction) do
-      # Process appointment if one exists
+  def process_completed_payment(_transaction = %Transaction{status: "completed"}) do
+    with {:ok, invoice} <- Invoice.find_invoice_by_reference(_transaction.reference),
+         {:ok, updated_invoice} <- update_invoice_with_payment(invoice, _transaction) do
+      # Process _appointment if one exists
       if updated_invoice.appointment_id do
         process_appointment_after_payment(updated_invoice)
       end
 
       # Broadcast payment completed event
-      broadcast_payment_completed(updated_invoice, transaction)
+      broadcast_payment_completed(updated_invoice, _transaction)
 
       Logger.info("Invoice #{updated_invoice.id} marked as paid after successful M-Pesa payment")
 
       {:ok, updated_invoice}
     else
       {:error, :not_found} ->
-        Logger.warning("No invoice found for reference: #{transaction.reference}")
+        Logger.warning("No invoice found for reference: #{_transaction.reference}")
         {:error, :invoice_not_found}
 
       {:error, reason} ->
         Logger.error(
-          "Failed to update invoice for transaction #{transaction.id}: #{inspect(reason)}"
+          "Failed to update invoice for _transaction #{_transaction.id}: #{inspect(reason)}"
         )
 
         {:error, reason}
     end
   end
 
-  def process_completed_payment(transaction) do
+  def process_completed_payment(_transaction) do
     Logger.info(
-      "Ignoring non-completed transaction: #{transaction.id} with status: #{transaction.status}"
+      "Ignoring non-completed _transaction: #{_transaction.id} with status: #{_transaction.status}"
     )
 
     {:error, :not_completed}
   end
 
   @doc """
-  Processes an appointment after payment has been confirmed.
-  Handles different appointment types (virtual vs onsite) appropriately.
+  Processes an _appointment after payment has been confirmed.
+  Handles different _appointment types (virtual vs onsite) appropriately.
   """
   def process_appointment_after_payment(invoice) do
     with %{appointment_id: appointment_id} when not is_nil(appointment_id) <- invoice,
-         appointment when not is_nil(appointment) <-
+         _appointment when not is_nil(_appointment) <-
            Appointment.get_appointment_with_associations!(appointment_id) do
-      # Determine appointment type and handle accordingly
-      case appointment.appointment_type do
-        "virtual" -> handle_virtual_appointment(appointment)
+      # Determine _appointment type and handle accordingly
+      case _appointment.appointment_type do
+        "virtual" -> handle_virtual_appointment(_appointment)
         # Default to onsite handling
-        _ -> handle_onsite_appointment(appointment)
+        _ -> handle_onsite_appointment(_appointment)
       end
     else
       _ -> {:error, :appointment_not_found}
@@ -118,13 +118,13 @@ defmodule Clinicpro.Invoices do
 
   # Private functions
 
-  defp update_invoice_with_payment(invoice, transaction) do
+  defp update_invoice_with_payment(invoice, _transaction) do
     notes = """
     Payment processed via M-Pesa:
-    Receipt: #{transaction.mpesa_receipt_number || "N/A"}
-    Date: #{format_transaction_date(transaction.transaction_date)}
-    Amount: #{transaction.amount || invoice.amount}
-    Phone: #{transaction.phone}
+    Receipt: #{_transaction.mpesa_receipt_number || "N/A"}
+    Date: #{format_transaction_date(_transaction.transaction_date)}
+    Amount: #{_transaction.amount || invoice.amount}
+    Phone: #{_transaction.phone}
     """
 
     Invoice.update_invoice(invoice, %{
@@ -133,28 +133,28 @@ defmodule Clinicpro.Invoices do
     })
   end
 
-  defp handle_virtual_appointment(appointment) do
+  defp handle_virtual_appointment(_appointment) do
     # Generate meeting link if not already present
-    if is_nil(appointment.meeting_link) || appointment.meeting_link == "" do
+    if is_nil(_appointment.meeting_link) || _appointment.meeting_link == "" do
       # Use the virtual meeting adapter service to create a meeting
-      case create_virtual_meeting(appointment) do
+      case create_virtual_meeting(_appointment) do
         {:ok, meeting_data} ->
-          # Update appointment with meeting link and data
-          case Appointment.update_appointment(appointment, %{
+          # Update _appointment with meeting link and data
+          case Appointment.update_appointment(_appointment, %{
                  status: "confirmed",
                  meeting_link: meeting_data.url,
                  meeting_data: meeting_data
                }) do
-            {:ok, updated_appointment} ->
+            {:ok, _updated_appointment} ->
               Logger.info(
-                "Virtual appointment #{appointment.id} confirmed with meeting link via #{meeting_data.provider}"
+                "Virtual _appointment #{_appointment.id} confirmed with meeting link via #{meeting_data.provider}"
               )
 
-              {:ok, updated_appointment}
+              {:ok, _updated_appointment}
 
             {:error, reason} ->
               Logger.error(
-                "Failed to update virtual appointment #{appointment.id}: #{inspect(reason)}"
+                "Failed to update virtual _appointment #{_appointment.id}: #{inspect(reason)}"
               )
 
               {:error, reason}
@@ -162,41 +162,41 @@ defmodule Clinicpro.Invoices do
 
         {:error, reason} ->
           Logger.error(
-            "Failed to create virtual meeting for appointment #{appointment.id}: #{inspect(reason)}"
+            "Failed to create virtual meeting for _appointment #{_appointment.id}: #{inspect(reason)}"
           )
 
           # Fall back to simple link generation if meeting creation fails
-          fallback_link = generate_fallback_meeting_link(appointment.id)
+          fallback_link = generate_fallback_meeting_link(_appointment.id)
 
-          case Appointment.update_appointment(appointment, %{
+          case Appointment.update_appointment(_appointment, %{
                  status: "confirmed",
                  meeting_link: fallback_link
                }) do
-            {:ok, updated_appointment} ->
+            {:ok, _updated_appointment} ->
               Logger.info(
-                "Virtual appointment #{appointment.id} confirmed with fallback meeting link"
+                "Virtual _appointment #{_appointment.id} confirmed with fallback meeting link"
               )
 
-              {:ok, updated_appointment}
+              {:ok, _updated_appointment}
 
             {:error, update_reason} ->
               Logger.error(
-                "Failed to update virtual appointment #{appointment.id} with fallback link: #{inspect(update_reason)}"
+                "Failed to update virtual _appointment #{_appointment.id} with fallback link: #{inspect(update_reason)}"
               )
 
               {:error, update_reason}
           end
       end
     else
-      # Meeting link already exists, just confirm the appointment
-      case Appointment.update_appointment(appointment, %{status: "confirmed"}) do
-        {:ok, updated_appointment} ->
-          Logger.info("Virtual appointment #{appointment.id} confirmed (link already exists)")
-          {:ok, updated_appointment}
+      # Meeting link already exists, just confirm the _appointment
+      case Appointment.update_appointment(_appointment, %{status: "confirmed"}) do
+        {:ok, _updated_appointment} ->
+          Logger.info("Virtual _appointment #{_appointment.id} confirmed (link already exists)")
+          {:ok, _updated_appointment}
 
         {:error, reason} ->
           Logger.error(
-            "Failed to confirm virtual appointment #{appointment.id}: #{inspect(reason)}"
+            "Failed to confirm virtual _appointment #{_appointment.id}: #{inspect(reason)}"
           )
 
           {:error, reason}
@@ -204,26 +204,26 @@ defmodule Clinicpro.Invoices do
     end
   end
 
-  defp handle_onsite_appointment(appointment) do
+  defp handle_onsite_appointment(_appointment) do
     # For onsite appointments, just confirm the status
-    case Appointment.update_appointment(appointment, %{status: "confirmed"}) do
-      {:ok, updated_appointment} ->
-        Logger.info("Onsite appointment #{appointment.id} confirmed after payment")
-        {:ok, updated_appointment}
+    case Appointment.update_appointment(_appointment, %{status: "confirmed"}) do
+      {:ok, _updated_appointment} ->
+        Logger.info("Onsite _appointment #{_appointment.id} confirmed after payment")
+        {:ok, _updated_appointment}
 
       {:error, reason} ->
-        Logger.error("Failed to confirm onsite appointment #{appointment.id}: #{inspect(reason)}")
+        Logger.error("Failed to confirm onsite _appointment #{_appointment.id}: #{inspect(reason)}")
         {:error, reason}
     end
   end
 
   # Create a virtual meeting using the configured adapter
-  defp create_virtual_meeting(appointment) do
+  defp create_virtual_meeting(_appointment) do
     # Get the configured adapter module
     adapter = Adapter.get_adapter()
 
     # Create the meeting using the adapter
-    adapter.create_meeting(appointment)
+    adapter.create_meeting(_appointment)
   end
 
   # Generate a fallback meeting link if the adapter fails
@@ -235,27 +235,27 @@ defmodule Clinicpro.Invoices do
     "#{base_url}/#{appointment_id}-#{unique_id}"
   end
 
-  defp broadcast_payment_completed(invoice, transaction) do
+  defp broadcast_payment_completed(invoice, _transaction) do
     # Broadcast to clinic-specific channel
     PubSub.broadcast(
       Clinicpro.PubSub,
-      "invoices:#{invoice.clinic_id}",
-      {:invoice_paid, invoice, transaction}
+      "invoices:#{invoice._clinic_id}",
+      {:invoice_paid, invoice, _transaction}
     )
 
     # Broadcast to patient-specific channel
     PubSub.broadcast(
       Clinicpro.PubSub,
       "patient:#{invoice.patient_id}:invoices",
-      {:invoice_paid, invoice, transaction}
+      {:invoice_paid, invoice, _transaction}
     )
 
-    # Broadcast to appointment-specific channel if applicable
+    # Broadcast to _appointment-specific channel if applicable
     if invoice.appointment_id do
       PubSub.broadcast(
         Clinicpro.PubSub,
-        "appointment:#{invoice.appointment_id}",
-        {:invoice_paid, invoice, transaction}
+        "_appointment:#{invoice.appointment_id}",
+        {:invoice_paid, invoice, _transaction}
       )
     end
   end

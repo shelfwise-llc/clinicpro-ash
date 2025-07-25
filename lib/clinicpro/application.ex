@@ -25,8 +25,8 @@ defmodule Clinicpro.Application do
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Clinicpro.Supervisor]
-    Supervisor.start_link(children, opts)
+    _opts = [strategy: :one_for_one, name: Clinicpro.Supervisor]
+    Supervisor.start_link(children, _opts)
   end
 
   # Tell Phoenix to update the endpoint configuration

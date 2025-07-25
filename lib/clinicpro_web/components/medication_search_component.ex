@@ -19,7 +19,7 @@ defmodule ClinicproWeb.MedicationSearchComponent do
     {:ok, socket
       |> assign(assigns)
       |> assign(:id, assigns.id || "medication-search")
-      |> assign(:clinic_id, assigns.clinic_id)
+      |> assign(:_clinic_id, assigns._clinic_id)
     }
   end
 
@@ -123,7 +123,7 @@ defmodule ClinicproWeb.MedicationSearchComponent do
   @impl true
   def handle_event("search", %{"value" => query}, socket) do
     if String.length(query) >= 2 do
-      send(self(), {:search_medications, query, socket.assigns.clinic_id, self()})
+      send(self(), {:search_medications, query, socket.assigns._clinic_id, self()})
 
       {:noreply, assign(socket, query: query, loading: true)}
     else

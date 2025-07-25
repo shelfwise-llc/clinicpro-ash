@@ -92,7 +92,7 @@ defmodule Clinicpro.MPesa.Helpers do
   end
 
   @doc """
-  Formats a transaction date from M-Pesa format to ISO format.
+  Formats a _transaction date from M-Pesa format to ISO format.
 
   ## Parameters
 
@@ -152,7 +152,7 @@ defmodule Clinicpro.MPesa.Helpers do
 
   ## Returns
 
-  - `{:ok, clinic_id}` - If the mapping was successful
+  - `{:ok, _clinic_id}` - If the mapping was successful
   - `{:error, :shortcode_not_found}` - If the shortcode was not found
   """
   def map_shortcode_to_clinic_id(shortcode) do
@@ -166,7 +166,7 @@ defmodule Clinicpro.MPesa.Helpers do
         {:error, :shortcode_not_found}
 
       config ->
-        {:ok, config.clinic_id}
+        {:ok, config._clinic_id}
     end
   end
 
@@ -176,21 +176,21 @@ defmodule Clinicpro.MPesa.Helpers do
   ## Parameters
 
   - `invoice_id` - The invoice ID
-  - `clinic_id` - The clinic ID
+  - `_clinic_id` - The clinic ID
 
   ## Returns
 
   - `{:ok, patient_id}` - If the mapping was successful
   - `{:error, :invoice_not_found}` - If the invoice was not found
   """
-  def map_invoice_to_patient_id(invoice_id, clinic_id) do
+  def map_invoice_to_patient_id(invoice_id, _clinic_id) do
     # This would typically query the database to find the patient associated with this invoice
     # For now, we'll use a simple implementation that assumes the Invoice module exists
     alias Clinicpro.Invoice
 
-    case Invoice.get_by_id(invoice_id, clinic_id) do
+    case Invoice.get_by_id(invoice_id, _clinic_id) do
       nil ->
-        Logger.error("No invoice found with ID #{invoice_id} for clinic #{clinic_id}")
+        Logger.error("No invoice found with ID #{invoice_id} for clinic #{_clinic_id}")
         {:error, :invoice_not_found}
 
       invoice ->

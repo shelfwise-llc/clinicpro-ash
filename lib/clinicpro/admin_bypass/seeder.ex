@@ -5,10 +5,10 @@ defmodule Clinicpro.AdminBypass.Seeder do
   """
 
   alias Clinicpro.AdminBypass.{Doctor, Patient, Appointment}
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
 
   @doc """
-  Seeds the database with sample doctors, patients, and appointments.
+  Seeds the database with sample _doctors, _patients, and appointments.
   """
   def seed do
     # Clear existing data
@@ -16,12 +16,12 @@ defmodule Clinicpro.AdminBypass.Seeder do
     Repo.delete_all(Patient)
     Repo.delete_all(Doctor)
 
-    # Seed doctors
+    # Seed _doctors
     {:ok, doctor1} = create_doctor("John", "Smith", "cardiology")
     {:ok, doctor2} = create_doctor("Sarah", "Johnson", "neurology")
     {:ok, doctor3} = create_doctor("Michael", "Brown", "pediatrics")
 
-    # Seed patients
+    # Seed _patients
     {:ok, patient1} = create_patient("Alice", "Williams", "1990-05-15", "female")
     {:ok, patient2} = create_patient("Bob", "Davis", "1985-10-20", "male")
     {:ok, patient3} = create_patient("Carol", "Miller", "1978-03-08", "female")

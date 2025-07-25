@@ -3,11 +3,11 @@ defmodule Clinicpro.Paystack.Callback do
   Module for handling Paystack webhook callbacks.
 
   This module processes webhook notifications from Paystack and updates
-  transaction statuses accordingly, maintaining proper multi-tenant isolation.
+  _transaction statuses accordingly, maintaining proper multi-tenant isolation.
   """
 
   alias Clinicpro.Paystack.{Config, Transaction, WebhookLog}
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   import Ecto.Query
 
   require Logger
@@ -18,7 +18,7 @@ defmodule Clinicpro.Paystack.Callback do
   ## Parameters
 
   - `payload` - The webhook payload from Paystack
-  - `clinic_id` - The ID of the clinic
+  - `_clinic_id` - The ID of the clinic
   - `signature` - The signature from the X-Paystack-Signature header
 
   ## Returns
@@ -26,7 +26,7 @@ defmodule Clinicpro.Paystack.Callback do
   - `{:ok, webhook_log}` - If the callback was processed successfully
   - `{:error, reason}` - If processing failed
   """
-  def process_webhook(payload, clinic_id, signature) when is_map(payload) do
+  def process_webhook(payload, _clinic_id, signature) when is_map(payload) do
     # Start processing time measurement
     start_time = System.monotonic_time(:millisecond)
     
@@ -40,7 +40,7 @@ defmodule Clinicpro.Paystack.Callback do
       reference: reference,
       payload: payload,
       status: :pending,
-      clinic_id: clinic_id,
+      _clinic_id: _clinic_id,
       processing_history: [
         %{
           status: :started,
@@ -76,9 +76,9 @@ defmodule Clinicpro.Paystack.Callback do
     result
   end
   
-  def process_webhook(payload, clinic_id, signature) when is_binary(payload) do
+  def process_webhook(payload, _clinic_id, signature) when is_binary(payload) do
     case Jason.decode(payload) do
-      {:ok, decoded_payload} -> process_webhook(decoded_payload, clinic_id, signature)
+      {:ok, decoded_payload} -> process_webhook(decoded_payload, _clinic_id, signature)
       {:error, reason} -> {:error, {:invalid_json, reason}}
     end
   end
@@ -115,11 +115,11 @@ defmodule Clinicpro.Paystack.Callback do
     data = event_data["data"]
     reference = data["reference"]
     
-    # Update the transaction
-    case update_transaction(reference, webhook_log.clinic_id, data) do
-      {:ok, transaction} ->
-        # Update webhook log with transaction ID
-        WebhookLog.update(webhook_log, %{transaction_id: transaction.id})
+    # Update the _transaction
+    case update_transaction(reference, webhook_log._clinic_id, data) do
+      {:ok, _transaction} ->
+        # Update webhook log with _transaction ID
+        WebhookLog.update(webhook_log, %{transaction_id: _transaction.id})
         :ok
         
       error ->
@@ -143,30 +143,30 @@ defmodule Clinicpro.Paystack.Callback do
     {:error, :invalid_event_data}
   end
 
-  defp update_transaction(reference, clinic_id, data) do
-    # Find the transaction by reference
-    case Transaction.get_by_reference(reference, clinic_id) do
-      {:ok, transaction} ->
-        # Update transaction status
+  defp update_transaction(reference, _clinic_id, data) do
+    # Find the _transaction by reference
+    case Transaction.get_by_reference(reference, _clinic_id) do
+      {:ok, _transaction} ->
+        # Update _transaction status
         status = data["status"]
-        Transaction.update(transaction, %{status: status})
+        Transaction.update(_transaction, %{status: status})
 
       {:error, :not_found} ->
-        # Create a new transaction record if it doesn't exist
-        # This might happen if the webhook arrives before our system creates the transaction
+        # Create a new _transaction record if it doesn't exist
+        # This might happen if the webhook arrives before our system creates the _transaction
         Transaction.create(%{
           reference: reference,
           amount: data["amount"],
           status: data["status"],
           customer_email: data["customer"]["email"],
-          clinic_id: clinic_id
+          _clinic_id: _clinic_id
         })
     end
   end
 
-  defp create_transaction_from_webhook(reference, clinic_id, data) do
+  defp create_transaction_from_webhook(reference, _clinic_id, data) do
     attrs = %{
-      clinic_id: clinic_id,
+      _clinic_id: _clinic_id,
       email: data["customer"]["email"],
       amount: data["amount"],
       reference: reference,
@@ -188,11 +188,11 @@ defmodule Clinicpro.Paystack.Callback do
   end
 
   defp find_clinic_id_from_reference(reference) do
-    # Try to extract clinic_id from the reference if it follows a pattern
+    # Try to extract _clinic_id from the reference if it follows a pattern
     # This is a fallback and depends on your reference generation strategy
-    # Example: "CLINIC_123_INV_456" -> clinic_id = 123
+    # Example: "CLINIC_123_INV_456" -> _clinic_id = 123
     case Regex.run(~r/CLINIC_(\d+)_/, reference) do
-      [_, clinic_id] -> String.to_integer(clinic_id)
+      [_, _clinic_id] -> String.to_integer(_clinic_id)
       _ -> nil
     end
   end
@@ -206,21 +206,21 @@ defmodule Clinicpro.Paystack.Callback do
   end
   
   @doc """
-  Retries processing a failed webhook by its ID and clinic_id.
-  Ensures multi-tenant isolation by requiring clinic_id.
+  Retries processing a failed webhook by its ID and _clinic_id.
+  Ensures multi-tenant isolation by requiring _clinic_id.
   
   ## Parameters
   - id: The ID of the webhook log to retry
-  - clinic_id: The clinic ID for multi-tenant isolation
+  - _clinic_id: The clinic ID for multi-tenant isolation
   
   ## Returns
   - {:ok, webhook_log} on success
   - {:error, reason} on failure
   """
-  def retry_webhook(id, clinic_id) when is_binary(id) and is_integer(clinic_id) do
-    # Find the webhook log by ID and clinic_id to ensure multi-tenant isolation
+  def retry_webhook(id, _clinic_id) when is_binary(id) and is_integer(_clinic_id) do
+    # Find the webhook log by ID and _clinic_id to ensure multi-tenant isolation
     query = from w in WebhookLog,
-            where: w.id == ^id and w.clinic_id == ^clinic_id
+            where: w.id == ^id and w._clinic_id == ^_clinic_id
             
     case Repo.one(query) do
       nil ->
@@ -256,7 +256,7 @@ defmodule Clinicpro.Paystack.Callback do
     end
   end
   
-  def retry_webhook(id, clinic_id) when is_integer(id) do
-    retry_webhook(Integer.to_string(id), clinic_id)
+  def retry_webhook(id, _clinic_id) when is_integer(id) do
+    retry_webhook(Integer.to_string(id), _clinic_id)
   end
 end

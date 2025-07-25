@@ -101,7 +101,7 @@ defmodule ClinicproWeb do
       use Gettext, backend: ClinicproWeb.Gettext
 
       # HTML escaping functionality
-      import Phoenix.HTML
+      # # import Phoenix.HTML
       # Core UI components
       import ClinicproWeb.CoreComponents
 
@@ -125,8 +125,8 @@ defmodule ClinicproWeb do
   defp view_helpers do
     quote do
       # Use all HTML functionality (forms, tags, etc)
-      import Phoenix.HTML
-      import Phoenix.HTML.Form
+      # # import Phoenix.HTML
+      # # import Phoenix.HTML.Form
       import PhoenixHTMLHelpers.Link
       import PhoenixHTMLHelpers.Tag
       use PhoenixHTMLHelpers

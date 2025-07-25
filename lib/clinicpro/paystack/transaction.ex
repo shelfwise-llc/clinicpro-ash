@@ -10,11 +10,11 @@ defmodule Clinicpro.Paystack.Transaction do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias __MODULE__
 
   schema "paystack_transactions" do
-    field :clinic_id, :integer
+    field :_clinic_id, :integer
     field :email, :string
     field :amount, :integer
     field :reference, :string
@@ -34,15 +34,15 @@ defmodule Clinicpro.Paystack.Transaction do
   end
 
   @doc """
-  Creates a new transaction.
+  Creates a new _transaction.
 
   ## Parameters
 
-  * `attrs` - Map of attributes for the transaction
+  * `attrs` - Map of attributes for the _transaction
 
   ## Returns
 
-  * `{:ok, transaction}` - On success
+  * `{:ok, _transaction}` - On success
   * `{:error, changeset}` - On failure
   """
   def create(attrs) do
@@ -52,34 +52,34 @@ defmodule Clinicpro.Paystack.Transaction do
   end
 
   @doc """
-  Updates an existing transaction.
+  Updates an existing _transaction.
 
   ## Parameters
 
-  * `transaction` - The transaction to update
+  * `_transaction` - The _transaction to update
   * `attrs` - Map of attributes to update
 
   ## Returns
 
-  * `{:ok, transaction}` - On success
+  * `{:ok, _transaction}` - On success
   * `{:error, changeset}` - On failure
   """
-  def update(transaction, attrs) do
-    transaction
+  def update(_transaction, attrs) do
+    _transaction
     |> changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Gets a transaction by ID.
+  Gets a _transaction by ID.
 
   ## Parameters
 
-  * `id` - The ID of the transaction to get
+  * `id` - The ID of the _transaction to get
 
   ## Returns
 
-  * `transaction` - If found
+  * `_transaction` - If found
   * `nil` - If not found
   """
   def get_by_id(id) do
@@ -87,37 +87,37 @@ defmodule Clinicpro.Paystack.Transaction do
   end
 
   @doc """
-  Gets a transaction by reference and clinic ID.
+  Gets a _transaction by reference and clinic ID.
 
   ## Parameters
 
-  * `reference` - The reference of the transaction to get
-  * `clinic_id` - The ID of the clinic that initiated the transaction
+  * `reference` - The reference of the _transaction to get
+  * `_clinic_id` - The ID of the clinic that initiated the _transaction
 
   ## Returns
 
-  * `transaction` - If found
+  * `_transaction` - If found
   * `nil` - If not found
   """
-  def get_by_reference(reference, clinic_id) do
-    Repo.get_by(Transaction, reference: reference, clinic_id: clinic_id)
+  def get_by_reference(reference, _clinic_id) do
+    Repo.get_by(Transaction, reference: reference, _clinic_id: _clinic_id)
   end
 
   @doc """
-  Gets a transaction by Paystack reference and clinic ID.
+  Gets a _transaction by Paystack reference and clinic ID.
 
   ## Parameters
 
-  * `paystack_reference` - The Paystack reference of the transaction to get
-  * `clinic_id` - The ID of the clinic that initiated the transaction
+  * `paystack_reference` - The Paystack reference of the _transaction to get
+  * `_clinic_id` - The ID of the clinic that initiated the _transaction
 
   ## Returns
 
-  * `transaction` - If found
+  * `_transaction` - If found
   * `nil` - If not found
   """
-  def get_by_paystack_reference(paystack_reference, clinic_id) do
-    Repo.get_by(Transaction, paystack_reference: paystack_reference, clinic_id: clinic_id)
+  def get_by_paystack_reference(paystack_reference, _clinic_id) do
+    Repo.get_by(Transaction, paystack_reference: paystack_reference, _clinic_id: _clinic_id)
   end
 
   @doc """
@@ -138,15 +138,15 @@ defmodule Clinicpro.Paystack.Transaction do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to list transactions for
+  * `_clinic_id` - The ID of the clinic to list transactions for
 
   ## Returns
 
   * List of transactions
   """
-  def list_transactions(clinic_id) do
+  def list_transactions(_clinic_id) do
     Transaction
-    |> where(clinic_id: ^clinic_id)
+    |> where(_clinic_id: ^_clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
@@ -174,35 +174,35 @@ defmodule Clinicpro.Paystack.Transaction do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to list transactions for
+  * `_clinic_id` - The ID of the clinic to list transactions for
   * `status` - The status to filter by (e.g., "pending", "completed", "failed")
 
   ## Returns
 
   * List of transactions
   """
-  def list_transactions_by_status(clinic_id, status) do
+  def list_transactions_by_status(_clinic_id, status) do
     Transaction
-    |> where(clinic_id: ^clinic_id, status: ^status)
+    |> where(_clinic_id: ^_clinic_id, status: ^status)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
 
   @doc """
-  Gets transaction statistics for a specific clinic.
+  Gets _transaction statistics for a specific clinic.
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to get statistics for
+  * `_clinic_id` - The ID of the clinic to get statistics for
 
   ## Returns
 
   * Map with statistics (total_transactions, total_amount, completed_transactions, completed_amount)
   """
-  def get_statistics(clinic_id) do
+  def get_statistics(_clinic_id) do
     # Get total transactions and amount
     total_query = from t in Transaction,
-      where: t.clinic_id == ^clinic_id,
+      where: t._clinic_id == ^_clinic_id,
       select: %{
         count: count(t.id),
         amount: sum(t.amount)
@@ -210,7 +210,7 @@ defmodule Clinicpro.Paystack.Transaction do
 
     # Get completed transactions and amount
     completed_query = from t in Transaction,
-      where: t.clinic_id == ^clinic_id and t.status == "completed",
+      where: t._clinic_id == ^_clinic_id and t.status == "completed",
       select: %{
         count: count(t.id),
         amount: sum(t.amount)
@@ -229,15 +229,15 @@ defmodule Clinicpro.Paystack.Transaction do
 
   # Private functions
 
-  defp changeset(transaction, attrs) do
-    transaction
+  defp changeset(_transaction, attrs) do
+    _transaction
     |> cast(attrs, [
-      :clinic_id, :email, :amount, :reference, :paystack_reference, :description,
+      :_clinic_id, :email, :amount, :reference, :paystack_reference, :description,
       :status, :authorization_url, :access_code, :payment_date, :channel,
       :currency, :fees, :gateway_response, :metadata
     ])
     |> validate_required([
-      :clinic_id, :email, :amount, :reference, :description, :status
+      :_clinic_id, :email, :amount, :reference, :description, :status
     ])
     |> unique_constraint(:reference)
     |> unique_constraint(:paystack_reference)

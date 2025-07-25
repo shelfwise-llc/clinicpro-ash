@@ -233,7 +233,7 @@ defmodule ClinicproWeb.Components.MPesaPaymentButton do
          |> assign(:error_message, updated_invoice.payment_error || "Payment failed")}
 
       {:ok, :no_transaction} ->
-        # No transaction found
+        # No _transaction found
         {:noreply,
          socket
          |> assign(:payment_status, "pending")}

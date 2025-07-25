@@ -4,8 +4,8 @@ defmodule ClinicproWeb.InvoiceComponents do
   """
   use Phoenix.Component
 
-  import Phoenix.HTML
-  import Phoenix.HTML.Form
+  # # import Phoenix.HTML
+  # # import Phoenix.HTML.Form
   import PhoenixHTMLHelpers.Tag
   import ClinicproWeb.CoreComponents
   import PhoenixHTMLHelpers.Link

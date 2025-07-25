@@ -12,66 +12,66 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
   alias Clinicpro.VirtualMeetings.SimpleAdapter
 
   @doc """
-  Creates a new virtual meeting for an appointment.
+  Creates a new virtual meeting for an _appointment.
 
   ## Parameters
 
-  * `appointment` - The appointment for which to create a meeting
-  * `opts` - Additional options for the meeting creation
+  * `_appointment` - The _appointment for which to create a meeting
+  * `_opts` - Additional options for the meeting creation
 
   ## Returns
 
   * `{:ok, meeting_data}` - On success, returns meeting data with URL and details
   * `{:error, reason}` - On failure, returns an error reason
   """
-  @callback create_meeting(appointment :: map(), opts :: keyword()) ::
+  @callback create_meeting(_appointment :: map(), _opts :: keyword()) ::
               {:ok, map()} | {:error, term()}
 
   @doc """
-  Updates an existing virtual meeting for an appointment.
+  Updates an existing virtual meeting for an _appointment.
 
   ## Parameters
 
-  * `appointment` - The appointment with the meeting to update
-  * `opts` - Additional options for the meeting update
+  * `_appointment` - The _appointment with the meeting to update
+  * `_opts` - Additional options for the meeting update
 
   ## Returns
 
   * `{:ok, meeting_data}` - On success, returns updated meeting data
   * `{:error, reason}` - On failure, returns an error reason
   """
-  @callback update_meeting(appointment :: map(), opts :: keyword()) ::
+  @callback update_meeting(_appointment :: map(), _opts :: keyword()) ::
               {:ok, map()} | {:error, term()}
 
   @doc """
-  Deletes an existing virtual meeting for an appointment.
+  Deletes an existing virtual meeting for an _appointment.
 
   ## Parameters
 
-  * `appointment` - The appointment with the meeting to delete
+  * `_appointment` - The _appointment with the meeting to delete
 
   ## Returns
 
   * `:ok` - On success
   * `{:error, reason}` - On failure, returns an error reason
   """
-  @callback delete_meeting(appointment :: map()) :: :ok | {:error, term()}
+  @callback delete_meeting(_appointment :: map()) :: :ok | {:error, term()}
 
   @doc """
   Gets the configured adapter module to use for virtual meetings.
 
   ## Parameters
 
-  * `clinic_id` - Optional clinic ID to get clinic-specific adapter
+  * `_clinic_id` - Optional clinic ID to get clinic-specific adapter
 
   ## Returns
 
   * Adapter module to use for virtual meetings
   """
-  defp get_adapter(clinic_id) do
-    # If clinic_id is provided, try to get clinic-specific adapter
-    if clinic_id do
-      case Config.get_clinic_config(clinic_id) do
+  defp get_adapter(_clinic_id) do
+    # If _clinic_id is provided, try to get clinic-specific adapter
+    if _clinic_id do
+      case Config.get_clinic_config(_clinic_id) do
         {:ok, config} ->
           # Get adapter from clinic config or fall back to app config
           adapter_name = Map.get(config, :adapter)
@@ -82,7 +82,7 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
           get_app_adapter()
       end
     else
-      # No clinic_id provided, use application-level adapter
+      # No _clinic_id provided, use application-level adapter
       get_app_adapter()
     end
   end
@@ -92,18 +92,18 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
 
   ## Parameters
 
-  * `appointment` - The appointment for which to create a meeting
-  * `opts` - Additional options for the meeting creation
-  * `clinic_id` - Optional clinic ID to use clinic-specific adapter
+  * `_appointment` - The _appointment for which to create a meeting
+  * `_opts` - Additional options for the meeting creation
+  * `_clinic_id` - Optional clinic ID to use clinic-specific adapter
 
   ## Returns
 
   * `{:ok, meeting_data}` - On success, returns meeting data with URL and details
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def create_meeting(appointment, opts \\ [], clinic_id \\ nil) do
-    adapter = get_adapter(clinic_id)
-    adapter.create_meeting(appointment, opts)
+  def create_meeting(_appointment, _opts \\ [], _clinic_id \\ nil) do
+    adapter = get_adapter(_clinic_id)
+    adapter.create_meeting(_appointment, _opts)
   end
 
   @doc """
@@ -111,18 +111,18 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
 
   ## Parameters
 
-  * `appointment` - The appointment with the meeting to update
-  * `opts` - Additional options for the meeting update
-  * `clinic_id` - Optional clinic ID to use clinic-specific adapter
+  * `_appointment` - The _appointment with the meeting to update
+  * `_opts` - Additional options for the meeting update
+  * `_clinic_id` - Optional clinic ID to use clinic-specific adapter
 
   ## Returns
 
   * `{:ok, meeting_data}` - On success, returns updated meeting data
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def update_meeting(appointment, opts \\ [], clinic_id \\ nil) do
-    adapter = get_adapter(clinic_id)
-    adapter.update_meeting(appointment, opts)
+  def update_meeting(_appointment, _opts \\ [], _clinic_id \\ nil) do
+    adapter = get_adapter(_clinic_id)
+    adapter.update_meeting(_appointment, _opts)
   end
 
   @doc """
@@ -130,17 +130,17 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
 
   ## Parameters
 
-  * `appointment` - The appointment with the meeting to delete
-  * `clinic_id` - Optional clinic ID to use clinic-specific adapter
+  * `_appointment` - The _appointment with the meeting to delete
+  * `_clinic_id` - Optional clinic ID to use clinic-specific adapter
 
   ## Returns
 
   * `:ok` - On success
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def delete_meeting(appointment, clinic_id \\ nil) do
-    adapter = get_adapter(clinic_id)
-    adapter.delete_meeting(appointment)
+  def delete_meeting(_appointment, _clinic_id \\ nil) do
+    adapter = get_adapter(_clinic_id)
+    adapter.delete_meeting(_appointment)
   end
 
   # Private helper functions for adapter resolution

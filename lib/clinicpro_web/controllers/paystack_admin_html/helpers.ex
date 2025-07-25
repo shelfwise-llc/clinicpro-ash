@@ -40,7 +40,7 @@ defmodule ClinicproWeb.PaystackAdminHTML.Helpers do
   end
 
   @doc """
-  Returns the appropriate CSS class for a transaction status.
+  Returns the appropriate CSS class for a _transaction status.
 
   ## Examples
 

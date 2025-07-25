@@ -10,39 +10,39 @@ defmodule Clinicpro.Paystack.Payment do
   alias Clinicpro.Paystack.Http
 
   @doc """
-  Initializes a transaction with Paystack.
+  Initializes a _transaction with Paystack.
 
   ## Parameters
 
   - `email` - The customer's email address
   - `amount` - The amount to charge in the smallest currency unit (kobo for NGN, cents for USD)
-  - `reference` - The reference for the transaction (usually invoice number)
-  - `description` - Description of the transaction
-  - `clinic_id` - The ID of the clinic initiating the payment
-  - `metadata` - Additional metadata for the transaction (optional)
+  - `reference` - The reference for the _transaction (usually invoice number)
+  - `description` - Description of the _transaction
+  - `_clinic_id` - The ID of the clinic initiating the payment
+  - `metadata` - Additional metadata for the _transaction (optional)
 
   ## Returns
 
   - `{:ok, %{authorization_url: url, access_code: code, reference: ref}}` - If successful
   - `{:error, reason}` - If failed
   """
-  def initialize_transaction(email, amount, reference, description, clinic_id, metadata \\ %{}) do
-    with {:ok, secret_key} <- Config.get_secret_key(clinic_id),
-         {:ok, subaccount} <- get_clinic_subaccount(clinic_id) do
+  def initialize_transaction(email, amount, reference, description, _clinic_id, metadata \\ %{}) do
+    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id),
+         {:ok, subaccount} <- get_clinic_subaccount(_clinic_id) do
 
       # Build the payload
       payload = %{
         email: email,
         amount: amount,
         reference: reference,
-        callback_url: get_callback_url(clinic_id),
-        metadata: Map.merge(metadata, %{clinic_id: clinic_id}),
+        callback_url: get_callback_url(_clinic_id),
+        metadata: Map.merge(metadata, %{_clinic_id: _clinic_id}),
         subaccount: subaccount.subaccount_code,
         transaction_charge: subaccount.percentage_charge
       }
 
       # Make the API call
-      case Http.post("/transaction/initialize", payload, secret_key) do
+      case Http.post("/_transaction/initialize", payload, secret_key) do
         {:ok, %{"status" => true, "data" => data}} ->
           {:ok, %{
             authorization_url: data["authorization_url"],
@@ -60,21 +60,21 @@ defmodule Clinicpro.Paystack.Payment do
   end
 
   @doc """
-  Verifies a transaction with Paystack.
+  Verifies a _transaction with Paystack.
 
   ## Parameters
 
   - `reference` - The reference to verify
-  - `clinic_id` - The ID of the clinic that initiated the payment
+  - `_clinic_id` - The ID of the clinic that initiated the payment
 
   ## Returns
 
   - `{:ok, verification_data}` - If successful
   - `{:error, reason}` - If failed
   """
-  def verify_transaction(reference, clinic_id) do
-    with {:ok, secret_key} <- Config.get_secret_key(clinic_id) do
-      case Http.get("/transaction/verify/#{reference}", secret_key) do
+  def verify_transaction(reference, _clinic_id) do
+    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
+      case Http.get("/_transaction/verify/#{reference}", secret_key) do
         {:ok, %{"status" => true, "data" => data}} ->
           # Extract relevant verification data
           verification_data = %{
@@ -152,15 +152,15 @@ defmodule Clinicpro.Paystack.Payment do
 
   # Private functions
 
-  defp get_clinic_subaccount(clinic_id) do
-    case SubAccount.get_active_subaccount(clinic_id) do
+  defp get_clinic_subaccount(_clinic_id) do
+    case SubAccount.get_active_subaccount(_clinic_id) do
       {:ok, subaccount} -> {:ok, subaccount}
       {:error, :no_active_subaccount} -> {:error, :no_active_subaccount}
     end
   end
 
-  defp get_callback_url(clinic_id) do
-    case Config.get_active_config(clinic_id) do
+  defp get_callback_url(_clinic_id) do
+    case Config.get_active_config(_clinic_id) do
       {:ok, config} -> config.webhook_url
       _ -> Application.get_env(:clinicpro, :paystack_default_callback_url)
     end

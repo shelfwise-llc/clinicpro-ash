@@ -10,12 +10,12 @@ defmodule Clinicpro.Paystack.SubAccount do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.Paystack.{Config, Http}
   alias __MODULE__
 
   schema "paystack_subaccounts" do
-    field :clinic_id, :integer
+    field :_clinic_id, :integer
     field :subaccount_code, :string
     field :business_name, :string
     field :settlement_bank, :string
@@ -34,7 +34,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   - `business_name` - The business name for the subaccount
   - `settlement_bank` - The bank code for settlements
   - `account_number` - The account number for settlements
-  - `clinic_id` - The ID of the clinic
+  - `_clinic_id` - The ID of the clinic
   - `percentage_charge` - The percentage charge for the subaccount (optional)
 
   ## Returns
@@ -42,8 +42,8 @@ defmodule Clinicpro.Paystack.SubAccount do
   - `{:ok, %{subaccount_code: code}}` - If successful
   - `{:error, reason}` - If failed
   """
-  def create(business_name, settlement_bank, account_number, clinic_id, percentage_charge \\ nil) do
-    with {:ok, secret_key} <- Config.get_secret_key(clinic_id) do
+  def create(business_name, settlement_bank, account_number, _clinic_id, percentage_charge \\ nil) do
+    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
       # Build the payload
       payload = %{
         business_name: business_name,
@@ -111,15 +111,15 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   - `subaccount_code` - The subaccount code to update
   - `attrs` - Map of attributes to update
-  - `clinic_id` - The ID of the clinic
+  - `_clinic_id` - The ID of the clinic
 
   ## Returns
 
   - `{:ok, %{}}` - If successful
   - `{:error, reason}` - If failed
   """
-  def update_on_paystack(subaccount_code, attrs, clinic_id) do
-    with {:ok, secret_key} <- Config.get_secret_key(clinic_id) do
+  def update_on_paystack(subaccount_code, attrs, _clinic_id) do
+    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
       # Make the API call
       case Http.put("/subaccount/#{subaccount_code}", remove_nil_values(attrs), secret_key) do
         {:ok, %{"status" => true}} ->
@@ -155,15 +155,15 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to get the subaccount for
+  * `_clinic_id` - The ID of the clinic to get the subaccount for
 
   ## Returns
 
   * `{:ok, subaccount}` - If an active subaccount was found
   * `{:error, :no_active_subaccount}` - If no active subaccount was found
   """
-  def get_active_subaccount(clinic_id) do
-    case Repo.get_by(SubAccount, clinic_id: clinic_id, active: true) do
+  def get_active_subaccount(_clinic_id) do
+    case Repo.get_by(SubAccount, _clinic_id: _clinic_id, active: true) do
       nil -> {:error, :no_active_subaccount}
       subaccount -> {:ok, subaccount}
     end
@@ -178,7 +178,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   """
   def list_subaccounts do
     SubAccount
-    |> order_by(asc: :clinic_id)
+    |> order_by(asc: :_clinic_id)
     |> Repo.all()
   end
 
@@ -187,15 +187,15 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to list subaccounts for
+  * `_clinic_id` - The ID of the clinic to list subaccounts for
 
   ## Returns
 
   * List of subaccounts
   """
-  def list_subaccounts(clinic_id) do
+  def list_subaccounts(_clinic_id) do
     SubAccount
-    |> where(clinic_id: ^clinic_id)
+    |> where(_clinic_id: ^_clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
@@ -219,7 +219,7 @@ defmodule Clinicpro.Paystack.SubAccount do
 
     if subaccount do
       # Deactivate all other subaccounts for this clinic
-      from(s in SubAccount, where: s.clinic_id == ^subaccount.clinic_id and s.id != ^id)
+      from(s in SubAccount, where: s._clinic_id == ^subaccount._clinic_id and s.id != ^id)
       |> Repo.update_all(set: [active: false])
 
       # Activate this subaccount
@@ -260,14 +260,14 @@ defmodule Clinicpro.Paystack.SubAccount do
   defp changeset(subaccount, attrs) do
     subaccount
     |> cast(attrs, [
-      :clinic_id, :subaccount_code, :business_name, :settlement_bank,
+      :_clinic_id, :subaccount_code, :business_name, :settlement_bank,
       :account_number, :percentage_charge, :active
     ])
     |> validate_required([
-      :clinic_id, :subaccount_code, :business_name, :settlement_bank, :account_number
+      :_clinic_id, :subaccount_code, :business_name, :settlement_bank, :account_number
     ])
     |> unique_constraint(:subaccount_code)
-    |> unique_constraint(:clinic_id, name: :paystack_subaccounts_clinic_id_active_index,
+    |> unique_constraint(:_clinic_id, name: :paystack_subaccounts_clinic_id_active_index,
         message: "already has an active Paystack subaccount")
   end
 

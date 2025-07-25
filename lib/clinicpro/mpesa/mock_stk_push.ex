@@ -18,21 +18,21 @@ defmodule Clinicpro.MPesa.MockSTKPush do
 
   - `phone_number` - The phone number to send the STK Push to
   - `amount` - The amount to charge
-  - `reference` - The reference for the transaction (usually invoice number)
-  - `description` - Description of the transaction
-  - `clinic_id` - The ID of the clinic initiating the payment
+  - `reference` - The reference for the _transaction (usually invoice number)
+  - `description` - Description of the _transaction
+  - `_clinic_id` - The ID of the clinic initiating the payment
 
   ## Returns
 
   - `{:ok, response}` - A mock successful response
   """
   @impl Clinicpro.MPesa.STKPushBehaviour
-  def send_stk_push(phone_number, amount, _reference, _description, clinic_id) do
+  def send_stk_push(phone_number, amount, _reference, _description, _clinic_id) do
     # Log the mock request
-    Logger.info("MOCK: Sending STK Push for clinic #{clinic_id} to #{phone_number} for amount #{amount}")
+    Logger.info("MOCK: Sending STK Push for clinic #{_clinic_id} to #{phone_number} for amount #{amount}")
 
     # Get the clinic's config to ensure it exists
-    _config = Config.get_config(clinic_id)
+    _config = Config.get_config(_clinic_id)
 
     # Generate mock IDs
     checkout_request_id = "ws_co_#{:rand.uniform(999999999)}"
@@ -53,19 +53,19 @@ defmodule Clinicpro.MPesa.MockSTKPush do
 
   - `checkout_request_id` - The checkout request ID to check
   - `merchant_request_id` - The merchant request ID
-  - `clinic_id` - The ID of the clinic that initiated the payment
+  - `_clinic_id` - The ID of the clinic that initiated the payment
 
   ## Returns
 
   - `{:ok, response}` - A mock successful response
   """
   @impl Clinicpro.MPesa.STKPushBehaviour
-  def query_stk_push_status(checkout_request_id, _merchant_request_id, clinic_id) do
+  def query_stk_push_status(checkout_request_id, _merchant_request_id, _clinic_id) do
     # Log the mock request
-    Logger.info("MOCK: Querying STK Push status for clinic #{clinic_id}, checkout request ID: #{checkout_request_id}")
+    Logger.info("MOCK: Querying STK Push status for clinic #{_clinic_id}, checkout request ID: #{checkout_request_id}")
 
     # Get the clinic's config to ensure it exists
-    _config = Config.get_config(clinic_id)
+    _config = Config.get_config(_clinic_id)
 
     # Return a successful mock response
     {:ok, %{
@@ -83,15 +83,15 @@ defmodule Clinicpro.MPesa.MockSTKPush do
   - `merchant_request_id` - The merchant request ID
   - `phone_number` - The phone number that made the payment
   - `amount` - The amount paid
-  - `transaction_id` - Optional transaction ID (generated if not provided)
-  - `success` - Whether the transaction was successful
+  - `transaction_id` - Optional _transaction ID (generated if not provided)
+  - `success` - Whether the _transaction was successful
 
   ## Returns
 
   - `{:ok, callback_data}` - The simulated callback data
   """
   def simulate_callback(checkout_request_id, merchant_request_id, phone_number, amount, transaction_id \\ nil, success \\ true) do
-    # Generate a transaction ID if not provided
+    # Generate a _transaction ID if not provided
     transaction_id = transaction_id || "WS#{:rand.uniform(999999999)}"
 
     # Generate a timestamp
@@ -136,14 +136,14 @@ defmodule Clinicpro.MPesa.MockSTKPush do
   - `phone_number` - The phone number that made the payment
   - `amount` - The amount paid
   - `reference` - The bill reference number
-  - `transaction_id` - Optional transaction ID (generated if not provided)
+  - `transaction_id` - Optional _transaction ID (generated if not provided)
 
   ## Returns
 
   - `{:ok, callback_data}` - The simulated callback data
   """
   def simulate_c2b_callback(shortcode, phone_number, amount, reference, transaction_id \\ nil) do
-    # Generate a transaction ID if not provided
+    # Generate a _transaction ID if not provided
     transaction_id = transaction_id || "WS#{:rand.uniform(999999999)}"
 
     # Generate a timestamp in the format YYYYMMDDHHmmss

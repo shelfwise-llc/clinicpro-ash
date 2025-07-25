@@ -1,6 +1,6 @@
 defmodule ClinicproWeb.AdminBypassController do
   use ClinicproWeb, :controller
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.AdminBypass
   alias Clinicpro.AdminBypass.{Doctor, Patient, Appointment, Seeder, Invoice}
   import Ecto.Query
@@ -57,9 +57,9 @@ defmodule ClinicproWeb.AdminBypassController do
   end
 
   # Doctor CRUD operations
-  def doctors(conn, _params) do
-    doctors = Doctor.list_doctors()
-    render(conn, :doctors, page_title: "Doctors", doctors: doctors)
+  def _doctors(conn, _params) do
+    _doctors = Doctor.list_doctors()
+    render(conn, :_doctors, page_title: "Doctors", _doctors: _doctors)
   end
 
   def new_doctor(conn, _params) do
@@ -72,7 +72,7 @@ defmodule ClinicproWeb.AdminBypassController do
       {:ok, _doctor} ->
         conn
         |> put_flash(:info, "Doctor created successfully.")
-        |> redirect(to: ~p"/admin/doctors")
+        |> redirect(to: ~p"/admin/_doctors")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new_doctor, page_title: "New Doctor", changeset: changeset)
@@ -92,7 +92,7 @@ defmodule ClinicproWeb.AdminBypassController do
       {:ok, _doctor} ->
         conn
         |> put_flash(:info, "Doctor updated successfully.")
-        |> redirect(to: ~p"/admin/doctors")
+        |> redirect(to: ~p"/admin/_doctors")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit_doctor, page_title: "Edit Doctor", doctor: doctor, changeset: changeset)
@@ -105,13 +105,13 @@ defmodule ClinicproWeb.AdminBypassController do
 
     conn
     |> put_flash(:info, "Doctor deleted successfully.")
-    |> redirect(to: ~p"/admin/doctors")
+    |> redirect(to: ~p"/admin/_doctors")
   end
 
   # Patient CRUD operations
-  def patients(conn, _params) do
-    patients = Patient.list_patients()
-    render(conn, :patients, page_title: "Patients", patients: patients)
+  def _patients(conn, _params) do
+    _patients = Patient.list_patients()
+    render(conn, :_patients, page_title: "Patients", _patients: _patients)
   end
 
   def new_patient(conn, _params) do
@@ -124,7 +124,7 @@ defmodule ClinicproWeb.AdminBypassController do
       {:ok, _patient} ->
         conn
         |> put_flash(:info, "Patient created successfully.")
-        |> redirect(to: ~p"/admin/patients")
+        |> redirect(to: ~p"/admin/_patients")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :new_patient, page_title: "New Patient", changeset: changeset)
@@ -144,7 +144,7 @@ defmodule ClinicproWeb.AdminBypassController do
       {:ok, _patient} ->
         conn
         |> put_flash(:info, "Patient updated successfully.")
-        |> redirect(to: ~p"/admin/patients")
+        |> redirect(to: ~p"/admin/_patients")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :edit_patient, page_title: "Edit Patient", patient: patient, changeset: changeset)
@@ -157,7 +157,7 @@ defmodule ClinicproWeb.AdminBypassController do
 
     conn
     |> put_flash(:info, "Patient deleted successfully.")
-    |> redirect(to: ~p"/admin/patients")
+    |> redirect(to: ~p"/admin/_patients")
   end
 
   # Appointment CRUD operations
@@ -167,19 +167,19 @@ defmodule ClinicproWeb.AdminBypassController do
   end
 
   def new_appointment(conn, _params) do
-    doctors = Doctor.list_doctors()
-    patients = Patient.list_patients()
+    _doctors = Doctor.list_doctors()
+    _patients = Patient.list_patients()
     changeset = Appointment.change_appointment(%Appointment{})
     
     render(conn, :new_appointment, 
       page_title: "New Appointment", 
       changeset: changeset, 
-      doctors: doctors,
-      patients: patients
+      _doctors: _doctors,
+      _patients: _patients
     )
   end
 
-  def create_appointment(conn, %{"appointment" => appointment_params}) do
+  def create_appointment(conn, %{"_appointment" => appointment_params}) do
     case Appointment.create_appointment(appointment_params) do
       {:ok, _appointment} ->
         conn
@@ -187,59 +187,59 @@ defmodule ClinicproWeb.AdminBypassController do
         |> redirect(to: ~p"/admin/appointments")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        doctors = Doctor.list_doctors()
-        patients = Patient.list_patients()
+        _doctors = Doctor.list_doctors()
+        _patients = Patient.list_patients()
         
         render(conn, :new_appointment, 
           page_title: "New Appointment", 
           changeset: changeset,
-          doctors: doctors,
-          patients: patients
+          _doctors: _doctors,
+          _patients: _patients
         )
     end
   end
 
   def edit_appointment(conn, %{"id" => appointment_id}) do
-    appointment = Appointment.get_appointment!(appointment_id)
-    doctors = Doctor.list_doctors()
-    patients = Patient.list_patients()
-    changeset = Appointment.change_appointment(appointment)
+    _appointment = Appointment.get_appointment!(appointment_id)
+    _doctors = Doctor.list_doctors()
+    _patients = Patient.list_patients()
+    changeset = Appointment.change_appointment(_appointment)
     
     render(conn, :edit_appointment, 
       page_title: "Edit Appointment", 
-      appointment: appointment, 
+      _appointment: _appointment, 
       changeset: changeset,
-      doctors: doctors,
-      patients: patients
+      _doctors: _doctors,
+      _patients: _patients
     )
   end
 
-  def update_appointment(conn, %{"id" => appointment_id, "appointment" => appointment_params}) do
-    appointment = Appointment.get_appointment!(appointment_id)
+  def update_appointment(conn, %{"id" => appointment_id, "_appointment" => appointment_params}) do
+    _appointment = Appointment.get_appointment!(appointment_id)
 
-    case Appointment.update_appointment(appointment, appointment_params) do
+    case Appointment.update_appointment(_appointment, appointment_params) do
       {:ok, _appointment} ->
         conn
         |> put_flash(:info, "Appointment updated successfully.")
         |> redirect(to: ~p"/admin/appointments")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        doctors = Doctor.list_doctors()
-        patients = Patient.list_patients()
+        _doctors = Doctor.list_doctors()
+        _patients = Patient.list_patients()
         
         render(conn, :edit_appointment, 
           page_title: "Edit Appointment", 
-          appointment: appointment, 
+          _appointment: _appointment, 
           changeset: changeset,
-          doctors: doctors,
-          patients: patients
+          _doctors: _doctors,
+          _patients: _patients
         )
     end
   end
 
   def delete_appointment(conn, %{"id" => appointment_id}) do
-    appointment = Appointment.get_appointment!(appointment_id)
-    {:ok, _} = Appointment.delete_appointment(appointment)
+    _appointment = Appointment.get_appointment!(appointment_id)
+    {:ok, _} = Appointment.delete_appointment(_appointment)
 
     conn
     |> put_flash(:info, "Appointment deleted successfully.")
@@ -269,13 +269,13 @@ defmodule ClinicproWeb.AdminBypassController do
 
   # Invoice Reports and Analytics
   @doc """
-  Renders the invoice reports and analytics page.
+  Renders the invoice reports and analytics _page.
   Supports filtering and visualization of invoice data.
   """
   def invoice_reports(conn, params) do
-    # Get all clinics and patients for filter dropdowns
+    # Get all clinics and _patients for filter dropdowns
     clinics = AdminBypass.list_clinics()
-    patients = AdminBypass.list_patients()
+    _patients = AdminBypass.list_patients()
     
     # Apply filters if provided
     filters = %{
@@ -283,7 +283,7 @@ defmodule ClinicproWeb.AdminBypassController do
       end_date: params["end_date"],
       status: params["status"],
       patient_id: params["patient_id"],
-      clinic_id: params["clinic_id"],
+      _clinic_id: params["_clinic_id"],
       min_amount: params["min_amount"],
       max_amount: params["max_amount"]
     }
@@ -303,7 +303,7 @@ defmodule ClinicproWeb.AdminBypassController do
       "end_date" => params["end_date"],
       "status" => params["status"],
       "patient_id" => params["patient_id"],
-      "clinic_id" => params["clinic_id"],
+      "_clinic_id" => params["_clinic_id"],
       "min_amount" => params["min_amount"],
       "max_amount" => params["max_amount"]
     }
@@ -314,7 +314,7 @@ defmodule ClinicproWeb.AdminBypassController do
       monthly_data: monthly_data,
       filter_form: filter_form,
       clinics: clinics,
-      patients: patients
+      _patients: _patients
     )
   end
   
@@ -328,7 +328,7 @@ defmodule ClinicproWeb.AdminBypassController do
       end_date: params["end_date"],
       status: params["status"],
       patient_id: params["patient_id"],
-      clinic_id: params["clinic_id"],
+      _clinic_id: params["_clinic_id"],
       min_amount: params["min_amount"],
       max_amount: params["max_amount"]
     }

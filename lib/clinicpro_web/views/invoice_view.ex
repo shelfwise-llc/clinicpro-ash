@@ -2,10 +2,10 @@ defmodule ClinicproWeb.InvoiceView do
   use ClinicproWeb, :view
 
   # Explicitly import required modules
-  import Phoenix.HTML
-  import Phoenix.HTML.Form
+  # # import Phoenix.HTML
+  # # import Phoenix.HTML.Form
   # Remove direct import of Phoenix.HTML.Link
-  # import Phoenix.HTML.Link
+  # # # import Phoenix.HTML.Link
   import PhoenixHTMLHelpers.Tag
 
   # Import phoenix_html_helpers which provides link functions
@@ -25,7 +25,7 @@ defmodule ClinicproWeb.InvoiceView do
   end
 
   @doc """
-  Returns the appropriate CSS class for transaction status display.
+  Returns the appropriate CSS class for _transaction status display.
   """
   def transaction_status_color(status) do
     case status do

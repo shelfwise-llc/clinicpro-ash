@@ -1,0 +1,119 @@
+name: Deploy ClinicPro with Kamal
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: clinicpro_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: '1.14.5'
+        otp-version: '25.3.2'
+        
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+        restore-keys: ${{ runner.os }}-mix-
+        
+    - name: Install dependencies
+      run: mix deps.get
+      
+    - name: Check formatting
+      run: mix format --check-formatted
+      
+    - name: Compile with warnings as errors
+      run: mix compile --warnings-as-errors
+      env:
+        MIX_ENV: test
+        
+    - name: Run tests
+      run: mix test
+      env:
+        MIX_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/clinicpro_test
+
+  build-and-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        
+    - name: Set up Ruby for Kamal
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: false
+        
+    - name: Install Kamal
+      run: gem install kamal
+      
+    - name: Deploy with Kamal
+      run: kamal deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+        PAYSTACK_SECRET_KEY: ${{ secrets.PAYSTACK_SECRET_KEY }}
+        PAYSTACK_PUBLIC_KEY: ${{ secrets.PAYSTACK_PUBLIC_KEY }}
+        RAILWAY_SERVER_HOST: ${{ secrets.RAILWAY_SERVER_HOST }}
+        RAILWAY_PUBLIC_DOMAIN: ${{ secrets.RAILWAY_PUBLIC_DOMAIN }}

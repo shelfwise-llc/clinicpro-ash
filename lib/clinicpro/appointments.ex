@@ -2,7 +2,7 @@ defmodule Clinicpro.Appointments do
   @moduledoc """
   Appointments context for ClinicPro.
 
-  This context handles appointment scheduling, management, and guest bookings.
+  This context handles _appointment scheduling, management, and guest bookings.
   """
   # Temporarily removed AshAuthentication for development
   use Ash.Api
@@ -50,20 +50,20 @@ defmodule Clinicpro.Appointments do
 
   This function handles the complete flow of:
   1. Creating or finding a patient record
-  2. Creating an appointment
+  2. Creating an _appointment
 
   ## Examples
 
-      iex> create_guest_booking(%{patient: %{...}, appointment: %{...}})
-      {:ok, %{patient: %Patient{...}, appointment: %Appointment{...}}}
+      iex> create_guest_booking(%{patient: %{...}, _appointment: %{...}})
+      {:ok, %{patient: %Patient{...}, _appointment: %Appointment{...}}}
 
   """
   def create_guest_booking(params) do
     patient_params = params.patient
-    appointment_params = params.appointment
+    appointment_params = params._appointment
 
-    # Transaction to ensure both patient and appointment are created together
-    # Using Ecto.Multi for transaction since we're bypassing Ash APIs temporarily
+    # Transaction to ensure both patient and _appointment are created together
+    # Using Ecto.Multi for _transaction since we're bypassing Ash APIs temporarily
     Ecto.Multi.new()
     |> Ecto.Multi.run(:patient, fn _repo, _changes ->
       # First, try to find existing patient by email
@@ -90,21 +90,21 @@ defmodule Clinicpro.Appointments do
 
       patient_result
     end)
-    |> Ecto.Multi.run(:appointment, fn _repo, %{patient: patient} ->
-      # Create appointment with patient
+    |> Ecto.Multi.run(:_appointment, fn _repo, %{patient: patient} ->
+      # Create _appointment with patient
       Clinicpro.Appointment.create(Map.put(appointment_params, :patient_id, patient.id))
     end)
-    |> Clinicpro.Repo.transaction()
+    |> Clinicpro.Repo._transaction()
     |> case do
-      {:ok, %{patient: patient, appointment: appointment}} ->
-        {:ok, %{patient: patient, appointment: appointment}}
+      {:ok, %{patient: patient, _appointment: _appointment}} ->
+        {:ok, %{patient: patient, _appointment: _appointment}}
       {:error, _failed_operation, failed_value, _changes} ->
         {:error, failed_value}
     end
   end
 
   @doc """
-  Creates a new appointment.
+  Creates a new _appointment.
 
   ## Examples
 

@@ -10,11 +10,11 @@ defmodule Clinicpro.MPesa.Config do
   import Ecto.Changeset
   import Ecto.Query
 
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias __MODULE__
 
   schema "mpesa_configs" do
-    field :clinic_id, :integer
+    field :_clinic_id, :integer
     field :consumer_key, :string
     field :consumer_secret, :string
     field :passkey, :string
@@ -87,15 +87,15 @@ defmodule Clinicpro.MPesa.Config do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to get the configuration for
+  * `_clinic_id` - The ID of the clinic to get the configuration for
 
   ## Returns
 
   * `{:ok, config}` - If an active configuration was found
   * `{:error, :no_active_config}` - If no active configuration was found
   """
-  def get_active_config(clinic_id) do
-    case Repo.get_by(Config, clinic_id: clinic_id, active: true) do
+  def get_active_config(_clinic_id) do
+    case Repo.get_by(Config, _clinic_id: _clinic_id, active: true) do
       nil -> {:error, :no_active_config}
       config -> {:ok, config}
     end
@@ -106,15 +106,15 @@ defmodule Clinicpro.MPesa.Config do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to get the configuration for
+  * `_clinic_id` - The ID of the clinic to get the configuration for
 
   ## Returns
 
   * `config` - If found
   * `nil` - If not found
   """
-  def get_config(clinic_id) do
-    Repo.get_by(Config, clinic_id: clinic_id)
+  def get_config(_clinic_id) do
+    Repo.get_by(Config, _clinic_id: _clinic_id)
   end
 
   @doc """
@@ -126,7 +126,7 @@ defmodule Clinicpro.MPesa.Config do
   """
   def list_configs do
     Config
-    |> order_by(asc: :clinic_id)
+    |> order_by(asc: :_clinic_id)
     |> Repo.all()
   end
 
@@ -135,15 +135,15 @@ defmodule Clinicpro.MPesa.Config do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to list configurations for
+  * `_clinic_id` - The ID of the clinic to list configurations for
 
   ## Returns
 
   * List of configurations
   """
-  def list_configs(clinic_id) do
+  def list_configs(_clinic_id) do
     Config
-    |> where(clinic_id: ^clinic_id)
+    |> where(_clinic_id: ^_clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
@@ -167,7 +167,7 @@ defmodule Clinicpro.MPesa.Config do
 
     if config do
       # Deactivate all other configs for this clinic
-      from(c in Config, where: c.clinic_id == ^config.clinic_id and c.id != ^id)
+      from(c in Config, where: c._clinic_id == ^config._clinic_id and c.id != ^id)
       |> Repo.update_all(set: [active: false])
 
       # Activate this config
@@ -208,15 +208,15 @@ defmodule Clinicpro.MPesa.Config do
 
   ## Parameters
 
-  * `clinic_id` - The ID of the clinic to get the shortcode for
+  * `_clinic_id` - The ID of the clinic to get the shortcode for
 
   ## Returns
 
   * `{:ok, shortcode}` - If found
   * `{:error, :no_config}` - If no configuration was found
   """
-  def get_shortcode(clinic_id) do
-    case get_active_config(clinic_id) do
+  def get_shortcode(_clinic_id) do
+    case get_active_config(_clinic_id) do
       {:ok, config} -> {:ok, config.shortcode}
       {:error, _} -> {:error, :no_config}
     end
@@ -231,13 +231,13 @@ defmodule Clinicpro.MPesa.Config do
 
   ## Returns
 
-  * `{:ok, clinic_id}` - If found
+  * `{:ok, _clinic_id}` - If found
   * `{:error, :not_found}` - If not found
   """
   def get_clinic_id_from_shortcode(shortcode) do
     case Repo.get_by(Config, shortcode: shortcode) do
       nil -> {:error, :not_found}
-      config -> {:ok, config.clinic_id}
+      config -> {:ok, config._clinic_id}
     end
   end
 
@@ -246,11 +246,11 @@ defmodule Clinicpro.MPesa.Config do
   defp changeset(config, attrs) do
     config
     |> cast(attrs, [
-      :clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
+      :_clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
       :environment, :base_url, :callback_url, :validation_url, :confirmation_url, :active
     ])
     |> validate_required([
-      :clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
+      :_clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
       :environment, :base_url
     ])
     |> validate_inclusion(:environment, ["sandbox", "production"])

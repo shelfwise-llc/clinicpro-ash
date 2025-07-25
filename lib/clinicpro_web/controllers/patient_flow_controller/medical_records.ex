@@ -1,13 +1,12 @@
 defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
   use ClinicproWeb, :controller
-  alias ClinicproWeb.Plugs.WorkflowValidator
   require Logger
 
-  # Apply authentication plug to ensure only authenticated patients can access
+  # Apply authentication plug to ensure only authenticated _patients can access
   plug :ensure_authenticated_patient when action in [:index, :show]
 
   @doc """
-  Display the patient's medical records index page.
+  Display the patient's medical records index _page.
   """
   def index(conn, _params) do
     patient_id = get_session(conn, :user_id)

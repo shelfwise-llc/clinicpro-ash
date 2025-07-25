@@ -12,9 +12,9 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
 
   - `phone_number` - The phone number to send the STK Push to
   - `amount` - The amount to charge
-  - `reference` - The reference for the transaction (usually invoice number)
-  - `description` - Description of the transaction
-  - `clinic_id` - The ID of the clinic initiating the payment
+  - `reference` - The reference for the _transaction (usually invoice number)
+  - `description` - Description of the _transaction
+  - `_clinic_id` - The ID of the clinic initiating the payment
 
   ## Returns
 
@@ -26,7 +26,7 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
     amount :: number(),
     reference :: String.t(),
     description :: String.t(),
-    clinic_id :: integer()
+    _clinic_id :: integer()
   ) :: {:ok, map()} | {:error, any()}
 
   @doc """
@@ -36,7 +36,7 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
 
   - `checkout_request_id` - The checkout request ID to check
   - `merchant_request_id` - The merchant request ID
-  - `clinic_id` - The ID of the clinic that initiated the payment
+  - `_clinic_id` - The ID of the clinic that initiated the payment
 
   ## Returns
 
@@ -46,6 +46,6 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
   @callback query_stk_push_status(
     checkout_request_id :: String.t(),
     merchant_request_id :: String.t(),
-    clinic_id :: integer()
+    _clinic_id :: integer()
   ) :: {:ok, map()} | {:error, any()}
 end

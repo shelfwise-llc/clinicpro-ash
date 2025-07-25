@@ -10,7 +10,7 @@ defmodule Clinicpro.Paystack.Http do
 
   ## Parameters
 
-  - `endpoint` - The API endpoint to call (e.g., "/transaction/verify/123")
+  - `endpoint` - The API endpoint to call (e.g., "/_transaction/verify/123")
   - `secret_key` - The secret key to use for authentication
   - `base_url` - The base URL for the API (optional)
 
@@ -40,7 +40,7 @@ defmodule Clinicpro.Paystack.Http do
 
   ## Parameters
 
-  - `endpoint` - The API endpoint to call (e.g., "/transaction/initialize")
+  - `endpoint` - The API endpoint to call (e.g., "/_transaction/initialize")
   - `payload` - The data to send in the request body
   - `secret_key` - The secret key to use for authentication
   - `base_url` - The base URL for the API (optional)

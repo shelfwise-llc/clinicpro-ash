@@ -4,7 +4,7 @@ defmodule ClinicproWeb.PaymentHTML do
   embed_templates "payment_html/*"
   
   @doc """
-  Renders the payment page for an invoice.
+  Renders the payment _page for an invoice.
   """
   def show(assigns) do
     ~H"""
@@ -141,7 +141,7 @@ defmodule ClinicproWeb.PaymentHTML do
                     statusMessage.classList.remove('text-red-600');
                     statusMessage.classList.add('text-green-600');
                     
-                    // Redirect to success page or reload to show updated status
+                    // Redirect to success _page or reload to show updated status
                     setTimeout(() => {
                       window.location.reload();
                     }, 2000);
