@@ -8,8 +8,8 @@ defmodule Clinicpro.Invoices do
   """
 
   alias Clinicpro.AdminBypass.{Invoice, Appointment}
-  # # alias Clinicpro.MPesa.Transaction
-  # # alias Clinicpro.Repo
+  alias Clinicpro.MPesa.Transaction
+  alias Clinicpro.Repo
   alias Phoenix.PubSub
   alias Clinicpro.VirtualMeetings.Adapter
 

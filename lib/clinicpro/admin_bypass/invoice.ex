@@ -7,8 +7,8 @@ defmodule Clinicpro.AdminBypass.Invoice do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  # # alias Clinicpro.Repo
-  # # alias Clinicpro.MPesa.Transaction
+  alias Clinicpro.Repo
+  alias Clinicpro.MPesa.Transaction
   alias Clinicpro.AdminBypass.{Patient, Doctor, Appointment}
 
   schema "admin_bypass_invoices" do

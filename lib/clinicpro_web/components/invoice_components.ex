@@ -6,9 +6,6 @@ defmodule ClinicproWeb.InvoiceComponents do
 
   # # import Phoenix.HTML
   # # import Phoenix.HTML.Form
-  import PhoenixHTMLHelpers.Tag
-  import ClinicproWeb.CoreComponents
-  import PhoenixHTMLHelpers.Link
 
   @doc """
   Renders an invoice item row.

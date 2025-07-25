@@ -14,7 +14,7 @@ defmodule ClinicproWeb.AdminBypassHTML do
     do: Phoenix.HTML.Form.select(form, field, options, _opts)
 
   def date_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.date_input(form, field, _opts)
-  def number_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, _opts)
+  def number_input(form, field, opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, opts)
 
   # Keep helper functions for formatting
   def format_percentage(value, precision \\ 1) do

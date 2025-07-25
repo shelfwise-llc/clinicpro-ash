@@ -8,7 +8,7 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
   """
 
   alias Clinicpro.MPesa
-  # # alias Clinicpro.MPesa.Transaction
+  alias Clinicpro.MPesa.Transaction
   alias Clinicpro.Invoices
 
   @doc """
