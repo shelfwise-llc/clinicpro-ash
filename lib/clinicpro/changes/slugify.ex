@@ -21,15 +21,15 @@ defmodule Clinicpro.Changes.Slugify do
   alias Clinicpro.Utils.Slug
 
   @impl true
-  def init(opts) do
-    {:ok, opts}
+  def init(_opts) do
+    {:ok, _opts}
   end
 
   @impl true
-  def change(changeset, opts, _context) do
-    source = Map.get(opts, :source)
-    target = Map.get(opts, :target, :slug)
-    force = Map.get(opts, :force, false)
+  def change(changeset, _opts, _context) do
+    source = Map.get(_opts, :source)
+    target = Map.get(_opts, :target, :slug)
+    force = Map.get(_opts, :force, false)
     
     # If we already have a target value and force is false, don't change anything
     if !force && Ash.Changeset.get_attribute(changeset, target) do

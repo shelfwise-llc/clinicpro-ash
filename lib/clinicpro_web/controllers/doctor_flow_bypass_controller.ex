@@ -4,10 +4,10 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
   
   This controller implements the doctor workflow steps:
   1. List appointments
-  2. Access appointment details
+  2. Access _appointment details
   3. Fill medical details
   4. Record diagnosis
-  5. Complete appointment
+  5. Complete _appointment
   
   It uses mock modules and workflow validation to ensure proper workflow state transitions.
   """
@@ -41,7 +41,7 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
   end
   
   @doc """
-  Shows details for a specific appointment.
+  Shows details for a specific _appointment.
   """
   def access_appointment(conn, %{"id" => appointment_id}) do
     # Get workflow state from session
@@ -53,11 +53,11 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
     # Validate transition
     case WorkflowValidator.validate_transition(workflow_state, :access_appointment) do
       :ok ->
-        # Get appointment details
+        # Get _appointment details
         # In a real controller, this would be fetched from the database
-        appointment = get_mock_appointment(appointment_id)
+        _appointment = get_mock_appointment(appointment_id)
         
-        if appointment do
+        if _appointment do
           # Update workflow state
           workflow_state = %{
             workflow_state |
@@ -68,8 +68,8 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
           # Store workflow state in session
           conn = put_session(conn, :workflow_state, workflow_state)
           
-          # Render the appointment details
-          render(conn, :access_appointment, appointment: appointment)
+          # Render the _appointment details
+          render(conn, :access_appointment, _appointment: _appointment)
         else
           # Appointment not found
           conn
@@ -98,11 +98,11 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
     # Validate transition
     case WorkflowValidator.validate_transition(workflow_state, :fill_medical_details) do
       :ok ->
-        # Get appointment details
+        # Get _appointment details
         # In a real controller, this would be fetched from the database
-        appointment = get_mock_appointment(appointment_id)
+        _appointment = get_mock_appointment(appointment_id)
         
-        if appointment do
+        if _appointment do
           # Update workflow state
           workflow_state = %{
             workflow_state |
@@ -114,7 +114,7 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
           conn = put_session(conn, :workflow_state, workflow_state)
           
           # Render the medical details form
-          render(conn, :fill_medical_details_form, appointment: appointment)
+          render(conn, :fill_medical_details_form, _appointment: _appointment)
         else
           # Appointment not found
           conn
@@ -188,14 +188,14 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
     # Validate step data
     case WorkflowValidator.validate_step_data(workflow_state) do
       :ok ->
-        # Get appointment details
+        # Get _appointment details
         # In a real controller, this would be fetched from the database
-        appointment = get_mock_appointment(appointment_id)
+        _appointment = get_mock_appointment(appointment_id)
         
-        if appointment do
+        if _appointment do
           # Render the diagnosis form
           render(conn, :record_diagnosis_form, 
-            appointment: appointment, 
+            _appointment: _appointment, 
             medical_details: workflow_state[:medical_details]
           )
         else
@@ -240,7 +240,7 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
             # Store workflow state in session
             conn = put_session(conn, :workflow_state, workflow_state)
             
-            # Redirect to completion page
+            # Redirect to completion _page
             redirect(conn, to: ~p"/doctor/appointments/#{appointment_id}/complete")
             
           {:error, reason} ->
@@ -259,7 +259,7 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
   end
   
   @doc """
-  Shows the appointment completion page.
+  Shows the _appointment completion _page.
   """
   def complete_appointment_form(conn, %{"id" => appointment_id}) do
     # Get workflow state from session
@@ -271,14 +271,14 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
     # Validate step data
     case WorkflowValidator.validate_step_data(workflow_state) do
       :ok ->
-        # Get appointment details
+        # Get _appointment details
         # In a real controller, this would be fetched from the database
-        appointment = get_mock_appointment(appointment_id)
+        _appointment = get_mock_appointment(appointment_id)
         
-        if appointment do
-          # Render the completion page
+        if _appointment do
+          # Render the completion _page
           render(conn, :complete_appointment_form, 
-            appointment: appointment, 
+            _appointment: _appointment, 
             medical_details: workflow_state[:medical_details],
             diagnosis: workflow_state[:diagnosis]
           )
@@ -298,7 +298,7 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
   end
   
   @doc """
-  Processes the appointment completion.
+  Processes the _appointment completion.
   """
   def complete_appointment(conn, %{"id" => appointment_id}) do
     # Get workflow state from session
@@ -321,7 +321,7 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
         # Store workflow state in session
         conn = put_session(conn, :workflow_state, workflow_state)
         
-        # In a real controller, this would update the appointment in the database
+        # In a real controller, this would update the _appointment in the database
         
         # Redirect to appointments list with success message
         conn
@@ -366,6 +366,6 @@ defmodule ClinicproWeb.DoctorFlowBypassController do
   
   defp get_mock_appointment(id) do
     get_mock_appointments()
-    |> Enum.find(fn appointment -> appointment.id == id end)
+    |> Enum.find(fn _appointment -> _appointment.id == id end)
   end
 end

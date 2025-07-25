@@ -16,7 +16,7 @@ defmodule Clinicpro.MPesaCallbackSimulator do
   ## Parameters
 
   * `reference` - The payment reference (invoice reference)
-  * `clinic_id` - The ID of the clinic
+  * `_clinic_id` - The ID of the clinic
   * `amount` - The payment amount
   * `phone` - The phone number that made the payment
 
@@ -25,14 +25,14 @@ defmodule Clinicpro.MPesaCallbackSimulator do
   * `{:ok, response}` - On success, returns the HTTP response
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def simulate_stk_callback(reference, clinic_id, amount, phone) do
-    callback_url = "http://localhost:4000/api/mpesa/callbacks/stk/#{clinic_id}"
+  def simulate_stk_callback(reference, _clinic_id, amount, phone) do
+    callback_url = "http://localhost:4000/api/mpesa/callbacks/stk/#{_clinic_id}"
 
     # Create a realistic STK callback payload
     payload = %{
       "Body" => %{
         "stkCallback" => %{
-          "MerchantRequestID" => "#{clinic_id}-#{:os.system_time(:millisecond)}",
+          "MerchantRequestID" => "#{_clinic_id}-#{:os.system_time(:millisecond)}",
           "CheckoutRequestID" => "ws_CO_#{:os.system_time(:millisecond)}",
           "ResultCode" => 0,
           "ResultDesc" => "The service request is processed successfully.",
@@ -74,7 +74,7 @@ defmodule Clinicpro.MPesaCallbackSimulator do
   ## Parameters
 
   * `reference` - The payment reference (invoice reference)
-  * `clinic_id` - The ID of the clinic
+  * `_clinic_id` - The ID of the clinic
   * `amount` - The payment amount
   * `phone` - The phone number that made the payment
 
@@ -83,8 +83,8 @@ defmodule Clinicpro.MPesaCallbackSimulator do
   * `{:ok, response}` - On success, returns the HTTP response
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def simulate_c2b_callback(reference, clinic_id, amount, phone) do
-    callback_url = "http://localhost:4000/api/mpesa/callbacks/c2b/#{clinic_id}"
+  def simulate_c2b_callback(reference, _clinic_id, amount, phone) do
+    callback_url = "http://localhost:4000/api/mpesa/callbacks/c2b/#{_clinic_id}"
 
     # Create a realistic C2B callback payload
     payload = %{
@@ -131,7 +131,7 @@ end
 # # Simulate STK Push callback
 # Clinicpro.MPesaCallbackSimulator.simulate_stk_callback(
 #   "INV-123456",  # invoice reference
-#   1,             # clinic_id
+#   1,             # _clinic_id
 #   1000.0,        # amount
 #   "254712345678" # phone
 # )
@@ -139,7 +139,7 @@ end
 # # Simulate C2B callback
 # Clinicpro.MPesaCallbackSimulator.simulate_c2b_callback(
 #   "INV-123456",  # invoice reference
-#   1,             # clinic_id
+#   1,             # _clinic_id
 #   1000.0,        # amount
 #   "254712345678" # phone
 # )

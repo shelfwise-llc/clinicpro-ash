@@ -23,7 +23,7 @@
         </div>
         <div>
           <p class="text-gray-600">Status</p>
-          <p class="font-medium" style="color: <%= if @payment_status == :paid, do: "#059669", else: if @payment_status == :partial, do: "#d97706", else: "#dc2626" %>;">
+          <p class="font-medium" style="color: <%= if @payment_status == :paid, do: "#059669", else: (if @payment_status == :partial, do: "#d97706", else: "#dc2626") %>;">
             <%= String.upcase(to_string(@payment_status)) %>
           </p>
         </div>

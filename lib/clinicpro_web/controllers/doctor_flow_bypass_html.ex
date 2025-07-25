@@ -11,7 +11,7 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
   embed_templates "doctor_flow_bypass_html/*"
   
   @doc """
-  Renders the appointments list page.
+  Renders the appointments list _page.
   """
   attr :appointments, :list, required: true
   
@@ -37,22 +37,22 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <%= for appointment <- @appointments do %>
+              <%= for _appointment <- @appointments do %>
                 <tr>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <%= appointment.patient_name %>
+                    <%= _appointment.patient_name %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <%= Calendar.strftime(appointment.date, "%B %d, %Y") %>
+                    <%= Calendar.strftime(_appointment.date, "%B %d, %Y") %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <%= Calendar.strftime(appointment.time, "%H:%M") %>
+                    <%= Calendar.strftime(_appointment.time, "%H:%M") %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <%= appointment.reason %>
+                    <%= _appointment.reason %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <a href={~p"/doctor/appointments/#{appointment.id}"} class="text-indigo-600 hover:text-indigo-900">
+                    <a href={~p"/doctor/appointments/#{_appointment.id}"} class="text-indigo-600 hover:text-indigo-900">
                       View
                     </a>
                   </td>
@@ -67,9 +67,9 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
   end
   
   @doc """
-  Renders the appointment details page.
+  Renders the _appointment details _page.
   """
-  attr :appointment, :map, required: true
+  attr :_appointment, :map, required: true
   
   def access_appointment(assigns) do
     ~H"""
@@ -85,10 +85,10 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
       <div class="bg-white shadow overflow-hidden rounded-lg">
         <div class="px-4 py-5 sm:px-6">
           <h2 class="text-lg leading-6 font-medium text-gray-900">
-            Appointment with <%= @appointment.patient_name %>
+            Appointment with <%= @_appointment.patient_name %>
           </h2>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">
-            <%= Calendar.strftime(@appointment.date, "%B %d, %Y") %> at <%= Calendar.strftime(@appointment.time, "%H:%M") %>
+            <%= Calendar.strftime(@_appointment.date, "%B %d, %Y") %> at <%= Calendar.strftime(@_appointment.time, "%H:%M") %>
           </p>
         </div>
         
@@ -96,26 +96,26 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
           <dl>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Patient name</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @appointment.patient_name %></dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @_appointment.patient_name %></dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Date</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= Calendar.strftime(@appointment.date, "%B %d, %Y") %></dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= Calendar.strftime(@_appointment.date, "%B %d, %Y") %></dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Time</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= Calendar.strftime(@appointment.time, "%H:%M") %></dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= Calendar.strftime(@_appointment.time, "%H:%M") %></dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Reason for visit</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @appointment.reason %></dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @_appointment.reason %></dd>
             </div>
           </dl>
         </div>
       </div>
       
       <div class="mt-8">
-        <a href={~p"/doctor/appointments/#{@appointment.id}/medical_details"} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <a href={~p"/doctor/appointments/#{@_appointment.id}/medical_details"} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           Enter Medical Details
         </a>
       </div>
@@ -126,24 +126,24 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
   @doc """
   Renders the medical details form.
   """
-  attr :appointment, :map, required: true
+  attr :_appointment, :map, required: true
   
   def fill_medical_details_form(assigns) do
     ~H"""
     <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
-        <a href={~p"/doctor/appointments/#{@appointment.id}"} class="text-indigo-600 hover:text-indigo-900">
-          &larr; Back to appointment details
+        <a href={~p"/doctor/appointments/#{@_appointment.id}"} class="text-indigo-600 hover:text-indigo-900">
+          &larr; Back to _appointment details
         </a>
       </div>
       
       <h1 class="text-2xl font-bold mb-6">Enter Medical Details</h1>
       <p class="mb-6 text-gray-600">
-        Enter the medical details for <%= @appointment.patient_name %>'s appointment.
+        Enter the medical details for <%= @_appointment.patient_name %>'s _appointment.
       </p>
       
       <div class="bg-white shadow overflow-hidden rounded-lg">
-        <form action={~p"/doctor/appointments/#{@appointment.id}/medical_details"} method="post">
+        <form action={~p"/doctor/appointments/#{@_appointment.id}/medical_details"} method="post">
           <div class="px-4 py-5 sm:p-6">
             <div class="grid grid-cols-6 gap-6">
               <div class="col-span-6 sm:col-span-3">
@@ -192,21 +192,21 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
   @doc """
   Renders the diagnosis form.
   """
-  attr :appointment, :map, required: true
+  attr :_appointment, :map, required: true
   attr :medical_details, :map, required: true
   
   def record_diagnosis_form(assigns) do
     ~H"""
     <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
-        <a href={~p"/doctor/appointments/#{@appointment.id}/medical_details"} class="text-indigo-600 hover:text-indigo-900">
+        <a href={~p"/doctor/appointments/#{@_appointment.id}/medical_details"} class="text-indigo-600 hover:text-indigo-900">
           &larr; Back to medical details
         </a>
       </div>
       
       <h1 class="text-2xl font-bold mb-6">Record Diagnosis</h1>
       <p class="mb-6 text-gray-600">
-        Record your diagnosis for <%= @appointment.patient_name %>'s appointment.
+        Record your diagnosis for <%= @_appointment.patient_name %>'s _appointment.
       </p>
       
       <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
@@ -249,7 +249,7 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
       </div>
       
       <div class="bg-white shadow overflow-hidden rounded-lg">
-        <form action={~p"/doctor/appointments/#{@appointment.id}/diagnosis"} method="post">
+        <form action={~p"/doctor/appointments/#{@_appointment.id}/diagnosis"} method="post">
           <div class="px-4 py-5 sm:p-6">
             <div class="grid grid-cols-6 gap-6">
               <div class="col-span-6">
@@ -281,9 +281,9 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
   end
   
   @doc """
-  Renders the appointment completion page.
+  Renders the _appointment completion _page.
   """
-  attr :appointment, :map, required: true
+  attr :_appointment, :map, required: true
   attr :medical_details, :map, required: true
   attr :diagnosis, :map, required: true
   
@@ -291,14 +291,14 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
     ~H"""
     <div class="container mx-auto px-4 py-8">
       <div class="mb-6">
-        <a href={~p"/doctor/appointments/#{@appointment.id}/diagnosis"} class="text-indigo-600 hover:text-indigo-900">
+        <a href={~p"/doctor/appointments/#{@_appointment.id}/diagnosis"} class="text-indigo-600 hover:text-indigo-900">
           &larr; Back to diagnosis
         </a>
       </div>
       
       <h1 class="text-2xl font-bold mb-6">Complete Appointment</h1>
       <p class="mb-6 text-gray-600">
-        Review and complete <%= @appointment.patient_name %>'s appointment.
+        Review and complete <%= @_appointment.patient_name %>'s _appointment.
       </p>
       
       <div class="bg-white shadow overflow-hidden rounded-lg mb-8">
@@ -310,17 +310,17 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
           <dl>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Patient</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @appointment.patient_name %></dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @_appointment.patient_name %></dd>
             </div>
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Date & Time</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <%= Calendar.strftime(@appointment.date, "%B %d, %Y") %> at <%= Calendar.strftime(@appointment.time, "%H:%M") %>
+                <%= Calendar.strftime(@_appointment.date, "%B %d, %Y") %> at <%= Calendar.strftime(@_appointment.time, "%H:%M") %>
               </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Reason</dt>
-              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @appointment.reason %></dd>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2"><%= @_appointment.reason %></dd>
             </div>
           </dl>
         </div>
@@ -390,7 +390,7 @@ defmodule ClinicproWeb.DoctorFlowBypassHTML do
         </div>
       </div>
       
-      <form action={~p"/doctor/appointments/#{@appointment.id}/complete"} method="post">
+      <form action={~p"/doctor/appointments/#{@_appointment.id}/complete"} method="post">
         <div class="flex justify-end">
           <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
             Complete Appointment

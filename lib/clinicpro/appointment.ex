@@ -2,7 +2,7 @@ defmodule Clinicpro.Appointment do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.Doctor
   alias Clinicpro.Patient
   alias Clinicpro.Clinic
@@ -26,10 +26,10 @@ defmodule Clinicpro.Appointment do
   end
 
   @doc """
-  Creates a changeset for an appointment.
+  Creates a changeset for an _appointment.
   """
-  def changeset(appointment, attrs) do
-    appointment
+  def changeset(_appointment, attrs) do
+    _appointment
     |> cast(attrs, [
       :date,
       :start_time,
@@ -39,7 +39,7 @@ defmodule Clinicpro.Appointment do
       :notes,
       :doctor_id,
       :patient_id,
-      :clinic_id,
+      :_clinic_id,
       :meeting_link,
       :appointment_type
     ])
@@ -55,14 +55,14 @@ defmodule Clinicpro.Appointment do
     |> validate_time_range()
     |> foreign_key_constraint(:doctor_id)
     |> foreign_key_constraint(:patient_id)
-    |> foreign_key_constraint(:clinic_id)
+    |> foreign_key_constraint(:_clinic_id)
   end
 
   @doc """
-  Returns a changeset for tracking appointment changes.
+  Returns a changeset for tracking _appointment changes.
   """
-  def change(%__MODULE__{} = appointment, attrs \\ %{}) do
-    changeset(appointment, attrs)
+  def change(%__MODULE__{} = _appointment, attrs \\ %{}) do
+    changeset(_appointment, attrs)
   end
 
   @doc """
@@ -86,12 +86,12 @@ defmodule Clinicpro.Appointment do
   end
 
   @doc """
-  Gets an appointment by ID.
+  Gets an _appointment by ID.
   """
   def get(id), do: Repo.get(__MODULE__, id)
 
   @doc """
-  Gets an appointment by ID with preloaded doctor and patient.
+  Gets an _appointment by ID with preloaded doctor and patient.
   """
   def get_with_associations(id) do
     __MODULE__
@@ -114,20 +114,20 @@ defmodule Clinicpro.Appointment do
   ## Options
 
   * `:limit` - Limits the number of results
-  * `:status` - Filter by appointment status
+  * `:status` - Filter by _appointment status
   * `:date` - Filter by specific date
   * `:doctor_id` - Filter by doctor
   * `:patient_id` - Filter by patient
-  * `:type` - Filter by appointment type
+  * `:type` - Filter by _appointment type
   """
-  def list(opts) do
+  def list(_opts) do
     __MODULE__
-    |> filter_by_status(opts)
-    |> filter_by_date(opts)
-    |> filter_by_doctor_id(opts)
-    |> filter_by_patient_id(opts)
-    |> filter_by_type(opts)
-    |> limit_query(opts)
+    |> filter_by_status(_opts)
+    |> filter_by_date(_opts)
+    |> filter_by_doctor_id(_opts)
+    |> filter_by_patient_id(_opts)
+    |> filter_by_type(_opts)
+    |> limit_query(_opts)
     |> Repo.all()
     |> Repo.preload([:doctor, :patient, :clinic])
   end
@@ -203,7 +203,7 @@ defmodule Clinicpro.Appointment do
   end
 
   @doc """
-  Creates a new appointment.
+  Creates a new _appointment.
   """
   def create(attrs) do
     %__MODULE__{}
@@ -212,18 +212,18 @@ defmodule Clinicpro.Appointment do
   end
 
   @doc """
-  Updates an appointment.
+  Updates an _appointment.
   """
-  def update(appointment, attrs) do
-    appointment
+  def update(_appointment, attrs) do
+    _appointment
     |> changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes an appointment.
+  Deletes an _appointment.
   """
-  def delete(appointment) do
-    Repo.delete(appointment)
+  def delete(_appointment) do
+    Repo.delete(_appointment)
   end
 end

@@ -1,0 +1,92 @@
+#!/bin/sh
+# Docker entrypoint script for Phoenix
+
+# Exit if any command fails
+set -e
+
+# Print environment information (without sensitive data)
+echo "Starting ClinicPro server..."
+echo "PHX_HOST: $PHX_HOST"
+echo "DATABASE_URL: [redacted for security]"
+echo "Running in Docker environment"
+
+# Parse database connection details from DATABASE_URL
+parse_db_url() {
+  # Extract host and port from DATABASE_URL
+  if [ -z "$DATABASE_URL" ]; then
+    echo "ERROR: DATABASE_URL is not set"
+    exit 1
+  fi
+  
+  # More robust parsing for both internal and external PostgreSQL URLs
+  # This handles both postgres://user:pass@host:port/db and postgresql://user:pass@host:port/db formats
+  if echo "$DATABASE_URL" | grep -q "@"; then
+    # Extract host and port using more robust pattern matching
+    DB_HOST=$(echo "$DATABASE_URL" | sed -E 's/.*@([^:]+)(:[0-9]+)?.*/\1/')
+    DB_PORT=$(echo "$DATABASE_URL" | sed -E 's/.*@[^:]+:([0-9]+).*/\1/')
+    
+    # Handle case where port might not be explicitly specified
+    if [ "$DB_PORT" = "$DATABASE_URL" ]; then
+      DB_PORT="5432" # Default PostgreSQL port
+    fi
+  else
+    echo "WARNING: DATABASE_URL format not recognized"
+    DB_HOST="localhost"
+    DB_PORT="5432"
+  fi
+  
+  if [ -z "$DB_HOST" ] || [ -z "$DB_PORT" ]; then
+    echo "WARNING: Could not parse host or port from DATABASE_URL"
+    echo "Using default PostgreSQL connection check"
+  else
+    echo "Database host: $DB_HOST, port: $DB_PORT"
+  fi
+}
+
+# Function to wait for PostgreSQL to be ready
+wait_for_postgres() {
+  echo "Waiting for PostgreSQL to be ready..."
+  parse_db_url
+  
+  # Wait for database to be ready with a simple retry mechanism
+  for i in $(seq 1 30); do
+    echo "Attempt $i: Checking database connection..."
+    
+    # More robust check that prints error messages for debugging
+    if /app/bin/clinicpro eval "IO.puts(\"Checking DB connection...\"); Clinicpro.Repo.query!(\"SELECT 1\"); IO.puts(\"Connection successful\"); :ok" 2>&1; then
+      echo "Database connection successful!"
+      break
+    elif [ $i -eq 30 ]; then
+      echo "Failed to connect to database after 30 attempts."
+      echo "DATABASE_URL may be incorrect or database is not accessible."
+      echo "Please check your DATABASE_URL environment variable and ensure the database is running."
+      exit 1
+    else
+      echo "Database not ready yet. Retrying in 3 seconds..."
+      sleep 3
+    fi
+  done
+}
+
+# Wait for the database
+wait_for_postgres
+
+# Create the database if it doesn't exist and run migrations
+if [ "$DATABASE_SKIP_SETUP" != "true" ]; then
+  echo "Running database migrations..."
+  /app/bin/clinicpro eval "Clinicpro.Release.migrate()" || {
+    echo "Migration failed but continuing anyway..."
+  }
+  
+  # Run seeds if needed
+  if [ "$SEED_DATABASE" = "true" ]; then
+    echo "Running seeds..."
+    /app/bin/clinicpro eval "Clinicpro.Release.seed()" || {
+      echo "Seeding failed but continuing anyway..."
+    }
+  fi
+fi
+
+# Start the Phoenix server
+echo "Starting Phoenix server..."
+exec /app/bin/clinicpro start

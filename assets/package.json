@@ -1,0 +1,15 @@
+{
+  "name": "clinicpro",
+  "version": "1.0.0",
+  "description": "ClinicPro application assets",
+  "main": "js/app.js",
+  "scripts": {
+    "deploy": "echo 'Assets will be built using mix tasks'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shelfwise-llc/clinicpro-ash.git"
+  },
+  "author": "",
+  "license": "ISC"
+}

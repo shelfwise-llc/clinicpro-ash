@@ -6,5 +6,6 @@ defmodule Clinicpro.Prescriptions do
     resource Clinicpro.Appointments.Appointment
     resource Clinicpro.Accounts.User
     resource Clinicpro.Accounts.UserRole
+    resource Clinicpro.Clinics.Clinic
   end
 end

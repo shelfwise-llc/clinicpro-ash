@@ -1,10 +1,10 @@
 defmodule Clinicpro.Auth.OTPDelivery do
   @moduledoc """
-  Handles the delivery of OTP codes to patients via SMS and email.
+  Handles the delivery of OTP codes to _patients via SMS and email.
   Supports multi-tenant configuration for different clinics.
   """
 
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.Patient
   alias Clinicpro.Clinic
 

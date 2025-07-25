@@ -11,8 +11,8 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
 
   - `phone_number` - The phone number to send the STK push to
   - `amount` - The amount to charge
-  - `reference` - The reference number for the transaction
-  - `clinic_id` - The ID of the clinic (for multi-tenant support)
+  - `reference` - The reference number for the _transaction
+  - `_clinic_id` - The ID of the clinic (for multi-tenant support)
 
   ## Returns
 
@@ -52,11 +52,11 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
 
   - `invoice` - The invoice to process payment for
   - `phone_number` - The phone number to send the STK push to
-  - `opts` - Additional options (reserved for future use)
+  - `_opts` - Additional options (reserved for future use)
 
   ## Returns
 
-  - `{:ok, transaction}` - If payment was initiated successfully
+  - `{:ok, _transaction}` - If payment was initiated successfully
   - `{:error, reason}` - If payment initiation failed
   """
   @callback process_mpesa_payment(Invoice.t(), String.t(), keyword()) :: {:ok, map()} | {:error, String.t()}
@@ -67,8 +67,8 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
   ## Parameters
 
   - `invoice` - The invoice to mark as paid
-  - `transaction_id` - The M-Pesa transaction ID
-  - `opts` - Additional options (reserved for future use)
+  - `transaction_id` - The M-Pesa _transaction ID
+  - `_opts` - Additional options (reserved for future use)
 
   ## Returns
 
@@ -82,8 +82,8 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
 
   ## Parameters
 
-  - `transaction` - The M-Pesa transaction that was completed
-  - `opts` - Additional options (reserved for future use)
+  - `_transaction` - The M-Pesa _transaction that was completed
+  - `_opts` - Additional options (reserved for future use)
 
   ## Returns
 
@@ -97,12 +97,12 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
 
   ## Parameters
 
-  - `transaction` - The M-Pesa transaction that failed
-  - `opts` - Additional options (reserved for future use)
+  - `_transaction` - The M-Pesa _transaction that failed
+  - `_opts` - Additional options (reserved for future use)
 
   ## Returns
 
-  - `{:ok, transaction}` - The updated transaction
+  - `{:ok, _transaction}` - The updated _transaction
   - `{:error, reason}` - If handling the failed payment failed
   """
   @callback handle_failed_payment(map(), keyword()) :: {:ok, map()} | {:error, any()}

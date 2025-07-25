@@ -22,8 +22,8 @@ defmodule Clinicpro.AdminBypass.Appointment do
   end
 
   @doc false
-  def changeset(appointment, attrs) do
-    appointment
+  def changeset(_appointment, attrs) do
+    _appointment
     |> cast(attrs, [:doctor_id, :patient_id, :date, :start_time, :end_time, :status, :notes, :reason, :diagnosis, :prescription, :appointment_type, :meeting_link])
     |> validate_required([:doctor_id, :patient_id, :date, :start_time, :end_time])
     |> validate_inclusion(:appointment_type, ["onsite", "virtual"], message: "must be either onsite or virtual")
@@ -64,17 +64,17 @@ defmodule Clinicpro.AdminBypass.Appointment do
     |> Clinicpro.Repo.insert()
   end
 
-  def update_appointment(%__MODULE__{} = appointment, attrs) do
-    appointment
+  def update_appointment(%__MODULE__{} = _appointment, attrs) do
+    _appointment
     |> changeset(attrs)
     |> Clinicpro.Repo.update()
   end
 
-  def delete_appointment(%__MODULE__{} = appointment) do
-    Clinicpro.Repo.delete(appointment)
+  def delete_appointment(%__MODULE__{} = _appointment) do
+    Clinicpro.Repo.delete(_appointment)
   end
 
-  def change_appointment(%__MODULE__{} = appointment, attrs \\ %{}) do
-    changeset(appointment, attrs)
+  def change_appointment(%__MODULE__{} = _appointment, attrs \\ %{}) do
+    changeset(_appointment, attrs)
   end
 end

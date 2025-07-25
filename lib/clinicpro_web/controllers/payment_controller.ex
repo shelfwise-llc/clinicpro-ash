@@ -35,14 +35,14 @@ defmodule ClinicproWeb.PaymentController do
         
       invoice ->
         # Get the clinic ID from the invoice
-        clinic_id = invoice.clinic_id
+        _clinic_id = invoice._clinic_id
         
         # Format phone number to ensure it's in the correct format (254XXXXXXXXX)
         formatted_phone = format_phone_number(phone)
         
-        # Prepare transaction data
-        transaction_data = %{
-          clinic_id: clinic_id,
+        # Prepare _transaction data
+        _transaction_data = %{
+          _clinic_id: _clinic_id,
           phone: formatted_phone,
           amount: invoice.amount,
           reference: invoice.reference_number,
@@ -59,16 +59,16 @@ defmodule ClinicproWeb.PaymentController do
         {:ok, updated_invoice} = Invoices.update_invoice_status(invoice, "pending")
         
         # Initiate STK push
-        case MPesa.initiate_stk_push(clinic_id, formatted_phone, invoice.amount, 
+        case MPesa.initiate_stk_push(_clinic_id, formatted_phone, invoice.amount, 
                                     invoice.reference_number, "Payment for #{invoice.description}") do
-          {:ok, transaction} ->
+          {:ok, _transaction} ->
             conn
             |> put_status(:ok)
             |> json(%{
               success: true, 
               message: "Payment initiated successfully",
-              transaction_id: transaction.id,
-              checkout_request_id: transaction.checkout_request_id
+              transaction_id: _transaction.id,
+              checkout_request_id: _transaction.checkout_request_id
             })
             
           {:error, reason} ->
@@ -83,7 +83,7 @@ defmodule ClinicproWeb.PaymentController do
   end
   
   @doc """
-  Check the status of an M-Pesa transaction.
+  Check the status of an M-Pesa _transaction.
   """
   def check_status(conn, %{"transaction_id" => transaction_id}) do
     case MPesa.get_transaction(transaction_id) do
@@ -92,14 +92,14 @@ defmodule ClinicproWeb.PaymentController do
         |> put_status(:not_found)
         |> json(%{success: false, message: "Transaction not found"})
         
-      transaction ->
+      _transaction ->
         conn
         |> put_status(:ok)
         |> json(%{
           success: true,
-          status: transaction.status,
-          result_code: transaction.result_code,
-          result_desc: transaction.result_desc
+          status: _transaction.status,
+          result_code: _transaction.result_code,
+          result_desc: _transaction.result_desc
         })
     end
   end
@@ -120,10 +120,10 @@ defmodule ClinicproWeb.PaymentController do
   end
   
   defp get_appointment_type(invoice_id) do
-    # Get the appointment associated with this invoice
+    # Get the _appointment associated with this invoice
     case Appointments.get_appointment_by_invoice(invoice_id) do
       nil -> "unknown"
-      appointment -> appointment.appointment_type || "onsite" # Default to onsite if not specified
+      _appointment -> _appointment.appointment_type || "onsite" # Default to onsite if not specified
     end
   end
 end

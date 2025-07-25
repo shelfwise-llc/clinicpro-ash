@@ -7,14 +7,14 @@ defmodule ClinicproWeb.AdminBypassHTML do
   import Phoenix.Component
 
   # Keep Phoenix.HTML.Form for form helper functions
-  import Phoenix.HTML.Form, only: []
+  # # import Phoenix.HTML.Form, only: []
 
   # Explicitly define form helper functions that are needed by templates
-  def select(form, field, options, opts \\ []),
-    do: Phoenix.HTML.Form.select(form, field, options, opts)
+  def select(form, field, options, _opts \\ []),
+    do: Phoenix.HTML.Form.select(form, field, options, _opts)
 
-  def date_input(form, field, opts \\ []), do: Phoenix.HTML.Form.date_input(form, field, opts)
-  def number_input(form, field, opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, opts)
+  def date_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.date_input(form, field, _opts)
+  def number_input(form, field, _opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, _opts)
 
   # Keep helper functions for formatting
   def format_percentage(value, precision \\ 1) do

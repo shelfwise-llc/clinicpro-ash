@@ -13,16 +13,16 @@ defmodule Clinicpro.MPesa.Auth do
 
   ## Parameters
 
-  - `clinic_id` - The ID of the clinic to generate an access token for
+  - `_clinic_id` - The ID of the clinic to generate an access token for
 
   ## Returns
 
   - `{:ok, %{access_token: token, expires_in: seconds}}` - If the token was generated successfully
   - `{:error, reason}` - If the token generation failed
   """
-  def generate_access_token(clinic_id) do
+  def generate_access_token(_clinic_id) do
     # Get the clinic's M-Pesa configuration
-    config = Config.get_config(clinic_id)
+    config = Config.get_config(_clinic_id)
 
     # Build the authorization header
     auth_string = Base.encode64("#{config.consumer_key}:#{config.consumer_secret}")
@@ -40,7 +40,7 @@ defmodule Clinicpro.MPesa.Auth do
         case Jason.decode(body) do
           {:ok, %{"access_token" => token, "expires_in" => expires_in}} ->
             # Cache the token (optional)
-            cache_token(clinic_id, token, expires_in)
+            cache_token(_clinic_id, token, expires_in)
 
             {:ok, %{access_token: token, expires_in: expires_in}}
 
@@ -64,21 +64,21 @@ defmodule Clinicpro.MPesa.Auth do
 
   ## Parameters
 
-  - `clinic_id` - The ID of the clinic to get an access token for
+  - `_clinic_id` - The ID of the clinic to get an access token for
 
   ## Returns
 
   - `{:ok, token}` - If a valid token was found or generated
   - `{:error, reason}` - If the token retrieval failed
   """
-  def get_access_token(clinic_id) do
-    case get_cached_token(clinic_id) do
+  def get_access_token(_clinic_id) do
+    case get_cached_token(_clinic_id) do
       {:ok, token} ->
         {:ok, token}
 
       {:error, _} ->
         # No valid cached token, generate a new one
-        case generate_access_token(clinic_id) do
+        case generate_access_token(_clinic_id) do
           {:ok, %{access_token: token}} -> {:ok, token}
           error -> error
         end
@@ -122,20 +122,20 @@ defmodule Clinicpro.MPesa.Auth do
   # These functions implement a simple in-memory cache for access tokens
   # In a production environment, you might want to use a more robust caching solution
 
-  defp cache_token(clinic_id, token, expires_in) do
+  defp cache_token(_clinic_id, token, expires_in) do
     # Calculate expiry time (subtract a buffer to ensure we don't use an expired token)
     buffer = 60 # 1 minute buffer
     expiry = :os.system_time(:second) + expires_in - buffer
 
     # Store the token in the process dictionary
     # In a real application, you would use a proper cache like ETS or Redis
-    Process.put({:mpesa_token, clinic_id}, {token, expiry})
+    Process.put({:mpesa_token, _clinic_id}, {token, expiry})
 
     :ok
   end
 
-  defp get_cached_token(clinic_id) do
-    case Process.get({:mpesa_token, clinic_id}) do
+  defp get_cached_token(_clinic_id) do
+    case Process.get({:mpesa_token, _clinic_id}) do
       nil ->
         {:error, :no_cached_token}
 
@@ -145,7 +145,7 @@ defmodule Clinicpro.MPesa.Auth do
           {:ok, token}
         else
           # Token has expired
-          Process.delete({:mpesa_token, clinic_id})
+          Process.delete({:mpesa_token, _clinic_id})
           {:error, :token_expired}
         end
     end

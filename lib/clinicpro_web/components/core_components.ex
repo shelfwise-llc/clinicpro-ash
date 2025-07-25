@@ -321,7 +321,7 @@ defmodule ClinicproWeb.CoreComponents do
           {@rest}
         /> {@label}
       </label>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <.error :for={_msg <- @errors}>>{_msg}</.error>
     </div>
     """
   end
@@ -340,7 +340,7 @@ defmodule ClinicproWeb.CoreComponents do
         <option :if={@prompt} value="">{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <.error :for={_msg <- @errors}>>{_msg}</.error>
     </div>
     """
   end
@@ -359,7 +359,7 @@ defmodule ClinicproWeb.CoreComponents do
         ]}
         {@rest}
       >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <.error :for={_msg <- @errors}>>{_msg}</.error>
     </div>
     """
   end
@@ -381,7 +381,7 @@ defmodule ClinicproWeb.CoreComponents do
         ]}
         {@rest}
       />
-      <.error :for={msg <- @errors}>{msg}</.error>
+      <.error :for={_msg <- @errors}>>{_msg}</.error>
     </div>
     """
   end
@@ -487,19 +487,19 @@ defmodule ClinicproWeb.CoreComponents do
           class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
           <tr
-            :for={{row, i} <- Enum.with_index(@rows)}
+            :for={{row, _i} <- Enum.with_index(@rows)}
             id={@row_id && @row_id.(row)}
             class="group hover:bg-zinc-50"
           >
             <td
-              :for={{col, i} <- Enum.with_index(@col)}
+              :for={{_col, _i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
               class={["relative p-0", @row_click && "hover:cursor-pointer"]}
             >
               <div class="block py-4 pr-6">
                 <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
-                  {render_slot(col, @row_item.(row))}
+                <span class={["relative", _i == 0 && "font-semibold text-zinc-900"]}>
+                  {render_slot(_col, @row_item.(row))}
                 </span>
               </div>
             </td>
@@ -507,10 +507,10 @@ defmodule ClinicproWeb.CoreComponents do
               <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
                 <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
                 <span
-                  :for={action <- @action}
+                  :for={_action <- @action}
                   class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
                 >
-                  {render_slot(action, @row_item.(row))}
+                  {render_slot(_action, @row_item.(row))}
                 </span>
               </div>
             </td>
@@ -539,9 +539,9 @@ defmodule ClinicproWeb.CoreComponents do
     ~H"""
     <div class="mt-14">
       <dl class="-my-4 divide-y divide-zinc-100">
-        <div :for={item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
-          <dt class="w-1/4 flex-none text-zinc-500">{item.title}</dt>
-          <dd class="text-zinc-700">{render_slot(item)}</dd>
+        <div :for={_item <- @item} class="flex gap-4 py-4 text-sm leading-6 sm:gap-8">
+          <dt class="w-1/4 flex-none text-zinc-500">{_item.title}</dt>
+          <dd class="text-zinc-700">{render_slot(_item)}</dd>
         </div>
       </dl>
     </div>
@@ -650,7 +650,7 @@ defmodule ClinicproWeb.CoreComponents do
   @doc """
   Translates an error message using gettext.
   """
-  def translate_error({msg, opts}) do
+  def translate_error({msg, _opts}) do
     # When using gettext, we typically pass the strings we want
     # to translate as a static argument:
     #
@@ -661,10 +661,10 @@ defmodule ClinicproWeb.CoreComponents do
     # dynamically, so we need to translate them by calling Gettext
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
-    if count = opts[:count] do
-      Gettext.dngettext(ClinicproWeb.Gettext, "errors", msg, msg, count, opts)
+    if count = _opts[:count] do
+      Gettext.dngettext(ClinicproWeb.Gettext, "errors", msg, msg, count, _opts)
     else
-      Gettext.dgettext(ClinicproWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(ClinicproWeb.Gettext, "errors", msg, _opts)
     end
   end
 
@@ -672,6 +672,6 @@ defmodule ClinicproWeb.CoreComponents do
   Translates the errors for a field from a keyword list of errors.
   """
   def translate_errors(errors, field) when is_list(errors) do
-    for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+    for {^field, {msg, _opts}} <- errors, do: translate_error({msg, _opts})
   end
 end

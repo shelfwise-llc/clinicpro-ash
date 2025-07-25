@@ -15,7 +15,7 @@ defmodule ClinicproWeb.ErrorHTML do
   #
   # embed_templates "error_html/*"
 
-  # The default is to render a plain text page based on
+  # The default is to render a plain text _page based on
   # the template name. For example, "404.html" becomes
   # "Not Found".
   def render(template, _assigns) do

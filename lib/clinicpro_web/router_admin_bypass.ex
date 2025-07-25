@@ -21,20 +21,20 @@ defmodule ClinicproWeb.RouterAdminBypass do
     post "/seed", AdminBypassController, :seed_database
     
     # Doctors management
-    get "/doctors", AdminBypassController, :doctors
-    get "/doctors/new", AdminBypassController, :new_doctor
-    post "/doctors", AdminBypassController, :create_doctor
-    get "/doctors/:id/edit", AdminBypassController, :edit_doctor
-    put "/doctors/:id", AdminBypassController, :update_doctor
-    delete "/doctors/:id", AdminBypassController, :delete_doctor
+    get "/_doctors", AdminBypassController, :_doctors
+    get "/_doctors/new", AdminBypassController, :new_doctor
+    post "/_doctors", AdminBypassController, :create_doctor
+    get "/_doctors/:id/edit", AdminBypassController, :edit_doctor
+    put "/_doctors/:id", AdminBypassController, :update_doctor
+    delete "/_doctors/:id", AdminBypassController, :delete_doctor
     
     # Patients management
-    get "/patients", AdminBypassController, :patients
-    get "/patients/new", AdminBypassController, :new_patient
-    post "/patients", AdminBypassController, :create_patient
-    get "/patients/:id/edit", AdminBypassController, :edit_patient
-    put "/patients/:id", AdminBypassController, :update_patient
-    delete "/patients/:id", AdminBypassController, :delete_patient
+    get "/_patients", AdminBypassController, :_patients
+    get "/_patients/new", AdminBypassController, :new_patient
+    post "/_patients", AdminBypassController, :create_patient
+    get "/_patients/:id/edit", AdminBypassController, :edit_patient
+    put "/_patients/:id", AdminBypassController, :update_patient
+    delete "/_patients/:id", AdminBypassController, :delete_patient
     
     # Appointments management
     get "/appointments", AdminBypassController, :appointments

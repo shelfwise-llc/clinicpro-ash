@@ -2,10 +2,10 @@ defmodule Clinicpro.Patient do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.Appointment
 
-  schema "patients" do
+  schema "_patients" do
     field :active, :boolean, default: true
     field :status, :string, default: "Active"
     field :address, :string
@@ -57,26 +57,26 @@ defmodule Clinicpro.Patient do
   end
 
   @doc """
-  Lists all patients.
+  Lists all _patients.
   """
   def list do
     Repo.all(__MODULE__)
   end
 
   @doc """
-  Lists patients with optional filtering.
+  Lists _patients with optional filtering.
 
   ## Parameters
 
   - filters: Map of filters to apply, such as:
-    - :active - boolean to filter active/inactive patients
+    - :active - boolean to filter active/inactive _patients
     - :name - string to search in first_name or last_name
     - :email - string to search in email
     - :phone - string to search in phone
 
   ## Examples
 
-      # Get active patients
+      # Get active _patients
       Patient.list(%{active: true})
 
       # Search by name
@@ -108,7 +108,7 @@ defmodule Clinicpro.Patient do
   end
 
   @doc """
-  Lists all active patients.
+  Lists all active _patients.
   """
   def list_active do
     __MODULE__

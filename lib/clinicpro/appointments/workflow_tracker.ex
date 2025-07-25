@@ -1,6 +1,6 @@
 defmodule Clinicpro.Appointments.WorkflowTracker do
   @moduledoc """
-  Tracks and manages workflow states for different appointment flows.
+  Tracks and manages workflow states for different _appointment flows.
   """
 
   @doc """

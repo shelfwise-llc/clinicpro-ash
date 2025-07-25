@@ -1,12 +1,12 @@
 defmodule Clinicpro.Auth.OTP do
   @moduledoc """
   Handles OTP (One-Time Password) generation and validation for patient authentication.
-  Supports multi-tenant architecture where each clinic can have its own patients with OTPs.
+  Supports multi-tenant architecture where each clinic can have its own _patients with OTPs.
   """
 
   alias Clinicpro.Auth.OTPSecret
   alias Clinicpro.Auth.OTPDelivery
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.Patient
   alias Clinicpro.Clinic
 

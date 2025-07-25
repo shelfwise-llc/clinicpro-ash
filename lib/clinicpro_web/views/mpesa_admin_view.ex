@@ -2,8 +2,8 @@ defmodule ClinicproWeb.MPesaAdminView do
   use ClinicproWeb, :view
 
   # Explicitly import required modules
-  import Phoenix.HTML
-  import Phoenix.HTML.Form
+  # # import Phoenix.HTML
+  # # import Phoenix.HTML.Form
   import PhoenixHTMLHelpers.Tag
   import PhoenixHTMLHelpers.Link
 
@@ -22,7 +22,7 @@ defmodule ClinicproWeb.MPesaAdminView do
   end
 
   @doc """
-  Returns the appropriate CSS class for transaction status display.
+  Returns the appropriate CSS class for _transaction status display.
   """
   def transaction_status_class(status) do
     case status do
@@ -175,10 +175,10 @@ defmodule ClinicproWeb.MPesaAdminView do
   end
 
   @doc """
-  Returns pagination links for transaction listing.
+  Returns pagination links for _transaction listing.
   """
   def pagination_links(conn, params, total_pages) do
-    current_page = Map.get(params, "page", "1") |> String.to_integer()
+    current_page = Map.get(params, "_page", "1") |> String.to_integer()
 
     content_tag :div,
       class: "flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6" do
@@ -191,7 +191,7 @@ defmodule ClinicproWeb.MPesaAdminView do
                   Routes.mpesa_admin_path(
                     conn,
                     :transactions,
-                    Map.put(params, "page", current_page - 1)
+                    Map.put(params, "_page", current_page - 1)
                   ),
                 class:
                   "relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -208,7 +208,7 @@ defmodule ClinicproWeb.MPesaAdminView do
                   Routes.mpesa_admin_path(
                     conn,
                     :transactions,
-                    Map.put(params, "page", current_page + 1)
+                    Map.put(params, "_page", current_page + 1)
                   ),
                 class:
                   "relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -253,7 +253,7 @@ defmodule ClinicproWeb.MPesaAdminView do
                            Routes.mpesa_admin_path(
                              conn,
                              :transactions,
-                             Map.put(params, "page", current_page - 1)
+                             Map.put(params, "_page", current_page - 1)
                            ),
                          class:
                            "relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" do
@@ -267,19 +267,19 @@ defmodule ClinicproWeb.MPesaAdminView do
                       content_tag(:span, "Previous", class: "sr-only")
                     end
                   end,
-                  for page <- max(1, current_page - 2)..min(total_pages, current_page + 2) do
-                    if page == current_page do
-                      content_tag(:span, "#{page}",
+                  for _page <- max(1, current_page - 2)..min(total_pages, current_page + 2) do
+                    if _page == current_page do
+                      content_tag(:span, "#{_page}",
                         class:
                           "relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                       )
                     else
-                      link("#{page}",
+                      link("#{_page}",
                         to:
                           Routes.mpesa_admin_path(
                             conn,
                             :transactions,
-                            Map.put(params, "page", page)
+                            Map.put(params, "_page", _page)
                           ),
                         class:
                           "relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
@@ -291,7 +291,7 @@ defmodule ClinicproWeb.MPesaAdminView do
                            Routes.mpesa_admin_path(
                              conn,
                              :transactions,
-                             Map.put(params, "page", current_page + 1)
+                             Map.put(params, "_page", current_page + 1)
                            ),
                          class:
                            "relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0" do

@@ -21,16 +21,16 @@ defmodule ClinicproWeb.PatientFlowController do
        when action in [:booking_confirmation]
 
   # Handle the receive link step.
-  # This is the entry point for patients who receive a link to their appointment.
+  # This is the entry point for _patients who receive a link to their _appointment.
   def receive_link(conn, %{"token" => token}) do
     # Validate the token (in a real app, this would verify against a database)
     case validate_appointment_token(token) do
       {:ok, appointment_data} ->
-        # Store appointment data in session
+        # Store _appointment data in session
         conn = put_session(conn, :appointment_data, appointment_data)
         
-        # Initialize the workflow for this appointment
-        conn = WorkflowValidator.init_workflow(conn, :patient_flow, "appointment-#{appointment_data.id}")
+        # Initialize the workflow for this _appointment
+        conn = WorkflowValidator.init_workflow(conn, :patient_flow, "_appointment-#{appointment_data.id}")
         
         # Store user ID in session for tracking
         conn = put_session(conn, :user_id, appointment_data.patient_id)
@@ -42,7 +42,7 @@ defmodule ClinicproWeb.PatientFlowController do
       
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Invalid appointment link: #{reason}")
+        |> put_flash(:error, "Invalid _appointment link: #{reason}")
         |> redirect(to: ~p"/")
     end
   end
@@ -52,13 +52,13 @@ defmodule ClinicproWeb.PatientFlowController do
   """
   def receive_link(conn, _params) do
     conn
-    |> put_flash(:error, "No appointment token provided")
+    |> put_flash(:error, "No _appointment token provided")
     |> redirect(to: ~p"/")
   end
 
   @doc """
   Handle the welcome step.
-  This shows a welcome message to the patient with basic appointment info.
+  This shows a welcome message to the patient with basic _appointment info.
   """
   def welcome(conn, _params) do
     workflow_state = conn.assigns[:workflow_state]
@@ -82,7 +82,7 @@ defmodule ClinicproWeb.PatientFlowController do
 
   @doc """
   Handle the confirm details step.
-  This allows the patient to confirm their appointment details.
+  This allows the patient to confirm their _appointment details.
   """
   def confirm_details(conn, _params) do
     workflow_state = conn.assigns[:workflow_state]

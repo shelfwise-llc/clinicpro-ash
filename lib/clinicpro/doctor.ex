@@ -2,10 +2,10 @@ defmodule Clinicpro.Doctor do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias Clinicpro.Repo
+  # # alias Clinicpro.Repo
   alias Clinicpro.Appointment
 
-  schema "doctors" do
+  schema "_doctors" do
     field :active, :boolean, default: true
     field :name, :string
     field :status, :string, default: "Active"
@@ -51,14 +51,14 @@ defmodule Clinicpro.Doctor do
   end
 
   @doc """
-  Lists all doctors.
+  Lists all _doctors.
   """
   def list do
     Repo.all(__MODULE__)
   end
 
   @doc """
-  Lists doctors with optional filtering.
+  Lists _doctors with optional filtering.
   
   ## Options
   
@@ -68,18 +68,18 @@ defmodule Clinicpro.Doctor do
   * `:email` - Filter by email (partial match)
   * `:specialty` - Filter by specialty
   """
-  def list(opts) do
+  def list(_opts) do
     __MODULE__
-    |> filter_by_active(opts)
-    |> filter_by_name(opts)
-    |> filter_by_email(opts)
-    |> filter_by_specialty(opts)
-    |> limit_query(opts)
+    |> filter_by_active(_opts)
+    |> filter_by_name(_opts)
+    |> filter_by_email(_opts)
+    |> filter_by_specialty(_opts)
+    |> limit_query(_opts)
     |> Repo.all()
   end
 
   @doc """
-  Lists all active doctors.
+  Lists all active _doctors.
   """
   def list_active do
     __MODULE__

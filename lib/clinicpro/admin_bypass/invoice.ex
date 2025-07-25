@@ -7,8 +7,8 @@ defmodule Clinicpro.AdminBypass.Invoice do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  alias Clinicpro.Repo
-  alias Clinicpro.MPesa.Transaction
+  # # alias Clinicpro.Repo
+  # # alias Clinicpro.MPesa.Transaction
   alias Clinicpro.AdminBypass.{Patient, Doctor, Appointment}
 
   schema "admin_bypass_invoices" do
@@ -31,8 +31,8 @@ defmodule Clinicpro.AdminBypass.Invoice do
 
     # Relationships
     belongs_to :patient, Patient
-    belongs_to :clinic, Doctor, foreign_key: :clinic_id
-    belongs_to :appointment, Appointment
+    belongs_to :clinic, Doctor, foreign_key: :_clinic_id
+    belongs_to :_appointment, Appointment
 
     # Virtual fields for payment
     field :payment_phone, :string, virtual: true
@@ -55,7 +55,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
       :payment_reference,
       :notes,
       :patient_id,
-      :clinic_id,
+      :_clinic_id,
       :appointment_id,
       :payment_phone,
       :payment_method
@@ -67,13 +67,13 @@ defmodule Clinicpro.AdminBypass.Invoice do
       :status,
       :due_date,
       :patient_id,
-      :clinic_id
+      :_clinic_id
     ])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, ["pending", "paid", "cancelled", "partial"])
     |> unique_constraint(:invoice_number)
     |> foreign_key_constraint(:patient_id)
-    |> foreign_key_constraint(:clinic_id)
+    |> foreign_key_constraint(:_clinic_id)
     |> foreign_key_constraint(:appointment_id)
     |> maybe_generate_invoice_number()
   end
@@ -98,8 +98,8 @@ defmodule Clinicpro.AdminBypass.Invoice do
 
     filters
     |> Enum.reduce(base_query, fn
-      {:clinic_id, clinic_id}, query ->
-        from q in query, where: q.clinic_id == ^clinic_id
+      {:_clinic_id, _clinic_id}, query ->
+        from q in query, where: q._clinic_id == ^_clinic_id
 
       {:patient_id, patient_id}, query ->
         from q in query, where: q.patient_id == ^patient_id
@@ -117,7 +117,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
         query
     end)
     |> Repo.all()
-    |> Repo.preload([:patient, :clinic, :appointment])
+    |> Repo.preload([:patient, :clinic, :_appointment])
   end
 
   @doc """
@@ -126,7 +126,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
   def get_invoice!(id) do
     __MODULE__
     |> Repo.get!(id)
-    |> Repo.preload([:patient, :clinic, :appointment])
+    |> Repo.preload([:patient, :clinic, :_appointment])
   end
 
   @doc """
@@ -173,7 +173,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
 
     # Initiate M-Pesa payment
     Clinicpro.MPesa.initiate_stk_push(
-      invoice.clinic_id,
+      invoice._clinic_id,
       phone,
       amount,
       payment_reference,
@@ -182,16 +182,16 @@ defmodule Clinicpro.AdminBypass.Invoice do
   end
 
   @doc """
-  Updates invoice status based on M-Pesa transaction.
+  Updates invoice status based on M-Pesa _transaction.
   """
-  def update_from_transaction(%Transaction{} = transaction) do
-    with {:ok, invoice} <- find_invoice_by_reference(transaction.reference) do
-      status = if transaction.status == "completed", do: "paid", else: invoice.status
+  def update_from_transaction(%Transaction{} = _transaction) do
+    with {:ok, invoice} <- find_invoice_by_reference(_transaction.reference) do
+      status = if _transaction.status == "completed", do: "paid", else: invoice.status
 
       update_invoice(invoice, %{
         status: status,
         notes:
-          "#{invoice.notes || ""}\nPayment processed via M-Pesa: #{transaction.mpesa_receipt_number} on #{transaction.transaction_date}"
+          "#{invoice.notes || ""}\nPayment processed via M-Pesa: #{_transaction.mpesa_receipt_number} on #{_transaction.transaction_date}"
       })
     end
   end
@@ -202,31 +202,31 @@ defmodule Clinicpro.AdminBypass.Invoice do
   def find_invoice_by_reference(reference) do
     case Repo.get_by(__MODULE__, payment_reference: reference) do
       nil -> {:error, :not_found}
-      invoice -> {:ok, invoice |> Repo.preload([:patient, :clinic, :appointment])}
+      invoice -> {:ok, invoice |> Repo.preload([:patient, :clinic, :_appointment])}
     end
   end
 
   @doc """
   Gets invoice statistics for a clinic.
   """
-  def get_stats_for_clinic(clinic_id) do
+  def get_stats_for_clinic(_clinic_id) do
     # Total invoices
     total_query =
       from i in __MODULE__,
-        where: i.clinic_id == ^clinic_id,
+        where: i._clinic_id == ^_clinic_id,
         select: count(i.id)
 
     # Total by status
     status_query =
       from i in __MODULE__,
-        where: i.clinic_id == ^clinic_id,
+        where: i._clinic_id == ^_clinic_id,
         group_by: i.status,
         select: {i.status, count(i.id)}
 
     # Total amount
     amount_query =
       from i in __MODULE__,
-        where: i.clinic_id == ^clinic_id and i.status == "paid",
+        where: i._clinic_id == ^_clinic_id and i.status == "paid",
         select: sum(i.amount)
 
     # Execute queries
@@ -258,11 +258,11 @@ defmodule Clinicpro.AdminBypass.Invoice do
   defp maybe_generate_invoice_number(changeset) do
     case get_field(changeset, :invoice_number) do
       nil ->
-        clinic_id = get_field(changeset, :clinic_id)
+        _clinic_id = get_field(changeset, :_clinic_id)
         date_prefix = Date.utc_today() |> Date.to_string() |> String.replace("-", "")
         random_suffix = :crypto.strong_rand_bytes(3) |> Base.encode16()
 
-        invoice_number = "INV-#{clinic_id}-#{date_prefix}-#{random_suffix}"
+        invoice_number = "INV-#{_clinic_id}-#{date_prefix}-#{random_suffix}"
         put_change(changeset, :invoice_number, invoice_number)
 
       _ ->
@@ -275,6 +275,6 @@ defmodule Clinicpro.AdminBypass.Invoice do
     date_part =
       DateTime.utc_now() |> DateTime.to_string() |> String.slice(0, 10) |> String.replace("-", "")
 
-    "PAY-#{invoice.clinic_id}-#{date_part}-#{invoice.id}"
+    "PAY-#{invoice._clinic_id}-#{date_part}-#{invoice.id}"
   end
 end

@@ -22,7 +22,7 @@ defmodule ClinicproWeb.GuestBookingController do
   end
 
   @doc """
-  Handle the appointment type selection step.
+  Handle the _appointment type selection step.
   """
   def type(conn, _params) do
     workflow_state = conn.assigns[:workflow_state]
@@ -31,10 +31,10 @@ defmodule ClinicproWeb.GuestBookingController do
   end
 
   @doc """
-  Process the selected appointment type and advance to the next step.
+  Process the selected _appointment type and advance to the next step.
   """
   def type_submit(conn, %{"type" => appointment_type}) do
-    # Store the appointment type in the session
+    # Store the _appointment type in the session
     conn = put_session(conn, :appointment_type, appointment_type)
 
     # Advance the workflow to the next step
@@ -136,12 +136,12 @@ defmodule ClinicproWeb.GuestBookingController do
     # Advance the workflow to the final step
     conn = WorkflowValidator.advance_workflow(conn, "user-#{get_session(conn, :user_id)}")
 
-    # Redirect to the completion page
+    # Redirect to the completion _page
     redirect(conn, to: ~p"/guest_booking/complete")
   end
 
   @doc """
-  Show the booking completion page.
+  Show the booking completion _page.
   """
   def complete(conn, _params) do
     booking_summary = get_session(conn, :booking_summary)

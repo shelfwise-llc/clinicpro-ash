@@ -4,7 +4,7 @@ defmodule ClinicproWeb.AppointmentHTML do
   embed_templates "appointment_html/*"
   
   @doc """
-  Renders the appointment details page.
+  Renders the _appointment details _page.
   """
   def show(assigns) do
     ~H"""
@@ -13,25 +13,25 @@ defmodule ClinicproWeb.AppointmentHTML do
       
       <div class="mb-6 p-4 border rounded-md bg-gray-50">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-lg font-semibold">Appointment #<%= @appointment.id %></h2>
-          <span class={appointment_type_badge(@appointment.appointment_type)}>
-            <%= String.capitalize(@appointment.appointment_type || "Onsite") %>
+          <h2 class="text-lg font-semibold">Appointment #<%= @_appointment.id %></h2>
+          <span class={appointment_type_badge(@_appointment.appointment_type)}>
+            <%= String.capitalize(@_appointment.appointment_type || "Onsite") %>
           </span>
         </div>
         
         <div class="grid grid-cols-2 gap-2">
           <div class="text-gray-600">Date:</div>
-          <div><%= format_date(@appointment.scheduled_date) %></div>
+          <div><%= format_date(@_appointment.scheduled_date) %></div>
           
           <div class="text-gray-600">Time:</div>
-          <div><%= format_time(@appointment.scheduled_time) %></div>
+          <div><%= format_time(@_appointment.scheduled_time) %></div>
           
           <div class="text-gray-600">Doctor:</div>
-          <div><%= @appointment.doctor_name %></div>
+          <div><%= @_appointment.doctor_name %></div>
           
           <div class="text-gray-600">Status:</div>
-          <div class={appointment_status_color(@appointment.status)}>
-            <%= String.capitalize(@appointment.status) %>
+          <div class={appointment_status_color(@_appointment.status)}>
+            <%= String.capitalize(@_appointment.status) %>
           </div>
         </div>
       </div>
@@ -63,14 +63,14 @@ defmodule ClinicproWeb.AppointmentHTML do
       <% end %>
       
       <div class="flex flex-col space-y-4">
-        <%= if @appointment.appointment_type == "virtual" && @invoice && @invoice.status == "paid" do %>
-          <a href={~p"/q/appointment/virtual/#{@appointment.id}"} class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-center">
+        <%= if @_appointment.appointment_type == "virtual" && @invoice && @invoice.status == "paid" do %>
+          <a href={~p"/q/_appointment/virtual/#{@_appointment.id}"} class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-center">
             Access Virtual Appointment
           </a>
         <% end %>
         
-        <%= if @appointment.appointment_type == "onsite" && @invoice && @invoice.status == "paid" do %>
-          <a href={~p"/q/appointment/onsite/#{@appointment.id}"} class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-center">
+        <%= if @_appointment.appointment_type == "onsite" && @invoice && @invoice.status == "paid" do %>
+          <a href={~p"/q/_appointment/onsite/#{@_appointment.id}"} class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 text-center">
             View Clinic Details
           </a>
         <% end %>
@@ -84,7 +84,7 @@ defmodule ClinicproWeb.AppointmentHTML do
   end
   
   @doc """
-  Renders the virtual appointment link page.
+  Renders the virtual _appointment link _page.
   """
   def virtual_link(assigns) do
     ~H"""
@@ -95,20 +95,20 @@ defmodule ClinicproWeb.AppointmentHTML do
         <h2 class="text-lg font-semibold mb-4">Appointment Details</h2>
         <div class="grid grid-cols-2 gap-2">
           <div class="text-gray-600">Date:</div>
-          <div><%= format_date(@appointment.scheduled_date) %></div>
+          <div><%= format_date(@_appointment.scheduled_date) %></div>
           
           <div class="text-gray-600">Time:</div>
-          <div><%= format_time(@appointment.scheduled_time) %></div>
+          <div><%= format_time(@_appointment.scheduled_time) %></div>
           
           <div class="text-gray-600">Doctor:</div>
-          <div><%= @appointment.doctor_name %></div>
+          <div><%= @_appointment.doctor_name %></div>
         </div>
       </div>
       
       <div class="mb-6 p-4 border-2 border-green-500 rounded-md bg-green-50">
         <h3 class="text-lg font-semibold mb-2 text-green-700">Your Virtual Meeting Link</h3>
         <p class="mb-4 text-sm text-gray-600">
-          Click the button below to join your virtual appointment. Please join 5 minutes before your scheduled time.
+          Click the button below to join your virtual _appointment. Please join 5 minutes before your scheduled time.
         </p>
         
         <div class="flex flex-col space-y-4">
@@ -126,7 +126,7 @@ defmodule ClinicproWeb.AppointmentHTML do
         <h3 class="text-lg font-semibold mb-2 text-blue-700">Preparation Tips</h3>
         <ul class="list-disc pl-5 space-y-2 text-sm">
           <li>Ensure you have a stable internet connection</li>
-          <li>Find a quiet, private space for your appointment</li>
+          <li>Find a quiet, private space for your _appointment</li>
           <li>Test your camera and microphone before joining</li>
           <li>Have any relevant medical documents or information ready</li>
           <li>Write down any questions you want to ask the doctor</li>
@@ -134,7 +134,7 @@ defmodule ClinicproWeb.AppointmentHTML do
       </div>
       
       <div class="flex flex-col space-y-4">
-        <a href={~p"/q/appointment/#{@appointment.id}"} class="text-blue-600 hover:underline text-center">
+        <a href={~p"/q/_appointment/#{@_appointment.id}"} class="text-blue-600 hover:underline text-center">
           Back to Appointment Details
         </a>
       </div>
@@ -143,7 +143,7 @@ defmodule ClinicproWeb.AppointmentHTML do
   end
   
   @doc """
-  Renders the onsite appointment details page.
+  Renders the onsite _appointment details _page.
   """
   def onsite_details(assigns) do
     ~H"""
@@ -154,13 +154,13 @@ defmodule ClinicproWeb.AppointmentHTML do
         <h2 class="text-lg font-semibold mb-4">Appointment Details</h2>
         <div class="grid grid-cols-2 gap-2">
           <div class="text-gray-600">Date:</div>
-          <div><%= format_date(@appointment.scheduled_date) %></div>
+          <div><%= format_date(@_appointment.scheduled_date) %></div>
           
           <div class="text-gray-600">Time:</div>
-          <div><%= format_time(@appointment.scheduled_time) %></div>
+          <div><%= format_time(@_appointment.scheduled_time) %></div>
           
           <div class="text-gray-600">Doctor:</div>
-          <div><%= @appointment.doctor_name %></div>
+          <div><%= @_appointment.doctor_name %></div>
         </div>
       </div>
       
@@ -199,7 +199,7 @@ defmodule ClinicproWeb.AppointmentHTML do
       </div>
       
       <div class="flex flex-col space-y-4">
-        <a href={~p"/q/appointment/#{@appointment.id}"} class="text-blue-600 hover:underline text-center">
+        <a href={~p"/q/_appointment/#{@_appointment.id}"} class="text-blue-600 hover:underline text-center">
           Back to Appointment Details
         </a>
       </div>
