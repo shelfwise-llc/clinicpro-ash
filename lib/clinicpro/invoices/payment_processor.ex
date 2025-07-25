@@ -50,21 +50,21 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       reference: invoice.reference_number,
       description: "Payment for #{invoice.description}",
       callback_url: final_callback_url,
-      _clinic_id: _clinic_id
+      clinic_id: clinic_id
     }
 
     # Initiate the STK push
     case STKPush.initiate(stk_params) do
       {:ok, %{checkout_request_id: checkout_id, merchant_request_id: merchant_id} = response} ->
-        # Create a _transaction record
-        {:ok, _transaction} = Transaction.create(%{
+        # Create a transaction record
+        {:ok, transaction} = Transaction.create(%{
           checkout_request_id: checkout_id,
           merchant_request_id: merchant_id,
           invoice_id: invoice.id,
           amount: invoice.amount,
           phone_number: formatted_phone,
           status: "pending",
-          _clinic_id: _clinic_id,
+          clinic_id: clinic_id,
           reference: invoice.reference_number
         })
 
@@ -94,8 +94,8 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   end
 
   @doc """
-  Processes an M-Pesa callback for an STK push _transaction.
-  Updates the _transaction and invoice status based on the callback result.
+  Processes an M-Pesa callback for an STK push transaction.
+  Updates the transaction and invoice status based on the callback result.
 
   ## Parameters
 
@@ -103,7 +103,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
   ## Returns
 
-  - `{:ok, %{invoice: invoice, _transaction: _transaction}}` on success
+  - `{:ok, %{invoice: invoice, transaction: transaction}}` on success
   - `{:error, reason}` on failure
   """
   @spec process_callback(map()) :: {:ok, map()} | {:error, any()}
@@ -115,14 +115,14 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       "ResultCode" => result_code
     } = callback_data
 
-    # Find the _transaction by the checkout request ID
+    # Find the transaction by the checkout request ID
     case Transaction.get_by_checkout_request_id(checkout_request_id) do
       nil ->
         {:error, :transaction_not_found}
 
-      _transaction ->
-        # Get the invoice associated with the _transaction
-        invoice = Invoices.get_invoice(_transaction.invoice_id)
+      foundtransaction ->
+        # Get the invoice associated with the transaction
+        invoice = Invoices.get_invoice(foundtransaction.invoice_id)
 
         if is_nil(invoice) do
           {:error, :invoice_not_found}
@@ -130,17 +130,17 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
           # Process the result based on the result code
           if result_code == "0" do
             # Payment successful
-            process_successful_payment(_transaction, invoice, callback_data)
+            process_successful_payment(foundtransaction, invoice, callback_data)
           else
             # Payment failed
-            process_failed_payment(_transaction, invoice, callback_data)
+            process_failed_payment(foundtransaction, invoice, callback_data)
           end
         end
     end
   end
 
   @doc """
-  Checks the status of a pending M-Pesa _transaction for an invoice.
+  Checks the status of a pending M-Pesa transaction for an invoice.
 
   ## Parameters
 
@@ -153,10 +153,10 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   """
   @spec check_payment_status(map()) :: {:ok, atom()} | {:error, any()}
   def check_payment_status(invoice) do
-    # Find the latest _transaction for this invoice
+    # Find the latest transaction for this invoice
     case Transaction.get_latest_for_invoice(invoice.id) do
       nil ->
-        {:ok, :no_transaction}
+        {:ok, :notransaction}
 
       transaction ->
         # Get the clinic ID from the transaction
@@ -176,14 +176,14 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
           {:ok, %{result_code: code, result_desc: desc}} when code != "0" ->
             # Payment failed
-            process_failed_payment(_transaction, invoice, %{
+            process_failed_payment(transaction, invoice, %{
               "ResultCode" => code,
               "ResultDesc" => desc
             })
 
           {:error, reason} ->
-            # Error checking status, but don't update the _transaction yet
-            Logger.error("Error checking M-Pesa _transaction status: #{inspect(reason)}")
+            # Error checking status, but don't update the transaction yet
+            Logger.error("Error checking M-Pesa transaction status: #{inspect(reason)}")
             {:error, reason}
         end
     end
@@ -191,13 +191,13 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
   # Private functions
 
-  defp process_successful_payment(_transaction, invoice, callback_data) do
+  defp process_successful_payment(transaction, invoice, callback_data) do
     # Extract additional data from the callback
     mpesa_receipt = callback_data["MpesaReceiptNumber"] || "N/A"
     transaction_date = callback_data["TransactionDate"] || DateTime.utc_now() |> DateTime.to_string()
 
-    # Update the _transaction status
-    {:ok, updated_transaction} = Transaction.update(_transaction, %{
+    # Update the transaction status
+    {:ok, updatedtransaction} = Transaction.update(transaction, %{
       status: "completed",
       mpesa_receipt_number: mpesa_receipt,
       transaction_date: transaction_date,
@@ -227,16 +227,16 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       end
     end
 
-    {:ok, %{invoice: updated_invoice, _transaction: updated_transaction}}
+    {:ok, %{invoice: updated_invoice, transaction: updatedtransaction}}
   end
 
-  defp process_failed_payment(_transaction, invoice, callback_data) do
+  defp process_failed_payment(transaction, invoice, callback_data) do
     # Extract data from the callback
     result_code = callback_data["ResultCode"]
     result_desc = callback_data["ResultDesc"] || "Payment failed"
 
-    # Update the _transaction status
-    {:ok, updated_transaction} = Transaction.update(_transaction, %{
+    # Update the transaction status
+    {:ok, updatedtransaction} = Transaction.update(transaction, %{
       status: "failed",
       result_code: result_code,
       result_description: result_desc
@@ -248,7 +248,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       payment_error: result_desc
     })
 
-    {:ok, %{invoice: updated_invoice, _transaction: updated_transaction}}
+    {:ok, %{invoice: updated_invoice, transaction: updatedtransaction}}
   end
 
   defp send_payment_confirmation_notification(_appointment, invoice) do
