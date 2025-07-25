@@ -1,13 +1,19 @@
-# ClinicPro Kamal CI/CD Deployment Setup
+# ClinicPro Railway + GitHub Actions CI/CD Setup
 
 ## Overview
 
-This document outlines the Kamal-based CI/CD deployment setup for ClinicPro, which replaces the previous direct Railway deployment approach. The new setup provides better control over the deployment process and catches compilation issues early in the CI pipeline.
+The deployment pipeline uses:
+- **GitHub Actions** for CI: compile with `--warnings-as-errors`, run tests, build Docker image
+- **Railway CLI** for deployment: deploy verified container to Railway infrastructure
+- **Railway PostgreSQL** for database
+- **GitHub Container Registry (GHCR)** for storing Docker images
+
+This document describes the CI/CD pipeline setup using GitHub Actions and Railway CLI for deploying ClinicPro to Railway infrastructure. The new setup provides better control over the deployment process and catches compilation issues early in the CI pipeline.
 
 ## What's Been Implemented
 
-### 1. Kamal Configuration
-- **Location**: `config/deploy.yml`
+### 1. Railway Configuration
+- **Database**: PostgreSQL service added to Railway project
 - **Registry**: GitHub Container Registry (ghcr.io)
 - **Image**: `shelfwise-llc/clinicpro`
 - **Environment Variables**: Configured for Phoenix production deployment
@@ -17,7 +23,7 @@ This document outlines the Kamal-based CI/CD deployment setup for ClinicPro, whi
 - **Triggers**: Push to main/master branch, Pull requests
 - **Stages**:
   - **Test Stage**: Runs tests with PostgreSQL service, checks formatting, compiles with `--warnings-as-errors`
-  - **Build & Deploy Stage**: Builds Docker image, pushes to GHCR, deploys with Kamal
+  - **Build & Deploy Stage**: Builds Docker image, pushes to GHCR, deploys with Railway CLI
 
 ### 3. Environment Configuration
 - **Secrets File**: `.kamal/secrets` (configured for environment variable injection)

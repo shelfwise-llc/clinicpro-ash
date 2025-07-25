@@ -32,13 +32,13 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   @spec initiate_payment(map(), String.t(), String.t() | nil) :: {:ok, map()} | {:error, any()}
   def initiate_payment(invoice, phone_number, callback_url \\ nil) do
     # Get the clinic ID from the invoice
-    _clinic_id = get_clinic_id_from_invoice(invoice)
+    clinic_id = get_clinic_id_from_invoice(invoice)
 
     # Format the phone number to ensure it's in the correct format (254XXXXXXXXX)
     formatted_phone = format_phone_number(phone_number)
 
     # Get the clinic-specific M-Pesa configuration
-    mpesa_config = Config.get_config_for_clinic(_clinic_id)
+    mpesa_config = Config.get_config_for_clinic(clinic_id)
 
     # Set up the callback URL (use the provided one or the default for the clinic)
     final_callback_url = callback_url || mpesa_config.stk_callback_url
@@ -158,18 +158,18 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       nil ->
         {:ok, :no_transaction}
 
-      _transaction ->
-        # Get the clinic ID from the _transaction
-        _clinic_id = _transaction._clinic_id
+      transaction ->
+        # Get the clinic ID from the transaction
+        clinic_id = transaction.clinic_id
 
         # Get the clinic-specific M-Pesa configuration
-        mpesa_config = Config.get_config_for_clinic(_clinic_id)
+        mpesa_config = Config.get_config_for_clinic(clinic_id)
 
-        # Check the status of the _transaction with M-Pesa
-        case STKPush.query_status(_transaction.checkout_request_id, mpesa_config) do
+        # Check the status of the transaction with M-Pesa
+        case STKPush.query_status(transaction.checkout_request_id, mpesa_config) do
           {:ok, %{result_code: "0"}} ->
-            # Payment was successful, update the _transaction and invoice
-            process_successful_payment(_transaction, invoice, %{
+            # Payment was successful, update the transaction and invoice
+            process_successful_payment(transaction, invoice, %{
               "ResultCode" => "0",
               "ResultDesc" => "The service request is processed successfully."
             })

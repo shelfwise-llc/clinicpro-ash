@@ -98,22 +98,14 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         
-    - name: Set up Ruby for Kamal
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2'
-        bundler-cache: false
+    - name: Install Railway CLI
+      run: |
+        curl -fsSL https://railway.app/install.sh | sh
+        echo "$HOME/.railway/bin" >> $GITHUB_PATH
         
-    - name: Install Kamal
-      run: gem install kamal
-      
-    - name: Deploy with Kamal
-      run: kamal deploy
+    - name: Deploy to Railway
+      run: |
+        railway login --token ${{ secrets.RAILWAY_TOKEN }}
+        railway up --detach
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
-        PAYSTACK_SECRET_KEY: ${{ secrets.PAYSTACK_SECRET_KEY }}
-        PAYSTACK_PUBLIC_KEY: ${{ secrets.PAYSTACK_PUBLIC_KEY }}
-        RAILWAY_SERVER_HOST: ${{ secrets.RAILWAY_SERVER_HOST }}
-        RAILWAY_PUBLIC_DOMAIN: ${{ secrets.RAILWAY_PUBLIC_DOMAIN }}
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
