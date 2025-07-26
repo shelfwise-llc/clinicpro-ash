@@ -23,7 +23,20 @@ defmodule ClinicproWeb.ControllerTestBypass do
   end
 
   defmodule MockAppointment do
-    defstruct [:id, :patient_name, :date, :time, :reason, :status, :clinic_id, :doctor_id, :patient_id, :type, :medical_details, :diagnosis]
+    defstruct [
+      :id,
+      :patient_name,
+      :date,
+      :time,
+      :reason,
+      :status,
+      :clinic_id,
+      :doctor_id,
+      :patient_id,
+      :type,
+      :medical_details,
+      :diagnosis
+    ]
   end
 
   alias Clinicpro.Mocks.Accounts

@@ -6,7 +6,20 @@ defmodule Clinicpro.Mocks.Appointments do
 
   # Define structs locally to avoid compilation order issues
   defmodule MockAppointment do
-    defstruct [:id, :patient_name, :date, :time, :reason, :status, :clinic_id, :doctor_id, :patient_id, :type, :medical_details, :diagnosis]
+    defstruct [
+      :id,
+      :patient_name,
+      :date,
+      :time,
+      :reason,
+      :status,
+      :clinic_id,
+      :doctor_id,
+      :patient_id,
+      :type,
+      :medical_details,
+      :diagnosis
+    ]
   end
 
   defmodule MockUser do
