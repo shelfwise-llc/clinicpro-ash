@@ -49,15 +49,14 @@ jobs:
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/clinicpro_test
 
     - name: Setup database
-      run: |
-        mix ecto.create || echo "Database creation failed, continuing..."
-        mix ecto.migrate || echo "Migration failed, continuing..."
+      run: mix ecto.create && mix ecto.migrate
       env:
         MIX_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/clinicpro_test
+      continue-on-error: true
 
     - name: Run tests
-      run: mix test || echo "Tests failed, but compilation and formatting passed"
+      run: mix test
       env:
         MIX_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/clinicpro_test
