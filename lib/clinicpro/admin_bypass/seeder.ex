@@ -28,11 +28,55 @@ defmodule Clinicpro.AdminBypass.Seeder do
     {:ok, patient4} = create_patient("David", "Wilson", "1995-12-03", "male")
 
     # Seed appointments
-    create_appointment(doctor1, patient1, "2025-08-01", "09:00:00", "09:30:00", "scheduled", "Annual checkup")
-    create_appointment(doctor2, patient2, "2025-08-02", "10:00:00", "10:30:00", "scheduled", "Headache consultation")
-    create_appointment(doctor3, patient3, "2025-08-03", "11:00:00", "11:30:00", "scheduled", "Child vaccination")
-    create_appointment(doctor1, patient4, "2025-08-04", "14:00:00", "14:30:00", "scheduled", "Heart examination")
-    create_appointment(doctor2, patient1, "2025-08-05", "15:00:00", "15:30:00", "scheduled", "Follow-up")
+    create_appointment(
+      doctor1,
+      patient1,
+      "2025-08-01",
+      "09:00:00",
+      "09:30:00",
+      "scheduled",
+      "Annual checkup"
+    )
+
+    create_appointment(
+      doctor2,
+      patient2,
+      "2025-08-02",
+      "10:00:00",
+      "10:30:00",
+      "scheduled",
+      "Headache consultation"
+    )
+
+    create_appointment(
+      doctor3,
+      patient3,
+      "2025-08-03",
+      "11:00:00",
+      "11:30:00",
+      "scheduled",
+      "Child vaccination"
+    )
+
+    create_appointment(
+      doctor1,
+      patient4,
+      "2025-08-04",
+      "14:00:00",
+      "14:30:00",
+      "scheduled",
+      "Heart examination"
+    )
+
+    create_appointment(
+      doctor2,
+      patient1,
+      "2025-08-05",
+      "15:00:00",
+      "15:30:00",
+      "scheduled",
+      "Follow-up"
+    )
 
     :ok
   end
@@ -44,7 +88,8 @@ defmodule Clinicpro.AdminBypass.Seeder do
       email: String.downcase("#{first_name}.#{last_name}@example.com"),
       phone: "555-#{:rand.uniform(999)}-#{:rand.uniform(9999)}",
       specialty: specialty,
-      bio: "Experienced #{specialty} specialist with over #{:rand.uniform(20)} years of practice.",
+      bio:
+        "Experienced #{specialty} specialist with over #{:rand.uniform(20)} years of practice.",
       active: true,
       years_of_experience: :rand.uniform(20) + 5,
       consultation_fee: Decimal.new(:rand.uniform(200) + 50)
@@ -59,7 +104,8 @@ defmodule Clinicpro.AdminBypass.Seeder do
       phone: "555-#{:rand.uniform(999)}-#{:rand.uniform(9999)}",
       date_of_birth: Date.from_iso8601!(dob),
       gender: gender,
-      medical_history: "Patient has a history of #{Enum.random(["asthma", "diabetes", "hypertension", "none"])}.",
+      medical_history:
+        "Patient has a history of #{Enum.random(["asthma", "diabetes", "hypertension", "none"])}.",
       active: true
     })
   end

@@ -50,7 +50,7 @@ defmodule Clinicpro.Appointments.WorkflowTracker do
   def get_next_step(workflow_type, current_step) do
     steps = available_workflows()[workflow_type]
     current_index = Enum.find_index(steps, &(&1 == current_step))
-    
+
     if current_index < length(steps) - 1 do
       Enum.at(steps, current_index + 1)
     else
@@ -64,7 +64,7 @@ defmodule Clinicpro.Appointments.WorkflowTracker do
   def get_previous_step(workflow_type, current_step) do
     steps = available_workflows()[workflow_type]
     current_index = Enum.find_index(steps, &(&1 == current_step))
-    
+
     if current_index > 0 do
       Enum.at(steps, current_index - 1)
     else
@@ -78,9 +78,9 @@ defmodule Clinicpro.Appointments.WorkflowTracker do
   def get_progress_percentage(workflow_type, current_step) do
     steps = available_workflows()[workflow_type]
     current_index = Enum.find_index(steps, &(&1 == current_step))
-    
+
     if current_index do
-      trunc((current_index / (length(steps) - 1)) * 100)
+      trunc(current_index / (length(steps) - 1) * 100)
     else
       0
     end

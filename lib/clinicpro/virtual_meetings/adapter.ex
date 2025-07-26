@@ -77,7 +77,7 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
           adapter_name = Map.get(config, :adapter)
           resolve_adapter(adapter_name)
 
-        _ ->
+        _unused ->
           # Fall back to application-level adapter
           get_app_adapter()
       end
@@ -157,8 +157,10 @@ defmodule Clinicpro.VirtualMeetings.Adapter do
       "google_meet" -> GoogleMeetAdapter
       "zoom" -> CustomZoomAdapter
       "simple" -> SimpleAdapter
-      nil -> SimpleAdapter  # Default to SimpleAdapter if not configured
-      _ -> SimpleAdapter    # Default to SimpleAdapter for unknown adapters
+      # Default to SimpleAdapter if not configured
+      nil -> SimpleAdapter
+      # Default to SimpleAdapter for unknown adapters
+      _unused -> SimpleAdapter
     end
   end
 end

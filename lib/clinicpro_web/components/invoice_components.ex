@@ -40,7 +40,7 @@ defmodule ClinicproWeb.InvoiceComponents do
         "cash" -> "bg-blue-100 text-blue-800"
         "card" -> "bg-purple-100 text-purple-800"
         "insurance" -> "bg-yellow-100 text-yellow-800"
-        _ -> "bg-gray-100 text-gray-800"
+        _unused -> "bg-gray-100 text-gray-800"
       end
 
     assigns = assign(assigns, :bg_color, bg_color)
@@ -65,10 +65,10 @@ defmodule ClinicproWeb.InvoiceComponents do
 
   def format_currency(amount) when is_binary(amount) do
     case Float.parse(amount) do
-      {num, _} -> format_currency(num)
+      {num, _unused} -> format_currency(num)
       :error -> "KES 0.00"
     end
   end
 
-  def format_currency(_), do: "KES 0.00"
+  def format_currency(_unused), do: "KES 0.00"
 end

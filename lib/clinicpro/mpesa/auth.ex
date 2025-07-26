@@ -26,6 +26,7 @@ defmodule Clinicpro.MPesa.Auth do
 
     # Build the authorization header
     auth_string = Base.encode64("#{config.consumer_key}:#{config.consumer_secret}")
+
     headers = [
       {"Authorization", "Basic #{auth_string}"},
       {"Content-Type", "application/json"}
@@ -44,7 +45,7 @@ defmodule Clinicpro.MPesa.Auth do
 
             {:ok, %{access_token: token, expires_in: expires_in}}
 
-          {:error, _} = error ->
+          {:error, _unused} = error ->
             Logger.error("Failed to parse M-Pesa access token response: #{inspect(error)}")
             {:error, :invalid_response}
         end
@@ -76,7 +77,7 @@ defmodule Clinicpro.MPesa.Auth do
       {:ok, token} ->
         {:ok, token}
 
-      {:error, _} ->
+      {:error, _unused} ->
         # No valid cached token, generate a new one
         case generate_access_token(_clinic_id) do
           {:ok, %{access_token: token}} -> {:ok, token}
@@ -124,7 +125,8 @@ defmodule Clinicpro.MPesa.Auth do
 
   defp cache_token(_clinic_id, token, expires_in) do
     # Calculate expiry time (subtract a buffer to ensure we don't use an expired token)
-    buffer = 60 # 1 minute buffer
+    # 1 minute buffer
+    buffer = 60
     expiry = :os.system_time(:second) + expires_in - buffer
 
     # Store the token in the process dictionary

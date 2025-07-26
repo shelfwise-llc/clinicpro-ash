@@ -3,51 +3,86 @@
     <h1 class="text-2xl font-bold">Edit Patient</h1>
     <p class="text-gray-600">Update patient information</p>
   </div>
-  
+
   <%= if flash = get_flash(@conn, :error) do %>
-    <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <div
+      class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
       <span class="block sm:inline"><%= flash %></span>
     </div>
   <% end %>
-  
+
   <%= if flash = get_flash(@conn, :info) do %>
-    <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+    <div
+      class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
       <span class="block sm:inline"><%= flash %></span>
     </div>
   <% end %>
-  
+
   <div class="bg-white shadow overflow-hidden sm:rounded-lg">
     <form action={~p"/admin/patients/#{@patient.id}"} method="post" class="p-6">
       <input type="hidden" name="_method" value="put" />
       <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="col-span-1">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
-          
+
           <div class="mb-4">
             <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-            <input type="text" name="patient[name]" id="name" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.name} />
+            <input
+              type="text"
+              name="patient[name]"
+              id="name"
+              required
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.name}
+            />
           </div>
-          
+
           <div class="mb-4">
-            <label for="date_of_birth" class="block text-sm font-medium text-gray-700">Date of Birth</label>
-            <input type="date" name="patient[date_of_birth]" id="date_of_birth" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.date_of_birth |> Date.to_iso8601()} />
+            <label for="date_of_birth" class="block text-sm font-medium text-gray-700">
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              name="patient[date_of_birth]"
+              id="date_of_birth"
+              required
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.date_of_birth |> Date.to_iso8601()}
+            />
           </div>
-          
+
           <div class="mb-4">
             <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
-            <select name="patient[gender]" id="gender" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <select
+              name="patient[gender]"
+              id="gender"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="Male" selected={@patient.gender == "Male"}>Male</option>
               <option value="Female" selected={@patient.gender == "Female"}>Female</option>
               <option value="Other" selected={@patient.gender == "Other"}>Other</option>
-              <option value="Prefer not to say" selected={@patient.gender == "Prefer not to say"}>Prefer not to say</option>
+              <option value="Prefer not to say" selected={@patient.gender == "Prefer not to say"}>
+                Prefer not to say
+              </option>
             </select>
           </div>
-          
+
           <div class="mb-4">
-            <label for="blood_type" class="block text-sm font-medium text-gray-700">Blood Type</label>
-            <select name="patient[blood_type]" id="blood_type" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <label for="blood_type" class="block text-sm font-medium text-gray-700">
+              Blood Type
+            </label>
+            <select
+              name="patient[blood_type]"
+              id="blood_type"
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="" selected={@patient.blood_type == nil}>Unknown</option>
               <option value="A+" selected={@patient.blood_type == "A+"}>A+</option>
               <option value="A-" selected={@patient.blood_type == "A-"}>A-</option>
@@ -60,90 +95,181 @@
             </select>
           </div>
         </div>
-        
+
         <div class="col-span-1">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h3>
-          
+
           <div class="mb-4">
-            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-            <input type="email" name="patient[email]" id="email" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.email} />
+            <label for="email" class="block text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              type="email"
+              name="patient[email]"
+              id="email"
+              required
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.email}
+            />
           </div>
-          
+
           <div class="mb-4">
-            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
-            <input type="tel" name="patient[phone]" id="phone" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.phone} />
+            <label for="phone" class="block text-sm font-medium text-gray-700">
+              Phone Number
+            </label>
+            <input
+              type="tel"
+              name="patient[phone]"
+              id="phone"
+              required
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.phone}
+            />
           </div>
-          
+
           <div class="mb-4">
             <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-            <textarea name="patient[address]" id="address" rows="3" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"><%= @patient.address %></textarea>
+            <textarea
+              name="patient[address]"
+              id="address"
+              rows="3"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+            ><%= @patient.address %></textarea>
           </div>
-          
+
           <div class="mb-4">
-            <label for="emergency_contact" class="block text-sm font-medium text-gray-700">Emergency Contact</label>
-            <input type="text" name="patient[emergency_contact]" id="emergency_contact" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.emergency_contact} />
+            <label for="emergency_contact" class="block text-sm font-medium text-gray-700">
+              Emergency Contact
+            </label>
+            <input
+              type="text"
+              name="patient[emergency_contact]"
+              id="emergency_contact"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.emergency_contact}
+            />
           </div>
         </div>
-        
+
         <div class="col-span-1">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Medical Information</h3>
-          
+
           <div class="mb-4">
-            <label for="allergies" class="block text-sm font-medium text-gray-700">Allergies</label>
-            <textarea name="patient[allergies]" id="allergies" rows="2" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="List any allergies or write 'None'"><%= @patient.allergies %></textarea>
+            <label for="allergies" class="block text-sm font-medium text-gray-700">
+              Allergies
+            </label>
+            <textarea
+              name="patient[allergies]"
+              id="allergies"
+              rows="2"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              placeholder="List any allergies or write 'None'"
+            ><%= @patient.allergies %></textarea>
           </div>
-          
+
           <div class="mb-4">
-            <label for="medical_conditions" class="block text-sm font-medium text-gray-700">Pre-existing Medical Conditions</label>
-            <textarea name="patient[medical_conditions]" id="medical_conditions" rows="2" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="List any pre-existing conditions or write 'None'"><%= @patient.medical_conditions %></textarea>
+            <label for="medical_conditions" class="block text-sm font-medium text-gray-700">
+              Pre-existing Medical Conditions
+            </label>
+            <textarea
+              name="patient[medical_conditions]"
+              id="medical_conditions"
+              rows="2"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              placeholder="List any pre-existing conditions or write 'None'"
+            ><%= @patient.medical_conditions %></textarea>
           </div>
-          
+
           <div class="mb-4">
-            <label for="current_medications" class="block text-sm font-medium text-gray-700">Current Medications</label>
-            <textarea name="patient[current_medications]" id="current_medications" rows="2" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder="List any current medications or write 'None'"><%= @patient.current_medications %></textarea>
+            <label for="current_medications" class="block text-sm font-medium text-gray-700">
+              Current Medications
+            </label>
+            <textarea
+              name="patient[current_medications]"
+              id="current_medications"
+              rows="2"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              placeholder="List any current medications or write 'None'"
+            ><%= @patient.current_medications %></textarea>
           </div>
         </div>
-        
+
         <div class="col-span-1">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Account Settings</h3>
-          
+
           <div class="mb-4">
             <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-            <select name="patient[status]" id="status" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <select
+              name="patient[status]"
+              id="status"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="Active" selected={@patient.status == "Active"}>Active</option>
               <option value="Inactive" selected={@patient.status == "Inactive"}>Inactive</option>
             </select>
           </div>
-          
+
           <div class="mb-4">
-            <label for="insurance_provider" class="block text-sm font-medium text-gray-700">Insurance Provider</label>
-            <input type="text" name="patient[insurance_provider]" id="insurance_provider" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.insurance_provider} />
+            <label for="insurance_provider" class="block text-sm font-medium text-gray-700">
+              Insurance Provider
+            </label>
+            <input
+              type="text"
+              name="patient[insurance_provider]"
+              id="insurance_provider"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.insurance_provider}
+            />
           </div>
-          
+
           <div class="mb-4">
-            <label for="insurance_policy_number" class="block text-sm font-medium text-gray-700">Insurance Policy Number</label>
-            <input type="text" name="patient[insurance_policy_number]" id="insurance_policy_number" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" value={@patient.insurance_policy_number} />
+            <label for="insurance_policy_number" class="block text-sm font-medium text-gray-700">
+              Insurance Policy Number
+            </label>
+            <input
+              type="text"
+              name="patient[insurance_policy_number]"
+              id="insurance_policy_number"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+              value={@patient.insurance_policy_number}
+            />
           </div>
-          
+
           <div class="mb-4">
             <div class="flex items-start">
               <div class="flex items-center h-5">
-                <input id="reset_password" name="patient[reset_password]" type="checkbox" class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
+                <input
+                  id="reset_password"
+                  name="patient[reset_password]"
+                  type="checkbox"
+                  class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+                />
               </div>
               <div class="ml-3 text-sm">
-                <label for="reset_password" class="font-medium text-gray-700">Reset patient portal password</label>
-                <p class="text-gray-500">An email will be sent to the patient with password reset instructions</p>
+                <label for="reset_password" class="font-medium text-gray-700">
+                  Reset patient portal password
+                </label>
+                <p class="text-gray-500">
+                  An email will be sent to the patient with password reset instructions
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div class="mt-6 flex items-center justify-end space-x-3">
-        <a href={~p"/admin/patients"} class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <a
+          href={~p"/admin/patients"}
+          class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           Cancel
         </a>
-        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <button
+          type="submit"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           Update Patient
         </button>
       </div>

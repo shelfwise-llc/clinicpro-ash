@@ -13,13 +13,13 @@ defmodule ClinicproWeb.RouterAdminBypass do
   # Admin Bypass Routes (Direct Ecto operations)
   scope "/admin_bypass", ClinicproWeb do
     pipe_through :browser
-    
+
     # Admin dashboard
     get "/", AdminBypassController, :index
-    
+
     # Database seeding
     post "/seed", AdminBypassController, :seed_database
-    
+
     # Doctors management
     get "/_doctors", AdminBypassController, :_doctors
     get "/_doctors/new", AdminBypassController, :new_doctor
@@ -27,7 +27,7 @@ defmodule ClinicproWeb.RouterAdminBypass do
     get "/_doctors/:id/edit", AdminBypassController, :edit_doctor
     put "/_doctors/:id", AdminBypassController, :update_doctor
     delete "/_doctors/:id", AdminBypassController, :delete_doctor
-    
+
     # Patients management
     get "/_patients", AdminBypassController, :_patients
     get "/_patients/new", AdminBypassController, :new_patient
@@ -35,7 +35,7 @@ defmodule ClinicproWeb.RouterAdminBypass do
     get "/_patients/:id/edit", AdminBypassController, :edit_patient
     put "/_patients/:id", AdminBypassController, :update_patient
     delete "/_patients/:id", AdminBypassController, :delete_patient
-    
+
     # Appointments management
     get "/appointments", AdminBypassController, :appointments
     get "/appointments/new", AdminBypassController, :new_appointment

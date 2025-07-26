@@ -12,19 +12,19 @@ defmodule ClinicproWeb.DoctorFlowHTML do
   def workflow_progress(assigns) do
     steps = Clinicpro.Appointments.WorkflowTracker.available_workflows()[:doctor_flow]
     current_step = assigns.workflow_state.current_step
-    
+
     # Find the index of the current step
     current_index = Enum.find_index(steps, fn step -> step == current_step end)
-    
+
     assigns = assign(assigns, :steps, steps)
     assigns = assign(assigns, :current_index, current_index)
-    
+
     ~H"""
     <div class={"workflow-progress #{@class}"}>
       <ol class="steps">
         <%= for {step, index} <- Enum.with_index(@steps) do %>
           <li class={"step #{if index <= @current_index, do: "step-primary", else: ""}"}>
-            <%= step |> to_string() |> String.replace("_", " ") |> String.capitalize() %>
+            <%= step |> to_string() |> String.replace("_unused", " ") |> String.capitalize() %>
           </li>
         <% end %>
       </ol>

@@ -110,7 +110,7 @@ defmodule Clinicpro.MixProject do
       # HTTP Client for API Integration
       {:oauth2, "~> 2.0"},
       {:ex_typesense, "~> 0.6.0"},
-      
+
       # Code quality and test coverage
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.18", only: :test}

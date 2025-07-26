@@ -34,7 +34,6 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
          {:ok, token} <- get_access_token(_appointment._clinic_id),
          {:ok, meeting} <- create_zoom_meeting(token, _appointment, _opts) do
-
       # Extract meeting details from the created meeting
       meeting_data = %{
         url: meeting["join_url"],
@@ -78,7 +77,6 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
          meeting_data <- extract_meeting_data(_appointment),
          {:ok, token} <- get_access_token(_appointment._clinic_id),
          {:ok, meeting} <- update_zoom_meeting(token, _appointment, meeting_data, _opts) do
-
       # Extract updated meeting details
       updated_meeting_data = %{
         url: meeting["join_url"],
@@ -169,7 +167,8 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
         case Clinicpro.VirtualMeetings.Config.get_clinic_config(_clinic_id) do
           {:ok, %{zoom_api_credentials: credentials}} when not is_nil(credentials) ->
             {:ok, credentials}
-          _ ->
+
+          _unused ->
             {:error, :not_found}
         end
 
@@ -187,6 +186,7 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     url = "https://zoom.us/oauth/token"
 
     auth_header = "Basic " <> Base.encode64("#{client_id}:#{client_secret}")
+
     headers = [
       {"Authorization", auth_header},
       {"Content-Type", "application/x-www-form-urlencoded"}
@@ -199,7 +199,8 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
         case Jason.decode(response_body) do
           {:ok, %{"access_token" => access_token}} ->
             {:ok, access_token}
-          _ ->
+
+          _unused ->
             {:error, :invalid_token_response}
         end
 
@@ -254,22 +255,24 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     start_time = format_meeting_start_time(_appointment)
     duration = _appointment.duration || 30
 
-    body = Jason.encode!(%{
-      topic: topic,
-      type: 2, # Scheduled meeting
-      start_time: start_time,
-      duration: duration,
-      timezone: "UTC",
-      password: generate_meeting_password(),
-      settings: %{
-        host_video: true,
-        participant_video: true,
-        join_before_host: false,
-        mute_upon_entry: true,
-        waiting_room: true,
-        meeting_authentication: false
-      }
-    })
+    body =
+      Jason.encode!(%{
+        topic: topic,
+        # Scheduled meeting
+        type: 2,
+        start_time: start_time,
+        duration: duration,
+        timezone: "UTC",
+        password: generate_meeting_password(),
+        settings: %{
+          host_video: true,
+          participant_video: true,
+          join_before_host: false,
+          mute_upon_entry: true,
+          waiting_room: true,
+          meeting_authentication: false
+        }
+      })
 
     case HTTPoison.post(url, body, headers) do
       {:ok, %{status_code: status, body: response_body}} when status in 200..201 ->
@@ -301,12 +304,13 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
       start_time = format_meeting_start_time(_appointment)
       duration = _appointment.duration || 30
 
-      body = Jason.encode!(%{
-        topic: topic,
-        start_time: start_time,
-        duration: duration,
-        timezone: "UTC"
-      })
+      body =
+        Jason.encode!(%{
+          topic: topic,
+          start_time: start_time,
+          duration: duration,
+          timezone: "UTC"
+        })
 
       case HTTPoison.patch(url, body, headers) do
         {:ok, %{status_code: 204}} ->
@@ -376,7 +380,7 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     case _appointment.meeting_data do
       nil -> %{}
       meeting_data when is_map(meeting_data) -> meeting_data
-      _ -> %{}
+      _unused -> %{}
     end
   end
 
@@ -388,10 +392,11 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
   end
 
   defp format_meeting_start_time(_appointment) do
-    naive_datetime = NaiveDateTime.new!(
-      _appointment.appointment_date,
-      _appointment.appointment_time
-    )
+    naive_datetime =
+      NaiveDateTime.new!(
+        _appointment.appointment_date,
+        _appointment.appointment_time
+      )
 
     # Convert to DateTime with UTC timezone
     datetime = DateTime.from_naive!(naive_datetime, "Etc/UTC")

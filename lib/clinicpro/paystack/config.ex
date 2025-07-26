@@ -132,7 +132,11 @@ defmodule Clinicpro.Paystack.Config do
 
   """
   def list_by_clinic(_clinic_id) do
-    Repo.all(from c in Config, where: c._clinic_id == ^_clinic_id, order_by: [desc: c.active, desc: c.inserted_at])
+    Repo.all(
+      from c in Config,
+        where: c._clinic_id == ^_clinic_id,
+        order_by: [desc: c.active, desc: c.inserted_at]
+    )
   end
 
   @doc """
@@ -211,7 +215,7 @@ defmodule Clinicpro.Paystack.Config do
     case Map.get(attrs, field) do
       nil -> attrs
       "" -> Map.put(attrs, field, Map.get(config, field))
-      _ -> attrs
+      _unused -> attrs
     end
   end
 
@@ -222,7 +226,8 @@ defmodule Clinicpro.Paystack.Config do
         _clinic_id = get_field(changeset, :_clinic_id)
         deactivate_all_for_clinic(_clinic_id)
         changeset
-      _ ->
+
+      _unused ->
         changeset
     end
   end
@@ -231,6 +236,7 @@ defmodule Clinicpro.Paystack.Config do
   defp deactivate_all_for_clinic(_clinic_id) do
     from(c in Config, where: c._clinic_id == ^_clinic_id)
     |> Repo.update_all(set: [is_active: false])
+
     :ok
   end
 end

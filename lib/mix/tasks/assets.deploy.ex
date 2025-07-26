@@ -7,7 +7,7 @@ defmodule Mix.Tasks.Assets.Deploy do
   use Mix.Task
 
   @impl Mix.Task
-  def run(_) do
+  def run(_unused) do
     Mix.shell().info("==> Compiling assets with esbuild")
     Mix.Task.run("esbuild", ["default", "--minify"])
 

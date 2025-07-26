@@ -34,17 +34,20 @@ defmodule Clinicpro.MPesaIntegrationTest do
     test "initiate_stk_push requires clinic_id" do
       # Check function arity and first parameter
       {:arity, 5} = Function.info(function(:initiate_stk_push), :arity)
-      
+
       # Check function implementation for clinic_id parameter
       {:module, mod} = :code.get_object_code(Clinicpro.MPesa)
-      {:ok, {_, [{:abstract_code, {:raw_abstract_v1, abstract_code}}]}} = :beam_lib.chunks(mod, [:abstract_code])
-      
+
+      {:ok, {_unused, [{:abstract_code, {:raw_abstract_v1, abstract_code}}]}} =
+        :beam_lib.chunks(mod, [:abstract_code])
+
       # Find the initiate_stk_push function definition
-      found = Enum.find(abstract_code, fn
-        {:function, _, :initiate_stk_push, 5, _} -> true
-        _ -> false
-      end)
-      
+      found =
+        Enum.find(abstract_code, fn
+          {:function, _unused, :initiate_stk_push, 5, _unused} -> true
+          _unused -> false
+        end)
+
       assert found != nil, "initiate_stk_push/5 function not found"
     end
 
@@ -65,7 +68,7 @@ defmodule Clinicpro.MPesaIntegrationTest do
       :initiate_stk_push -> &MPesa.initiate_stk_push/5
       :register_c2b_urls -> &MPesa.register_c2b_urls/1
       :list_transactions -> &MPesa.list_transactions/3
-      _ -> nil
+      _unused -> nil
     end
   end
 end

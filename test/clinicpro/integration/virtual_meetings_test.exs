@@ -43,9 +43,10 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
 
   setup do
     # Create a test clinic with virtual meeting configuration
-    {:ok, clinic} = %Clinic{}
-                    |> Clinic.changeset(@valid_clinic_attrs)
-                    |> Repo.insert()
+    {:ok, clinic} =
+      %Clinic{}
+      |> Clinic.changeset(@valid_clinic_attrs)
+      |> Repo.insert()
 
     # Set up virtual meeting config for the clinic
     Config.update_clinic_config(clinic.id, %{
@@ -58,24 +59,28 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
     })
 
     # Create a test doctor
-    {:ok, doctor} = %Doctor{}
-                    |> Doctor.changeset(Map.put(@valid_doctor_attrs, :clinic_id, clinic.id))
-                    |> Repo.insert()
+    {:ok, doctor} =
+      %Doctor{}
+      |> Doctor.changeset(Map.put(@valid_doctor_attrs, :clinic_id, clinic.id))
+      |> Repo.insert()
 
     # Create a test patient
-    {:ok, patient} = %Patient{}
-                     |> Patient.changeset(@valid_patient_attrs)
-                     |> Repo.insert()
+    {:ok, patient} =
+      %Patient{}
+      |> Patient.changeset(@valid_patient_attrs)
+      |> Repo.insert()
 
     # Create a test appointment
-    appointment_attrs = @valid_appointment_attrs
-                        |> Map.put(:doctor_id, doctor.id)
-                        |> Map.put(:patient_id, patient.id)
-                        |> Map.put(:clinic_id, clinic.id)
+    appointment_attrs =
+      @valid_appointment_attrs
+      |> Map.put(:doctor_id, doctor.id)
+      |> Map.put(:patient_id, patient.id)
+      |> Map.put(:clinic_id, clinic.id)
 
-    {:ok, appointment} = %Appointment{}
-                         |> Appointment.changeset(appointment_attrs)
-                         |> Repo.insert()
+    {:ok, appointment} =
+      %Appointment{}
+      |> Appointment.changeset(appointment_attrs)
+      |> Repo.insert()
 
     %{
       clinic: clinic,
@@ -86,7 +91,9 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
   end
 
   describe "virtual meetings integration" do
-    test "get_or_generate_meeting_link creates a meeting link for a virtual appointment", %{appointment: appointment} do
+    test "get_or_generate_meeting_link creates a meeting link for a virtual appointment", %{
+      appointment: appointment
+    } do
       # Import the controller to access private functions
       import ClinicproWeb.AppointmentController, only: [get_or_generate_meeting_link: 1]
 
@@ -108,12 +115,13 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
       patient: patient
     } do
       # Create a paid invoice for the appointment
-      {:ok, invoice} = Clinicpro.Invoices.create_invoice(%{
-        appointment_id: appointment.id,
-        amount: 1000.0,
-        status: "paid",
-        payment_method: "M-Pesa"
-      })
+      {:ok, invoice} =
+        Clinicpro.Invoices.create_invoice(%{
+          appointment_id: appointment.id,
+          amount: 1000.0,
+          status: "paid",
+          payment_method: "M-Pesa"
+        })
 
       # Log in as the patient
       conn = assign(conn, :current_patient, patient)
@@ -132,12 +140,13 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
       patient: patient
     } do
       # Create an unpaid invoice for the appointment
-      {:ok, invoice} = Clinicpro.Invoices.create_invoice(%{
-        appointment_id: appointment.id,
-        amount: 1000.0,
-        status: "pending",
-        payment_method: "M-Pesa"
-      })
+      {:ok, invoice} =
+        Clinicpro.Invoices.create_invoice(%{
+          appointment_id: appointment.id,
+          amount: 1000.0,
+          status: "pending",
+          payment_method: "M-Pesa"
+        })
 
       # Log in as the patient
       conn = assign(conn, :current_patient, patient)
@@ -147,7 +156,9 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
 
       # Assert that we're redirected with an error message
       assert redirected_to(conn) == ~p"/q/appointment/#{appointment.id}"
-      assert get_flash(conn, :error) == "Virtual link is only available for paid virtual appointments."
+
+      assert get_flash(conn, :error) ==
+               "Virtual link is only available for paid virtual appointments."
     end
   end
 end

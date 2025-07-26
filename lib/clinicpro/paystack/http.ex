@@ -24,7 +24,8 @@ defmodule Clinicpro.Paystack.Http do
     headers = build_headers(secret_key)
 
     case HTTPoison.get(url, headers) do
-      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} when status_code in 200..299 ->
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
+      when status_code in 200..299 ->
         {:ok, Jason.decode!(body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
@@ -56,7 +57,8 @@ defmodule Clinicpro.Paystack.Http do
     body = Jason.encode!(payload)
 
     case HTTPoison.post(url, body, headers) do
-      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}} when status_code in 200..299 ->
+      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}}
+      when status_code in 200..299 ->
         {:ok, Jason.decode!(response_body)}
 
       {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}} ->

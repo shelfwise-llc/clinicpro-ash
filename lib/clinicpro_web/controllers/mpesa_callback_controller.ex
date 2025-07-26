@@ -30,7 +30,9 @@ defmodule ClinicproWeb.MPesaCallbackController do
         case PaymentProcessor.process_callback(callback_data) do
           {:ok, %{invoice: invoice, _transaction: _transaction}} ->
             # Log the successful processing
-            Logger.info("Successfully processed M-Pesa payment for invoice #{invoice.id}, _transaction #{_transaction.id}")
+            Logger.info(
+              "Successfully processed M-Pesa payment for invoice #{invoice.id}, _transaction #{_transaction.id}"
+            )
 
             # Return success response to M-Pesa
             conn
@@ -164,32 +166,35 @@ defmodule ClinicproWeb.MPesaCallbackController do
 
           invoice ->
             # Create a _transaction record and update the invoice
-            {:ok, _transaction} = Clinicpro.MPesa.Transaction.create(%{
-              transaction_id: transaction_id,
-              invoice_id: invoice.id,
-              amount: amount,
-              phone_number: phone_number,
-              reference: reference,
-              _clinic_id: _clinic_id,
-              status: "completed"
-            })
+            {:ok, _transaction} =
+              Clinicpro.MPesa.Transaction.create(%{
+                transaction_id: transaction_id,
+                invoice_id: invoice.id,
+                amount: amount,
+                phone_number: phone_number,
+                reference: reference,
+                _clinic_id: _clinic_id,
+                status: "completed"
+              })
 
             # Update the invoice status
-            {:ok, _updated_invoice} = Clinicpro.Invoices.update_invoice(invoice, %{
-              status: "paid",
-              payment_status: "completed",
-              payment_date: DateTime.utc_now(),
-              payment_reference: transaction_id
-            })
+            {:ok, _updated_invoice} =
+              Clinicpro.Invoices.update_invoice(invoice, %{
+                status: "paid",
+                payment_status: "completed",
+                payment_date: DateTime.utc_now(),
+                payment_reference: transaction_id
+              })
 
             # If this is an _appointment invoice, update the _appointment status
             if invoice.appointment_id do
               _appointment = Clinicpro.Appointments.get_appointment(invoice.appointment_id)
 
               if _appointment do
-                {:ok, _updated_appointment} = Clinicpro.Appointments.update_appointment(_appointment, %{
-                  payment_status: "paid"
-                })
+                {:ok, _updated_appointment} =
+                  Clinicpro.Appointments.update_appointment(_appointment, %{
+                    payment_status: "paid"
+                  })
               end
             end
 

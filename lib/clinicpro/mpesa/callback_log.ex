@@ -1,7 +1,7 @@
 defmodule Clinicpro.MPesa.CallbackLog do
   @moduledoc """
   Schema and functions for M-Pesa callback logs with multi-tenant support.
-  
+
   This module provides a schema and functions for storing and retrieving M-Pesa callback logs,
   ensuring proper isolation between clinics in a multi-tenant environment.
   """
@@ -15,8 +15,10 @@ defmodule Clinicpro.MPesa.CallbackLog do
 
   schema "mpesa_callback_logs" do
     field :_clinic_id, :integer
-    field :type, :string # stk_push, c2b_validation, c2b_confirmation, transaction_status
-    field :status, :string # success, failed
+    # stk_push, c2b_validation, c2b_confirmation, transaction_status
+    field :type, :string
+    # success, failed
+    field :status, :string
     field :reference, :string
     field :shortcode, :string
     field :url, :string
@@ -80,28 +82,31 @@ defmodule Clinicpro.MPesa.CallbackLog do
   * `{callback_logs, pagination}` - List of callback logs and pagination info
   """
   def paginate_by_clinic(_clinic_id, filters \\ %{}, _page \\ 1, _per_page \\ 20) do
-    query = CallbackLog
-    |> where(_clinic_id: ^_clinic_id)
-    |> apply_filters(filters)
-    |> order_by(desc: :inserted_at)
+    query =
+      CallbackLog
+      |> where(_clinic_id: ^_clinic_id)
+      |> apply_filters(filters)
+      |> order_by(desc: :inserted_at)
 
     # Get total count for pagination
     total_count = Repo.aggregate(query, :count, :id)
     total_pages = ceil(total_count / _per_page)
 
     # Apply pagination
-    callback_logs = query
-    |> limit(^_per_page)
-    |> offset(^((_page - 1) * _per_page))
-    |> Repo.all()
+    callback_logs =
+      query
+      |> limit(^_per_page)
+      |> offset(^((_page - 1) * _per_page))
+      |> Repo.all()
 
     # Return callback logs with pagination info
-    {callback_logs, %{
-      _page: _page,
-      _per_page: _per_page,
-      total_count: total_count,
-      total_pages: total_pages
-    }}
+    {callback_logs,
+     %{
+       _page: _page,
+       _per_page: _per_page,
+       total_count: total_count,
+       total_pages: total_pages
+     }}
   end
 
   @doc """
@@ -149,37 +154,68 @@ defmodule Clinicpro.MPesa.CallbackLog do
   defp changeset(callback_log, attrs) do
     callback_log
     |> cast(attrs, [
-      :_clinic_id, :type, :status, :reference, :shortcode, :url, 
-      :request_payload, :response_payload, :response_code, 
-      :response_description, :processing_time, :transaction_id
+      :_clinic_id,
+      :type,
+      :status,
+      :reference,
+      :shortcode,
+      :url,
+      :request_payload,
+      :response_payload,
+      :response_code,
+      :response_description,
+      :processing_time,
+      :transaction_id
     ])
     |> validate_required([:_clinic_id, :type, :status, :request_payload])
-    |> validate_inclusion(:type, ["stk_push", "c2b_validation", "c2b_confirmation", "transaction_status"])
+    |> validate_inclusion(:type, [
+      "stk_push",
+      "c2b_validation",
+      "c2b_confirmation",
+      "transaction_status"
+    ])
     |> validate_inclusion(:status, ["success", "failed"])
   end
 
   defp apply_filters(query, filters) do
     Enum.reduce(filters, query, fn
-      {:type, nil}, query -> query
-      {:type, ""}, query -> query
-      {:type, type}, query -> where(query, [c], c.type == ^type)
-      
-      {:status, nil}, query -> query
-      {:status, ""}, query -> query
-      {:status, status}, query -> where(query, [c], c.status == ^status)
-      
-      {:from_date, nil}, query -> query
-      {:from_date, from_date}, query -> where(query, [c], c.inserted_at >= ^from_date)
-      
-      {:to_date, nil}, query -> query
-      {:to_date, to_date}, query -> 
+      {:type, nil}, query ->
+        query
+
+      {:type, ""}, query ->
+        query
+
+      {:type, type}, query ->
+        where(query, [c], c.type == ^type)
+
+      {:status, nil}, query ->
+        query
+
+      {:status, ""}, query ->
+        query
+
+      {:status, status}, query ->
+        where(query, [c], c.status == ^status)
+
+      {:from_date, nil}, query ->
+        query
+
+      {:from_date, from_date}, query ->
+        where(query, [c], c.inserted_at >= ^from_date)
+
+      {:to_date, nil}, query ->
+        query
+
+      {:to_date, to_date}, query ->
         # Add a day to include the entire end date
-        to_date = 
+        to_date =
           to_date
           |> NaiveDateTime.add(86400, :second)
+
         where(query, [c], c.inserted_at <= ^to_date)
-      
-      _, query -> query
+
+      _unused, query ->
+        query
     end)
   end
 end

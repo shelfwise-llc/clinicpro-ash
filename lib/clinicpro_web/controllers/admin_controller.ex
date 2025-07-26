@@ -17,10 +17,10 @@ defmodule ClinicproWeb.AdminController do
       upcoming_appointments: 20,
       completed_appointments: 25
     }
-    
+
     # Get recent activity
     recent_activity = get_recent_activity()
-    
+
     render(conn, :dashboard,
       stats: stats,
       recent_activity: recent_activity
@@ -46,6 +46,7 @@ defmodule ClinicproWeb.AdminController do
         |> put_session(:admin_role, admin.role)
         |> put_flash(:info, "Logged in successfully")
         |> redirect(to: ~p"/admin/dashboard")
+
       {:error, message} ->
         conn
         |> put_flash(:error, message)
@@ -83,7 +84,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:info, "Doctor created successfully")
         |> redirect(to: ~p"/admin/_doctors")
-      
+
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Error creating doctor: #{error_messages(changeset)}")
@@ -99,7 +100,7 @@ defmodule ClinicproWeb.AdminController do
       {:ok, doctor} ->
         changeset = Clinicpro.Doctor.change(doctor)
         render(conn, :edit_doctor, doctor: doctor, changeset: changeset)
-        
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Cannot edit doctor: #{reason}")
@@ -116,7 +117,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:info, "Doctor updated successfully")
         |> redirect(to: ~p"/admin/_doctors")
-      
+
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Error updating doctor: #{error_messages(changeset)}")
@@ -133,7 +134,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:error, "Doctor not found")
         |> redirect(to: ~p"/admin/_doctors")
-        
+
       doctor ->
         # Instead of hard deleting, we set active to false
         case Clinicpro.Doctor.update(doctor, %{active: false}) do
@@ -141,7 +142,7 @@ defmodule ClinicproWeb.AdminController do
             conn
             |> put_flash(:info, "Doctor deactivated successfully")
             |> redirect(to: ~p"/admin/_doctors")
-            
+
           {:error, changeset} ->
             conn
             |> put_flash(:error, "Error deactivating doctor: #{error_messages(changeset)}")
@@ -175,7 +176,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:info, "Patient created successfully")
         |> redirect(to: ~p"/admin/_patients")
-      
+
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Error creating patient: #{error_messages(changeset)}")
@@ -191,7 +192,7 @@ defmodule ClinicproWeb.AdminController do
       {:ok, patient} ->
         changeset = Clinicpro.Patient.change(patient)
         render(conn, :edit_patient, patient: patient, changeset: changeset)
-        
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Cannot edit patient: #{reason}")
@@ -208,7 +209,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:info, "Patient updated successfully")
         |> redirect(to: ~p"/admin/_patients")
-      
+
       {:error, changeset} ->
         conn
         |> put_flash(:error, "Error updating patient: #{error_messages(changeset)}")
@@ -225,7 +226,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:error, "Patient not found")
         |> redirect(to: ~p"/admin/_patients")
-        
+
       patient ->
         # Instead of hard deleting, we set active to false
         case Clinicpro.Patient.update(patient, %{active: false}) do
@@ -233,7 +234,7 @@ defmodule ClinicproWeb.AdminController do
             conn
             |> put_flash(:info, "Patient deactivated successfully")
             |> redirect(to: ~p"/admin/_patients")
-            
+
           {:error, changeset} ->
             conn
             |> put_flash(:error, "Error deactivating patient: #{error_messages(changeset)}")
@@ -256,7 +257,7 @@ defmodule ClinicproWeb.AdminController do
   def new_appointment(conn, _params) do
     _doctors = Clinicpro.Doctor.list_active()
     _patients = Clinicpro.Patient.list_active()
-    
+
     render(conn, :new_appointment,
       _doctors: _doctors,
       _patients: _patients
@@ -272,14 +273,18 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:info, "Appointment created successfully")
         |> redirect(to: ~p"/admin/appointments")
-      
+
       {:error, changeset} ->
         _doctors = Clinicpro.Doctor.list_active()
         _patients = Clinicpro.Patient.list_active()
-        
+
         conn
         |> put_flash(:error, "Error creating _appointment: #{error_messages(changeset)}")
-        |> render(:new_appointment, _doctors: _doctors, _patients: _patients, changeset: changeset)
+        |> render(:new_appointment,
+          _doctors: _doctors,
+          _patients: _patients,
+          changeset: changeset
+        )
     end
   end
 
@@ -292,14 +297,14 @@ defmodule ClinicproWeb.AdminController do
         _doctors = Clinicpro.Doctor.list_active()
         _patients = Clinicpro.Patient.list_active()
         changeset = Clinicpro.Appointment.change(_appointment)
-        
+
         render(conn, :edit_appointment,
           _appointment: _appointment,
           _doctors: _doctors,
           _patients: _patients,
           changeset: changeset
         )
-        
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Cannot edit _appointment: #{reason}")
@@ -316,11 +321,11 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:info, "Appointment updated successfully")
         |> redirect(to: ~p"/admin/appointments")
-      
+
       {:error, changeset} ->
         _doctors = Clinicpro.Doctor.list_active()
         _patients = Clinicpro.Patient.list_active()
-        
+
         conn
         |> put_flash(:error, "Error updating _appointment: #{error_messages(changeset)}")
         |> redirect(to: ~p"/admin/edit_appointment/#{appointment_id}")
@@ -336,7 +341,7 @@ defmodule ClinicproWeb.AdminController do
         conn
         |> put_flash(:error, "Appointment not found")
         |> redirect(to: ~p"/admin/appointments")
-        
+
       _appointment ->
         # Update the _appointment status to cancelled instead of hard deleting
         case Clinicpro.Appointment.update(_appointment, %{status: "cancelled"}) do
@@ -344,7 +349,7 @@ defmodule ClinicproWeb.AdminController do
             conn
             |> put_flash(:info, "Appointment cancelled successfully")
             |> redirect(to: ~p"/admin/appointments")
-            
+
           {:error, changeset} ->
             conn
             |> put_flash(:error, "Error cancelling _appointment: #{error_messages(changeset)}")
@@ -367,22 +372,24 @@ defmodule ClinicproWeb.AdminController do
   """
   def update_settings(conn, %{"settings" => settings_params}) do
     # Update each setting in the database
-    results = Enum.map(settings_params, fn {key, value} ->
-      Clinicpro.ClinicSetting.set(key, value)
-    end)
-    
+    results =
+      Enum.map(settings_params, fn {key, value} ->
+        Clinicpro.ClinicSetting.set(key, value)
+      end)
+
     # Check if any updates failed
-    if Enum.all?(results, fn result -> match?({:ok, _}, result) end) do
+    if Enum.all?(results, fn result -> match?({:ok, _unused}, result) end) do
       conn
       |> put_flash(:info, "Clinic settings updated successfully")
       |> redirect(to: ~p"/admin/settings")
     else
       # Extract error messages from failed updates
-      errors = results
-               |> Enum.filter(fn result -> match?({:error, _}, result) end)
-               |> Enum.map(fn {:error, changeset} -> error_messages(changeset) end)
-               |> Enum.join("; ")
-      
+      errors =
+        results
+        |> Enum.filter(fn result -> match?({:error, _unused}, result) end)
+        |> Enum.map(fn {:error, changeset} -> error_messages(changeset) end)
+        |> Enum.join("; ")
+
       conn
       |> put_flash(:error, "Failed to update some settings: #{errors}")
       |> redirect(to: ~p"/admin/settings")
@@ -393,14 +400,15 @@ defmodule ClinicproWeb.AdminController do
 
   defp ensure_authenticated_admin(conn, _opts) do
     admin_id = get_session(conn, :admin_id)
-    
+
     if admin_id do
       # Check if the admin still exists and is active
       case Clinicpro.Admin.get(admin_id) do
         %{active: true} = admin ->
           # Assign the admin to the connection for use in templates
           assign(conn, :current_admin, admin)
-        _ ->
+
+        _unused ->
           # Admin doesn't exist or is inactive, log them out
           conn
           |> delete_session(:admin_id)
@@ -420,51 +428,60 @@ defmodule ClinicproWeb.AdminController do
 
   defp get_recent_activity do
     # Get recent appointments
-    recent_appointments = Clinicpro.Appointment.list(limit: 5)
-    |> Enum.map(fn _appointment -> 
-      # Preload doctor and patient if not already loaded
-      _appointment = if Ecto.assoc_loaded?(_appointment.doctor) && Ecto.assoc_loaded?(_appointment.patient) do
-        _appointment
-      else
-        Clinicpro.Repo.preload(_appointment, [:doctor, :patient])
-      end
-      
-      doctor_name = if _appointment.doctor, do: _appointment.doctor.name, else: "Unknown Doctor"
-      patient_name = if _appointment.patient, do: Clinicpro.Patient.full_name(_appointment.patient), else: "Unknown Patient"
-      
-      %{
-        type: "_appointment",
-        action: "scheduled",
-        user: doctor_name,
-        timestamp: _appointment.inserted_at || ~U[2023-01-01 00:00:00Z],
-        details: "#{_appointment.type} _appointment with #{patient_name} on #{_appointment.date}"
-      }
-    end)
-    
+    recent_appointments =
+      Clinicpro.Appointment.list(limit: 5)
+      |> Enum.map(fn _appointment ->
+        # Preload doctor and patient if not already loaded
+        _appointment =
+          if Ecto.assoc_loaded?(_appointment.doctor) && Ecto.assoc_loaded?(_appointment.patient) do
+            _appointment
+          else
+            Clinicpro.Repo.preload(_appointment, [:doctor, :patient])
+          end
+
+        doctor_name = if _appointment.doctor, do: _appointment.doctor.name, else: "Unknown Doctor"
+
+        patient_name =
+          if _appointment.patient,
+            do: Clinicpro.Patient.full_name(_appointment.patient),
+            else: "Unknown Patient"
+
+        %{
+          type: "_appointment",
+          action: "scheduled",
+          user: doctor_name,
+          timestamp: _appointment.inserted_at || ~U[2023-01-01 00:00:00Z],
+          details:
+            "#{_appointment.type} _appointment with #{patient_name} on #{_appointment.date}"
+        }
+      end)
+
     # Get recent _patients
-    recent_patients = Clinicpro.Patient.list(limit: 3)
-    |> Enum.map(fn patient -> 
-      %{
-        type: "patient",
-        action: "registered",
-        user: "System",
-        timestamp: patient.inserted_at || ~U[2023-01-01 00:00:00Z],
-        details: "New patient registration: #{Clinicpro.Patient.full_name(patient)}"
-      }
-    end)
-    
+    recent_patients =
+      Clinicpro.Patient.list(limit: 3)
+      |> Enum.map(fn patient ->
+        %{
+          type: "patient",
+          action: "registered",
+          user: "System",
+          timestamp: patient.inserted_at || ~U[2023-01-01 00:00:00Z],
+          details: "New patient registration: #{Clinicpro.Patient.full_name(patient)}"
+        }
+      end)
+
     # Get recent _doctors
-    recent_doctors = Clinicpro.Doctor.list(limit: 2)
-    |> Enum.map(fn doctor -> 
-      %{
-        type: "doctor",
-        action: "registered",
-        user: "Admin",
-        timestamp: doctor.inserted_at || ~U[2023-01-01 00:00:00Z],
-        details: "New doctor added: #{doctor.name}, #{doctor.specialty}"
-      }
-    end)
-    
+    recent_doctors =
+      Clinicpro.Doctor.list(limit: 2)
+      |> Enum.map(fn doctor ->
+        %{
+          type: "doctor",
+          action: "registered",
+          user: "Admin",
+          timestamp: doctor.inserted_at || ~U[2023-01-01 00:00:00Z],
+          details: "New doctor added: #{doctor.name}, #{doctor.specialty}"
+        }
+      end)
+
     # Combine and sort by timestamp (most recent first)
     (recent_appointments ++ recent_patients ++ recent_doctors)
     |> Enum.sort_by(fn %{timestamp: timestamp} -> DateTime.to_unix(timestamp) end, :desc)
@@ -513,7 +530,7 @@ defmodule ClinicproWeb.AdminController do
   defp get_clinic_settings do
     # Get settings from the database
     settings = Clinicpro.ClinicSetting.get_all()
-    
+
     # Convert string values to appropriate types
     %{
       clinic_name: settings["clinic_name"],
@@ -567,7 +584,7 @@ defmodule ClinicproWeb.AdminController do
   # Helper to format changeset errors into a readable string
   defp error_messages(changeset) do
     Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} ->
-      Regex.replace(~r"%{(\w+)}", msg, fn _, key ->
+      Regex.replace(~r"%{(\w+)}", msg, fn _unused, key ->
         _opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)

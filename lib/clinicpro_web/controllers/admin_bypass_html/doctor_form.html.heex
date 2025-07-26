@@ -21,7 +21,28 @@
     </div>
 
     <div>
-      <.input field={f[:specialty]} type="select" label="Specialty" options={["Cardiology", "Dermatology", "Endocrinology", "Family Medicine", "Gastroenterology", "Neurology", "Obstetrics", "Oncology", "Ophthalmology", "Orthopedics", "Pediatrics", "Psychiatry", "Radiology", "Surgery", "Urology"]} />
+      <.input
+        field={f[:specialty]}
+        type="select"
+        label="Specialty"
+        options={[
+          "Cardiology",
+          "Dermatology",
+          "Endocrinology",
+          "Family Medicine",
+          "Gastroenterology",
+          "Neurology",
+          "Obstetrics",
+          "Oncology",
+          "Ophthalmology",
+          "Orthopedics",
+          "Pediatrics",
+          "Psychiatry",
+          "Radiology",
+          "Surgery",
+          "Urology"
+        ]}
+      />
     </div>
 
     <div>
@@ -35,7 +56,10 @@
 
   <:actions>
     <.button>Save</.button>
-    <.link navigate={~p"/admin_bypass/doctors"} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+    <.link
+      navigate={~p"/admin_bypass/doctors"}
+      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+    >
       Cancel
     </.link>
   </:actions>

@@ -20,18 +20,19 @@ defmodule AuthPlaceholderTest do
     def generate_token_for_user(user_id) do
       # For development, just generate a token string
       token_string = generate_random_token()
-      
+
       # Log the token for development purposes
       Logger.info("Generated token for user #{user_id}: #{token_string}")
-      
+
       # Return a simple token structure with user info for development
-      {:ok, %{
-        token: token_string,
-        user: %{
-          id: user_id,
-          role: if(String.contains?(user_id, "doctor"), do: "doctor", else: "patient")
-        }
-      }}
+      {:ok,
+       %{
+         token: token_string,
+         user: %{
+           id: user_id,
+           role: if(String.contains?(user_id, "doctor"), do: "doctor", else: "patient")
+         }
+       }}
     end
 
     @doc """
@@ -41,12 +42,13 @@ defmodule AuthPlaceholderTest do
     """
     def authenticate_by_email(email) do
       # For development, hardcode the user IDs
-      user_id = case email do
-        "doctor@clinicpro.com" -> "doctor-id-123"
-        "patient@clinicpro.com" -> "patient-id-456"
-        _ -> nil
-      end
-      
+      user_id =
+        case email do
+          "doctor@clinicpro.com" -> "doctor-id-123"
+          "patient@clinicpro.com" -> "patient-id-456"
+          _unused -> nil
+        end
+
       if user_id do
         generate_token_for_user(user_id)
       else
@@ -64,7 +66,7 @@ defmodule AuthPlaceholderTest do
       case {email, password} do
         {"doctor@clinicpro.com", "doctor123"} -> generate_token_for_user("doctor-id-123")
         {"patient@clinicpro.com", "patient123"} -> generate_token_for_user("patient-id-456")
-        _ -> {:error, "Invalid credentials"}
+        _unused -> {:error, "Invalid credentials"}
       end
     end
 
@@ -77,14 +79,15 @@ defmodule AuthPlaceholderTest do
       # For development, always return success
       # In a real implementation, this would verify the token signature
       # and check if it's expired
-      {:ok, %{
-        token: token_string, 
-        valid: true,
-        user: %{
-          id: "user-id-from-token",
-          role: "role-from-token"
-        }
-      }}
+      {:ok,
+       %{
+         token: token_string,
+         valid: true,
+         user: %{
+           id: "user-id-from-token",
+           role: "role-from-token"
+         }
+       }}
     end
 
     # Generate a random token string
@@ -95,44 +98,47 @@ defmodule AuthPlaceholderTest do
 
   def run_tests do
     IO.puts("\n=== Testing AuthPlaceholder Module ===\n")
-    
+
     # Test generate_token_for_user
     IO.puts("Testing generate_token_for_user...")
     {:ok, token} = AuthPlaceholder.generate_token_for_user("test-user-id")
     IO.puts("  ✓ Generated token: #{token.token}")
     IO.puts("  ✓ User ID: #{token.user.id}")
     IO.puts("  ✓ User role: #{token.user.role}")
-    
+
     # Test authenticate_by_email with doctor
     IO.puts("\nTesting authenticate_by_email with doctor...")
     {:ok, doctor_token} = AuthPlaceholder.authenticate_by_email("doctor@clinicpro.com")
     IO.puts("  ✓ Generated token for doctor: #{doctor_token.token}")
     IO.puts("  ✓ Doctor ID: #{doctor_token.user.id}")
     IO.puts("  ✓ Doctor role: #{doctor_token.user.role}")
-    
+
     # Test authenticate_by_email with patient
     IO.puts("\nTesting authenticate_by_email with patient...")
     {:ok, patient_token} = AuthPlaceholder.authenticate_by_email("patient@clinicpro.com")
     IO.puts("  ✓ Generated token for patient: #{patient_token.token}")
     IO.puts("  ✓ Patient ID: #{patient_token.user.id}")
     IO.puts("  ✓ Patient role: #{patient_token.user.role}")
-    
+
     # Test authenticate_by_email with unknown email
     IO.puts("\nTesting authenticate_by_email with unknown email...")
     result = AuthPlaceholder.authenticate_by_email("unknown@example.com")
     IO.puts("  ✓ Result: #{inspect(result)}")
-    
+
     # Test authenticate_by_credentials
     IO.puts("\nTesting authenticate_by_credentials...")
-    {:ok, doctor_token2} = AuthPlaceholder.authenticate_by_credentials("doctor@clinicpro.com", "doctor123")
+
+    {:ok, doctor_token2} =
+      AuthPlaceholder.authenticate_by_credentials("doctor@clinicpro.com", "doctor123")
+
     IO.puts("  ✓ Generated token for doctor: #{doctor_token2.token}")
-    
+
     # Test verify_token
     IO.puts("\nTesting verify_token...")
     {:ok, verified} = AuthPlaceholder.verify_token("some-random-token")
     IO.puts("  ✓ Token verified: #{inspect(verified.valid)}")
     IO.puts("  ✓ User ID from token: #{verified.user.id}")
-    
+
     IO.puts("\n=== All tests passed! ===\n")
   end
 end

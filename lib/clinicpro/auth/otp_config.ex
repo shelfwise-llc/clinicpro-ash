@@ -27,7 +27,8 @@ defmodule Clinicpro.Auth.OTPConfig do
     field :email_enabled, :boolean, default: true
 
     # General Configuration
-    field :preferred_method, :string, default: "sms" # "sms", "email", or "both"
+    # "sms", "email", or "both"
+    field :preferred_method, :string, default: "sms"
     field :otp_expiry_minutes, :integer, default: 5
 
     # Rate limiting

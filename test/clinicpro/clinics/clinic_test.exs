@@ -10,12 +10,13 @@ defmodule Clinicpro.Clinics.ClinicTest do
 
   setup do
     # Create a user that will be the owner of the clinic
-    {:ok, user} = Accounts.register(%{
-      email: "owner@example.com",
-      first_name: "Clinic",
-      last_name: "Owner",
-      phone_number: "+1234567890"
-    })
+    {:ok, user} =
+      Accounts.register(%{
+        email: "owner@example.com",
+        first_name: "Clinic",
+        last_name: "Owner",
+        phone_number: "+1234567890"
+      })
 
     %{user: user}
   end
@@ -68,10 +69,10 @@ defmodule Clinicpro.Clinics.ClinicTest do
       }
 
       assert {:ok, %Clinic{}} = Clinics.register(attrs)
-      
+
       # Try to register another clinic with the same slug
       attrs2 = Map.put(attrs, :name, "Another Clinic")
-      
+
       assert {:error, changeset} = Clinics.register(attrs2)
       assert "has already been taken" in errors_on(changeset).slug
     end
@@ -80,24 +81,26 @@ defmodule Clinicpro.Clinics.ClinicTest do
   describe "clinic staff management" do
     setup %{user: owner} do
       # Create a clinic
-      {:ok, clinic} = Clinics.register(%{
-        name: "Test Clinic",
-        slug: "test-clinic",
-        address: "123 Test Street",
-        city: "Test City",
-        country: "Test Country",
-        phone_number: "+1234567890",
-        email: "clinic@example.com",
-        owner_id: owner.id
-      })
+      {:ok, clinic} =
+        Clinics.register(%{
+          name: "Test Clinic",
+          slug: "test-clinic",
+          address: "123 Test Street",
+          city: "Test City",
+          country: "Test Country",
+          phone_number: "+1234567890",
+          email: "clinic@example.com",
+          owner_id: owner.id
+        })
 
       # Create another user to be added as staff
-      {:ok, staff_user} = Accounts.register(%{
-        email: "staff@example.com",
-        first_name: "Staff",
-        last_name: "Member",
-        phone_number: "+0987654321"
-      })
+      {:ok, staff_user} =
+        Accounts.register(%{
+          email: "staff@example.com",
+          first_name: "Staff",
+          last_name: "Member",
+          phone_number: "+0987654321"
+        })
 
       %{clinic: clinic, owner: owner, staff_user: staff_user}
     end
@@ -125,15 +128,15 @@ defmodule Clinicpro.Clinics.ClinicTest do
 
       # List staff
       staff_list = Clinics.list_staff(clinic.id)
-      
+
       # Should include both the owner and the staff member
       assert length(staff_list) == 2
-      
+
       # Verify staff roles
       staff_roles = Enum.map(staff_list, & &1.role)
       assert "owner" in staff_roles
       assert "doctor" in staff_roles
-      
+
       # Verify user IDs
       staff_user_ids = Enum.map(staff_list, & &1.user_id)
       assert owner.id in staff_user_ids

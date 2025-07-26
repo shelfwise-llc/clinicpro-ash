@@ -28,14 +28,14 @@ defmodule Clinicpro.Doctor do
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> unique_constraint(:email)
   end
-  
+
   @doc """
   Returns a changeset for tracking doctor changes.
   """
   def change(%__MODULE__{} = doctor, attrs \\ %{}) do
     changeset(doctor, attrs)
   end
-  
+
   @doc """
   Gets a doctor by ID.
   """
@@ -59,9 +59,9 @@ defmodule Clinicpro.Doctor do
 
   @doc """
   Lists _doctors with optional filtering.
-  
+
   ## Options
-  
+
   * `:limit` - Limits the number of results
   * `:active` - Filter by active status
   * `:name` - Filter by name (partial match)
@@ -86,26 +86,33 @@ defmodule Clinicpro.Doctor do
     |> where(active: true)
     |> Repo.all()
   end
-  
+
   # Private filter functions
-  defp filter_by_active(query, %{active: active}) when is_boolean(active), do: where(query, [d], d.active == ^active)
-  defp filter_by_active(query, _), do: query
-  
-  defp filter_by_name(query, %{name: name}) when is_binary(name) and name != "", 
+  defp filter_by_active(query, %{active: active}) when is_boolean(active),
+    do: where(query, [d], d.active == ^active)
+
+  defp filter_by_active(query, _unused), do: query
+
+  defp filter_by_name(query, %{name: name}) when is_binary(name) and name != "",
     do: where(query, [d], ilike(d.name, ^"%#{name}%"))
-  defp filter_by_name(query, _), do: query
-  
-  defp filter_by_email(query, %{email: email}) when is_binary(email) and email != "", 
+
+  defp filter_by_name(query, _unused), do: query
+
+  defp filter_by_email(query, %{email: email}) when is_binary(email) and email != "",
     do: where(query, [d], ilike(d.email, ^"%#{email}%"))
-  defp filter_by_email(query, _), do: query
-  
-  defp filter_by_specialty(query, %{specialty: specialty}) when is_binary(specialty) and specialty != "", 
-    do: where(query, [d], d.specialty == ^specialty)
-  defp filter_by_specialty(query, _), do: query
-  
-  defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0, 
+
+  defp filter_by_email(query, _unused), do: query
+
+  defp filter_by_specialty(query, %{specialty: specialty})
+       when is_binary(specialty) and specialty != "",
+       do: where(query, [d], d.specialty == ^specialty)
+
+  defp filter_by_specialty(query, _unused), do: query
+
+  defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0,
     do: limit(query, ^limit)
-  defp limit_query(query, _), do: query
+
+  defp limit_query(query, _unused), do: query
 
   @doc """
   Creates a new doctor.

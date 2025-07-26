@@ -20,7 +20,7 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
   - `{:error, reason}` - If the request failed
   """
   @callback request(String.t(), Decimal.t() | number(), String.t(), String.t()) ::
-    {:ok, map()} | {:error, String.t()}
+              {:ok, map()} | {:error, String.t()}
 end
 
 defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
@@ -59,7 +59,8 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
   - `{:ok, _transaction}` - If payment was initiated successfully
   - `{:error, reason}` - If payment initiation failed
   """
-  @callback process_mpesa_payment(Invoice.t(), String.t(), keyword()) :: {:ok, map()} | {:error, String.t()}
+  @callback process_mpesa_payment(Invoice.t(), String.t(), keyword()) ::
+              {:ok, map()} | {:error, String.t()}
 
   @doc """
   Marks an invoice as paid and updates related records.
@@ -75,7 +76,8 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
   - `{:ok, updated_invoice}` - If invoice was updated successfully
   - `{:error, changeset}` - If invoice update failed
   """
-  @callback mark_invoice_as_paid(Invoice.t(), String.t(), keyword()) :: {:ok, Invoice.t()} | {:error, any()}
+  @callback mark_invoice_as_paid(Invoice.t(), String.t(), keyword()) ::
+              {:ok, Invoice.t()} | {:error, any()}
 
   @doc """
   Handles a completed M-Pesa payment.

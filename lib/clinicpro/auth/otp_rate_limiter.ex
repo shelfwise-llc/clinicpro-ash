@@ -48,6 +48,7 @@ defmodule Clinicpro.Auth.OTPRateLimiter do
 
     # Add current attempt and filter out attempts older than 1 hour
     one_hour_ago = DateTime.add(current_time, -3600, :second)
+
     updated_attempts =
       [current_time | attempts]
       |> Enum.filter(fn time -> DateTime.compare(time, one_hour_ago) in [:gt, :eq] end)
@@ -81,6 +82,7 @@ defmodule Clinicpro.Auth.OTPRateLimiter do
 
     # Filter attempts to only include those within the last hour
     one_hour_ago = DateTime.add(current_time, -3600, :second)
+
     recent_attempts =
       attempts
       |> Enum.filter(fn time -> DateTime.compare(time, one_hour_ago) in [:gt, :eq] end)

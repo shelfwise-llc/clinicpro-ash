@@ -34,13 +34,13 @@ defmodule Clinicpro.AshConfig do
     [
       # Core extensions
       Ash.Policy.Authorizer,
-      
+
       # Data persistence
       AshPostgres.DataLayer,
-      
+
       # API extensions
       AshJsonApi.DataLayer,
-      
+
       # Authentication
       AshAuthentication
     ]

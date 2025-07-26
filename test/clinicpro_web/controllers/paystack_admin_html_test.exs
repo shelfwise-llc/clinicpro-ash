@@ -26,7 +26,7 @@ defmodule ClinicproWeb.PaystackAdminHTMLTest do
     test "format_json/1 formats JSON for display" do
       json = %{"event" => "charge.success", "data" => %{"amount" => 1000}}
       formatted = PaystackAdminHTML.format_json(json)
-      
+
       assert formatted =~ "{\n"
       assert formatted =~ "\"event\": \"charge.success\""
       assert formatted =~ "\"data\": {\n"

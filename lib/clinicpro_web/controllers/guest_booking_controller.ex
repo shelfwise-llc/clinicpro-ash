@@ -3,13 +3,33 @@ defmodule ClinicproWeb.GuestBookingController do
   alias ClinicproWeb.Plugs.WorkflowValidator
 
   # Apply the workflow validator plug to all actions in this controller
-  plug WorkflowValidator, [workflow: :guest_booking] when action in [:index, :type, :phone, :invoice, :profile]
+  plug WorkflowValidator,
+       [workflow: :guest_booking] when action in [:index, :type, :phone, :invoice, :profile]
 
   # Specific step requirements for each action
-  plug WorkflowValidator, [workflow: :guest_booking, required_step: :initiate, redirect_to: "/guest_booking"] when action in [:type]
-  plug WorkflowValidator, [workflow: :guest_booking, required_step: :select_type, redirect_to: "/guest_booking/type"] when action in [:phone]
-  plug WorkflowValidator, [workflow: :guest_booking, required_step: :collect_phone, redirect_to: "/guest_booking/phone"] when action in [:invoice]
-  plug WorkflowValidator, [workflow: :guest_booking, required_step: :generate_invoice, redirect_to: "/guest_booking/invoice"] when action in [:profile]
+  plug WorkflowValidator,
+       [workflow: :guest_booking, required_step: :initiate, redirect_to: "/guest_booking"]
+       when action in [:type]
+
+  plug WorkflowValidator,
+       [workflow: :guest_booking, required_step: :select_type, redirect_to: "/guest_booking/type"]
+       when action in [:phone]
+
+  plug WorkflowValidator,
+       [
+         workflow: :guest_booking,
+         required_step: :collect_phone,
+         redirect_to: "/guest_booking/phone"
+       ]
+       when action in [:invoice]
+
+  plug WorkflowValidator,
+       [
+         workflow: :guest_booking,
+         required_step: :generate_invoice,
+         redirect_to: "/guest_booking/invoice"
+       ]
+       when action in [:profile]
 
   @doc """
   Start the guest booking process.

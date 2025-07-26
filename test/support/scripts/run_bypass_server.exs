@@ -22,10 +22,12 @@ defmodule ClinicproWeb.MinimalRouter do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
+
     plug Plug.Parsers,
       parsers: [:urlencoded, :multipart, :json],
       pass: ["*/*"],
       json_decoder: Phoenix.json_library()
+
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -62,7 +64,7 @@ defmodule ClinicproWeb.MinimalEndpoint do
 end
 
 # Start the endpoint
-{:ok, _} = Supervisor.start_link([ClinicproWeb.MinimalEndpoint], strategy: :one_for_one)
+{:ok, _unused} = Supervisor.start_link([ClinicproWeb.MinimalEndpoint], strategy: :one_for_one)
 
 # Keep the VM running
 Process.sleep(:infinity)

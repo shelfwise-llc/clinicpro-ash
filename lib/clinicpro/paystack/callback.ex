@@ -29,53 +29,56 @@ defmodule Clinicpro.Paystack.Callback do
   def process_webhook(payload, _clinic_id, signature) when is_map(payload) do
     # Start processing time measurement
     start_time = System.monotonic_time(:millisecond)
-    
+
     # Extract event type and reference
     event_type = Map.get(payload, "event")
     reference = get_in(payload, ["data", "reference"])
-    
+
     # Create initial webhook log entry
-    {:ok, webhook_log} = WebhookLog.create(%{
-      event_type: event_type,
-      reference: reference,
-      payload: payload,
-      status: :pending,
-      _clinic_id: _clinic_id,
-      processing_history: [
-        %{
-          status: :started,
-          message: "Webhook received",
-          timestamp: DateTime.utc_now()
-        }
-      ]
-    })
-    
+    {:ok, webhook_log} =
+      WebhookLog.create(%{
+        event_type: event_type,
+        reference: reference,
+        payload: payload,
+        status: :pending,
+        _clinic_id: _clinic_id,
+        processing_history: [
+          %{
+            status: :started,
+            message: "Webhook received",
+            timestamp: DateTime.utc_now()
+          }
+        ]
+      })
+
     # Process the webhook
-    result = with :ok <- verify_signature(Jason.encode!(payload), signature),
-                  :ok <- process_event(payload, webhook_log) do
-      
-      # Calculate processing time
-      end_time = System.monotonic_time(:millisecond)
-      processing_time = end_time - start_time
-      
-      # Mark webhook as processed
-      transaction_id = webhook_log.transaction_id
-      {:ok, updated_webhook} = WebhookLog.mark_as_processed(webhook_log, transaction_id, processing_time)
-      
-      {:ok, updated_webhook}
-    else
-      {:error, reason} ->
-        # Mark webhook as failed
-        error_message = "Failed to process webhook: #{inspect(reason)}"
-        Logger.error(error_message)
-        
-        {:ok, updated_webhook} = WebhookLog.mark_as_failed(webhook_log, error_message)
-        {:error, reason}
-    end
-    
+    result =
+      with :ok <- verify_signature(Jason.encode!(payload), signature),
+           :ok <- process_event(payload, webhook_log) do
+        # Calculate processing time
+        end_time = System.monotonic_time(:millisecond)
+        processing_time = end_time - start_time
+
+        # Mark webhook as processed
+        transaction_id = webhook_log.transaction_id
+
+        {:ok, updated_webhook} =
+          WebhookLog.mark_as_processed(webhook_log, transaction_id, processing_time)
+
+        {:ok, updated_webhook}
+      else
+        {:error, reason} ->
+          # Mark webhook as failed
+          error_message = "Failed to process webhook: #{inspect(reason)}"
+          Logger.error(error_message)
+
+          {:ok, updated_webhook} = WebhookLog.mark_as_failed(webhook_log, error_message)
+          {:error, reason}
+      end
+
     result
   end
-  
+
   def process_webhook(payload, _clinic_id, signature) when is_binary(payload) do
     case Jason.decode(payload) do
       {:ok, decoded_payload} -> process_webhook(decoded_payload, _clinic_id, signature)
@@ -94,8 +97,9 @@ defmodule Clinicpro.Paystack.Callback do
 
       secret_key ->
         # Calculate the expected signature
-        expected_signature = :crypto.mac(:hmac, :sha512, secret_key, payload)
-                            |> Base.encode16(case: :lower)
+        expected_signature =
+          :crypto.mac(:hmac, :sha512, secret_key, payload)
+          |> Base.encode16(case: :lower)
 
         # Compare with the provided signature
         if Plug.Crypto.secure_compare(expected_signature, signature) do
@@ -105,7 +109,7 @@ defmodule Clinicpro.Paystack.Callback do
         end
     end
   end
-  
+
   defp verify_signature(_payload, _signature) do
     {:error, :invalid_signature_format}
   end
@@ -114,14 +118,14 @@ defmodule Clinicpro.Paystack.Callback do
     # Extract data from the event
     data = event_data["data"]
     reference = data["reference"]
-    
+
     # Update the _transaction
     case update_transaction(reference, webhook_log._clinic_id, data) do
       {:ok, _transaction} ->
         # Update webhook log with _transaction ID
         WebhookLog.update(webhook_log, %{transaction_id: _transaction.id})
         :ok
-        
+
       error ->
         error
     end
@@ -139,7 +143,7 @@ defmodule Clinicpro.Paystack.Callback do
     :ok
   end
 
-  defp process_event(_, _) do
+  defp process_event(_unused, _unused) do
     {:error, :invalid_event_data}
   end
 
@@ -191,60 +195,66 @@ defmodule Clinicpro.Paystack.Callback do
     # Try to extract _clinic_id from the reference if it follows a pattern
     # This is a fallback and depends on your reference generation strategy
     # Example: "CLINIC_123_INV_456" -> _clinic_id = 123
-    case Regex.run(~r/CLINIC_(\d+)_/, reference) do
-      [_, _clinic_id] -> String.to_integer(_clinic_id)
-      _ -> nil
+    case Regex.run(~r/CLINIC_(\d+)_unused/, reference) do
+      [_unused, _clinic_id] -> String.to_integer(_clinic_id)
+      _unused -> nil
     end
   end
 
   defp parse_datetime(nil), do: nil
+
   defp parse_datetime(datetime_string) do
     case DateTime.from_iso8601(datetime_string) do
-      {:ok, datetime, _} -> datetime
-      _ -> nil
+      {:ok, datetime, _unused} -> datetime
+      _unused -> nil
     end
   end
-  
+
   @doc """
   Retries processing a failed webhook by its ID and _clinic_id.
   Ensures multi-tenant isolation by requiring _clinic_id.
-  
+
   ## Parameters
   - id: The ID of the webhook log to retry
   - _clinic_id: The clinic ID for multi-tenant isolation
-  
+
   ## Returns
   - {:ok, webhook_log} on success
   - {:error, reason} on failure
   """
   def retry_webhook(id, _clinic_id) when is_binary(id) and is_integer(_clinic_id) do
     # Find the webhook log by ID and _clinic_id to ensure multi-tenant isolation
-    query = from w in WebhookLog,
-            where: w.id == ^id and w._clinic_id == ^_clinic_id
-            
+    query =
+      from w in WebhookLog,
+        where: w.id == ^id and w._clinic_id == ^_clinic_id
+
     case Repo.one(query) do
       nil ->
         {:error, :not_found}
-        
+
       webhook_log ->
         # Only allow retrying failed webhooks
         if webhook_log.status == "failed" do
           # Start processing time measurement
           start_time = System.monotonic_time(:millisecond)
-          
+
           # Process the webhook based on event type
           result = process_event(webhook_log.payload, webhook_log)
-          
+
           # Calculate processing time
           end_time = System.monotonic_time(:millisecond)
           processing_time = end_time - start_time
-          
+
           # Update webhook log based on processing result
           case result do
             :ok ->
               # Mark webhook as processed
-              WebhookLog.mark_as_processed(webhook_log, webhook_log.transaction_id, processing_time)
-              
+              WebhookLog.mark_as_processed(
+                webhook_log,
+                webhook_log.transaction_id,
+                processing_time
+              )
+
             {:error, reason} ->
               # Mark webhook as failed
               error_message = "Failed to process webhook: #{inspect(reason)}"
@@ -255,7 +265,7 @@ defmodule Clinicpro.Paystack.Callback do
         end
     end
   end
-  
+
   def retry_webhook(id, _clinic_id) when is_integer(id) do
     retry_webhook(Integer.to_string(id), _clinic_id)
   end

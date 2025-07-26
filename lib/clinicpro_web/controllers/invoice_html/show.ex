@@ -9,13 +9,14 @@ defmodule ClinicproWeb.InvoiceHTML.Show do
   def invoice_status_badge(assigns) do
     status = assigns[:status] || "pending"
 
-    bg_color = case status do
-      "paid" -> "bg-green-100 text-green-800"
-      "pending" -> "bg-yellow-100 text-yellow-800"
-      "overdue" -> "bg-red-100 text-red-800"
-      "cancelled" -> "bg-gray-100 text-gray-800"
-      _ -> "bg-blue-100 text-blue-800"
-    end
+    bg_color =
+      case status do
+        "paid" -> "bg-green-100 text-green-800"
+        "pending" -> "bg-yellow-100 text-yellow-800"
+        "overdue" -> "bg-red-100 text-red-800"
+        "cancelled" -> "bg-gray-100 text-gray-800"
+        _unused -> "bg-blue-100 text-blue-800"
+      end
 
     assigns = assign(assigns, :bg_color, bg_color)
 

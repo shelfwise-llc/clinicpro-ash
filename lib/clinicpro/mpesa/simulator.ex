@@ -111,10 +111,10 @@ defmodule Clinicpro.MPesaCallbackSimulator do
 
   defp random_receipt_number do
     # Generate a random M-Pesa receipt number (format: LHG12AB3CD)
-    letters = for _ <- 1..3, into: "", do: <<Enum.random(?A..?Z)>>
-    numbers = for _ <- 1..2, into: "", do: <<Enum.random(?0..?9)>>
-    letters2 = for _ <- 1..2, into: "", do: <<Enum.random(?A..?Z)>>
-    numbers2 = for _ <- 1..2, into: "", do: <<Enum.random(?0..?9)>>
+    letters = for _unused <- 1..3, into: "", do: <<Enum.random(?A..?Z)>>
+    numbers = for _unused <- 1..2, into: "", do: <<Enum.random(?0..?9)>>
+    letters2 = for _unused <- 1..2, into: "", do: <<Enum.random(?A..?Z)>>
+    numbers2 = for _unused <- 1..2, into: "", do: <<Enum.random(?0..?9)>>
 
     "#{letters}#{numbers}#{letters2}#{numbers2}"
   end

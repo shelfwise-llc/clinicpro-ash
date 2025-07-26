@@ -12,8 +12,10 @@ defmodule Clinicpro.AdminBypass.Appointment do
     field :reason, :string
     field :diagnosis, :string
     field :prescription, :string
-    field :appointment_type, :string, default: "onsite" # onsite or virtual
-    field :meeting_link, :string # For virtual appointments
+    # onsite or virtual
+    field :appointment_type, :string, default: "onsite"
+    # For virtual appointments
+    field :meeting_link, :string
 
     belongs_to :doctor, Clinicpro.AdminBypass.Doctor
     belongs_to :patient, Clinicpro.AdminBypass.Patient
@@ -24,9 +26,24 @@ defmodule Clinicpro.AdminBypass.Appointment do
   @doc false
   def changeset(_appointment, attrs) do
     _appointment
-    |> cast(attrs, [:doctor_id, :patient_id, :date, :start_time, :end_time, :status, :notes, :reason, :diagnosis, :prescription, :appointment_type, :meeting_link])
+    |> cast(attrs, [
+      :doctor_id,
+      :patient_id,
+      :date,
+      :start_time,
+      :end_time,
+      :status,
+      :notes,
+      :reason,
+      :diagnosis,
+      :prescription,
+      :appointment_type,
+      :meeting_link
+    ])
     |> validate_required([:doctor_id, :patient_id, :date, :start_time, :end_time])
-    |> validate_inclusion(:appointment_type, ["onsite", "virtual"], message: "must be either onsite or virtual")
+    |> validate_inclusion(:appointment_type, ["onsite", "virtual"],
+      message: "must be either onsite or virtual"
+    )
     |> foreign_key_constraint(:doctor_id)
     |> foreign_key_constraint(:patient_id)
   end
@@ -37,14 +54,14 @@ defmodule Clinicpro.AdminBypass.Appointment do
 
   def list_appointments_with_associations do
     __MODULE__
-    |> order_by([a], [desc: a.date, asc: a.start_time])
+    |> order_by([a], desc: a.date, asc: a.start_time)
     |> Clinicpro.Repo.all()
     |> Clinicpro.Repo.preload([:doctor, :patient])
   end
 
   def list_recent_appointments(limit \\ 5) do
     __MODULE__
-    |> order_by([a], [desc: a.inserted_at])
+    |> order_by([a], desc: a.inserted_at)
     |> limit(^limit)
     |> Clinicpro.Repo.all()
     |> Clinicpro.Repo.preload([:doctor, :patient])

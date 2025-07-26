@@ -113,7 +113,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
       {:date_to, date_to}, query ->
         from q in query, where: q.inserted_at <= ^date_to
 
-      _, query ->
+      _unused, query ->
         query
     end)
     |> Repo.all()
@@ -265,7 +265,7 @@ defmodule Clinicpro.AdminBypass.Invoice do
         invoice_number = "INV-#{_clinic_id}-#{date_prefix}-#{random_suffix}"
         put_change(changeset, :invoice_number, invoice_number)
 
-      _ ->
+      _unused ->
         changeset
     end
   end

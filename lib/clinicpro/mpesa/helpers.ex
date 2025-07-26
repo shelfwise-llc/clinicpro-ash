@@ -79,7 +79,7 @@ defmodule Clinicpro.MPesa.Helpers do
             "MpesaReceiptNumber" -> Map.put(acc, :transaction_id, value)
             "TransactionDate" -> Map.put(acc, :transaction_date, format_transaction_date(value))
             "PhoneNumber" -> Map.put(acc, :phone_number, value)
-            _ -> acc
+            _unused -> acc
           end
         end)
 
@@ -106,12 +106,12 @@ defmodule Clinicpro.MPesa.Helpers do
     case String.length(date_string) do
       14 ->
         # Format: YYYYMMDDHHmmss
-        <<year::binary-size(4), month::binary-size(2), day::binary-size(2),
-          hour::binary-size(2), minute::binary-size(2), second::binary-size(2)>> = date_string
+        <<year::binary-size(4), month::binary-size(2), day::binary-size(2), hour::binary-size(2),
+          minute::binary-size(2), second::binary-size(2)>> = date_string
 
         "#{year}-#{month}-#{day}T#{hour}:#{minute}:#{second}Z"
 
-      _ ->
+      _unused ->
         # If the format is unexpected, return as is
         date_string
     end

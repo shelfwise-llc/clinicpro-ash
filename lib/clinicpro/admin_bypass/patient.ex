@@ -21,7 +21,16 @@ defmodule Clinicpro.AdminBypass.Patient do
   @doc false
   def changeset(patient, attrs) do
     patient
-    |> cast(attrs, [:first_name, :last_name, :email, :phone, :date_of_birth, :gender, :medical_history, :active])
+    |> cast(attrs, [
+      :first_name,
+      :last_name,
+      :email,
+      :phone,
+      :date_of_birth,
+      :gender,
+      :medical_history,
+      :active
+    ])
     |> validate_required([:first_name, :last_name, :email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> unique_constraint(:email)
@@ -29,13 +38,13 @@ defmodule Clinicpro.AdminBypass.Patient do
 
   def list_patients do
     __MODULE__
-    |> order_by([p], [asc: p.last_name])
+    |> order_by([p], asc: p.last_name)
     |> Clinicpro.Repo.all()
   end
 
   def list_recent_patients(limit \\ 3) do
     __MODULE__
-    |> order_by([p], [desc: p.inserted_at])
+    |> order_by([p], desc: p.inserted_at)
     |> limit(^limit)
     |> Clinicpro.Repo.all()
   end

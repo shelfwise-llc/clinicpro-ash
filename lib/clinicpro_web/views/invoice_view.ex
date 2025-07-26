@@ -20,7 +20,7 @@ defmodule ClinicproWeb.InvoiceView do
       :partial -> "text-yellow-600"
       :pending -> "text-blue-600"
       :failed -> "text-red-600"
-      _ -> "text-gray-600"
+      _unused -> "text-gray-600"
     end
   end
 
@@ -35,7 +35,7 @@ defmodule ClinicproWeb.InvoiceView do
       "processing" -> "bg-blue-100 text-blue-800"
       "failed" -> "bg-red-100 text-red-800"
       "cancelled" -> "bg-gray-100 text-gray-800"
-      _ -> "bg-gray-100 text-gray-800"
+      _unused -> "bg-gray-100 text-gray-800"
     end
   end
 
@@ -92,7 +92,7 @@ defmodule ClinicproWeb.InvoiceView do
       :partial -> "Partially paid"
       :pending -> "Payment pending"
       :failed -> "Payment failed"
-      _ -> "Unknown status"
+      _unused -> "Unknown status"
     end
   end
 end

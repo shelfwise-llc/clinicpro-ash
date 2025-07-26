@@ -48,24 +48,39 @@ defmodule Clinicpro.MPesa.C2B do
           # Parse the response
           case Jason.decode(body) do
             {:ok, %{"ResponseCode" => "0", "ResponseDescription" => description}} ->
-              Logger.info("C2B URLs registered successfully for clinic #{_clinic_id}: #{description}")
+              Logger.info(
+                "C2B URLs registered successfully for clinic #{_clinic_id}: #{description}"
+              )
+
               {:ok, %{description: description}}
 
             {:ok, %{"errorCode" => error_code, "errorMessage" => error_message}} ->
-              Logger.error("C2B URL registration failed for clinic #{_clinic_id}: #{error_code} - #{error_message}")
+              Logger.error(
+                "C2B URL registration failed for clinic #{_clinic_id}: #{error_code} - #{error_message}"
+              )
+
               {:error, %{code: error_code, message: error_message}}
 
             {:ok, response} ->
-              Logger.error("Unexpected C2B URL registration response for clinic #{_clinic_id}: #{inspect(response)}")
+              Logger.error(
+                "Unexpected C2B URL registration response for clinic #{_clinic_id}: #{inspect(response)}"
+              )
+
               {:error, :unexpected_response}
 
-            {:error, _} = error ->
-              Logger.error("Failed to parse C2B URL registration response for clinic #{_clinic_id}: #{inspect(error)}")
+            {:error, _unused} = error ->
+              Logger.error(
+                "Failed to parse C2B URL registration response for clinic #{_clinic_id}: #{inspect(error)}"
+              )
+
               {:error, :invalid_response}
           end
 
         {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-          Logger.error("C2B URL registration failed for clinic #{_clinic_id} with status #{status_code}: #{body}")
+          Logger.error(
+            "C2B URL registration failed for clinic #{_clinic_id} with status #{status_code}: #{body}"
+          )
+
           {:error, :request_failed}
 
         {:error, %HTTPoison.Error{reason: reason}} ->
@@ -96,7 +111,10 @@ defmodule Clinicpro.MPesa.C2B do
 
     # Check if we're in sandbox mode
     if config.environment != "sandbox" do
-      Logger.error("C2B simulation is only available in sandbox environment for clinic #{_clinic_id}")
+      Logger.error(
+        "C2B simulation is only available in sandbox environment for clinic #{_clinic_id}"
+      )
+
       {:error, :simulation_only_in_sandbox}
     else
       # Format the phone number
@@ -127,28 +145,46 @@ defmodule Clinicpro.MPesa.C2B do
             # Parse the response
             case Jason.decode(body) do
               {:ok, %{"ResponseCode" => "0", "ResponseDescription" => description}} ->
-                Logger.info("C2B payment simulation successful for clinic #{_clinic_id}: #{description}")
+                Logger.info(
+                  "C2B payment simulation successful for clinic #{_clinic_id}: #{description}"
+                )
+
                 {:ok, %{description: description}}
 
               {:ok, %{"errorCode" => error_code, "errorMessage" => error_message}} ->
-                Logger.error("C2B payment simulation failed for clinic #{_clinic_id}: #{error_code} - #{error_message}")
+                Logger.error(
+                  "C2B payment simulation failed for clinic #{_clinic_id}: #{error_code} - #{error_message}"
+                )
+
                 {:error, %{code: error_code, message: error_message}}
 
               {:ok, response} ->
-                Logger.error("Unexpected C2B payment simulation response for clinic #{_clinic_id}: #{inspect(response)}")
+                Logger.error(
+                  "Unexpected C2B payment simulation response for clinic #{_clinic_id}: #{inspect(response)}"
+                )
+
                 {:error, :unexpected_response}
 
-              {:error, _} = error ->
-                Logger.error("Failed to parse C2B payment simulation response for clinic #{_clinic_id}: #{inspect(error)}")
+              {:error, _unused} = error ->
+                Logger.error(
+                  "Failed to parse C2B payment simulation response for clinic #{_clinic_id}: #{inspect(error)}"
+                )
+
                 {:error, :invalid_response}
             end
 
           {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
-            Logger.error("C2B payment simulation failed for clinic #{_clinic_id} with status #{status_code}: #{body}")
+            Logger.error(
+              "C2B payment simulation failed for clinic #{_clinic_id} with status #{status_code}: #{body}"
+            )
+
             {:error, :request_failed}
 
           {:error, %HTTPoison.Error{reason: reason}} ->
-            Logger.error("C2B payment simulation failed for clinic #{_clinic_id}: #{inspect(reason)}")
+            Logger.error(
+              "C2B payment simulation failed for clinic #{_clinic_id}: #{inspect(reason)}"
+            )
+
             {:error, :request_failed}
         end
       end
@@ -176,10 +212,11 @@ defmodule Clinicpro.MPesa.C2B do
     # For example, check if the account number exists, etc.
     # For now, we'll just return a success response
 
-    {:ok, %{
-      ResultCode: 0,
-      ResultDesc: "Accepted"
-    }}
+    {:ok,
+     %{
+       ResultCode: 0,
+       ResultDesc: "Accepted"
+     }}
   end
 
   @doc """
@@ -197,7 +234,9 @@ defmodule Clinicpro.MPesa.C2B do
   """
   def process_confirmation(params, _clinic_id) do
     # Log the confirmation request
-    Logger.info("Processing C2B confirmation request for clinic #{_clinic_id}: #{inspect(params)}")
+    Logger.info(
+      "Processing C2B confirmation request for clinic #{_clinic_id}: #{inspect(params)}"
+    )
 
     # Extract relevant information from the params
     _transaction_data = %{
@@ -220,10 +259,11 @@ defmodule Clinicpro.MPesa.C2B do
     # This might involve calling other modules like Transaction or PaymentProcessor
 
     # For now, we'll just return a success response
-    {:ok, %{
-      ResultCode: 0,
-      ResultDesc: "Confirmation received successfully"
-    }}
+    {:ok,
+     %{
+       ResultCode: 0,
+       ResultDesc: "Confirmation received successfully"
+     }}
   end
 
   # Private functions

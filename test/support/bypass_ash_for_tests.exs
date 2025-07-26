@@ -23,39 +23,48 @@ defmodule Clinicpro.MockClinic do
 end
 
 defmodule Clinicpro.MockMedicalRecord do
-  defstruct [:id, :patient_id, :doctor_id, :diagnosis, :treatment, :notes, :created_at, :updated_at]
+  defstruct [
+    :id,
+    :patient_id,
+    :doctor_id,
+    :diagnosis,
+    :treatment,
+    :notes,
+    :created_at,
+    :updated_at
+  ]
 end
 
 # Define a mock authentication module for tests
 defmodule Clinicpro.AuthBypass do
   @moduledoc """
   Bypass module for AshAuthentication in tests.
-  
+
   This module provides simplified authentication functions for testing
   without requiring the full AshAuthentication system to be configured.
   """
-  
+
   @doc """
   Sign in a user for testing purposes.
   """
   def sign_in(conn, user) do
     Plug.Conn.assign(conn, :current_user, user)
   end
-  
+
   @doc """
   Sign out a user for testing purposes.
   """
   def sign_out(conn) do
     Plug.Conn.assign(conn, :current_user, nil)
   end
-  
+
   @doc """
   Check if a user is signed in.
   """
   def signed_in?(conn) do
     !!conn.assigns[:current_user]
   end
-  
+
   @doc """
   Get the current user from the connection.
   """

@@ -14,14 +14,14 @@ defmodule ClinicproWeb.PaystackAdminController do
     has_active_config =
       case Paystack.get_active_config(_clinic_id) do
         {:ok, config} -> true
-        _ -> false
+        _unused -> false
       end
 
     # Get active config environment if available
     config_environment =
       case Paystack.get_active_config(_clinic_id) do
         {:ok, config} -> config.environment
-        _ -> nil
+        _unused -> nil
       end
 
     # Get subaccount stats
@@ -183,7 +183,7 @@ defmodule ClinicproWeb.PaystackAdminController do
     has_active_config =
       case Paystack.get_active_config(_clinic_id) do
         {:ok, _config} -> true
-        _ -> false
+        _unused -> false
       end
 
     render(conn, :list_subaccounts,
@@ -405,7 +405,7 @@ defmodule ClinicproWeb.PaystackAdminController do
         active_subaccount =
           case Paystack.get_active_subaccount(_clinic_id) do
             {:ok, subaccount} -> subaccount
-            _ -> nil
+            _unused -> nil
           end
 
         changeset = Paystack.change_transaction(%Transaction{_clinic_id: _clinic_id})
@@ -424,7 +424,10 @@ defmodule ClinicproWeb.PaystackAdminController do
     end
   end
 
-  def create_test_payment(conn, %{"_clinic_id" => _clinic_id, "_transaction" => transaction_params}) do
+  def create_test_payment(conn, %{
+        "_clinic_id" => _clinic_id,
+        "_transaction" => transaction_params
+      }) do
     _clinic_id = String.to_integer(_clinic_id)
 
     # Extract use_subaccount parameter
@@ -435,7 +438,7 @@ defmodule ClinicproWeb.PaystackAdminController do
       if use_subaccount do
         case Paystack.get_active_subaccount(_clinic_id) do
           {:ok, subaccount} -> subaccount.id
-          _ -> nil
+          _unused -> nil
         end
       else
         nil
@@ -458,7 +461,7 @@ defmodule ClinicproWeb.PaystackAdminController do
         active_subaccount =
           case Paystack.get_active_subaccount(_clinic_id) do
             {:ok, subaccount} -> subaccount
-            _ -> nil
+            _unused -> nil
           end
 
         changeset =
@@ -473,15 +476,15 @@ defmodule ClinicproWeb.PaystackAdminController do
         )
     end
   end
-  
+
   # Webhook Logs
   def webhook_logs(conn, %{"_clinic_id" => _clinic_id} = params) do
     _clinic_id = String.to_integer(_clinic_id)
-    
+
     # Extract filter params with defaults
     _page = String.to_integer(Map.get(params, "_page", "1"))
     _per_page = String.to_integer(Map.get(params, "_per_page", "20"))
-    
+
     # Extract filters
     filters = %{
       event_type: Map.get(params, "event_type", ""),
@@ -490,13 +493,13 @@ defmodule ClinicproWeb.PaystackAdminController do
       date_from: parse_date(Map.get(params, "date_from", "")),
       date_to: parse_date(Map.get(params, "date_to", ""))
     }
-    
+
     # Get filtered webhook logs with pagination
     {webhook_logs, total_count} = WebhookLog.list(_clinic_id, filters, _page, _per_page)
-    
+
     # Get unique event types for filter dropdown
     event_types = get_unique_event_types(_clinic_id)
-    
+
     render(conn, :webhook_log,
       _clinic_id: _clinic_id,
       webhook_logs: webhook_logs,
@@ -507,57 +510,59 @@ defmodule ClinicproWeb.PaystackAdminController do
       event_types: event_types
     )
   end
-  
+
   def webhook_details(conn, %{"_clinic_id" => _clinic_id, "id" => id}) do
     _clinic_id = String.to_integer(_clinic_id)
-    
+
     case WebhookLog.get_with_transaction(id, _clinic_id) do
       {:ok, webhook_log} ->
         render(conn, :webhook_details,
           _clinic_id: _clinic_id,
           webhook_log: webhook_log
         )
-        
+
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Webhook log not found.")
         |> redirect(to: Routes.paystack_admin_path(conn, :webhook_logs, _clinic_id))
     end
   end
-  
+
   def retry_webhook(conn, %{"_clinic_id" => clinic_id_param, "id" => id}) do
     clinic_id = String.to_integer(clinic_id_param)
-    
+
     case Callback.retry_webhook(id, clinic_id) do
       {:ok, _webhook_log} ->
         conn
         |> put_flash(:info, "Webhook processing retried successfully.")
         |> redirect(to: Routes.paystack_admin_path(conn, :webhook_details, clinic_id, id))
-        
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Failed to retry webhook: #{inspect(reason)}")
         |> redirect(to: Routes.paystack_admin_path(conn, :webhook_details, clinic_id, id))
     end
   end
-  
+
   # Helper functions
-  
+
   defp parse_date(""), do: nil
+
   defp parse_date(date_string) do
     case Date.from_iso8601(date_string) do
       {:ok, date} -> date
-      _ -> nil
+      _unused -> nil
     end
   end
-  
+
   defp get_unique_event_types(clinic_id) do
     # Query for distinct event types
-    query = from w in WebhookLog,
-            where: w.clinic_id == ^clinic_id,
-            distinct: true,
-            select: w.event_type
-            
+    query =
+      from w in WebhookLog,
+        where: w.clinic_id == ^clinic_id,
+        distinct: true,
+        select: w.event_type
+
     Clinicpro.Repo.all(query) |> Enum.reject(&is_nil/1)
   end
 end

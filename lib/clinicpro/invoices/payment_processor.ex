@@ -57,37 +57,42 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     case STKPush.initiate(stk_params) do
       {:ok, %{checkout_request_id: checkout_id, merchant_request_id: merchant_id} = response} ->
         # Create a transaction record
-        {:ok, transaction} = Transaction.create(%{
-          checkout_request_id: checkout_id,
-          merchant_request_id: merchant_id,
-          invoice_id: invoice.id,
-          amount: invoice.amount,
-          phone_number: formatted_phone,
-          status: "pending",
-          clinic_id: clinic_id,
-          reference: invoice.reference_number
-        })
+        {:ok, transaction} =
+          Transaction.create(%{
+            checkout_request_id: checkout_id,
+            merchant_request_id: merchant_id,
+            invoice_id: invoice.id,
+            amount: invoice.amount,
+            phone_number: formatted_phone,
+            status: "pending",
+            clinic_id: clinic_id,
+            reference: invoice.reference_number
+          })
 
         # Update the invoice status to "payment_initiated"
-        {:ok, _updated_invoice} = Invoices.update_invoice(invoice, %{
-          payment_status: "payment_initiated",
-          payment_method: "mpesa",
-          last_payment_attempt: DateTime.utc_now()
-        })
+        {:ok, _updated_invoice} =
+          Invoices.update_invoice(invoice, %{
+            payment_status: "payment_initiated",
+            payment_method: "mpesa",
+            last_payment_attempt: DateTime.utc_now()
+          })
 
         {:ok, response}
 
       {:error, reason} = error ->
         # Log the error
-        Logger.error("Failed to initiate M-Pesa payment for invoice #{invoice.id}: #{inspect(reason)}")
+        Logger.error(
+          "Failed to initiate M-Pesa payment for invoice #{invoice.id}: #{inspect(reason)}"
+        )
 
         # Update the invoice with the failed status
-        {:ok, _updated_invoice} = Invoices.update_invoice(invoice, %{
-          payment_status: "payment_failed",
-          payment_method: "mpesa",
-          last_payment_attempt: DateTime.utc_now(),
-          payment_error: inspect(reason)
-        })
+        {:ok, _updated_invoice} =
+          Invoices.update_invoice(invoice, %{
+            payment_status: "payment_failed",
+            payment_method: "mpesa",
+            last_payment_attempt: DateTime.utc_now(),
+            payment_error: inspect(reason)
+          })
 
         error
     end
@@ -194,33 +199,38 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   defp process_successful_payment(transaction, invoice, callback_data) do
     # Extract additional data from the callback
     mpesa_receipt = callback_data["MpesaReceiptNumber"] || "N/A"
-    transaction_date = callback_data["TransactionDate"] || DateTime.utc_now() |> DateTime.to_string()
+
+    transaction_date =
+      callback_data["TransactionDate"] || DateTime.utc_now() |> DateTime.to_string()
 
     # Update the transaction status
-    {:ok, updatedtransaction} = Transaction.update(transaction, %{
-      status: "completed",
-      mpesa_receipt_number: mpesa_receipt,
-      transaction_date: transaction_date,
-      result_code: "0",
-      result_description: "Success"
-    })
+    {:ok, updatedtransaction} =
+      Transaction.update(transaction, %{
+        status: "completed",
+        mpesa_receipt_number: mpesa_receipt,
+        transaction_date: transaction_date,
+        result_code: "0",
+        result_description: "Success"
+      })
 
     # Update the invoice status
-    {:ok, updated_invoice} = Invoices.update_invoice(invoice, %{
-      status: "paid",
-      payment_status: "completed",
-      payment_date: DateTime.utc_now(),
-      payment_reference: mpesa_receipt
-    })
+    {:ok, updated_invoice} =
+      Invoices.update_invoice(invoice, %{
+        status: "paid",
+        payment_status: "completed",
+        payment_date: DateTime.utc_now(),
+        payment_reference: mpesa_receipt
+      })
 
     # If this is an _appointment invoice, update the _appointment status
     if invoice.appointment_id do
       _appointment = Appointments.get_appointment(invoice.appointment_id)
 
       if _appointment do
-        {:ok, _updated_appointment} = Appointments.update_appointment(_appointment, %{
-          payment_status: "paid"
-        })
+        {:ok, _updated_appointment} =
+          Appointments.update_appointment(_appointment, %{
+            payment_status: "paid"
+          })
 
         # Send confirmation notification to the patient
         send_payment_confirmation_notification(_appointment, updated_invoice)
@@ -236,17 +246,19 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     result_desc = callback_data["ResultDesc"] || "Payment failed"
 
     # Update the transaction status
-    {:ok, updatedtransaction} = Transaction.update(transaction, %{
-      status: "failed",
-      result_code: result_code,
-      result_description: result_desc
-    })
+    {:ok, updatedtransaction} =
+      Transaction.update(transaction, %{
+        status: "failed",
+        result_code: result_code,
+        result_description: result_desc
+      })
 
     # Update the invoice status
-    {:ok, updated_invoice} = Invoices.update_invoice(invoice, %{
-      payment_status: "failed",
-      payment_error: result_desc
-    })
+    {:ok, updated_invoice} =
+      Invoices.update_invoice(invoice, %{
+        payment_status: "failed",
+        payment_error: result_desc
+      })
 
     {:ok, %{invoice: updated_invoice, transaction: updatedtransaction}}
   end
@@ -297,7 +309,8 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
         _appointment._clinic_id
 
       # If the _appointment has a doctor with a clinic association, use that
-      _appointment.doctor && _appointment.doctor._clinic_id && _appointment.doctor._clinic_id != "" ->
+      _appointment.doctor && _appointment.doctor._clinic_id &&
+          _appointment.doctor._clinic_id != "" ->
         _appointment.doctor._clinic_id
 
       # Otherwise, fall back to a default clinic ID

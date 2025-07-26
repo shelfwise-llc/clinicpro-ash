@@ -5,13 +5,31 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div>
-      <.input field={f[:doctor_id]} type="select" label="Doctor" 
-        options={Enum.map(@doctors, &{&1.first_name <> " " <> &1.last_name <> " (" <> &1.specialty <> ")", &1.id})} />
+      <.input
+        field={f[:doctor_id]}
+        type="select"
+        label="Doctor"
+        options={
+          Enum.map(
+            @doctors,
+            &{&1.first_name <> " " <> &1.last_name <> " (" <> &1.specialty <> ")", &1.id}
+          )
+        }
+      />
     </div>
 
     <div>
-      <.input field={f[:patient_id]} type="select" label="Patient" 
-        options={Enum.map(@patients, &{&1.first_name <> " " <> &1.last_name <> " (" <> &1.email <> ")", &1.id})} />
+      <.input
+        field={f[:patient_id]}
+        type="select"
+        label="Patient"
+        options={
+          Enum.map(
+            @patients,
+            &{&1.first_name <> " " <> &1.last_name <> " (" <> &1.email <> ")", &1.id}
+          )
+        }
+      />
     </div>
 
     <div>
@@ -19,8 +37,12 @@
     </div>
 
     <div>
-      <.input field={f[:status]} type="select" label="Status" 
-        options={["scheduled", "completed", "cancelled", "in_progress"]} />
+      <.input
+        field={f[:status]}
+        type="select"
+        label="Status"
+        options={["scheduled", "completed", "cancelled", "in_progress"]}
+      />
     </div>
 
     <div>
@@ -54,7 +76,10 @@
 
   <:actions>
     <.button>Save</.button>
-    <.link navigate={~p"/admin_bypass/appointments"} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+    <.link
+      navigate={~p"/admin_bypass/appointments"}
+      class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+    >
       Cancel
     </.link>
   </:actions>

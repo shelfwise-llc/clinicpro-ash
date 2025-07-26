@@ -12,7 +12,16 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   alias Clinicpro.AdminBypass.Appointment
   # # alias Clinicpro.Repo
   alias GoogleApi.Calendar.V3.Api.Events
-  alias GoogleApi.Calendar.V3.Model.{Event, EventDateTime, ConferencingData, CreateConferenceRequest, ConferenceData, ConferenceSolution}
+
+  alias GoogleApi.Calendar.V3.Model.{
+    Event,
+    EventDateTime,
+    ConferencingData,
+    CreateConferenceRequest,
+    ConferenceData,
+    ConferenceSolution
+  }
+
   alias Goth.Token
 
   @doc """
@@ -33,7 +42,6 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
     with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
          {:ok, client} <- get_google_client(),
          {:ok, event} <- create_calendar_event(client, _appointment, _opts) do
-
       # Extract meeting details from the created event
       meeting_data = %{
         url: event.hangoutLink,
@@ -76,7 +84,6 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
          {:ok, client} <- get_google_client(),
          meeting_data <- extract_meeting_data(_appointment),
          {:ok, event} <- update_calendar_event(client, _appointment, meeting_data, _opts) do
-
       # Extract updated meeting details
       updated_meeting_data = %{
         url: event.hangoutLink,
@@ -149,7 +156,9 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
       {:ok, token} ->
         conn = GoogleApi.Calendar.V3.Connection.new(token.token)
         {:ok, conn}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -164,18 +173,21 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
           name: CalendarToken,
           source: {:service_account, json, scopes: ["https://www.googleapis.com/auth/calendar"]}
         )
+
         Goth.fetch(CalendarToken)
 
       %{} = credentials ->
         # Convert credentials map to JSON
         json = Jason.encode!(credentials)
+
         Goth.start_link(
           name: CalendarToken,
           source: {:service_account, json, scopes: ["https://www.googleapis.com/auth/calendar"]}
         )
+
         Goth.fetch(CalendarToken)
 
-      _ ->
+      _unused ->
         {:error, :invalid_credentials}
     end
   end
@@ -239,17 +251,18 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
           start_time = format_event_start_time(_appointment)
           end_time = format_event_end_time(_appointment)
 
-          updated_event = %{existing_event |
-            summary: summary,
-            description: description,
-            start: %EventDateTime{
-              dateTime: start_time,
-              timeZone: "UTC"
-            },
-            end: %EventDateTime{
-              dateTime: end_time,
-              timeZone: "UTC"
-            }
+          updated_event = %{
+            existing_event
+            | summary: summary,
+              description: description,
+              start: %EventDateTime{
+                dateTime: start_time,
+                timeZone: "UTC"
+              },
+              end: %EventDateTime{
+                dateTime: end_time,
+                timeZone: "UTC"
+              }
           }
 
           Events.calendar_events_update(
@@ -259,7 +272,8 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
             body: updated_event
           )
 
-        error -> error
+        error ->
+          error
       end
     end
   end
@@ -279,7 +293,7 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
     case _appointment.meeting_data do
       nil -> %{}
       meeting_data when is_map(meeting_data) -> meeting_data
-      _ -> %{}
+      _unused -> %{}
     end
   end
 
@@ -306,10 +320,11 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   end
 
   defp format_event_start_time(_appointment) do
-    naive_datetime = NaiveDateTime.new!(
-      _appointment.appointment_date,
-      _appointment.appointment_time
-    )
+    naive_datetime =
+      NaiveDateTime.new!(
+        _appointment.appointment_date,
+        _appointment.appointment_time
+      )
 
     # Convert to DateTime with UTC timezone
     datetime = DateTime.from_naive!(naive_datetime, "Etc/UTC")
@@ -317,10 +332,11 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   end
 
   defp format_event_end_time(_appointment) do
-    naive_datetime = NaiveDateTime.new!(
-      _appointment.appointment_date,
-      _appointment.appointment_time
-    )
+    naive_datetime =
+      NaiveDateTime.new!(
+        _appointment.appointment_date,
+        _appointment.appointment_time
+      )
 
     # Add _appointment duration in minutes
     end_naive_datetime = NaiveDateTime.add(naive_datetime, _appointment.duration * 60, :second)
@@ -336,7 +352,9 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
       nil ->
         # Use default calendar ID from config or "primary" as fallback
         Application.get_env(:clinicpro, :google_calendar_id, "primary")
-      calendar_id -> calendar_id
+
+      calendar_id ->
+        calendar_id
     end
   end
 

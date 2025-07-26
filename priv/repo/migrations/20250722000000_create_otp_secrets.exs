@@ -10,7 +10,7 @@ defmodule Clinicpro.Repo.Migrations.CreateOtpSecrets do
 
       # Patient reference
       add :patient_id, references(:patients, on_delete: :delete_all), null: false
-      
+
       # Clinic identifier (string instead of reference since there's no clinics table)
       add :clinic_identifier, :string, null: false
 

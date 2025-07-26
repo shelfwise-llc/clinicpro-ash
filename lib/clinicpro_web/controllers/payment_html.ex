@@ -2,7 +2,7 @@ defmodule ClinicproWeb.PaymentHTML do
   use ClinicproWeb, :html
 
   embed_templates "payment_html/*"
-  
+
   @doc """
   Renders the payment _page for an invoice.
   """
@@ -10,35 +10,39 @@ defmodule ClinicproWeb.PaymentHTML do
     ~H"""
     <div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 class="text-2xl font-bold mb-6 text-gray-800">Payment Details</h1>
-      
+
       <div class="mb-6 p-4 border rounded-md bg-gray-50">
         <h2 class="text-lg font-semibold mb-2">Invoice #<%= @invoice.reference_number %></h2>
         <div class="grid grid-cols-2 gap-2">
           <div class="text-gray-600">Description:</div>
           <div><%= @invoice.description %></div>
-          
+
           <div class="text-gray-600">Amount:</div>
-          <div class="font-semibold">KES <%= :erlang.float_to_binary(@invoice.amount, decimals: 2) %></div>
-          
+          <div class="font-semibold">
+            KES <%= :erlang.float_to_binary(@invoice.amount, decimals: 2) %>
+          </div>
+
           <div class="text-gray-600">Status:</div>
           <div class={status_color(@invoice.status)}>
             <%= String.capitalize(@invoice.status) %>
           </div>
         </div>
       </div>
-      
+
       <%= if @invoice.status == "unpaid" do %>
         <div class="mb-6">
           <h3 class="text-lg font-semibold mb-2">Pay with M-Pesa</h3>
           <p class="text-sm text-gray-600 mb-4">
             Enter your M-Pesa phone number to receive a payment prompt.
           </p>
-          
+
           <form id="mpesa-payment-form" phx-submit="none" class="space-y-4">
             <input type="hidden" name="invoice_id" value={@invoice.id} />
-            
+
             <div>
-              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
+                Phone Number
+              </label>
               <input
                 type="tel"
                 id="phone"
@@ -48,7 +52,7 @@ defmodule ClinicproWeb.PaymentHTML do
                 required
               />
             </div>
-            
+
             <button
               type="button"
               id="initiate-payment-btn"
@@ -57,16 +61,20 @@ defmodule ClinicproWeb.PaymentHTML do
               Pay Now
             </button>
           </form>
-          
+
           <div id="payment-status" class="mt-4 hidden">
             <div class="flex items-center">
-              <div id="loading-spinner" class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-700 mr-2"></div>
+              <div
+                id="loading-spinner"
+                class="animate-spin rounded-full h-5 w-5 border-b-2 border-green-700 mr-2"
+              >
+              </div>
               <p id="status-message" class="text-sm text-gray-600">Processing payment...</p>
             </div>
           </div>
         </div>
       <% end %>
-      
+
       <div class="mt-6">
         <a href="/patient/dashboard" class="text-blue-600 hover:underline">
           Back to Dashboard
@@ -172,14 +180,14 @@ defmodule ClinicproWeb.PaymentHTML do
     </script>
     """
   end
-  
+
   # Helper function to set status color
   defp status_color(status) do
     case status do
       "paid" -> "text-green-600 font-semibold"
       "pending" -> "text-yellow-600 font-semibold"
       "unpaid" -> "text-red-600 font-semibold"
-      _ -> "text-gray-600"
+      _unused -> "text-gray-600"
     end
   end
 end

@@ -1,42 +1,72 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Select Appointment Type</h1>
-  
+
   <%= workflow_progress(assigns) %>
-  
+
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <h2 class="text-2xl font-semibold mb-4">What type of appointment do you need?</h2>
-    
+
     <.form :let={_f} for={%{}} action={~p"/booking/type"} method="post">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
-          <input type="radio" id="type_consultation" name="appointment_type" value="consultation" class="hidden peer" required>
+          <input
+            type="radio"
+            id="type_consultation"
+            name="appointment_type"
+            value="consultation"
+            class="hidden peer"
+            required
+          />
           <label for="type_consultation" class="block cursor-pointer">
             <div class="font-medium text-lg mb-2">Consultation</div>
-            <p class="text-gray-600 mb-4">Initial visit with a doctor to discuss your health concerns</p>
+            <p class="text-gray-600 mb-4">
+              Initial visit with a doctor to discuss your health concerns
+            </p>
             <div class="text-sm text-gray-500">Duration: 30 minutes</div>
           </label>
         </div>
-        
+
         <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
-          <input type="radio" id="type_followup" name="appointment_type" value="followup" class="hidden peer" required>
+          <input
+            type="radio"
+            id="type_followup"
+            name="appointment_type"
+            value="followup"
+            class="hidden peer"
+            required
+          />
           <label for="type_followup" class="block cursor-pointer">
             <div class="font-medium text-lg mb-2">Follow-up</div>
             <p class="text-gray-600 mb-4">Follow-up visit for an existing condition</p>
             <div class="text-sm text-gray-500">Duration: 20 minutes</div>
           </label>
         </div>
-        
+
         <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
-          <input type="radio" id="type_physical" name="appointment_type" value="physical" class="hidden peer" required>
+          <input
+            type="radio"
+            id="type_physical"
+            name="appointment_type"
+            value="physical"
+            class="hidden peer"
+            required
+          />
           <label for="type_physical" class="block cursor-pointer">
             <div class="font-medium text-lg mb-2">Physical Exam</div>
             <p class="text-gray-600 mb-4">Comprehensive physical examination</p>
             <div class="text-sm text-gray-500">Duration: 45 minutes</div>
           </label>
         </div>
-        
+
         <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
-          <input type="radio" id="type_urgent" name="appointment_type" value="urgent" class="hidden peer" required>
+          <input
+            type="radio"
+            id="type_urgent"
+            name="appointment_type"
+            value="urgent"
+            class="hidden peer"
+            required
+          />
           <label for="type_urgent" class="block cursor-pointer">
             <div class="font-medium text-lg mb-2">Urgent Care</div>
             <p class="text-gray-600 mb-4">For non-emergency but urgent health issues</p>
@@ -44,13 +74,16 @@
           </label>
         </div>
       </div>
-      
+
       <div class="mt-8 flex justify-between">
         <a href={~p"/booking"} class="text-blue-600 hover:text-blue-800">
           &larr; Back
         </a>
-        
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+
+        <button
+          type="submit"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md"
+        >
           Continue
         </button>
       </div>

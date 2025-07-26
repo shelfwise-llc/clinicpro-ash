@@ -56,10 +56,10 @@ defmodule Clinicpro.ClinicSetting do
   Gets all settings as a map.
   """
   def get_all do
-    settings = 
+    settings =
       ClinicSetting
       |> Repo.all()
-      |> Enum.reduce(%{}, fn setting, acc -> 
+      |> Enum.reduce(%{}, fn setting, acc ->
         Map.put(acc, setting.key, setting.value)
       end)
 
@@ -73,11 +73,12 @@ defmodule Clinicpro.ClinicSetting do
   """
   def set(key, value) do
     case Repo.get_by(ClinicSetting, key: key) do
-      nil -> 
+      nil ->
         %ClinicSetting{}
         |> changeset(%{key: key, value: value})
         |> Repo.insert()
-      setting -> 
+
+      setting ->
         setting
         |> changeset(%{value: value})
         |> Repo.update()
@@ -99,11 +100,13 @@ defmodule Clinicpro.ClinicSetting do
   def initialize_defaults do
     Enum.each(@default_settings, fn {key, value} ->
       case Repo.get_by(ClinicSetting, key: key) do
-        nil -> 
+        nil ->
           %ClinicSetting{}
           |> changeset(%{key: key, value: value})
           |> Repo.insert()
-        _ -> :ok
+
+        _unused ->
+          :ok
       end
     end)
   end

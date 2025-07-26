@@ -1,68 +1,135 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-2xl font-bold mb-6">Paystack Webhook Logs</h1>
-  
+
   <div class="bg-white shadow-md rounded-lg p-6 mb-6">
     <h2 class="text-lg font-semibold mb-4">Filter Webhook Logs</h2>
     <form method="get" action={~p"/clinics/#{@clinic_id}/paystack/webhooks"} class="space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label for="event_type" class="block text-sm font-medium text-gray-700">Event Type</label>
-          <select id="event_type" name="event_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <label for="event_type" class="block text-sm font-medium text-gray-700">
+            Event Type
+          </label>
+          <select
+            id="event_type"
+            name="event_type"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
             <option value="">All Event Types</option>
             <%= for event_type <- @event_types do %>
-              <option value={event_type} selected={@filters.event_type == event_type}><%= event_type %></option>
+              <option value={event_type} selected={@filters.event_type == event_type}>
+                <%= event_type %>
+              </option>
             <% end %>
           </select>
         </div>
-        
+
         <div>
           <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-          <select id="status" name="status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <select
+            id="status"
+            name="status"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
             <option value="">All Statuses</option>
             <option value="processed" selected={@filters.status == "processed"}>Processed</option>
             <option value="pending" selected={@filters.status == "pending"}>Pending</option>
             <option value="failed" selected={@filters.status == "failed"}>Failed</option>
           </select>
         </div>
-        
+
         <div>
           <label for="reference" class="block text-sm font-medium text-gray-700">Reference</label>
-          <input type="text" id="reference" name="reference" value={@filters.reference} placeholder="Transaction Reference" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input
+            type="text"
+            id="reference"
+            name="reference"
+            value={@filters.reference}
+            placeholder="Transaction Reference"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
         </div>
-        
+
         <div>
           <label for="date_from" class="block text-sm font-medium text-gray-700">Date From</label>
-          <input type="date" id="date_from" name="date_from" value={@filters.date_from && Date.to_iso8601(@filters.date_from)} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input
+            type="date"
+            id="date_from"
+            name="date_from"
+            value={@filters.date_from && Date.to_iso8601(@filters.date_from)}
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
         </div>
-        
+
         <div>
           <label for="date_to" class="block text-sm font-medium text-gray-700">Date To</label>
-          <input type="date" id="date_to" name="date_to" value={@filters.date_to && Date.to_iso8601(@filters.date_to)} class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+          <input
+            type="date"
+            id="date_to"
+            name="date_to"
+            value={@filters.date_to && Date.to_iso8601(@filters.date_to)}
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          />
         </div>
-        
+
         <div class="flex items-end">
-          <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <button
+            type="submit"
+            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
             Filter
           </button>
-          <a href={~p"/clinics/#{@clinic_id}/paystack/webhooks"} class="ml-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <a
+            href={~p"/clinics/#{@clinic_id}/paystack/webhooks"}
+            class="ml-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
             Reset
           </a>
         </div>
       </div>
     </form>
   </div>
-  
+
   <div class="bg-white shadow-md rounded-lg overflow-hidden">
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Event Type</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Processing Time</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Event Type
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Reference
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Status
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Processing Time
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Created At
+            </th>
+            <th
+              scope="col"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
@@ -93,7 +160,10 @@
                   <%= format_date(log.inserted_at) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <a href={~p"/clinics/#{@clinic_id}/paystack/webhooks/#{log.id}"} class="text-indigo-600 hover:text-indigo-900 mr-3">
+                  <a
+                    href={~p"/clinics/#{@clinic_id}/paystack/webhooks/#{log.id}"}
+                    class="text-indigo-600 hover:text-indigo-900 mr-3"
+                  >
                     View Details
                   </a>
                 </td>
@@ -103,12 +173,16 @@
         </tbody>
       </table>
     </div>
-    
     <!-- Pagination -->
     <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
       <div class="flex-1 flex justify-between sm:hidden">
         <%= if @page > 1 do %>
-          <a href={~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page - 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"} class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          <a
+            href={
+              ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page - 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
+            }
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
             Previous
           </a>
         <% else %>
@@ -116,9 +190,14 @@
             Previous
           </span>
         <% end %>
-        
+
         <%= if @total_count > @page * @per_page do %>
-          <a href={~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page + 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"} class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+          <a
+            href={
+              ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page + 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
+            }
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
             Next
           </a>
         <% else %>
@@ -130,44 +209,99 @@
       <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
           <p class="text-sm text-gray-700">
-            Showing <span class="font-medium"><%= (@page - 1) * @per_page + 1 %></span> to <span class="font-medium"><%= min(@page * @per_page, @total_count) %></span> of <span class="font-medium"><%= @total_count %></span> results
+            Showing <span class="font-medium"><%= (@page - 1) * @per_page + 1 %></span>
+            to <span class="font-medium"><%= min(@page * @per_page, @total_count) %></span>
+            of <span class="font-medium"><%= @total_count %></span>
+            results
           </p>
         </div>
         <div>
-          <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <nav
+            class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+            aria-label="Pagination"
+          >
             <%= if @page > 1 do %>
-              <a href={~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page - 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"} class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <a
+                href={
+                  ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page - 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
+                }
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              >
                 <span class="sr-only">Previous</span>
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </a>
             <% else %>
               <span class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-300 cursor-not-allowed">
                 <span class="sr-only">Previous</span>
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </span>
             <% end %>
-            
             <!-- Current Page -->
             <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
               <%= @page %>
             </span>
-            
+
             <%= if @total_count > @page * @per_page do %>
-              <a href={~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page + 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"} class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+              <a
+                href={
+                  ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page + 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
+                }
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              >
                 <span class="sr-only">Next</span>
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </a>
             <% else %>
               <span class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-300 cursor-not-allowed">
                 <span class="sr-only">Next</span>
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                <svg
+                  class="h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                    clip-rule="evenodd"
+                  />
                 </svg>
               </span>
             <% end %>
@@ -176,9 +310,12 @@
       </div>
     </div>
   </div>
-  
+
   <div class="mt-6 flex justify-between">
-    <a href={~p"/clinics/#{@clinic_id}/paystack"} class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+    <a
+      href={~p"/clinics/#{@clinic_id}/paystack"}
+      class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+    >
       Back to Dashboard
     </a>
   </div>

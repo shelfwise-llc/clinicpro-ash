@@ -67,15 +67,16 @@ defmodule Clinicpro.Accounts.UserTest do
         first_name: "Test",
         last_name: "User"
       }
-      
+
       assert {:ok, %User{} = user} = Accounts.register(attrs)
-      
+
       # Now request a magic link
       assert {:ok, _token} = Accounts.magic_link_request(%{"email" => "test@example.com"})
     end
 
     test "magic link request fails for non-existent user" do
-      assert {:error, _reason} = Accounts.magic_link_request(%{"email" => "nonexistent@example.com"})
+      assert {:error, _reason} =
+               Accounts.magic_link_request(%{"email" => "nonexistent@example.com"})
     end
   end
 end

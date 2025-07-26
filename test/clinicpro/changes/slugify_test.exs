@@ -11,19 +11,19 @@ defmodule Clinicpro.Changes.SlugifyTest do
     use Ash.Resource, data_layer: Ash.DataLayer.Ets
 
     attributes do
-      uuid_primary_key :id
-      attribute :name, :string
-      attribute :slug, :string
+      uuid_primary_key(:id)
+      attribute(:name, :string)
+      attribute(:slug, :string)
     end
 
     actions do
-      defaults [:create, :read, :update]
+      defaults([:create, :read, :update])
     end
   end
 
   describe "change/2" do
     test "generates a slug from the source attribute" do
-      changeset = 
+      changeset =
         TestResource
         |> Changeset.new()
         |> Changeset.set_attribute(:name, "Test Resource")
@@ -33,7 +33,7 @@ defmodule Clinicpro.Changes.SlugifyTest do
     end
 
     test "handles nil source values" do
-      changeset = 
+      changeset =
         TestResource
         |> Changeset.new()
         |> Changeset.set_attribute(:name, nil)
@@ -43,7 +43,7 @@ defmodule Clinicpro.Changes.SlugifyTest do
     end
 
     test "handles empty source values" do
-      changeset = 
+      changeset =
         TestResource
         |> Changeset.new()
         |> Changeset.set_attribute(:name, "")
@@ -53,7 +53,7 @@ defmodule Clinicpro.Changes.SlugifyTest do
     end
 
     test "preserves existing slug if source is not changed" do
-      changeset = 
+      changeset =
         TestResource
         |> Changeset.new()
         |> Changeset.set_attribute(:name, "Test Resource")
@@ -64,7 +64,7 @@ defmodule Clinicpro.Changes.SlugifyTest do
     end
 
     test "forces slug update when force option is true" do
-      changeset = 
+      changeset =
         TestResource
         |> Changeset.new()
         |> Changeset.set_attribute(:name, "Test Resource")
@@ -75,7 +75,7 @@ defmodule Clinicpro.Changes.SlugifyTest do
     end
 
     test "handles special characters in source" do
-      changeset = 
+      changeset =
         TestResource
         |> Changeset.new()
         |> Changeset.set_attribute(:name, "Test & Resource!")

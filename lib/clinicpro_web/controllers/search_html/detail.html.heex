@@ -1,8 +1,8 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Item Details</h1>
-  
+
   <%= workflow_progress(assigns) %>
-  
+
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-semibold"><%= @item.title %></h2>
@@ -10,18 +10,18 @@
         &larr; Back to Results
       </a>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div>
         <p class="text-gray-600 mb-2">ID</p>
         <p class="font-medium"><%= @item.id %></p>
       </div>
-      
+
       <div>
         <p class="text-gray-600 mb-2">Date</p>
         <p class="font-medium"><%= @item.date %></p>
       </div>
-      
+
       <div>
         <p class="text-gray-600 mb-2">Status</p>
         <p class="font-medium">
@@ -31,12 +31,12 @@
         </p>
       </div>
     </div>
-    
+
     <div class="border-t border-gray-200 pt-6 mb-8">
       <h3 class="text-lg font-medium mb-4">Description</h3>
       <p class="text-gray-700"><%= @item.description %></p>
     </div>
-    
+
     <div class="border-t border-gray-200 pt-6 mb-8">
       <h3 class="text-lg font-medium mb-4">Details</h3>
       <div class="bg-gray-50 p-4 rounded-md">
@@ -60,7 +60,7 @@
         </dl>
       </div>
     </div>
-    
+
     <%= if length(@available_actions) > 0 do %>
       <div class="border-t border-gray-200 pt-6 mb-8">
         <h3 class="text-lg font-medium mb-4">Available Actions</h3>
@@ -76,7 +76,7 @@
         </div>
       </div>
     <% end %>
-    
+
     <%= if length(@related_items) > 0 do %>
       <div class="border-t border-gray-200 pt-6">
         <h3 class="text-lg font-medium mb-4">Related Items</h3>

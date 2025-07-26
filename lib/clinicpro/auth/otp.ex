@@ -22,7 +22,6 @@ defmodule Clinicpro.Auth.OTP do
   def generate_otp(patient_id, clinic_identifier) do
     # First check if the patient exists and is valid
     with {:ok, _patient} <- get_patient(patient_id) do
-
       # Deactivate any existing OTP secrets for this patient in this clinic
       OTPSecret.deactivate_for_patient(patient_id, clinic_identifier)
 
@@ -33,7 +32,8 @@ defmodule Clinicpro.Auth.OTP do
           otp = NimbleTOTP.verification_code(otp_secret.secret)
           {:ok, %{otp: otp, secret: otp_secret}}
 
-        error -> error
+        error ->
+          error
       end
     end
   end
@@ -51,9 +51,10 @@ defmodule Clinicpro.Auth.OTP do
       otp_secret ->
         # Validate the OTP using NimbleTOTP
         if NimbleTOTP.valid?(otp, otp_secret.secret,
-                            time: System.system_time(:second),
-                            window: @allowed_drift,
-                            period: @otp_validity_period) do
+             time: System.system_time(:second),
+             window: @allowed_drift,
+             period: @otp_validity_period
+           ) do
           # Mark the OTP secret as used
           OTPSecret.mark_as_used(otp_secret.id)
           {:ok, otp_secret}
@@ -68,8 +69,8 @@ defmodule Clinicpro.Auth.OTP do
   """
   def generate_qr_code_url(patient_id, clinic_identifier) do
     with {:ok, patient} <- get_patient(patient_id),
-         otp_secret when not is_nil(otp_secret) <- OTPSecret.find_active_for_patient(patient_id, clinic_identifier) do
-
+         otp_secret when not is_nil(otp_secret) <-
+           OTPSecret.find_active_for_patient(patient_id, clinic_identifier) do
       # Create a provisioning URI for authenticator apps
       issuer = "ClinicPro-#{clinic_identifier}"
       account = "#{patient.email || patient.phone_number}"
@@ -95,10 +96,12 @@ defmodule Clinicpro.Auth.OTP do
             # In production, you would not expose the OTP in the response
             {:ok, %{otp: otp, contact: contact, method: method}}
 
-          error -> error
+          error ->
+            error
         end
 
-      error -> error
+      error ->
+        error
     end
   end
 

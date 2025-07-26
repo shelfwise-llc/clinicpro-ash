@@ -1,7 +1,7 @@
 defmodule ClinicproWeb.AuthController do
   @moduledoc """
   Authentication controller for ClinicPro.
-  
+
   This controller handles authentication-related actions such as sign-in and sign-out.
   It integrates with AshAuthentication for magic link authentication.
   """
@@ -10,7 +10,7 @@ defmodule ClinicproWeb.AuthController do
 
   def success(conn, _activity, user, _token) do
     return_to = get_session(conn, :return_to) || ~p"/"
-    
+
     conn
     |> delete_session(:return_to)
     |> store_in_session(user)

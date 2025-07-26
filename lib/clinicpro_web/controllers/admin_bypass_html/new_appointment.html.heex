@@ -1,7 +1,12 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">New Appointment</h1>
-  
+
   <div class="bg-white rounded-lg shadow p-6">
-    <.appointment_form changeset={@changeset} action={~p"/admin_bypass/appointments"} doctors={@doctors} patients={@patients} />
+    <.appointment_form
+      changeset={@changeset}
+      action={~p"/admin_bypass/appointments"}
+      doctors={@doctors}
+      patients={@patients}
+    />
   </div>
 </div>

@@ -40,16 +40,19 @@ defmodule Clinicpro.MPesa.CallbackLogTest do
 
     test "get_by_id_and_clinic/2 returns the callback log with given id and clinic_id" do
       {:ok, callback_log} = CallbackLog.create(@valid_attrs)
-      assert CallbackLog.get_by_id_and_clinic(callback_log.id, callback_log.clinic_id) == callback_log
+
+      assert CallbackLog.get_by_id_and_clinic(callback_log.id, callback_log.clinic_id) ==
+               callback_log
+
       assert CallbackLog.get_by_id_and_clinic(callback_log.id, 999) == nil
     end
 
     test "list_by_transaction/2 returns callback logs for a specific transaction" do
       {:ok, callback_log} = CallbackLog.create(@valid_attrs)
-      
+
       # Create another callback log with a different transaction_id
       {:ok, _other_log} = CallbackLog.create(Map.put(@valid_attrs, :transaction_id, "OTHER-TXN"))
-      
+
       logs = CallbackLog.list_by_transaction("TEST-TXN-123", 1)
       assert length(logs) == 1
       assert hd(logs).id == callback_log.id
@@ -57,10 +60,10 @@ defmodule Clinicpro.MPesa.CallbackLogTest do
 
     test "list_by_type/2 returns callback logs for a specific type" do
       {:ok, callback_log} = CallbackLog.create(@valid_attrs)
-      
+
       # Create another callback log with a different type
       {:ok, _other_log} = CallbackLog.create(Map.put(@valid_attrs, :type, "c2b_validation"))
-      
+
       logs = CallbackLog.list_by_type("stk_push", 1)
       assert length(logs) == 1
       assert hd(logs).id == callback_log.id
@@ -94,21 +97,23 @@ defmodule Clinicpro.MPesa.CallbackLogTest do
       # Create callback logs with different types
       {:ok, stk_log} = CallbackLog.create(@valid_attrs)
       {:ok, _c2b_log} = CallbackLog.create(Map.put(@valid_attrs, :type, "c2b_validation"))
-      
+
       # Test filtering by type
-      {logs, _} = CallbackLog.paginate_by_clinic(1, %{type: "stk_push"})
+      {logs, _unused} = CallbackLog.paginate_by_clinic(1, %{type: "stk_push"})
       assert length(logs) == 1
       assert hd(logs).id == stk_log.id
 
       # Test filtering by status
-      {logs, _} = CallbackLog.paginate_by_clinic(1, %{status: "success"})
+      {logs, _unused} = CallbackLog.paginate_by_clinic(1, %{status: "success"})
       assert length(logs) == 2
 
       # Test filtering by date
       yesterday = NaiveDateTime.add(NaiveDateTime.utc_now(), -86400)
       tomorrow = NaiveDateTime.add(NaiveDateTime.utc_now(), 86400)
-      
-      {logs, _} = CallbackLog.paginate_by_clinic(1, %{from_date: yesterday, to_date: tomorrow})
+
+      {logs, _unused} =
+        CallbackLog.paginate_by_clinic(1, %{from_date: yesterday, to_date: tomorrow})
+
       assert length(logs) == 2
     end
   end

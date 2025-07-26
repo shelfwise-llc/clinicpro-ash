@@ -42,7 +42,7 @@ defmodule Clinicpro.BookingFlowTest do
 
         # Assertions to verify doctor can see appointments
         assert length(appointments) > 0
-        [appointment | _] = appointments
+        [appointment | _unused] = appointments
         assert appointment.status == :scheduled
 
         # Return the first appointment for use in next step
@@ -53,7 +53,7 @@ defmodule Clinicpro.BookingFlowTest do
       # Expected outcome: Doctor receives authentication token
       doctor_logs_in = fn doctor_user ->
         # Doctor requests magic link
-        {:ok, _} = Accounts.request_magic_link(%{email: doctor_user.email})
+        {:ok, _unused} = Accounts.request_magic_link(%{email: doctor_user.email})
 
         # In a real system, doctor would receive email and click link
         # For test purposes, we'll simulate the token verification
@@ -105,29 +105,32 @@ defmodule Clinicpro.BookingFlowTest do
       # Expected outcome: Clinic and doctor exist in the system
       setup_clinic_and_doctor = fn ->
         # Create a clinic
-        {:ok, clinic} = Clinics.register(%{
-          name: "Test Clinic",
-          address: "123 Test St",
-          phone: "1234567890",
-          email: "clinic@example.com",
-          website: "https://testclinic.com",
-          slug: "test-clinic"
-        })
+        {:ok, clinic} =
+          Clinics.register(%{
+            name: "Test Clinic",
+            address: "123 Test St",
+            phone: "1234567890",
+            email: "clinic@example.com",
+            website: "https://testclinic.com",
+            slug: "test-clinic"
+          })
 
         # Create a doctor user
-        {:ok, doctor_user} = Accounts.register(%{
-          email: "doctor@example.com",
-          first_name: "Doctor",
-          last_name: "Smith",
-          phone_number: "0987654321"
-        })
+        {:ok, doctor_user} =
+          Accounts.register(%{
+            email: "doctor@example.com",
+            first_name: "Doctor",
+            last_name: "Smith",
+            phone_number: "0987654321"
+          })
 
         # Add doctor to clinic
-        {:ok, doctor_staff} = Clinics.add_staff_member(%{
-          clinic_id: clinic.id,
-          user_id: doctor_user.id,
-          role: :doctor
-        })
+        {:ok, doctor_staff} =
+          Clinics.add_staff_member(%{
+            clinic_id: clinic.id,
+            user_id: doctor_user.id,
+            role: :doctor
+          })
 
         {clinic, doctor_user, doctor_staff}
       end

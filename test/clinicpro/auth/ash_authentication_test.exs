@@ -5,7 +5,7 @@ ExUnit.start()
 
 defmodule AshAuthenticationTest do
   use ExUnit.Case
-  
+
   test "token signing secret is configured" do
     token_secret = Application.get_env(:clinicpro, :token_signing_secret)
     assert token_secret != nil

@@ -8,12 +8,12 @@ defmodule Clinicpro.Patients do
   use Ash.Api
 
   resources do
-    resource Clinicpro.Patients.Patient
-    resource Clinicpro.Patients.MedicalRecord
+    resource(Clinicpro.Patients.Patient)
+    resource(Clinicpro.Patients.MedicalRecord)
   end
 
   authorization do
-    authorize :by_default
+    authorize(:by_default)
   end
 
   # Authentication configuration commented out for development
@@ -43,6 +43,7 @@ defmodule Clinicpro.Patients do
   """
   def get_patient_with_history(patient_id, auth_token) do
     require Ash.Query
+
     Clinicpro.Patients.Patient
     |> Ash.Query.filter(Ash.Query.expr(id == ^patient_id))
     |> Ash.Query.load([:medical_records, :appointments])

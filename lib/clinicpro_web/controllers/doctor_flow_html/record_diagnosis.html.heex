@@ -1,11 +1,11 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Record Diagnosis</h1>
-  
+
   <%= workflow_progress(assigns) %>
-  
+
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <h2 class="text-xl font-semibold mb-4">Patient: <%= @appointment_data.patient_name %></h2>
-    
+
     <div class="bg-blue-50 p-4 rounded-md mb-6">
       <h3 class="text-md font-medium text-blue-800 mb-2">Medical Details Summary</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
@@ -31,23 +31,33 @@
         <p class="font-medium"><%= @medical_details["present_illness"] %></p>
       </div>
     </div>
-    
+
     <.form :let={_f} for={%{}} action={~p"/doctor/diagnosis"} method="post">
       <div class="space-y-6">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Diagnosis
           </label>
-          <textarea name="diagnosis[diagnosis]" rows="3" class="w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+          <textarea
+            name="diagnosis[diagnosis]"
+            rows="3"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            required
+          ></textarea>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Treatment Plan
           </label>
-          <textarea name="diagnosis[treatment_plan]" rows="3" class="w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+          <textarea
+            name="diagnosis[treatment_plan]"
+            rows="3"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+            required
+          ></textarea>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Prescription
@@ -55,41 +65,71 @@
           <div class="space-y-3" id="prescriptions">
             <div class="prescription-item grid grid-cols-1 md:grid-cols-4 gap-3">
               <div class="md:col-span-2">
-                <input type="text" name="diagnosis[prescriptions][0][medication]" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Medication">
+                <input
+                  type="text"
+                  name="diagnosis[prescriptions][0][medication]"
+                  class="w-full border-gray-300 rounded-md shadow-sm"
+                  placeholder="Medication"
+                />
               </div>
               <div>
-                <input type="text" name="diagnosis[prescriptions][0][dosage]" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Dosage">
+                <input
+                  type="text"
+                  name="diagnosis[prescriptions][0][dosage]"
+                  class="w-full border-gray-300 rounded-md shadow-sm"
+                  placeholder="Dosage"
+                />
               </div>
               <div>
-                <input type="text" name="diagnosis[prescriptions][0][frequency]" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Frequency">
+                <input
+                  type="text"
+                  name="diagnosis[prescriptions][0][frequency]"
+                  class="w-full border-gray-300 rounded-md shadow-sm"
+                  placeholder="Frequency"
+                />
               </div>
             </div>
           </div>
-          <button type="button" class="mt-2 text-sm text-blue-600 hover:text-blue-800" onclick="addPrescriptionField()">
+          <button
+            type="button"
+            class="mt-2 text-sm text-blue-600 hover:text-blue-800"
+            onclick="addPrescriptionField()"
+          >
             + Add another medication
           </button>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Follow-up Instructions
           </label>
-          <textarea name="diagnosis[followup]" rows="2" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
+          <textarea
+            name="diagnosis[followup]"
+            rows="2"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+          ></textarea>
         </div>
-        
+
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Lab Tests Ordered
           </label>
-          <textarea name="diagnosis[lab_tests]" rows="2" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
+          <textarea
+            name="diagnosis[lab_tests]"
+            rows="2"
+            class="w-full border-gray-300 rounded-md shadow-sm"
+          ></textarea>
         </div>
-        
+
         <div class="flex justify-between">
           <a href={~p"/doctor/medical_details"} class="text-blue-600 hover:text-blue-800">
             &larr; Back to Medical Details
           </a>
-          
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md"
+          >
             Save Diagnosis
           </button>
         </div>

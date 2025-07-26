@@ -2,7 +2,8 @@ defmodule Clinicpro.Accounts do
   @moduledoc """
   Accounts API for ClinicPro.
   """
-  use Ash.Api # Temporarily removed AshAuthentication extension
+  # Temporarily removed AshAuthentication extension
+  use Ash.Api
 
   resources do
     resource(Clinicpro.Accounts.User)
@@ -25,7 +26,7 @@ defmodule Clinicpro.Accounts do
   #   tokens do
   #     enabled? true
   #     token_resource Clinicpro.Accounts.Token
-  #     signing_secret fn _, _ -> Application.fetch_env!(:clinicpro, :token_signing_secret) end
+  #     signing_secret fn _unused, _unused -> Application.fetch_env!(:clinicpro, :token_signing_secret) end
   #     token_lifetime 60 * 60 * 24 * 7 # 7 days
   #   end
   # end
@@ -53,7 +54,7 @@ defmodule Clinicpro.Accounts do
   #   tokens do
   #     enabled?(true)
   #     
-  #     signing_secret(fn _, _ ->
+  #     signing_secret(fn _unused, _unused ->
   #       "some_dev_secret_at_least_64_bytes_long_to_secure_the_authentication_tokens"
   #     end)
   #   end

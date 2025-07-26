@@ -19,9 +19,14 @@ defmodule Clinicpro.Repo.Migrations.CreatePaystackSubaccounts do
     # Add indexes
     create index(:paystack_subaccounts, [:clinic_id])
     create unique_index(:paystack_subaccounts, [:subaccount_code])
-    create unique_index(:paystack_subaccounts, [:clinic_id, :active], where: "active = true", name: :paystack_subaccounts_clinic_id_active_index)
+
+    create unique_index(:paystack_subaccounts, [:clinic_id, :active],
+             where: "active = true",
+             name: :paystack_subaccounts_clinic_id_active_index
+           )
 
     # Add a comment to the table
-    execute "COMMENT ON TABLE paystack_subaccounts IS 'Stores Paystack subaccount details for each clinic'", ""
+    execute "COMMENT ON TABLE paystack_subaccounts IS 'Stores Paystack subaccount details for each clinic'",
+            ""
   end
 end

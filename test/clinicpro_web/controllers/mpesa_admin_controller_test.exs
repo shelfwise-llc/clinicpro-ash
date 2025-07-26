@@ -49,13 +49,14 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
 
   setup %{conn: conn} do
     # Create a user with admin role
-    {:ok, user} = Accounts.register_admin(%{
-      email: "admin@example.com",
-      password: "password123",
-      password_confirmation: "password123",
-      clinic_id: 1,
-      role: "admin"
-    })
+    {:ok, user} =
+      Accounts.register_admin(%{
+        email: "admin@example.com",
+        password: "password123",
+        password_confirmation: "password123",
+        clinic_id: 1,
+        role: "admin"
+      })
 
     # Create a config for testing
     {:ok, config} = Config.create(@valid_config_attrs)
@@ -69,7 +70,8 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
     # Log in the user
     conn = log_in_user(conn, user)
 
-    {:ok, conn: conn, user: user, config: config, transaction: transaction, callback_log: callback_log}
+    {:ok,
+     conn: conn, user: user, config: config, transaction: transaction, callback_log: callback_log}
   end
 
   describe "index" do
@@ -101,12 +103,14 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
     end
 
     test "updates configuration", %{conn: conn, config: config} do
-      conn = put(conn, ~p"/admin/clinics/1/mpesa/config/#{config.id}", %{
-        "config" => %{"shortcode" => "654321"}
-      })
+      conn =
+        put(conn, ~p"/admin/clinics/1/mpesa/config/#{config.id}", %{
+          "config" => %{"shortcode" => "654321"}
+        })
+
       assert redirected_to(conn) == ~p"/admin/clinics/1/mpesa/config"
       assert get_flash(conn, :info) =~ "Configuration updated successfully"
-      
+
       # Verify the update
       updated_config = Config.get_by_id(config.id)
       assert updated_config.shortcode == "654321"
@@ -114,12 +118,12 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
 
     test "activates configuration", %{conn: conn, config: config} do
       # First deactivate the config
-      {:ok, _} = Config.deactivate(config.id)
-      
+      {:ok, _unused} = Config.deactivate(config.id)
+
       conn = put(conn, ~p"/admin/clinics/1/mpesa/config/#{config.id}/activate")
       assert redirected_to(conn) == ~p"/admin/clinics/1/mpesa/config"
       assert get_flash(conn, :info) =~ "Configuration activated successfully"
-      
+
       # Verify the activation
       updated_config = Config.get_by_id(config.id)
       assert updated_config.active == true
@@ -129,7 +133,7 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
       conn = put(conn, ~p"/admin/clinics/1/mpesa/config/#{config.id}/deactivate")
       assert redirected_to(conn) == ~p"/admin/clinics/1/mpesa/config"
       assert get_flash(conn, :info) =~ "Configuration deactivated successfully"
-      
+
       # Verify the deactivation
       updated_config = Config.get_by_id(config.id)
       assert updated_config.active == false
@@ -164,14 +168,15 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
     test "initiates stk push test", %{conn: conn} do
       # Mock the STK Push initiation - this would normally be handled by a mock
       # For this test, we'll just check that the controller handles the form submission
-      conn = post(conn, ~p"/admin/clinics/1/mpesa/stk-push-test", %{
-        "stk_push" => %{
-          "phone_number" => "254712345678",
-          "amount" => "10",
-          "reference" => "TEST-REF"
-        }
-      })
-      
+      conn =
+        post(conn, ~p"/admin/clinics/1/mpesa/stk-push-test", %{
+          "stk_push" => %{
+            "phone_number" => "254712345678",
+            "amount" => "10",
+            "reference" => "TEST-REF"
+          }
+        })
+
       # In a real test with mocks, we'd verify the STK Push was initiated
       # Here we just check that the controller handled the submission
       assert html_response(conn, 200) =~ "STK Push Test"
@@ -188,7 +193,7 @@ defmodule ClinicproWeb.MPesaAdminControllerTest do
       # Mock the URL registration - this would normally be handled by a mock
       # For this test, we'll just check that the controller handles the form submission
       conn = post(conn, ~p"/admin/clinics/1/mpesa/register-url", %{})
-      
+
       # In a real test with mocks, we'd verify the URL was registered
       # Here we just check that the controller handled the submission
       assert html_response(conn, 200) =~ "Register Callback URL"

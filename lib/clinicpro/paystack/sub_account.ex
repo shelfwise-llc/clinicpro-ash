@@ -45,13 +45,14 @@ defmodule Clinicpro.Paystack.SubAccount do
   def create(business_name, settlement_bank, account_number, _clinic_id, percentage_charge \\ nil) do
     with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
       # Build the payload
-      payload = %{
-        business_name: business_name,
-        settlement_bank: settlement_bank,
-        account_number: account_number,
-        percentage_charge: percentage_charge
-      }
-      |> remove_nil_values()
+      payload =
+        %{
+          business_name: business_name,
+          settlement_bank: settlement_bank,
+          account_number: account_number,
+          percentage_charge: percentage_charge
+        }
+        |> remove_nil_values()
 
       # Make the API call
       case Http.post("/subaccount", payload, secret_key) do
@@ -260,20 +261,31 @@ defmodule Clinicpro.Paystack.SubAccount do
   defp changeset(subaccount, attrs) do
     subaccount
     |> cast(attrs, [
-      :_clinic_id, :subaccount_code, :business_name, :settlement_bank,
-      :account_number, :percentage_charge, :active
+      :_clinic_id,
+      :subaccount_code,
+      :business_name,
+      :settlement_bank,
+      :account_number,
+      :percentage_charge,
+      :active
     ])
     |> validate_required([
-      :_clinic_id, :subaccount_code, :business_name, :settlement_bank, :account_number
+      :_clinic_id,
+      :subaccount_code,
+      :business_name,
+      :settlement_bank,
+      :account_number
     ])
     |> unique_constraint(:subaccount_code)
-    |> unique_constraint(:_clinic_id, name: :paystack_subaccounts_clinic_id_active_index,
-        message: "already has an active Paystack subaccount")
+    |> unique_constraint(:_clinic_id,
+      name: :paystack_subaccounts_clinic_id_active_index,
+      message: "already has an active Paystack subaccount"
+    )
   end
 
   defp remove_nil_values(map) do
     map
-    |> Enum.filter(fn {_, v} -> v != nil end)
+    |> Enum.filter(fn {_unused, v} -> v != nil end)
     |> Map.new()
   end
 end

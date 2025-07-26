@@ -65,26 +65,29 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
 
     test "blocks attempts beyond the limit", %{patient: patient, clinic: clinic} do
       # Make 3 attempts (the limit)
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         assert :ok = OTPRateLimiter.check_rate_limit(patient.id, clinic.id)
         OTPRateLimiter.record_attempt(patient.id, clinic.id)
       end
 
       # Fourth attempt should be blocked
-      assert {:error, {:rate_limited, minutes}} = OTPRateLimiter.check_rate_limit(patient.id, clinic.id)
+      assert {:error, {:rate_limited, minutes}} =
+               OTPRateLimiter.check_rate_limit(patient.id, clinic.id)
+
       assert is_integer(minutes)
       assert minutes > 0
     end
 
     test "resets attempts successfully", %{patient: patient, clinic: clinic} do
       # Make 3 attempts (the limit)
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         assert :ok = OTPRateLimiter.check_rate_limit(patient.id, clinic.id)
         OTPRateLimiter.record_attempt(patient.id, clinic.id)
       end
 
       # Should be blocked now
-      assert {:error, {:rate_limited, _}} = OTPRateLimiter.check_rate_limit(patient.id, clinic.id)
+      assert {:error, {:rate_limited, _unused}} =
+               OTPRateLimiter.check_rate_limit(patient.id, clinic.id)
 
       # Reset attempts
       OTPRateLimiter.reset_attempts(patient.id, clinic.id)
@@ -106,13 +109,14 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
         |> Repo.insert()
 
       # Make 3 attempts for patient1 (the limit)
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         assert :ok = OTPRateLimiter.check_rate_limit(patient1.id, clinic.id)
         OTPRateLimiter.record_attempt(patient1.id, clinic.id)
       end
 
       # Patient1 should be blocked
-      assert {:error, {:rate_limited, _}} = OTPRateLimiter.check_rate_limit(patient1.id, clinic.id)
+      assert {:error, {:rate_limited, _unused}} =
+               OTPRateLimiter.check_rate_limit(patient1.id, clinic.id)
 
       # Patient2 should still be allowed
       assert :ok = OTPRateLimiter.check_rate_limit(patient2.id, clinic.id)
@@ -129,7 +133,7 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
         |> Repo.insert()
 
       # Create config for the second clinic
-      {:ok, _} =
+      {:ok, _unused} =
         %OTPConfig{}
         |> OTPConfig.changeset(%{
           clinic_id: clinic2.id,
@@ -139,13 +143,14 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
         |> Repo.insert()
 
       # Make 3 attempts for the first clinic (the limit)
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         assert :ok = OTPRateLimiter.check_rate_limit(patient.id, patient.clinic_id)
         OTPRateLimiter.record_attempt(patient.id, patient.clinic_id)
       end
 
       # First clinic should be blocked
-      assert {:error, {:rate_limited, _}} = OTPRateLimiter.check_rate_limit(patient.id, patient.clinic_id)
+      assert {:error, {:rate_limited, _unused}} =
+               OTPRateLimiter.check_rate_limit(patient.id, patient.clinic_id)
 
       # Second clinic should still be allowed
       assert :ok = OTPRateLimiter.check_rate_limit(patient.id, clinic2.id)

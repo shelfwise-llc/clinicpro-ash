@@ -16,12 +16,13 @@ defmodule ClinicproWeb.PaystackAdminHTML.Helpers do
 
   """
   def format_amount(nil), do: "0.00"
+
   def format_amount(amount) when is_integer(amount) do
     # Convert from kobo/cents to naira/dollars
     amount_in_currency = amount / 100.0
 
     # Format with commas and 2 decimal places
-    :erlang.float_to_binary(amount_in_currency, [decimals: 2])
+    :erlang.float_to_binary(amount_in_currency, decimals: 2)
     |> add_commas()
   end
 
@@ -35,6 +36,7 @@ defmodule ClinicproWeb.PaystackAdminHTML.Helpers do
 
   """
   def format_datetime(nil), do: "N/A"
+
   def format_datetime(%DateTime{} = datetime) do
     Calendar.strftime(datetime, "%b %d, %Y %H:%M:%S")
   end
@@ -59,7 +61,7 @@ defmodule ClinicproWeb.PaystackAdminHTML.Helpers do
       "completed" -> "bg-green-100 text-green-800"
       "pending" -> "bg-yellow-100 text-yellow-800"
       "failed" -> "bg-red-100 text-red-800"
-      _ -> "bg-gray-100 text-gray-800"
+      _unused -> "bg-gray-100 text-gray-800"
     end
   end
 

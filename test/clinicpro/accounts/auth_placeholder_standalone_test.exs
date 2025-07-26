@@ -13,10 +13,10 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     def generate_token_for_user(user_id) do
       # For development, just generate a token string
       token_string = generate_random_token()
-      
+
       # Log the token for development purposes
       Logger.info("Generated token for user #{user_id}: #{token_string}")
-      
+
       # Return a simple token structure
       {:ok, %{token: token_string}}
     end
@@ -28,12 +28,13 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     """
     def authenticate_by_email(email) do
       # For development, hardcode the user IDs
-      user_id = case email do
-        "doctor@clinicpro.com" -> "doctor-id-123"
-        "patient@clinicpro.com" -> "patient-id-456"
-        _ -> nil
-      end
-      
+      user_id =
+        case email do
+          "doctor@clinicpro.com" -> "doctor-id-123"
+          "patient@clinicpro.com" -> "patient-id-456"
+          _unused -> nil
+        end
+
       if user_id do
         generate_token_for_user(user_id)
       else
@@ -61,7 +62,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     test "generates a token for a given user ID" do
       user_id = "test-user-id"
       {:ok, token} = MockAuthPlaceholder.generate_token_for_user(user_id)
-      
+
       assert is_map(token)
       assert Map.has_key?(token, :token)
       assert is_binary(token.token)
@@ -72,7 +73,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     test "returns a token when given a doctor email" do
       email = "doctor@clinicpro.com"
       {:ok, token} = MockAuthPlaceholder.authenticate_by_email(email)
-      
+
       assert is_map(token)
       assert Map.has_key?(token, :token)
       assert is_binary(token.token)
@@ -81,7 +82,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     test "returns a token when given a patient email" do
       email = "patient@clinicpro.com"
       {:ok, token} = MockAuthPlaceholder.authenticate_by_email(email)
-      
+
       assert is_map(token)
       assert Map.has_key?(token, :token)
       assert is_binary(token.token)
@@ -90,7 +91,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     test "returns an error for unknown email" do
       email = "unknown@example.com"
       result = MockAuthPlaceholder.authenticate_by_email(email)
-      
+
       assert result == {:error, "User not found"}
     end
   end
@@ -99,7 +100,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderStandaloneTest do
     test "always returns success for any token" do
       token_string = "some-random-token"
       {:ok, result} = MockAuthPlaceholder.verify_token(token_string)
-      
+
       assert result.token == token_string
       assert result.valid == true
     end

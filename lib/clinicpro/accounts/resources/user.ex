@@ -1,30 +1,31 @@
 defmodule Clinicpro.Accounts.User do
   @moduledoc """
   User resource for ClinicPro.
-  
+
   This resource represents a user in the system with authentication capabilities.
   It supports magic link authentication and role-based access control.
   """
   use Ash.Resource,
     data_layer: AshPostgres.DataLayer,
-    extensions: [Ash.Policy.Authorizer] # Temporarily removed AshAuthentication
+    # Temporarily removed AshAuthentication
+    extensions: [Ash.Policy.Authorizer]
 
   postgres do
-    table "users"
-    repo Clinicpro.Repo
+    table("users")
+    repo(Clinicpro.Repo)
   end
 
   attributes do
-    uuid_primary_key :id
-    attribute :email, :ci_string, allow_nil?: false
-    attribute :first_name, :string, allow_nil?: true
-    attribute :last_name, :string, allow_nil?: true
-    attribute :is_active, :boolean, default: true
+    uuid_primary_key(:id)
+    attribute(:email, :ci_string, allow_nil?: false)
+    attribute(:first_name, :string, allow_nil?: true)
+    attribute(:last_name, :string, allow_nil?: true)
+    attribute(:is_active, :boolean, default: true)
     timestamps()
   end
 
   identities do
-    identity :unique_email, [:email]
+    identity(:unique_email, [:email])
   end
 
   # Temporarily comment out authentication to bypass AshAuthentication issues
@@ -42,13 +43,13 @@ defmodule Clinicpro.Accounts.User do
 
   relationships do
     has_many :roles, Clinicpro.Accounts.UserRole do
-      destination_attribute :user_id
+      destination_attribute(:user_id)
     end
   end
 
   actions do
-    defaults [:create, :read, :update, :destroy]
-    
+    defaults([:create, :read, :update, :destroy])
+
     # Register action is temporarily commented out to bypass AshAuthentication issues
     # create :register do
     #   accept [:email, :first_name, :last_name]
@@ -59,26 +60,26 @@ defmodule Clinicpro.Accounts.User do
   end
 
   code_interface do
-    define_for Clinicpro.Accounts
-    define :get_by_id, args: [:id], action: :read
-    define :get_by_email, args: [:email], action: :read
+    define_for(Clinicpro.Accounts)
+    define(:get_by_id, args: [:id], action: :read)
+    define(:get_by_email, args: [:email], action: :read)
   end
 
   policies do
     policy action_type(:read) do
-      authorize_if always()
+      authorize_if(always())
     end
 
     policy action_type(:create) do
-      authorize_if always()
+      authorize_if(always())
     end
 
     policy action_type(:update) do
-      authorize_if always()
+      authorize_if(always())
     end
 
     policy action_type(:destroy) do
-      authorize_if always()
+      authorize_if(always())
     end
   end
 end

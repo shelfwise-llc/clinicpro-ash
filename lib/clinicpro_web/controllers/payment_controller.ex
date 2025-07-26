@@ -1,10 +1,10 @@
 defmodule ClinicproWeb.PaymentController do
   use ClinicproWeb, :controller
-  
+
   alias Clinicpro.MPesa
   alias Clinicpro.Invoices
   alias Clinicpro.Appointments
-  
+
   @doc """
   Show payment details for an invoice.
   """
@@ -14,32 +14,32 @@ defmodule ClinicproWeb.PaymentController do
         conn
         |> put_flash(:error, "Invoice not found.")
         |> redirect(to: ~p"/patient/dashboard")
-        
+
       invoice ->
         render(conn, :show, invoice: invoice)
     end
   end
-  
+
   @doc """
   Initiate M-Pesa STK push payment for an invoice.
   """
   def initiate_mpesa(conn, %{"invoice_id" => invoice_id, "phone" => phone}) do
     # Get the current patient from the session
     patient = conn.assigns.current_patient
-    
+
     case Invoices.get_invoice(invoice_id) do
       nil ->
         conn
         |> put_status(:not_found)
         |> json(%{success: false, message: "Invoice not found"})
-        
+
       invoice ->
         # Get the clinic ID from the invoice
         _clinic_id = invoice._clinic_id
-        
+
         # Format phone number to ensure it's in the correct format (254XXXXXXXXX)
         formatted_phone = format_phone_number(phone)
-        
+
         # Prepare _transaction data
         _transaction_data = %{
           _clinic_id: _clinic_id,
@@ -54,34 +54,39 @@ defmodule ClinicproWeb.PaymentController do
             "appointment_type" => get_appointment_type(invoice.id)
           }
         }
-        
+
         # Update invoice status to pending
         {:ok, updated_invoice} = Invoices.update_invoice_status(invoice, "pending")
-        
+
         # Initiate STK push
-        case MPesa.initiate_stk_push(_clinic_id, formatted_phone, invoice.amount, 
-                                    invoice.reference_number, "Payment for #{invoice.description}") do
+        case MPesa.initiate_stk_push(
+               _clinic_id,
+               formatted_phone,
+               invoice.amount,
+               invoice.reference_number,
+               "Payment for #{invoice.description}"
+             ) do
           {:ok, _transaction} ->
             conn
             |> put_status(:ok)
             |> json(%{
-              success: true, 
+              success: true,
               message: "Payment initiated successfully",
               transaction_id: _transaction.id,
               checkout_request_id: _transaction.checkout_request_id
             })
-            
+
           {:error, reason} ->
             # Revert invoice status back to unpaid if payment initiation fails
-            {:ok, _} = Invoices.update_invoice_status(updated_invoice, "unpaid")
-            
+            {:ok, _unused} = Invoices.update_invoice_status(updated_invoice, "unpaid")
+
             conn
             |> put_status(:unprocessable_entity)
             |> json(%{success: false, message: "Payment initiation failed: #{inspect(reason)}"})
         end
     end
   end
-  
+
   @doc """
   Check the status of an M-Pesa _transaction.
   """
@@ -91,7 +96,7 @@ defmodule ClinicproWeb.PaymentController do
         conn
         |> put_status(:not_found)
         |> json(%{success: false, message: "Transaction not found"})
-        
+
       _transaction ->
         conn
         |> put_status(:ok)
@@ -103,13 +108,13 @@ defmodule ClinicproWeb.PaymentController do
         })
     end
   end
-  
+
   # Helper functions
-  
+
   defp format_phone_number(phone) do
     # Remove any non-digit characters
     digits = String.replace(phone, ~r/\D/, "")
-    
+
     # Ensure the number starts with 254 (Kenya country code)
     cond do
       String.starts_with?(digits, "254") -> digits
@@ -118,12 +123,13 @@ defmodule ClinicproWeb.PaymentController do
       true -> "254" <> digits
     end
   end
-  
+
   defp get_appointment_type(invoice_id) do
     # Get the _appointment associated with this invoice
     case Appointments.get_appointment_by_invoice(invoice_id) do
       nil -> "unknown"
-      _appointment -> _appointment.appointment_type || "onsite" # Default to onsite if not specified
+      # Default to onsite if not specified
+      _appointment -> _appointment.appointment_type || "onsite"
     end
   end
 end

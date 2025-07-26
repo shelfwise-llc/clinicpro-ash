@@ -57,9 +57,10 @@ defmodule Clinicpro.Auth.OTPSecret do
     import Ecto.Query
 
     from(s in __MODULE__,
-      where: s.patient_id == ^patient_id and
-             s.clinic_identifier == ^clinic_identifier and
-             s.active == true
+      where:
+        s.patient_id == ^patient_id and
+          s.clinic_identifier == ^clinic_identifier and
+          s.active == true
     )
     |> Repo.update_all(set: [active: false])
   end
@@ -71,10 +72,11 @@ defmodule Clinicpro.Auth.OTPSecret do
     import Ecto.Query
 
     from(s in __MODULE__,
-      where: s.patient_id == ^patient_id and
-             s.clinic_identifier == ^clinic_identifier and
-             s.active == true and
-             (is_nil(s.expires_at) or s.expires_at > ^DateTime.utc_now())
+      where:
+        s.patient_id == ^patient_id and
+          s.clinic_identifier == ^clinic_identifier and
+          s.active == true and
+          (is_nil(s.expires_at) or s.expires_at > ^DateTime.utc_now())
     )
     |> Repo.one()
   end

@@ -401,6 +401,6 @@ defmodule Clinicpro.Paystack do
   defp generate_reference(_clinic_id) do
     timestamp = DateTime.utc_now() |> DateTime.to_unix()
     random = :rand.uniform(1_000_000)
-    "paystack_#{_clinic_id}_#{timestamp}_#{random}"
+    "paystack_#{_clinic_id}_unused#{timestamp}_unused#{random}"
   end
 end

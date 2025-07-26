@@ -17,6 +17,7 @@ defmodule Clinicpro.Medications do
     case TypesenseConfig.search_medications(_clinic_id, query, options) do
       {:ok, results} ->
         {:ok, Enum.map(results, fn hit -> hit["document"] end)}
+
       {:error, error} ->
         {:error, error}
     end
@@ -41,9 +42,10 @@ defmodule Clinicpro.Medications do
   """
   def bulk_import(_clinic_id, medications) do
     # Ensure each medication has an ID
-    medications = Enum.map(medications, fn med ->
-      Map.put_new(med, "id", UUID.generate())
-    end)
+    medications =
+      Enum.map(medications, fn med ->
+        Map.put_new(med, "id", UUID.generate())
+      end)
 
     # Create the collection if it doesn't exist
     TypesenseConfig.create_collection_if_not_exists(_clinic_id)

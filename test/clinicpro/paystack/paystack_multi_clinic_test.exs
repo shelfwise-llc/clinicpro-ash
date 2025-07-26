@@ -42,7 +42,12 @@ defmodule Clinicpro.PaystackMultiClinicTest do
 
     test "get_active_config/1 returns the active config for a specific clinic" do
       {:ok, config1} = Paystack.create_config(@valid_config_attrs, @clinic_1_id)
-      {:ok, config2} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 2 Config"), @clinic_2_id)
+
+      {:ok, config2} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 2 Config"),
+          @clinic_2_id
+        )
 
       assert {:ok, fetched_config1} = Paystack.get_active_config(@clinic_1_id)
       assert {:ok, fetched_config2} = Paystack.get_active_config(@clinic_2_id)
@@ -55,8 +60,18 @@ defmodule Clinicpro.PaystackMultiClinicTest do
 
     test "list_configs/1 only returns configs for the specified clinic" do
       {:ok, _config1} = Paystack.create_config(@valid_config_attrs, @clinic_1_id)
-      {:ok, _config2} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 1 Config 2"), @clinic_1_id)
-      {:ok, _config3} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 2 Config"), @clinic_2_id)
+
+      {:ok, _config2} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 1 Config 2"),
+          @clinic_1_id
+        )
+
+      {:ok, _config3} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 2 Config"),
+          @clinic_2_id
+        )
 
       clinic1_configs = Paystack.list_configs(@clinic_1_id)
       clinic2_configs = Paystack.list_configs(@clinic_2_id)
@@ -69,8 +84,18 @@ defmodule Clinicpro.PaystackMultiClinicTest do
 
     test "activate_config/2 only activates the config for the specified clinic" do
       {:ok, config1} = Paystack.create_config(@valid_config_attrs, @clinic_1_id)
-      {:ok, config2} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 1 Config 2", :is_active, false), @clinic_1_id)
-      {:ok, config3} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 2 Config"), @clinic_2_id)
+
+      {:ok, config2} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 1 Config 2", :is_active, false),
+          @clinic_1_id
+        )
+
+      {:ok, config3} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 2 Config"),
+          @clinic_2_id
+        )
 
       # Activate the second config for clinic 1
       {:ok, activated_config} = Paystack.activate_config(config2.id, @clinic_1_id)
@@ -89,20 +114,36 @@ defmodule Clinicpro.PaystackMultiClinicTest do
   describe "multi-tenant subaccount management" do
     setup do
       {:ok, config1} = Paystack.create_config(@valid_config_attrs, @clinic_1_id)
-      {:ok, config2} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 2 Config"), @clinic_2_id)
+
+      {:ok, config2} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 2 Config"),
+          @clinic_2_id
+        )
+
       %{config1: config1, config2: config2}
     end
 
     test "create_subaccount/2 creates a subaccount for a specific clinic", %{config1: _config1} do
-      assert {:ok, %Subaccount{} = subaccount} = Paystack.create_subaccount(@valid_subaccount_attrs, @clinic_1_id)
+      assert {:ok, %Subaccount{} = subaccount} =
+               Paystack.create_subaccount(@valid_subaccount_attrs, @clinic_1_id)
+
       assert subaccount.clinic_id == @clinic_1_id
       assert subaccount.business_name == @valid_subaccount_attrs.business_name
       assert subaccount.is_active == true
     end
 
-    test "get_active_subaccount/1 returns the active subaccount for a specific clinic", %{config1: _config1, config2: _config2} do
+    test "get_active_subaccount/1 returns the active subaccount for a specific clinic", %{
+      config1: _config1,
+      config2: _config2
+    } do
       {:ok, subaccount1} = Paystack.create_subaccount(@valid_subaccount_attrs, @clinic_1_id)
-      {:ok, subaccount2} = Paystack.create_subaccount(Map.put(@valid_subaccount_attrs, :business_name, "Clinic 2 Business"), @clinic_2_id)
+
+      {:ok, subaccount2} =
+        Paystack.create_subaccount(
+          Map.put(@valid_subaccount_attrs, :business_name, "Clinic 2 Business"),
+          @clinic_2_id
+        )
 
       assert {:ok, fetched_subaccount1} = Paystack.get_active_subaccount(@clinic_1_id)
       assert {:ok, fetched_subaccount2} = Paystack.get_active_subaccount(@clinic_2_id)
@@ -113,10 +154,23 @@ defmodule Clinicpro.PaystackMultiClinicTest do
       assert fetched_subaccount2.clinic_id == @clinic_2_id
     end
 
-    test "list_subaccounts/1 only returns subaccounts for the specified clinic", %{config1: _config1, config2: _config2} do
+    test "list_subaccounts/1 only returns subaccounts for the specified clinic", %{
+      config1: _config1,
+      config2: _config2
+    } do
       {:ok, _subaccount1} = Paystack.create_subaccount(@valid_subaccount_attrs, @clinic_1_id)
-      {:ok, _subaccount2} = Paystack.create_subaccount(Map.put(@valid_subaccount_attrs, :business_name, "Clinic 1 Business 2"), @clinic_1_id)
-      {:ok, _subaccount3} = Paystack.create_subaccount(Map.put(@valid_subaccount_attrs, :business_name, "Clinic 2 Business"), @clinic_2_id)
+
+      {:ok, _subaccount2} =
+        Paystack.create_subaccount(
+          Map.put(@valid_subaccount_attrs, :business_name, "Clinic 1 Business 2"),
+          @clinic_1_id
+        )
+
+      {:ok, _subaccount3} =
+        Paystack.create_subaccount(
+          Map.put(@valid_subaccount_attrs, :business_name, "Clinic 2 Business"),
+          @clinic_2_id
+        )
 
       clinic1_subaccounts = Paystack.list_subaccounts(@clinic_1_id)
       clinic2_subaccounts = Paystack.list_subaccounts(@clinic_2_id)
@@ -131,21 +185,42 @@ defmodule Clinicpro.PaystackMultiClinicTest do
   describe "multi-tenant transaction management" do
     setup do
       {:ok, config1} = Paystack.create_config(@valid_config_attrs, @clinic_1_id)
-      {:ok, config2} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 2 Config"), @clinic_2_id)
+
+      {:ok, config2} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 2 Config"),
+          @clinic_2_id
+        )
+
       %{config1: config1, config2: config2}
     end
 
     test "create_transaction/2 creates a transaction for a specific clinic", %{config1: _config1} do
-      assert {:ok, %Transaction{} = transaction} = Paystack.create_transaction(@valid_transaction_attrs, @clinic_1_id)
+      assert {:ok, %Transaction{} = transaction} =
+               Paystack.create_transaction(@valid_transaction_attrs, @clinic_1_id)
+
       assert transaction.clinic_id == @clinic_1_id
       assert transaction.email == @valid_transaction_attrs.email
       assert transaction.amount == @valid_transaction_attrs.amount
     end
 
-    test "list_transactions/1 only returns transactions for the specified clinic", %{config1: _config1, config2: _config2} do
+    test "list_transactions/1 only returns transactions for the specified clinic", %{
+      config1: _config1,
+      config2: _config2
+    } do
       {:ok, _transaction1} = Paystack.create_transaction(@valid_transaction_attrs, @clinic_1_id)
-      {:ok, _transaction2} = Paystack.create_transaction(Map.put(@valid_transaction_attrs, :reference, "ref_clinic1_2"), @clinic_1_id)
-      {:ok, _transaction3} = Paystack.create_transaction(Map.put(@valid_transaction_attrs, :reference, "ref_clinic2"), @clinic_2_id)
+
+      {:ok, _transaction2} =
+        Paystack.create_transaction(
+          Map.put(@valid_transaction_attrs, :reference, "ref_clinic1_2"),
+          @clinic_1_id
+        )
+
+      {:ok, _transaction3} =
+        Paystack.create_transaction(
+          Map.put(@valid_transaction_attrs, :reference, "ref_clinic2"),
+          @clinic_2_id
+        )
 
       clinic1_transactions = Paystack.list_transactions(@clinic_1_id)
       clinic2_transactions = Paystack.list_transactions(@clinic_2_id)
@@ -156,9 +231,17 @@ defmodule Clinicpro.PaystackMultiClinicTest do
       assert Enum.all?(clinic2_transactions, fn t -> t.clinic_id == @clinic_2_id end)
     end
 
-    test "get_transaction/2 only returns a transaction if it belongs to the specified clinic", %{config1: _config1, config2: _config2} do
+    test "get_transaction/2 only returns a transaction if it belongs to the specified clinic", %{
+      config1: _config1,
+      config2: _config2
+    } do
       {:ok, transaction1} = Paystack.create_transaction(@valid_transaction_attrs, @clinic_1_id)
-      {:ok, transaction2} = Paystack.create_transaction(Map.put(@valid_transaction_attrs, :reference, "ref_clinic2"), @clinic_2_id)
+
+      {:ok, transaction2} =
+        Paystack.create_transaction(
+          Map.put(@valid_transaction_attrs, :reference, "ref_clinic2"),
+          @clinic_2_id
+        )
 
       # Should be able to get transaction1 with clinic_1_id
       assert {:ok, _fetched_transaction} = Paystack.get_transaction(transaction1.id, @clinic_1_id)
@@ -196,9 +279,20 @@ defmodule Clinicpro.PaystackMultiClinicTest do
   describe "webhook processing" do
     setup do
       {:ok, config1} = Paystack.create_config(@valid_config_attrs, @clinic_1_id)
-      {:ok, config2} = Paystack.create_config(Map.put(@valid_config_attrs, :name, "Clinic 2 Config"), @clinic_2_id)
+
+      {:ok, config2} =
+        Paystack.create_config(
+          Map.put(@valid_config_attrs, :name, "Clinic 2 Config"),
+          @clinic_2_id
+        )
+
       {:ok, transaction1} = Paystack.create_transaction(@valid_transaction_attrs, @clinic_1_id)
-      {:ok, transaction2} = Paystack.create_transaction(Map.put(@valid_transaction_attrs, :reference, "ref_clinic2"), @clinic_2_id)
+
+      {:ok, transaction2} =
+        Paystack.create_transaction(
+          Map.put(@valid_transaction_attrs, :reference, "ref_clinic2"),
+          @clinic_2_id
+        )
 
       %{
         config1: config1,
@@ -208,7 +302,9 @@ defmodule Clinicpro.PaystackMultiClinicTest do
       }
     end
 
-    test "process_webhook/3 processes webhook for the correct clinic", %{transaction1: transaction1} do
+    test "process_webhook/3 processes webhook for the correct clinic", %{
+      transaction1: transaction1
+    } do
       webhook_payload = %{
         "event" => "charge.success",
         "data" => %{
@@ -222,7 +318,8 @@ defmodule Clinicpro.PaystackMultiClinicTest do
       }
 
       # Mock signature verification to always succeed for testing
-      assert {:ok, _result} = Paystack.process_webhook(webhook_payload, @clinic_1_id, ["valid_signature"])
+      assert {:ok, _result} =
+               Paystack.process_webhook(webhook_payload, @clinic_1_id, ["valid_signature"])
 
       # The transaction should now be completed
       {:ok, updated_transaction} = Paystack.get_transaction(transaction1.id, @clinic_1_id)
@@ -243,7 +340,8 @@ defmodule Clinicpro.PaystackMultiClinicTest do
       }
 
       # Try to process webhook for clinic 2 with clinic 1's transaction
-      assert {:error, :transaction_not_found} = Paystack.process_webhook(webhook_payload, @clinic_2_id, ["valid_signature"])
+      assert {:error, :transaction_not_found} =
+               Paystack.process_webhook(webhook_payload, @clinic_2_id, ["valid_signature"])
     end
   end
 end

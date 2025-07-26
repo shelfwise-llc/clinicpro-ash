@@ -1,7 +1,7 @@
 defmodule Clinicpro.Accounts.Emails.MagicLinkEmail do
   @moduledoc """
   Email module for sending magic link authentication emails.
-  
+
   This module handles the generation and sending of magic link emails
   for passwordless authentication.
   """
@@ -10,9 +10,9 @@ defmodule Clinicpro.Accounts.Emails.MagicLinkEmail do
 
   @doc """
   Sends a magic link email to the user.
-  
+
   ## Parameters
-  
+
   * `user` - The user to send the magic link to
   * `token` - The authentication token
   * `subject` - The email subject
@@ -78,14 +78,14 @@ defmodule Clinicpro.Accounts.Emails.MagicLinkEmail do
   defp generate_text_content(user, url) do
     """
     Hello, #{user.first_name}!
-    
+
     You requested a magic link to sign in to your ClinicPro account.
-    
+
     To sign in, please use the following link:
     #{url}
-    
+
     This link will expire in 10 minutes. If you didn't request this link, you can safely ignore this email.
-    
+
     ClinicPro - Modern Healthcare Management
     """
   end

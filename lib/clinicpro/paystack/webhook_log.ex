@@ -1,18 +1,18 @@
 defmodule Clinicpro.Paystack.WebhookLog do
   @moduledoc """
   Schema for storing Paystack webhook events.
-  
+
   This module tracks all incoming webhook events from Paystack,
   their processing status, and related _transaction information.
   It maintains proper multi-tenant isolation through _clinic_id.
   """
-  
+
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
   # # alias Clinicpro.Repo
   alias Clinicpro.Paystack.Transaction
-  
+
   schema "paystack_webhook_logs" do
     field :event_type, :string
     field :reference, :string
@@ -20,26 +20,26 @@ defmodule Clinicpro.Paystack.WebhookLog do
     field :status, Ecto.Enum, values: [:pending, :processed, :failed]
     field :error_message, :string
     field :processing_time_ms, :integer
-    
+
     # Multi-tenant field
     field :_clinic_id, :integer
-    
+
     # Associations
     belongs_to :_transaction, Transaction
-    
+
     # Processing history as embedded schema
     embeds_many :processing_history, ProcessingHistory do
       field :status, Ecto.Enum, values: [:started, :completed, :failed]
       field :message, :string
       field :timestamp, :utc_datetime
     end
-    
+
     timestamps()
   end
-  
+
   @required_fields [:event_type, :reference, :payload, :status, :_clinic_id]
   @optional_fields [:error_message, :processing_time_ms, :transaction_id]
-  
+
   @doc """
   Creates a changeset for a new webhook log entry.
   """
@@ -50,13 +50,13 @@ defmodule Clinicpro.Paystack.WebhookLog do
     |> cast_embed(:processing_history, with: &processing_history_changeset/2)
     |> foreign_key_constraint(:transaction_id)
   end
-  
+
   defp processing_history_changeset(schema, params) do
     schema
     |> cast(params, [:status, :message, :timestamp])
     |> validate_required([:status, :timestamp])
   end
-  
+
   @doc """
   Creates a new webhook log entry.
   """
@@ -65,7 +65,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
     |> changeset(attrs)
     |> Repo.insert()
   end
-  
+
   @doc """
   Updates an existing webhook log entry.
   """
@@ -74,59 +74,63 @@ defmodule Clinicpro.Paystack.WebhookLog do
     |> changeset(attrs)
     |> Repo.update()
   end
-  
+
   @doc """
   Gets a webhook log by ID, ensuring clinic isolation.
   """
   def get(id, _clinic_id) do
-    query = from w in __MODULE__, 
-            where: w.id == ^id and w._clinic_id == ^_clinic_id
-            
+    query =
+      from w in __MODULE__,
+        where: w.id == ^id and w._clinic_id == ^_clinic_id
+
     case Repo.one(query) do
       nil -> {:error, :not_found}
       webhook_log -> {:ok, webhook_log}
     end
   end
-  
+
   @doc """
   Lists webhook logs for a clinic with optional filtering and pagination.
   """
   def list(_clinic_id, filters \\ %{}, _page \\ 1, _per_page \\ 20) do
-    query = from w in __MODULE__,
-            where: w._clinic_id == ^_clinic_id,
-            order_by: [desc: w.inserted_at]
-            
+    query =
+      from w in __MODULE__,
+        where: w._clinic_id == ^_clinic_id,
+        order_by: [desc: w.inserted_at]
+
     # Apply filters
     query = apply_filters(query, filters)
-    
+
     # Get total count
     total_count = Repo.aggregate(query, :count, :id)
-    
+
     # Apply pagination
-    query = query
-            |> limit(^_per_page)
-            |> offset(^((_page - 1) * _per_page))
-            
+    query =
+      query
+      |> limit(^_per_page)
+      |> offset(^((_page - 1) * _per_page))
+
     # Execute query
     webhook_logs = Repo.all(query)
-    
+
     {webhook_logs, total_count}
   end
-  
+
   @doc """
   Gets a webhook log with its associated _transaction.
   """
   def get_with_transaction(id, _clinic_id) do
-    query = from w in __MODULE__,
-            where: w.id == ^id and w._clinic_id == ^_clinic_id,
-            preload: [:_transaction]
-            
+    query =
+      from w in __MODULE__,
+        where: w.id == ^id and w._clinic_id == ^_clinic_id,
+        preload: [:_transaction]
+
     case Repo.one(query) do
       nil -> {:error, :not_found}
       webhook_log -> {:ok, webhook_log}
     end
   end
-  
+
   @doc """
   Marks a webhook as processed with the given _transaction.
   """
@@ -137,7 +141,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
       message: "Webhook processed successfully",
       timestamp: DateTime.utc_now()
     }
-    
+
     # Update webhook log
     webhook_log
     |> changeset(%{
@@ -148,7 +152,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
     })
     |> Repo.update()
   end
-  
+
   @doc """
   Marks a webhook as failed with an error message.
   """
@@ -159,7 +163,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
       message: error_message,
       timestamp: DateTime.utc_now()
     }
-    
+
     # Update webhook log
     webhook_log
     |> changeset(%{
@@ -169,7 +173,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
     })
     |> Repo.update()
   end
-  
+
   @doc """
   Retries processing a failed webhook.
   """
@@ -180,52 +184,59 @@ defmodule Clinicpro.Paystack.WebhookLog do
       message: "Retry processing initiated",
       timestamp: DateTime.utc_now()
     }
-    
+
     # Update webhook log
-    {:ok, updated_webhook} = webhook_log
-    |> changeset(%{
-      status: :pending,
-      processing_history: webhook_log.processing_history ++ [history_entry]
-    })
-    |> Repo.update()
-    
+    {:ok, updated_webhook} =
+      webhook_log
+      |> changeset(%{
+        status: :pending,
+        processing_history: webhook_log.processing_history ++ [history_entry]
+      })
+      |> Repo.update()
+
     # Return the updated webhook log
     {:ok, updated_webhook}
   end
-  
+
   # Private functions
-  
+
   defp apply_filters(query, filters) do
     Enum.reduce(filters, query, fn
       {:event_type, ""}, query ->
         query
+
       {:event_type, event_type}, query ->
         from q in query, where: q.event_type == ^event_type
-        
+
       {:status, ""}, query ->
         query
+
       {:status, status}, query when is_atom(status) ->
         from q in query, where: q.status == ^status
+
       {:status, status}, query when is_binary(status) ->
         status_atom = String.to_existing_atom(status)
         from q in query, where: q.status == ^status_atom
-        
+
       {:reference, ""}, query ->
         query
+
       {:reference, reference}, query ->
         from q in query, where: ilike(q.reference, ^"%#{reference}%")
-        
+
       {:date_from, ""}, query ->
         query
+
       {:date_from, date_from}, query ->
         from q in query, where: q.inserted_at >= ^date_from
-        
+
       {:date_to, ""}, query ->
         query
+
       {:date_to, date_to}, query ->
         from q in query, where: q.inserted_at <= ^date_to
-        
-      _, query ->
+
+      _unused, query ->
         query
     end)
   end

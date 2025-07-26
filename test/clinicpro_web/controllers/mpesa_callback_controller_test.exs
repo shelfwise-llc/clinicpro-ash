@@ -21,123 +21,133 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
   describe "M-Pesa callback handling with multi-tenant support" do
     setup do
       # Create test clinics
-      {:ok, clinic1} = Clinicpro.Clinics.create_clinic(%{
-        name: "Test Clinic 1",
-        code: "TC1",
-        address: "123 Test St",
-        phone: "254700000001",
-        email: "clinic1@test.com"
-      })
+      {:ok, clinic1} =
+        Clinicpro.Clinics.create_clinic(%{
+          name: "Test Clinic 1",
+          code: "TC1",
+          address: "123 Test St",
+          phone: "254700000001",
+          email: "clinic1@test.com"
+        })
 
-      {:ok, clinic2} = Clinicpro.Clinics.create_clinic(%{
-        name: "Test Clinic 2",
-        code: "TC2",
-        address: "456 Test Ave",
-        phone: "254700000002",
-        email: "clinic2@test.com"
-      })
+      {:ok, clinic2} =
+        Clinicpro.Clinics.create_clinic(%{
+          name: "Test Clinic 2",
+          code: "TC2",
+          address: "456 Test Ave",
+          phone: "254700000002",
+          email: "clinic2@test.com"
+        })
 
       # Create test patients for each clinic
-      {:ok, patient1} = Clinicpro.Patients.create_patient(%{
-        first_name: "John",
-        last_name: "Doe",
-        phone_number: "254711111111",
-        email: "john@example.com",
-        clinic_id: clinic1.id
-      })
+      {:ok, patient1} =
+        Clinicpro.Patients.create_patient(%{
+          first_name: "John",
+          last_name: "Doe",
+          phone_number: "254711111111",
+          email: "john@example.com",
+          clinic_id: clinic1.id
+        })
 
-      {:ok, patient2} = Clinicpro.Patients.create_patient(%{
-        first_name: "Jane",
-        last_name: "Smith",
-        phone_number: "254722222222",
-        email: "jane@example.com",
-        clinic_id: clinic2.id
-      })
+      {:ok, patient2} =
+        Clinicpro.Patients.create_patient(%{
+          first_name: "Jane",
+          last_name: "Smith",
+          phone_number: "254722222222",
+          email: "jane@example.com",
+          clinic_id: clinic2.id
+        })
 
       # Create test appointments for each clinic
-      {:ok, appointment1} = Appointments.create_appointment(%{
-        patient_id: patient1.id,
-        clinic_id: clinic1.id,
-        date: DateTime.utc_now() |> DateTime.add(1, :day),
-        status: "confirmed",
-        type: "consultation",
-        payment_status: "pending"
-      })
+      {:ok, appointment1} =
+        Appointments.create_appointment(%{
+          patient_id: patient1.id,
+          clinic_id: clinic1.id,
+          date: DateTime.utc_now() |> DateTime.add(1, :day),
+          status: "confirmed",
+          type: "consultation",
+          payment_status: "pending"
+        })
 
-      {:ok, appointment2} = Appointments.create_appointment(%{
-        patient_id: patient2.id,
-        clinic_id: clinic2.id,
-        date: DateTime.utc_now() |> DateTime.add(1, :day),
-        status: "confirmed",
-        type: "consultation",
-        payment_status: "pending"
-      })
+      {:ok, appointment2} =
+        Appointments.create_appointment(%{
+          patient_id: patient2.id,
+          clinic_id: clinic2.id,
+          date: DateTime.utc_now() |> DateTime.add(1, :day),
+          status: "confirmed",
+          type: "consultation",
+          payment_status: "pending"
+        })
 
       # Create test invoices for each appointment
-      {:ok, invoice1} = Invoices.create_invoice(%{
-        patient_id: patient1.id,
-        clinic_id: clinic1.id,
-        appointment_id: appointment1.id,
-        reference_number: "INV-#{clinic1.code}-001",
-        date: DateTime.utc_now(),
-        due_date: DateTime.utc_now() |> DateTime.add(7, :day),
-        status: "pending",
-        payment_status: "pending",
-        subtotal: Decimal.new("1000.00"),
-        total: Decimal.new("1000.00"),
-        items: [
-          %{
-            description: "Consultation Fee",
-            quantity: 1,
-            unit_price: Decimal.new("1000.00")
-          }
-        ]
-      })
+      {:ok, invoice1} =
+        Invoices.create_invoice(%{
+          patient_id: patient1.id,
+          clinic_id: clinic1.id,
+          appointment_id: appointment1.id,
+          reference_number: "INV-#{clinic1.code}-001",
+          date: DateTime.utc_now(),
+          due_date: DateTime.utc_now() |> DateTime.add(7, :day),
+          status: "pending",
+          payment_status: "pending",
+          subtotal: Decimal.new("1000.00"),
+          total: Decimal.new("1000.00"),
+          items: [
+            %{
+              description: "Consultation Fee",
+              quantity: 1,
+              unit_price: Decimal.new("1000.00")
+            }
+          ]
+        })
 
-      {:ok, invoice2} = Invoices.create_invoice(%{
-        patient_id: patient2.id,
-        clinic_id: clinic2.id,
-        appointment_id: appointment2.id,
-        reference_number: "INV-#{clinic2.code}-001",
-        date: DateTime.utc_now(),
-        due_date: DateTime.utc_now() |> DateTime.add(7, :day),
-        status: "pending",
-        payment_status: "pending",
-        subtotal: Decimal.new("1500.00"),
-        total: Decimal.new("1500.00"),
-        items: [
-          %{
-            description: "Consultation Fee",
-            quantity: 1,
-            unit_price: Decimal.new("1500.00")
-          }
-        ]
-      })
+      {:ok, invoice2} =
+        Invoices.create_invoice(%{
+          patient_id: patient2.id,
+          clinic_id: clinic2.id,
+          appointment_id: appointment2.id,
+          reference_number: "INV-#{clinic2.code}-001",
+          date: DateTime.utc_now(),
+          due_date: DateTime.utc_now() |> DateTime.add(7, :day),
+          status: "pending",
+          payment_status: "pending",
+          subtotal: Decimal.new("1500.00"),
+          total: Decimal.new("1500.00"),
+          items: [
+            %{
+              description: "Consultation Fee",
+              quantity: 1,
+              unit_price: Decimal.new("1500.00")
+            }
+          ]
+        })
 
       # Create transactions for each invoice
-      {:ok, transaction1} = Transaction.create(%{
-        clinic_id: clinic1.id,
-        invoice_id: invoice1.id,
-        patient_id: patient1.id,
-        amount: Decimal.new("1000.00"),
-        phone_number: "254711111111",
-        status: "pending",
-        merchant_request_id: "123456-#{clinic1.id}",
-        checkout_request_id: "wx123-#{clinic1.id}",
-        reference: invoice1.reference_number
-      })
+      {:ok, transaction1} =
+        Transaction.create(%{
+          clinic_id: clinic1.id,
+          invoice_id: invoice1.id,
+          patient_id: patient1.id,
+          amount: Decimal.new("1000.00"),
+          phone_number: "254711111111",
+          status: "pending",
+          merchant_request_id: "123456-#{clinic1.id}",
+          checkout_request_id: "wx123-#{clinic1.id}",
+          reference: invoice1.reference_number
+        })
 
-      {:ok, transaction2} = Transaction.create(%{
-        clinic_id: clinic2.id,
-        invoice_id: invoice2.id,
-        patient_id: patient2.id,
-        amount: Decimal.new("1500.00"),
-        phone_number: "254722222222",
-        status: "pending",
-        merchant_request_id: "789012-#{clinic2.id}",
-        checkout_request_id: "wx456-#{clinic2.id}",
-        reference: invoice2.reference_number
-      })
+      {:ok, transaction2} =
+        Transaction.create(%{
+          clinic_id: clinic2.id,
+          invoice_id: invoice2.id,
+          patient_id: patient2.id,
+          amount: Decimal.new("1500.00"),
+          phone_number: "254722222222",
+          status: "pending",
+          merchant_request_id: "789012-#{clinic2.id}",
+          checkout_request_id: "wx456-#{clinic2.id}",
+          reference: invoice2.reference_number
+        })
 
       # Return the test data
       %{
@@ -173,8 +183,8 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
               "Item" => [
                 %{"Name" => "Amount", "Value" => 1000.00},
                 %{"Name" => "MpesaReceiptNumber", "Value" => "LHG31AA5TX"},
-                %{"Name" => "TransactionDate", "Value" => 20230615123456},
-                %{"Name" => "PhoneNumber", "Value" => 254711111111}
+                %{"Name" => "TransactionDate", "Value" => 20_230_615_123_456},
+                %{"Name" => "PhoneNumber", "Value" => 254_711_111_111}
               ]
             }
           }
@@ -221,8 +231,8 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
               "Item" => [
                 %{"Name" => "Amount", "Value" => 1000.00},
                 %{"Name" => "MpesaReceiptNumber", "Value" => "LHG31AA5TX"},
-                %{"Name" => "TransactionDate", "Value" => 20230615123456},
-                %{"Name" => "PhoneNumber", "Value" => 254711111111}
+                %{"Name" => "TransactionDate", "Value" => 20_230_615_123_456},
+                %{"Name" => "PhoneNumber", "Value" => 254_711_111_111}
               ]
             }
           }
@@ -233,7 +243,10 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
       conn = post(conn, ~p"/api/mpesa/callbacks/#{clinic2.id}/stk", stk_callback_payload)
 
       # Verify the response indicates an error
-      assert json_response(conn, 200) == %{"ResultCode" => "1", "ResultDesc" => "Transaction not found or does not belong to this clinic"}
+      assert json_response(conn, 200) == %{
+               "ResultCode" => "1",
+               "ResultDesc" => "Transaction not found or does not belong to this clinic"
+             }
 
       # Verify the transaction was not updated
       unchanged_transaction = Transaction.get(transaction1.id)
@@ -268,9 +281,9 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
 
       # Verify the response indicates success
       assert json_response(conn, 200) == %{
-        "ResultCode" => 0,
-        "ResultDesc" => "Accepted"
-      }
+               "ResultCode" => 0,
+               "ResultDesc" => "Accepted"
+             }
     end
 
     test "c2b_validation/2 rejects invalid payment reference", %{
@@ -299,9 +312,9 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
 
       # Verify the response indicates rejection
       assert json_response(conn, 200) == %{
-        "ResultCode" => 1,
-        "ResultDesc" => "Rejected: Invalid reference number"
-      }
+               "ResultCode" => 1,
+               "ResultDesc" => "Rejected: Invalid reference number"
+             }
     end
 
     test "c2b_confirmation/2 processes payment for the correct clinic", %{
@@ -332,9 +345,9 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
 
       # Verify the response
       assert json_response(conn, 200) == %{
-        "ResultCode" => 0,
-        "ResultDesc" => "Success"
-      }
+               "ResultCode" => 0,
+               "ResultDesc" => "Success"
+             }
 
       # Verify the invoice was updated
       updated_invoice = Invoices.get_invoice(invoice1.id)
@@ -380,9 +393,9 @@ defmodule ClinicproWeb.MPesaCallbackControllerTest do
 
       # Verify the response
       assert json_response(conn, 200) == %{
-        "ResultCode" => 0,
-        "ResultDesc" => "Success"
-      }
+               "ResultCode" => 0,
+               "ResultDesc" => "Success"
+             }
 
       # Verify an orphaned transaction was created
       [transaction] = Transaction.list_orphaned_by_clinic_id(clinic1.id)

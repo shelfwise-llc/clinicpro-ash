@@ -7,7 +7,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderTest do
     test "generates a token for a given user ID" do
       user_id = "test-user-id"
       {:ok, token} = AuthPlaceholder.generate_token_for_user(user_id)
-      
+
       assert is_map(token)
       assert Map.has_key?(token, :token)
       assert is_binary(token.token)
@@ -18,7 +18,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderTest do
     test "returns a token when given a doctor email" do
       email = "doctor@clinicpro.com"
       {:ok, token} = AuthPlaceholder.authenticate_by_email(email)
-      
+
       assert is_map(token)
       assert Map.has_key?(token, :token)
       assert is_binary(token.token)
@@ -27,7 +27,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderTest do
     test "returns a token when given a patient email" do
       email = "patient@clinicpro.com"
       {:ok, token} = AuthPlaceholder.authenticate_by_email(email)
-      
+
       assert is_map(token)
       assert Map.has_key?(token, :token)
       assert is_binary(token.token)
@@ -36,7 +36,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderTest do
     test "returns an error for unknown email" do
       email = "unknown@example.com"
       result = AuthPlaceholder.authenticate_by_email(email)
-      
+
       assert result == {:error, "User not found"}
     end
   end
@@ -45,7 +45,7 @@ defmodule Clinicpro.Accounts.AuthPlaceholderTest do
     test "always returns success for any token" do
       token_string = "some-random-token"
       {:ok, result} = AuthPlaceholder.verify_token(token_string)
-      
+
       assert result.token == token_string
       assert result.valid == true
     end

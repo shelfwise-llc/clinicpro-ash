@@ -109,10 +109,10 @@ defmodule Clinicpro.Invoices do
       case _appointment.appointment_type do
         "virtual" -> handle_virtual_appointment(_appointment)
         # Default to onsite handling
-        _ -> handle_onsite_appointment(_appointment)
+        _unused -> handle_onsite_appointment(_appointment)
       end
     else
-      _ -> {:error, :appointment_not_found}
+      _unused -> {:error, :appointment_not_found}
     end
   end
 
@@ -212,7 +212,10 @@ defmodule Clinicpro.Invoices do
         {:ok, _updated_appointment}
 
       {:error, reason} ->
-        Logger.error("Failed to confirm onsite _appointment #{_appointment.id}: #{inspect(reason)}")
+        Logger.error(
+          "Failed to confirm onsite _appointment #{_appointment.id}: #{inspect(reason)}"
+        )
+
         {:error, reason}
     end
   end

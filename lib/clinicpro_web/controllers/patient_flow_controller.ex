@@ -5,7 +5,8 @@ defmodule ClinicproWeb.PatientFlowController do
 
   # Apply the workflow validator plug to all actions in this controller
   plug WorkflowValidator,
-       [workflow: :patient_flow] when action in [:receive_link, :welcome, :confirm_details, :booking_confirmation]
+       [workflow: :patient_flow]
+       when action in [:receive_link, :welcome, :confirm_details, :booking_confirmation]
 
   # Specific step requirements for each action
   plug WorkflowValidator,
@@ -28,18 +29,23 @@ defmodule ClinicproWeb.PatientFlowController do
       {:ok, appointment_data} ->
         # Store _appointment data in session
         conn = put_session(conn, :appointment_data, appointment_data)
-        
+
         # Initialize the workflow for this _appointment
-        conn = WorkflowValidator.init_workflow(conn, :patient_flow, "_appointment-#{appointment_data.id}")
-        
+        conn =
+          WorkflowValidator.init_workflow(
+            conn,
+            :patient_flow,
+            "_appointment-#{appointment_data.id}"
+          )
+
         # Store user ID in session for tracking
         conn = put_session(conn, :user_id, appointment_data.patient_id)
-        
+
         # Advance to the first step
         conn = WorkflowValidator.advance_workflow(conn, "patient-#{appointment_data.patient_id}")
-        
+
         redirect(conn, to: ~p"/patient/welcome")
-      
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Invalid _appointment link: #{reason}")
@@ -128,17 +134,18 @@ defmodule ClinicproWeb.PatientFlowController do
   defp validate_appointment_token(_token) do
     # This is a placeholder implementation
     # In a real app, this would verify the token against a database
-    
+
     # For development, accept any token and generate mock data
-    {:ok, %{
-      id: "appt-#{:rand.uniform(1000)}",
-      patient_id: "patient-#{:rand.uniform(1000)}",
-      doctor_name: "Dr. Smith",
-      specialty: "Cardiology",
-      date: Date.utc_today() |> Date.add(:rand.uniform(10)),
-      time: "#{10 + :rand.uniform(8)}:00",
-      duration: 30,
-      location: "Clinic Room #{:rand.uniform(10)}"
-    }}
+    {:ok,
+     %{
+       id: "appt-#{:rand.uniform(1000)}",
+       patient_id: "patient-#{:rand.uniform(1000)}",
+       doctor_name: "Dr. Smith",
+       specialty: "Cardiology",
+       date: Date.utc_today() |> Date.add(:rand.uniform(10)),
+       time: "#{10 + :rand.uniform(8)}:00",
+       duration: 30,
+       location: "Clinic Room #{:rand.uniform(10)}"
+     }}
   end
 end

@@ -49,7 +49,7 @@ defmodule ClinicproWeb do
       unquote(verified_routes())
     end
   end
-  
+
   def view do
     quote do
       use Phoenix.View,

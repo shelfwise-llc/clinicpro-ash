@@ -218,7 +218,7 @@ defmodule Clinicpro.MPesa.Config do
   def get_shortcode(_clinic_id) do
     case get_active_config(_clinic_id) do
       {:ok, config} -> {:ok, config.shortcode}
-      {:error, _} -> {:error, :no_config}
+      {:error, _unused} -> {:error, :no_config}
     end
   end
 
@@ -246,12 +246,26 @@ defmodule Clinicpro.MPesa.Config do
   defp changeset(config, attrs) do
     config
     |> cast(attrs, [
-      :_clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
-      :environment, :base_url, :callback_url, :validation_url, :confirmation_url, :active
+      :_clinic_id,
+      :consumer_key,
+      :consumer_secret,
+      :passkey,
+      :shortcode,
+      :environment,
+      :base_url,
+      :callback_url,
+      :validation_url,
+      :confirmation_url,
+      :active
     ])
     |> validate_required([
-      :_clinic_id, :consumer_key, :consumer_secret, :passkey, :shortcode,
-      :environment, :base_url
+      :_clinic_id,
+      :consumer_key,
+      :consumer_secret,
+      :passkey,
+      :shortcode,
+      :environment,
+      :base_url
     ])
     |> validate_inclusion(:environment, ["sandbox", "production"])
     |> unique_constraint([:shortcode, :environment])

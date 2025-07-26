@@ -69,7 +69,10 @@ defmodule ClinicproWeb.PatientAuthController do
         |> delete_session(:pending_otp_clinic_id)
         |> put_session(:patient_id, patient_id)
         |> put_session(:_clinic_id, _clinic_id)
-        |> put_flash(:info, "Successfully authenticated. Welcome #{patient.first_name || "Patient"}!")
+        |> put_flash(
+          :info,
+          "Successfully authenticated. Welcome #{patient.first_name || "Patient"}!"
+        )
         |> redirect(to: ~p"/patient/dashboard")
 
       {:error, :invalid_otp} ->
@@ -126,7 +129,8 @@ defmodule ClinicproWeb.PatientAuthController do
         params["email"] && params["email"] != "" ->
           Repo.get_by(Patient, email: params["email"], _clinic_id: _clinic_id)
 
-        true -> nil
+        true ->
+          nil
       end
 
     # If patient not found, create a new one

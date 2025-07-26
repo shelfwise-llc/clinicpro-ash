@@ -30,7 +30,7 @@ defmodule Clinicpro.Changes.Slugify do
     source = Map.get(_opts, :source)
     target = Map.get(_opts, :target, :slug)
     force = Map.get(_opts, :force, false)
-    
+
     # If we already have a target value and force is false, don't change anything
     if !force && Ash.Changeset.get_attribute(changeset, target) do
       changeset
@@ -38,7 +38,7 @@ defmodule Clinicpro.Changes.Slugify do
       # Get the source value and generate a slug
       source_value = Ash.Changeset.get_attribute(changeset, source)
       slug = Slug.generate(source_value)
-      
+
       # Set the target attribute to the generated slug
       Ash.Changeset.change_attribute(changeset, target, slug)
     end

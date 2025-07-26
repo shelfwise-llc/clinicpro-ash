@@ -31,11 +31,12 @@ defmodule Clinicpro.VirtualMeetings.Config do
       clinic ->
         # Extract clinic-specific configuration from the clinic record
         # This assumes that clinics have virtual_meeting_config field
-        config = case clinic.virtual_meeting_config do
-          nil -> get_app_config()
-          config when is_map(config) -> Map.merge(get_app_config(), config)
-          _ -> get_app_config()
-        end
+        config =
+          case clinic.virtual_meeting_config do
+            nil -> get_app_config()
+            config when is_map(config) -> Map.merge(get_app_config(), config)
+            _unused -> get_app_config()
+          end
 
         {:ok, config}
     end
@@ -218,7 +219,8 @@ defmodule Clinicpro.VirtualMeetings.Config do
         updated_config = Map.put(config, :adapter, adapter)
         set_clinic_config(_clinic_id, updated_config)
 
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -241,7 +243,8 @@ defmodule Clinicpro.VirtualMeetings.Config do
         updated_config = Map.put(config, :base_url, base_url)
         set_clinic_config(_clinic_id, updated_config)
 
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -264,7 +267,8 @@ defmodule Clinicpro.VirtualMeetings.Config do
         updated_config = Map.put(config, :google_api_credentials, credentials)
         set_clinic_config(_clinic_id, updated_config)
 
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -287,7 +291,8 @@ defmodule Clinicpro.VirtualMeetings.Config do
         updated_config = Map.put(config, :zoom_api_credentials, credentials)
         set_clinic_config(_clinic_id, updated_config)
 
-      error -> error
+      error ->
+        error
     end
   end
 end

@@ -29,7 +29,20 @@ defmodule Clinicpro.Patient do
   """
   def changeset(patient, attrs) do
     patient
-    |> cast(attrs, [:first_name, :last_name, :email, :phone, :date_of_birth, :gender, :address, :medical_history, :insurance_provider, :insurance_number, :status, :active])
+    |> cast(attrs, [
+      :first_name,
+      :last_name,
+      :email,
+      :phone,
+      :date_of_birth,
+      :gender,
+      :address,
+      :medical_history,
+      :insurance_provider,
+      :insurance_number,
+      :status,
+      :active
+    ])
     |> validate_required([:first_name, :last_name, :email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> unique_constraint(:email)
@@ -98,12 +111,13 @@ defmodule Clinicpro.Patient do
         where(query, [p], ilike(p.first_name, ^name_pattern) or ilike(p.last_name, ^name_pattern))
 
       {:email, email}, query when is_binary(email) and email != "" ->
-        where(query, [p], ilike(p.email, ^("%#{email}%")))
+        where(query, [p], ilike(p.email, ^"%#{email}%"))
 
       {:phone, phone}, query when is_binary(phone) and phone != "" ->
-        where(query, [p], ilike(p.phone, ^("%#{phone}%")))
+        where(query, [p], ilike(p.phone, ^"%#{phone}%"))
 
-      {_, _}, query -> query
+      {_unused, _unused}, query ->
+        query
     end)
   end
 

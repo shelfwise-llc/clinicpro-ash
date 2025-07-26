@@ -46,31 +46,37 @@ defmodule Clinicpro.VirtualMeetingsTest do
     setup do
       # Set up test data
       {:ok, clinic} = Repo.insert(%Clinic{name: "Test Clinic", email: "clinic@example.com"})
-      {:ok, doctor} = Repo.insert(%Doctor{first_name: "John", last_name: "Doe", clinic_id: clinic.id})
-      {:ok, patient} = Repo.insert(%Patient{first_name: "Jane", last_name: "Smith", email: "patient@example.com"})
+
+      {:ok, doctor} =
+        Repo.insert(%Doctor{first_name: "John", last_name: "Doe", clinic_id: clinic.id})
+
+      {:ok, patient} =
+        Repo.insert(%Patient{first_name: "Jane", last_name: "Smith", email: "patient@example.com"})
 
       appointment_date = Date.utc_today()
       appointment_time = ~T[10:00:00]
 
-      {:ok, appointment} = Repo.insert(%Appointment{
-        patient_id: patient.id,
-        clinic_id: clinic.id,
-        doctor_id: doctor.id,
-        appointment_date: appointment_date,
-        appointment_time: appointment_time,
-        appointment_type: "virtual",
-        status: "pending",
-        duration: 30
-      })
+      {:ok, appointment} =
+        Repo.insert(%Appointment{
+          patient_id: patient.id,
+          clinic_id: clinic.id,
+          doctor_id: doctor.id,
+          appointment_date: appointment_date,
+          appointment_time: appointment_time,
+          appointment_type: "virtual",
+          status: "pending",
+          duration: 30
+        })
 
-      {:ok, invoice} = Repo.insert(%Invoice{
-        patient_id: patient.id,
-        clinic_id: clinic.id,
-        appointment_id: appointment.id,
-        amount: 1000.0,
-        status: "pending",
-        reference: "INV-#{:rand.uniform(1000000)}"
-      })
+      {:ok, invoice} =
+        Repo.insert(%Invoice{
+          patient_id: patient.id,
+          clinic_id: clinic.id,
+          appointment_id: appointment.id,
+          amount: 1000.0,
+          status: "pending",
+          reference: "INV-#{:rand.uniform(1_000_000)}"
+        })
 
       # Ensure SimpleAdapter is configured
       Config.set_adapter(SimpleAdapter)
@@ -100,10 +106,11 @@ defmodule Clinicpro.VirtualMeetingsTest do
       {:ok, meeting_data} = SimpleAdapter.create_meeting(appointment)
 
       # Update the appointment with the meeting data
-      {:ok, updated_appointment} = Appointment.update_appointment(appointment, %{
-        meeting_link: meeting_data.url,
-        meeting_data: meeting_data
-      })
+      {:ok, updated_appointment} =
+        Appointment.update_appointment(appointment, %{
+          meeting_link: meeting_data.url,
+          meeting_data: meeting_data
+        })
 
       # Now update the meeting
       {:ok, updated_meeting} = SimpleAdapter.update_meeting(updated_appointment)
@@ -117,10 +124,11 @@ defmodule Clinicpro.VirtualMeetingsTest do
       {:ok, meeting_data} = SimpleAdapter.create_meeting(appointment)
 
       # Update the appointment with the meeting data
-      {:ok, updated_appointment} = Appointment.update_appointment(appointment, %{
-        meeting_link: meeting_data.url,
-        meeting_data: meeting_data
-      })
+      {:ok, updated_appointment} =
+        Appointment.update_appointment(appointment, %{
+          meeting_link: meeting_data.url,
+          meeting_data: meeting_data
+        })
 
       # Now delete the meeting
       assert :ok = SimpleAdapter.delete_meeting(updated_appointment)
@@ -131,37 +139,43 @@ defmodule Clinicpro.VirtualMeetingsTest do
     setup do
       # Set up test data
       {:ok, clinic} = Repo.insert(%Clinic{name: "Test Clinic", email: "clinic@example.com"})
-      {:ok, doctor} = Repo.insert(%Doctor{first_name: "John", last_name: "Doe", clinic_id: clinic.id})
-      {:ok, patient} = Repo.insert(%Patient{first_name: "Jane", last_name: "Smith", email: "patient@example.com"})
+
+      {:ok, doctor} =
+        Repo.insert(%Doctor{first_name: "John", last_name: "Doe", clinic_id: clinic.id})
+
+      {:ok, patient} =
+        Repo.insert(%Patient{first_name: "Jane", last_name: "Smith", email: "patient@example.com"})
 
       appointment_date = Date.utc_today()
       appointment_time = ~T[10:00:00]
 
-      {:ok, appointment} = Repo.insert(%Appointment{
-        patient_id: patient.id,
-        clinic_id: clinic.id,
-        doctor_id: doctor.id,
-        appointment_date: appointment_date,
-        appointment_time: appointment_time,
-        appointment_type: "virtual",
-        status: "pending",
-        duration: 30
-      })
+      {:ok, appointment} =
+        Repo.insert(%Appointment{
+          patient_id: patient.id,
+          clinic_id: clinic.id,
+          doctor_id: doctor.id,
+          appointment_date: appointment_date,
+          appointment_time: appointment_time,
+          appointment_type: "virtual",
+          status: "pending",
+          duration: 30
+        })
 
-      reference = "INV-#{:rand.uniform(1000000)}"
+      reference = "INV-#{:rand.uniform(1_000_000)}"
 
-      {:ok, invoice} = Repo.insert(%Invoice{
-        patient_id: patient.id,
-        clinic_id: clinic.id,
-        appointment_id: appointment.id,
-        amount: 1000.0,
-        status: "pending",
-        reference: reference
-      })
+      {:ok, invoice} =
+        Repo.insert(%Invoice{
+          patient_id: patient.id,
+          clinic_id: clinic.id,
+          appointment_id: appointment.id,
+          amount: 1000.0,
+          status: "pending",
+          reference: reference
+        })
 
       # Create a mock transaction
       transaction = %Transaction{
-        id: "txn_#{:rand.uniform(1000000)}",
+        id: "txn_#{:rand.uniform(1_000_000)}",
         clinic_id: clinic.id,
         reference: reference,
         phone: "254712345678",
@@ -186,7 +200,9 @@ defmodule Clinicpro.VirtualMeetingsTest do
       }
     end
 
-    test "process_completed_payment creates meeting for virtual appointment", %{transaction: transaction} do
+    test "process_completed_payment creates meeting for virtual appointment", %{
+      transaction: transaction
+    } do
       # Process the payment
       {:ok, updated_invoice} = Invoices.process_completed_payment(transaction)
 
@@ -205,7 +221,8 @@ defmodule Clinicpro.VirtualMeetingsTest do
       transaction: transaction
     } do
       # Update appointment to be onsite
-      {:ok, onsite_appointment} = Appointment.update_appointment(appointment, %{appointment_type: "onsite"})
+      {:ok, onsite_appointment} =
+        Appointment.update_appointment(appointment, %{appointment_type: "onsite"})
 
       # Process the payment
       {:ok, updated_invoice} = Invoices.process_completed_payment(transaction)

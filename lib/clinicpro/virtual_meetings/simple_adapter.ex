@@ -30,12 +30,13 @@ defmodule Clinicpro.VirtualMeetings.SimpleAdapter do
 
     url = "#{base_url}/#{_appointment.id}/#{token}"
 
-    {:ok, %{
-      url: url,
-      provider: "simple",
-      meeting_id: "simple-#{_appointment.id}-#{token}",
-      created_at: DateTime.utc_now()
-    }}
+    {:ok,
+     %{
+       url: url,
+       provider: "simple",
+       meeting_id: "simple-#{_appointment.id}-#{token}",
+       created_at: DateTime.utc_now()
+     }}
   end
 
   @doc """

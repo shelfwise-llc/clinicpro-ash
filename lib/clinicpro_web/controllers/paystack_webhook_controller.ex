@@ -16,8 +16,8 @@ defmodule ClinicproWeb.PaystackWebhookController do
     with {:ok, body, conn} <- extract_request_body(conn),
          {:ok, payload} <- Jason.decode(body),
          clinic_id <- extract_clinic_id(payload),
-         {:ok, _result} <- Paystack.process_webhook(payload, clinic_id, conn.assigns[:request_signature]) do
-
+         {:ok, _result} <-
+           Paystack.process_webhook(payload, clinic_id, conn.assigns[:request_signature]) do
       # Log successful webhook processing
       Logger.info("Paystack webhook processed successfully for clinic_id: #{clinic_id}")
 
@@ -60,10 +60,14 @@ defmodule ClinicproWeb.PaystackWebhookController do
   end
 
   # Extract clinic ID from payload metadata or _transaction reference
-  defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}}) when is_integer(clinic_id), do: clinic_id
-  defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}}) when is_binary(clinic_id) do
+  defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}})
+       when is_integer(clinic_id),
+       do: clinic_id
+
+  defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}})
+       when is_binary(clinic_id) do
     case Integer.parse(clinic_id) do
-      {id, _} -> id
+      {id, _unused} -> id
       :error -> nil
     end
   end
@@ -72,9 +76,9 @@ defmodule ClinicproWeb.PaystackWebhookController do
   defp extract_clinic_id(%{"data" => %{"reference" => reference}}) when is_binary(reference) do
     case Paystack.extract_clinic_id_from_reference(reference) do
       {:ok, clinic_id} -> clinic_id
-      _ -> nil
+      _unused -> nil
     end
   end
 
-  defp extract_clinic_id(_), do: nil
+  defp extract_clinic_id(_unused), do: nil
 end

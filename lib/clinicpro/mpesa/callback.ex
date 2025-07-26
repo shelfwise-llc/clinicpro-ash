@@ -27,7 +27,6 @@ defmodule Clinicpro.MPesa.Callback do
          {:ok, _transaction} <- find_transaction(data),
          :ok <- validate_clinic_transaction(_transaction, data),
          {:ok, updated_transaction} <- update_transaction_status(_transaction, data) do
-
       # Process payment if successful
       if data.result_code == "0" do
         process_successful_payment(updated_transaction)
@@ -61,7 +60,6 @@ defmodule Clinicpro.MPesa.Callback do
          {:ok, _transaction} <- find_or_create_c2b_transaction(data),
          :ok <- validate_clinic_transaction(_transaction, data),
          {:ok, updated_transaction} <- update_transaction_status(_transaction, data) do
-
       # Process payment (C2B confirmations are always successful)
       process_successful_payment(updated_transaction)
 
@@ -83,7 +81,7 @@ defmodule Clinicpro.MPesa.Callback do
     metadata =
       case stkCallback["CallbackMetadata"] do
         %{"Item" => items} -> extract_metadata_items(items)
-        _ -> %{}
+        _unused -> %{}
       end
 
     # Extract merchant request ID and checkout request ID
@@ -93,16 +91,17 @@ defmodule Clinicpro.MPesa.Callback do
     result_description = stkCallback["ResultDesc"]
 
     # Return the extracted data
-    {:ok, %{
-      merchant_request_id: merchant_request_id,
-      checkout_request_id: checkout_request_id,
-      result_code: result_code,
-      result_description: result_description,
-      transaction_id: metadata["TransID"],
-      transaction_date: metadata["TransactionDate"],
-      phone_number: metadata["PhoneNumber"],
-      amount: metadata["Amount"]
-    }}
+    {:ok,
+     %{
+       merchant_request_id: merchant_request_id,
+       checkout_request_id: checkout_request_id,
+       result_code: result_code,
+       result_description: result_description,
+       transaction_id: metadata["TransID"],
+       transaction_date: metadata["TransactionDate"],
+       phone_number: metadata["PhoneNumber"],
+       amount: metadata["Amount"]
+     }}
   end
 
   defp extract_c2b_callback_data(params) do
@@ -121,19 +120,21 @@ defmodule Clinicpro.MPesa.Callback do
     _clinic_id = get_clinic_id_from_shortcode(shortcode)
 
     if _clinic_id do
-      {:ok, %{
-        transaction_type: transaction_type,
-        transaction_id: transaction_id,
-        transaction_date: transaction_time,
-        amount: amount,
-        phone_number: phone_number,
-        shortcode: shortcode,
-        reference: reference,
-        invoice_id: invoice_id,
-        _clinic_id: _clinic_id,
-        result_code: "0", # C2B confirmations are always successful
-        result_description: "Success"
-      }}
+      {:ok,
+       %{
+         transaction_type: transaction_type,
+         transaction_id: transaction_id,
+         transaction_date: transaction_time,
+         amount: amount,
+         phone_number: phone_number,
+         shortcode: shortcode,
+         reference: reference,
+         invoice_id: invoice_id,
+         _clinic_id: _clinic_id,
+         # C2B confirmations are always successful
+         result_code: "0",
+         result_description: "Success"
+       }}
     else
       {:error, :invalid_shortcode}
     end
@@ -147,7 +148,10 @@ defmodule Clinicpro.MPesa.Callback do
     end)
   end
 
-  defp find_transaction(%{checkout_request_id: checkout_request_id, merchant_request_id: merchant_request_id}) do
+  defp find_transaction(%{
+         checkout_request_id: checkout_request_id,
+         merchant_request_id: merchant_request_id
+       }) do
     # Try to find by checkout request ID first
     case Transaction.get_by_checkout_request_id(checkout_request_id, nil) do
       nil ->
@@ -156,12 +160,15 @@ defmodule Clinicpro.MPesa.Callback do
           nil -> {:error, :transaction_not_found}
           _transaction -> {:ok, _transaction}
         end
+
       _transaction ->
         {:ok, _transaction}
     end
   end
 
-  defp find_or_create_c2b_transaction(%{transaction_id: transaction_id, _clinic_id: _clinic_id} = data) do
+  defp find_or_create_c2b_transaction(
+         %{transaction_id: transaction_id, _clinic_id: _clinic_id} = data
+       ) do
     # Try to find by _transaction ID first
     case Transaction.get_by_transaction_id(transaction_id, _clinic_id) do
       nil ->
@@ -183,14 +190,16 @@ defmodule Clinicpro.MPesa.Callback do
 
         case Transaction.create(attrs) do
           {:ok, _transaction} -> {:ok, _transaction}
-          {:error, _} = error -> error
+          {:error, _unused} = error -> error
         end
+
       _transaction ->
         {:ok, _transaction}
     end
   end
 
-  defp validate_clinic_transaction(_transaction, %{_clinic_id: _clinic_id}) when not is_nil(_clinic_id) do
+  defp validate_clinic_transaction(_transaction, %{_clinic_id: _clinic_id})
+       when not is_nil(_clinic_id) do
     if _transaction._clinic_id == _clinic_id do
       :ok
     else
@@ -258,6 +267,7 @@ defmodule Clinicpro.MPesa.Callback do
     # Query the database to find the clinic with this shortcode
     # This is a simplified example - you would need to implement this based on your schema
     import Ecto.Query
+
     case Clinicpro.Repo.one(from c in Clinicpro.MPesa.Config, where: c.shortcode == ^shortcode) do
       nil -> nil
       config -> config._clinic_id

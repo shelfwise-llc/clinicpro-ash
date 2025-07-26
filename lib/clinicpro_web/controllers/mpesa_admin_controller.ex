@@ -13,10 +13,11 @@ defmodule ClinicproWeb.MPesaAdminController do
     _clinic_id = get_clinic_id(conn)
 
     # Get active configuration
-    config = case Config.get_active_config(_clinic_id) do
-      {:ok, config} -> config
-      {:error, _} -> nil
-    end
+    config =
+      case Config.get_active_config(_clinic_id) do
+        {:ok, config} -> config
+        {:error, _unused} -> nil
+      end
 
     # Get _transaction statistics
     stats = %{
@@ -57,7 +58,7 @@ defmodule ClinicproWeb.MPesaAdminController do
     case Config.create(config_params) do
       {:ok, config} ->
         # Activate the new configuration
-        {:ok, _} = Config.activate(config.id)
+        {:ok, _unused} = Config.activate(config.id)
 
         conn
         |> put_flash(:info, "M-Pesa configuration created successfully.")
@@ -121,12 +122,12 @@ defmodule ClinicproWeb.MPesaAdminController do
     # Ensure the config belongs to this clinic
     if config && config._clinic_id == _clinic_id do
       case Config.activate(id) do
-        {:ok, _} ->
+        {:ok, _unused} ->
           conn
           |> put_flash(:info, "M-Pesa configuration activated successfully.")
           |> redirect(to: Routes.mpesa_admin_path(conn, :index))
 
-        {:error, _} ->
+        {:error, _unused} ->
           conn
           |> put_flash(:error, "Failed to activate configuration.")
           |> redirect(to: Routes.mpesa_admin_path(conn, :index))
@@ -148,12 +149,12 @@ defmodule ClinicproWeb.MPesaAdminController do
     # Ensure the config belongs to this clinic
     if config && config._clinic_id == _clinic_id do
       case Config.deactivate(id) do
-        {:ok, _} ->
+        {:ok, _unused} ->
           conn
           |> put_flash(:info, "M-Pesa configuration deactivated successfully.")
           |> redirect(to: Routes.mpesa_admin_path(conn, :index))
 
-        {:error, _} ->
+        {:error, _unused} ->
           conn
           |> put_flash(:error, "Failed to deactivate configuration.")
           |> redirect(to: Routes.mpesa_admin_path(conn, :index))
@@ -184,12 +185,13 @@ defmodule ClinicproWeb.MPesaAdminController do
     _page = params["_page"] || "1"
     _per_page = params["_per_page"] || "20"
 
-    {transactions, pagination} = Transaction.paginate_by_clinic(
-      _clinic_id,
-      filters,
-      String.to_integer(_page),
-      String.to_integer(_per_page)
-    )
+    {transactions, pagination} =
+      Transaction.paginate_by_clinic(
+        _clinic_id,
+        filters,
+        String.to_integer(_page),
+        String.to_integer(_per_page)
+      )
 
     render(conn, "transactions.html",
       transactions: transactions,
@@ -225,10 +227,19 @@ defmodule ClinicproWeb.MPesaAdminController do
     invoice_id = "TEST-#{System.os_time(:second)}"
     patient_id = "TEST-PATIENT"
 
-    case MPesa.initiate_stk_push(_clinic_id, invoice_id, patient_id, phone_number, String.to_float(amount)) do
+    case MPesa.initiate_stk_push(
+           _clinic_id,
+           invoice_id,
+           patient_id,
+           phone_number,
+           String.to_float(amount)
+         ) do
       {:ok, _transaction} ->
         conn
-        |> put_flash(:info, "STK Push initiated successfully. Checkout Request ID: #{_transaction.checkout_request_id}")
+        |> put_flash(
+          :info,
+          "STK Push initiated successfully. Checkout Request ID: #{_transaction.checkout_request_id}"
+        )
         |> redirect(to: Routes.mpesa_admin_path(conn, :index))
 
       {:error, reason} ->
@@ -251,7 +262,7 @@ defmodule ClinicproWeb.MPesaAdminController do
   def configuration_details(conn, %{"id" => id}) do
     _clinic_id = get_clinic_id(conn)
     config = Config.get_by_id(id)
-    
+
     # Ensure the config belongs to this clinic
     if config && config._clinic_id == _clinic_id do
       changeset = Config.changeset(config, %{})
@@ -268,7 +279,7 @@ defmodule ClinicproWeb.MPesaAdminController do
   """
   def callback_logs(conn, params) do
     _clinic_id = get_clinic_id(conn)
-    
+
     # Parse filter parameters
     filters = %{
       type: Map.get(params, "type"),
@@ -276,18 +287,19 @@ defmodule ClinicproWeb.MPesaAdminController do
       from_date: parse_date(Map.get(params, "from_date")),
       to_date: parse_date(Map.get(params, "to_date"))
     }
-    
+
     # Get paginated callback logs
     _page = params["_page"] || "1"
     _per_page = params["_per_page"] || "20"
-    
-    {callback_logs, pagination} = CallbackLog.paginate_by_clinic(
-      _clinic_id,
-      filters,
-      String.to_integer(_page),
-      String.to_integer(_per_page)
-    )
-    
+
+    {callback_logs, pagination} =
+      CallbackLog.paginate_by_clinic(
+        _clinic_id,
+        filters,
+        String.to_integer(_page),
+        String.to_integer(_per_page)
+      )
+
     render(conn, "callback_logs.html",
       callback_logs: callback_logs,
       pagination: pagination,
@@ -300,22 +312,26 @@ defmodule ClinicproWeb.MPesaAdminController do
   """
   def callback_details(conn, %{"id" => id}) do
     _clinic_id = get_clinic_id(conn)
-    
+
     case CallbackLog.get_by_id_and_clinic(id, _clinic_id) do
       nil ->
         conn
         |> put_flash(:error, "Callback log not found.")
         |> redirect(to: Routes.mpesa_admin_path(conn, :callback_logs))
-        
+
       callback_log ->
         # Get related _transaction if available
-        _transaction = if callback_log.transaction_id do
-          Transaction.get_by_id_and_clinic(callback_log.transaction_id, _clinic_id)
-        else
-          nil
-        end
-        
-        render(conn, "callback_details.html", callback_log: callback_log, _transaction: _transaction)
+        _transaction =
+          if callback_log.transaction_id do
+            Transaction.get_by_id_and_clinic(callback_log.transaction_id, _clinic_id)
+          else
+            nil
+          end
+
+        render(conn, "callback_details.html",
+          callback_log: callback_log,
+          _transaction: _transaction
+        )
     end
   end
 
@@ -324,11 +340,12 @@ defmodule ClinicproWeb.MPesaAdminController do
   """
   def test_stk_push_form(conn, _params) do
     _clinic_id = get_clinic_id(conn)
-    
+
     # Get recent test transactions
-    recent_tests = Transaction.list_by_clinic(_clinic_id, limit: 5)
-                   |> Enum.filter(fn t -> String.starts_with?(t.invoice_id || "", "TEST-") end)
-    
+    recent_tests =
+      Transaction.list_by_clinic(_clinic_id, limit: 5)
+      |> Enum.filter(fn t -> String.starts_with?(t.invoice_id || "", "TEST-") end)
+
     render(conn, "test_stk_push.html", recent_tests: recent_tests)
   end
 
@@ -341,17 +358,20 @@ defmodule ClinicproWeb.MPesaAdminController do
     amount = String.to_float(params["amount"] || "0.0")
     reference = params["reference"] || "Test Payment"
     description = params["description"] || "Test STK Push"
-    
+
     # Create a test invoice ID
     invoice_id = "TEST-#{reference}-#{System.os_time(:second)}"
     patient_id = "TEST-PATIENT"
-    
+
     case MPesa.stk_push(_clinic_id, invoice_id, patient_id, phone_number, amount, description) do
       {:ok, _transaction} ->
         conn
-        |> put_flash(:info, "STK Push initiated successfully. Checkout Request ID: #{_transaction.checkout_request_id}")
+        |> put_flash(
+          :info,
+          "STK Push initiated successfully. Checkout Request ID: #{_transaction.checkout_request_id}"
+        )
         |> redirect(to: Routes.mpesa_admin_path(conn, :test_stk_push_form))
-        
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Failed to initiate STK Push: #{reason}")
@@ -365,7 +385,7 @@ defmodule ClinicproWeb.MPesaAdminController do
   def register_urls(conn, %{"id" => id}) do
     _clinic_id = get_clinic_id(conn)
     config = Config.get_by_id(id)
-    
+
     # Ensure the config belongs to this clinic
     if config && config._clinic_id == _clinic_id do
       case MPesa.register_c2b_urls(_clinic_id) do
@@ -373,7 +393,7 @@ defmodule ClinicproWeb.MPesaAdminController do
           conn
           |> put_flash(:info, "Callback URLs registered successfully.")
           |> redirect(to: Routes.mpesa_admin_path(conn, :configuration_details, id))
-          
+
         {:error, reason} ->
           conn
           |> put_flash(:error, "Failed to register callback URLs: #{reason}")
@@ -391,13 +411,13 @@ defmodule ClinicproWeb.MPesaAdminController do
   """
   def transaction_details(conn, %{"id" => id}) do
     _clinic_id = get_clinic_id(conn)
-    
+
     case Transaction.get_by_id_and_clinic(id, _clinic_id) do
       nil ->
         conn
         |> put_flash(:error, "Transaction not found.")
         |> redirect(to: Routes.mpesa_admin_path(conn, :transactions))
-        
+
       _transaction ->
         # Get related callbacks
         callbacks = CallbackLog.list_by_transaction(id, _clinic_id)
@@ -414,10 +434,11 @@ defmodule ClinicproWeb.MPesaAdminController do
   end
 
   defp parse_date(nil), do: nil
+
   defp parse_date(date_string) do
     case Date.from_iso8601(date_string) do
       {:ok, date} -> date
-      _ -> nil
+      _unused -> nil
     end
   end
 end

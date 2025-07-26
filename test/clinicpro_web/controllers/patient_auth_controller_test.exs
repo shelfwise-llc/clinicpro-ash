@@ -95,7 +95,11 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
       assert patient.first_name == "New"
     end
 
-    test "verify_otp_form renders the OTP verification form", %{conn: conn, clinic: clinic, patient: patient} do
+    test "verify_otp_form renders the OTP verification form", %{
+      conn: conn,
+      clinic: clinic,
+      patient: patient
+    } do
       # First send an OTP to set up the session
       conn =
         post(conn, ~p"/patient/send-otp?clinic_id=#{clinic.id}", %{
@@ -109,7 +113,11 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
       assert html_response(conn, 200) =~ "Verify OTP"
     end
 
-    test "verify_otp authenticates with valid OTP", %{conn: conn, clinic: clinic, patient: patient} do
+    test "verify_otp authenticates with valid OTP", %{
+      conn: conn,
+      clinic: clinic,
+      patient: patient
+    } do
       # Generate an OTP for the patient
       {:ok, %{otp: otp}} = OTP.generate_otp(patient.id, clinic.id)
 
@@ -155,7 +163,11 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
       assert get_flash(conn, :error) =~ "Please log in"
     end
 
-    test "dashboard shows patient info when authenticated", %{conn: conn, patient: patient, clinic: clinic} do
+    test "dashboard shows patient info when authenticated", %{
+      conn: conn,
+      patient: patient,
+      clinic: clinic
+    } do
       conn =
         conn
         |> init_test_session(%{})
@@ -180,9 +192,13 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
       assert get_session(conn, :patient_id) == nil
     end
 
-    test "rate limiting blocks excessive OTP requests", %{conn: conn, clinic: clinic, patient: patient} do
+    test "rate limiting blocks excessive OTP requests", %{
+      conn: conn,
+      clinic: clinic,
+      patient: patient
+    } do
       # Make 3 OTP requests (the limit)
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         conn =
           conn
           |> recycle()
@@ -209,7 +225,11 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
       assert get_flash(conn, :error) =~ "Too many OTP requests"
     end
 
-    test "rate limiting blocks excessive OTP verification attempts", %{conn: conn, clinic: clinic, patient: patient} do
+    test "rate limiting blocks excessive OTP verification attempts", %{
+      conn: conn,
+      clinic: clinic,
+      patient: patient
+    } do
       # Generate an OTP for the patient
       {:ok, %{otp: _otp}} = OTP.generate_otp(patient.id, clinic.id)
 
@@ -221,7 +241,7 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
         |> put_session(:pending_otp_clinic_id, clinic.id)
 
       # Make 3 invalid verification attempts (the limit)
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         conn =
           conn
           |> recycle()
@@ -246,12 +266,16 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
       assert get_flash(conn, :error) =~ "Too many verification attempts"
     end
 
-    test "successful verification resets rate limiting", %{conn: conn, clinic: clinic, patient: patient} do
+    test "successful verification resets rate limiting", %{
+      conn: conn,
+      clinic: clinic,
+      patient: patient
+    } do
       # Generate an OTP for the patient
       {:ok, %{otp: otp}} = OTP.generate_otp(patient.id, clinic.id)
 
       # Make 2 invalid verification attempts
-      for _ <- 1..2 do
+      for _unused <- 1..2 do
         conn =
           conn
           |> recycle()
@@ -285,7 +309,7 @@ defmodule ClinicproWeb.PatientAuthControllerTest do
         |> Repo.insert()
 
       # Should be able to make 3 more requests
-      for _ <- 1..3 do
+      for _unused <- 1..3 do
         conn =
           conn
           |> recycle()

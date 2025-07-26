@@ -12,8 +12,17 @@
     <div class="bg-yellow-50 border border-yellow-200 rounded-md p-6 mb-8">
       <div class="flex">
         <div class="flex-shrink-0">
-          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          <svg
+            class="h-5 w-5 text-yellow-400"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <div class="ml-3">
@@ -23,7 +32,10 @@
           </div>
           <div class="mt-4">
             <div class="-mx-2 -my-1.5 flex">
-              <a href={~p"/admin/clinics/#{@clinic_id}/paystack/new"} class="px-3 py-1.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
+              <a
+                href={~p"/admin/clinics/#{@clinic_id}/paystack/new"}
+                class="px-3 py-1.5 rounded-md text-sm font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+              >
                 Configure Paystack
               </a>
             </div>
@@ -37,10 +49,32 @@
     <!-- Configuration Status Card -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex items-center">
-        <div class={["p-3 rounded-full mr-4", if(@has_active_config, do: "bg-green-100 text-green-600", else: "bg-red-100 text-red-600")]}>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <div class={[
+          "p-3 rounded-full mr-4",
+          if(@has_active_config,
+            do: "bg-green-100 text-green-600",
+            else: "bg-red-100 text-red-600"
+          )
+        ]}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
           </svg>
         </div>
         <div>
@@ -55,18 +89,37 @@
         </div>
       </div>
       <div class="mt-4">
-        <a href={~p"/admin/clinics/#{@clinic_id}/paystack/configs"} class="text-sm text-blue-600 hover:text-blue-800">
+        <a
+          href={~p"/admin/clinics/#{@clinic_id}/paystack/configs"}
+          class="text-sm text-blue-600 hover:text-blue-800"
+        >
           Manage Configurations &rarr;
         </a>
       </div>
     </div>
-
     <!-- Subaccount Status Card -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex items-center">
-        <div class={["p-3 rounded-full mr-4", if(@has_active_subaccount, do: "bg-green-100 text-green-600", else: "bg-gray-100 text-gray-600")]}>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <div class={[
+          "p-3 rounded-full mr-4",
+          if(@has_active_subaccount,
+            do: "bg-green-100 text-green-600",
+            else: "bg-gray-100 text-gray-600"
+          )
+        ]}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
           </svg>
         </div>
         <div>
@@ -81,18 +134,31 @@
         </div>
       </div>
       <div class="mt-4">
-        <a href={~p"/admin/clinics/#{@clinic_id}/paystack/subaccounts"} class="text-sm text-blue-600 hover:text-blue-800">
+        <a
+          href={~p"/admin/clinics/#{@clinic_id}/paystack/subaccounts"}
+          class="text-sm text-blue-600 hover:text-blue-800"
+        >
           Manage Subaccounts &rarr;
         </a>
       </div>
     </div>
-
     <!-- Transactions Card -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex items-center">
         <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
           </svg>
         </div>
         <div>
@@ -103,18 +169,31 @@
         </div>
       </div>
       <div class="mt-4">
-        <a href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions"} class="text-sm text-blue-600 hover:text-blue-800">
+        <a
+          href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions"}
+          class="text-sm text-blue-600 hover:text-blue-800"
+        >
           View Transactions &rarr;
         </a>
       </div>
     </div>
-
     <!-- Test Payment Card -->
     <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex items-center">
         <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+            />
           </svg>
         </div>
         <div>
@@ -129,19 +208,29 @@
         </div>
       </div>
       <div class="mt-4">
-        <a href={~p"/admin/clinics/#{@clinic_id}/paystack/test-payment"}
-           class={["text-sm", if(@has_active_config, do: "text-blue-600 hover:text-blue-800", else: "text-gray-400 cursor-not-allowed")]}>
+        <a
+          href={~p"/admin/clinics/#{@clinic_id}/paystack/test-payment"}
+          class={[
+            "text-sm",
+            if(@has_active_config,
+              do: "text-blue-600 hover:text-blue-800",
+              else: "text-gray-400 cursor-not-allowed"
+            )
+          ]}
+        >
           Make Test Payment &rarr;
         </a>
       </div>
     </div>
   </div>
-
   <!-- Recent Transactions -->
   <div class="bg-white rounded-lg shadow-md p-6 mb-8">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-xl font-semibold text-gray-800">Recent Transactions</h2>
-      <a href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions"} class="text-sm text-blue-600 hover:text-blue-800">
+      <a
+        href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions"}
+        class="text-sm text-blue-600 hover:text-blue-800"
+      >
         View All
       </a>
     </div>
@@ -155,12 +244,42 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Reference
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Amount
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Email
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Status
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Date
+              </th>
+              <th
+                scope="col"
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
@@ -192,7 +311,12 @@
                   <%= format_date(transaction.inserted_at) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <a href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions/#{transaction.id}"} class="text-blue-600 hover:text-blue-900">
+                  <a
+                    href={
+                      ~p"/admin/clinics/#{@clinic_id}/paystack/transactions/#{transaction.id}"
+                    }
+                    class="text-blue-600 hover:text-blue-900"
+                  >
                     View
                   </a>
                 </td>
@@ -203,55 +327,144 @@
       </div>
     <% end %>
   </div>
-
   <!-- Quick Links -->
   <div class="bg-white rounded-lg shadow-md p-6">
     <h2 class="text-xl font-semibold text-gray-800 mb-4">Quick Links</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <a href={~p"/admin/clinics/#{@clinic_id}/paystack/new"} class="flex items-center p-3 rounded-md hover:bg-gray-50">
+      <a
+        href={~p"/admin/clinics/#{@clinic_id}/paystack/new"}
+        class="flex items-center p-3 rounded-md hover:bg-gray-50"
+      >
         <div class="p-2 rounded-full bg-blue-100 text-blue-600 mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
           </svg>
         </div>
         <span>New Configuration</span>
       </a>
-      <a href={~p"/admin/clinics/#{@clinic_id}/paystack/subaccounts/new"} class="flex items-center p-3 rounded-md hover:bg-gray-50">
+      <a
+        href={~p"/admin/clinics/#{@clinic_id}/paystack/subaccounts/new"}
+        class="flex items-center p-3 rounded-md hover:bg-gray-50"
+      >
         <div class="p-2 rounded-full bg-green-100 text-green-600 mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+            />
           </svg>
         </div>
         <span>New Subaccount</span>
       </a>
-      <a href={~p"/admin/clinics/#{@clinic_id}/paystack/test-payment"} class="flex items-center p-3 rounded-md hover:bg-gray-50">
+      <a
+        href={~p"/admin/clinics/#{@clinic_id}/paystack/test-payment"}
+        class="flex items-center p-3 rounded-md hover:bg-gray-50"
+      >
         <div class="p-2 rounded-full bg-purple-100 text-purple-600 mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
+            />
           </svg>
         </div>
         <span>Test Payment</span>
       </a>
-      <a href="https://dashboard.paystack.com/" target="_blank" rel="noopener noreferrer" class="flex items-center p-3 rounded-md hover:bg-gray-50">
+      <a
+        href="https://dashboard.paystack.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center p-3 rounded-md hover:bg-gray-50"
+      >
         <div class="p-2 rounded-full bg-yellow-100 text-yellow-600 mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+            />
           </svg>
         </div>
         <span>Paystack Dashboard</span>
       </a>
-      <a href="https://paystack.com/docs/api/" target="_blank" rel="noopener noreferrer" class="flex items-center p-3 rounded-md hover:bg-gray-50">
+      <a
+        href="https://paystack.com/docs/api/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center p-3 rounded-md hover:bg-gray-50"
+      >
         <div class="p-2 rounded-full bg-indigo-100 text-indigo-600 mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
           </svg>
         </div>
         <span>API Documentation</span>
       </a>
-      <a href="https://paystack.com/docs/payments/test-payments" target="_blank" rel="noopener noreferrer" class="flex items-center p-3 rounded-md hover:bg-gray-50">
+      <a
+        href="https://paystack.com/docs/payments/test-payments"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center p-3 rounded-md hover:bg-gray-50"
+      >
         <div class="p-2 rounded-full bg-red-100 text-red-600 mr-3">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
+            />
           </svg>
         </div>
         <span>Test Cards Guide</span>

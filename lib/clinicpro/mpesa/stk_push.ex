@@ -44,7 +44,8 @@ defmodule Clinicpro.MPesa.STKPush do
 
     # Get the access token
     with {:ok, token} <- Auth.get_access_token(_clinic_id),
-         {:ok, response} <- do_request(token, phone_number, amount, reference, timestamp, password, config) do
+         {:ok, response} <-
+           do_request(token, phone_number, amount, reference, timestamp, password, config) do
       {:ok, response}
     else
       {:error, reason} -> {:error, reason}
@@ -82,14 +83,14 @@ defmodule Clinicpro.MPesa.STKPush do
       {:ok, %HTTPoison.Response{status_code: 200, body: response_body}} ->
         case Jason.decode(response_body) do
           {:ok, decoded} -> {:ok, decoded}
-          {:error, _} -> {:error, "Failed to decode response"}
+          {:error, _unused} -> {:error, "Failed to decode response"}
         end
 
       {:ok, %HTTPoison.Response{body: response_body}} ->
         case Jason.decode(response_body) do
           {:ok, %{"errorMessage" => error}} -> {:error, error}
           {:ok, decoded} -> {:error, "Unexpected response: #{inspect(decoded)}"}
-          {:error, _} -> {:error, "Failed to decode error response"}
+          {:error, _unused} -> {:error, "Failed to decode error response"}
         end
 
       {:error, %HTTPoison.Error{reason: reason}} ->

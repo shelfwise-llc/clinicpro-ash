@@ -26,9 +26,13 @@ defmodule Clinicpro.Repo.Migrations.CreatePaystackTransactions do
     create index(:paystack_transactions, [:clinic_id])
     create index(:paystack_transactions, [:status])
     create unique_index(:paystack_transactions, [:reference])
-    create unique_index(:paystack_transactions, [:paystack_reference], where: "paystack_reference IS NOT NULL")
+
+    create unique_index(:paystack_transactions, [:paystack_reference],
+             where: "paystack_reference IS NOT NULL"
+           )
 
     # Add a comment to the table
-    execute "COMMENT ON TABLE paystack_transactions IS 'Stores Paystack payment transactions with clinic isolation'", ""
+    execute "COMMENT ON TABLE paystack_transactions IS 'Stores Paystack payment transactions with clinic isolation'",
+            ""
   end
 end

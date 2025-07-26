@@ -159,7 +159,9 @@ defmodule ClinicproWeb.InvoiceController do
           {:ok, updated_invoice} ->
             conn
             |> put_flash(:info, "Invoice updated successfully.")
-            |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{updated_invoice.id}")
+            |> redirect(
+              to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{updated_invoice.id}"
+            )
 
           {:error, %Ecto.Changeset{} = changeset} ->
             _patients = Patient.list_patients()
@@ -190,7 +192,7 @@ defmodule ClinicproWeb.InvoiceController do
       else
         # Only allow deletion of pending invoices
         if invoice.status == "pending" do
-          {:ok, _} = Invoice.delete_invoice(invoice)
+          {:ok, _unused} = Invoice.delete_invoice(invoice)
 
           conn
           |> put_flash(:info, "Invoice deleted successfully.")
@@ -292,7 +294,11 @@ defmodule ClinicproWeb.InvoiceController do
   end
 
   # Initiates an STK Push payment for an invoice.
-  def initiate_payment(conn, %{"_clinic_id" => _clinic_id, "id" => id, "phone_number" => phone_number}) do
+  def initiate_payment(conn, %{
+        "_clinic_id" => _clinic_id,
+        "id" => id,
+        "phone_number" => phone_number
+      }) do
     with {:ok, _clinic} <- get_clinic(_clinic_id),
          invoice <- Invoice.get_invoice!(id) do
       # Check if invoice belongs to this clinic
@@ -304,7 +310,10 @@ defmodule ClinicproWeb.InvoiceController do
         case InvoiceIntegration.initiate_stk_push_for_invoice(id, _clinic_id, phone_number) do
           {:ok, _transaction} ->
             conn
-            |> put_flash(:info, "Payment request sent to #{phone_number}. Please check your phone to complete the payment.")
+            |> put_flash(
+              :info,
+              "Payment request sent to #{phone_number}. Please check your phone to complete the payment."
+            )
             |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
 
           {:error, reason} ->

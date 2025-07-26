@@ -16,7 +16,6 @@ defmodule Clinicpro.Auth.OTPDelivery do
     with {:ok, patient} <- get_patient(patient_id),
          {:ok, delivery_method} <- determine_delivery_method(patient),
          {:ok, config} <- get_delivery_config(clinic_identifier, delivery_method) do
-
       case delivery_method do
         :sms -> send_sms(patient, clinic_identifier, otp, config)
         :email -> send_email(patient, clinic_identifier, otp, config)
@@ -34,8 +33,10 @@ defmodule Clinicpro.Auth.OTPDelivery do
     cond do
       is_valid_phone?(patient.phone_number) ->
         {:ok, :sms}
+
       is_valid_email?(patient.email) ->
         {:ok, :email}
+
       true ->
         {:error, :no_valid_contact_method}
     end
@@ -48,23 +49,25 @@ defmodule Clinicpro.Auth.OTPDelivery do
   def get_delivery_config(clinic_identifier, method) do
     # In a real implementation, this would fetch configuration from the database
     # For now, we'll return a mock configuration based on the clinic identifier
-    config = case method do
-      :sms ->
-        %{
-          provider: get_sms_provider(clinic_identifier),
-          sender_id: clinic_identifier || "ClinicPro",
-          api_key: get_sms_api_key(clinic_identifier),
-          enabled: true
-        }
+    config =
+      case method do
+        :sms ->
+          %{
+            provider: get_sms_provider(clinic_identifier),
+            sender_id: clinic_identifier || "ClinicPro",
+            api_key: get_sms_api_key(clinic_identifier),
+            enabled: true
+          }
 
-      :email ->
-        %{
-          provider: get_email_provider(clinic_identifier),
-          from_email: "noreply@#{String.downcase(String.replace(clinic_identifier || "clinicpro", " ", ""))}.com",
-          api_key: get_email_api_key(clinic_identifier),
-          enabled: true
-        }
-    end
+        :email ->
+          %{
+            provider: get_email_provider(clinic_identifier),
+            from_email:
+              "noreply@#{String.downcase(String.replace(clinic_identifier || "clinicpro", " ", ""))}.com",
+            api_key: get_email_api_key(clinic_identifier),
+            enabled: true
+          }
+      end
 
     {:ok, config}
   end
@@ -82,6 +85,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
 
   defp is_valid_phone?(nil), do: false
   defp is_valid_phone?(""), do: false
+
   defp is_valid_phone?(phone) do
     # Basic validation - can be enhanced with proper phone validation
     String.length(String.trim(phone)) >= 10
@@ -89,6 +93,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
 
   defp is_valid_email?(nil), do: false
   defp is_valid_email?(""), do: false
+
   defp is_valid_email?(email) do
     # Basic email validation - can be enhanced with proper email validation
     String.contains?(email, "@") && String.contains?(email, ".")
@@ -119,6 +124,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
     # In production, integrate with actual email provider like SendGrid, Mailgun, etc.
     # For now, we'll just log the message
     subject = "Your #{clinic_identifier} Verification Code"
+
     body = """
     Hello #{patient.first_name || "Patient"},
 

@@ -1,7 +1,7 @@
 defmodule Clinicpro.Clinics.Registry do
   @moduledoc """
   Registry for Clinics resources.
-  
+
   This module registers all resources in the Clinics bounded context.
   """
   use Ash.Registry,
@@ -10,7 +10,7 @@ defmodule Clinicpro.Clinics.Registry do
     ]
 
   entries do
-    entry Clinicpro.Clinics.Clinic
-    entry Clinicpro.Clinics.ClinicStaff
+    entry(Clinicpro.Clinics.Clinic)
+    entry(Clinicpro.Clinics.ClinicStaff)
   end
 end

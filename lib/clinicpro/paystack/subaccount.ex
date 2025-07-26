@@ -246,7 +246,7 @@ defmodule Clinicpro.Paystack.Subaccount do
         deactivate_all_for_clinic(_clinic_id)
         changeset
 
-      _ ->
+      _unused ->
         changeset
     end
   end

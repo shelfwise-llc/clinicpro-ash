@@ -135,11 +135,12 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
   defp get_zoom_credentials(_clinic_id) do
     # This would typically query the database for clinic-specific credentials
     # For now, we'll just return a mock result
-    {:ok, %{
-      client_id: "clinic_#{_clinic_id}_client_id",
-      client_secret: "clinic_#{_clinic_id}_client_secret",
-      account_id: "clinic_#{_clinic_id}_account_id"
-    }}
+    {:ok,
+     %{
+       client_id: "clinic_#{_clinic_id}_client_id",
+       client_secret: "clinic_#{_clinic_id}_client_secret",
+       account_id: "clinic_#{_clinic_id}_account_id"
+     }}
   end
 
   # Gets application-level Zoom credentials
@@ -149,11 +150,12 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
     account_id = System.get_env("ZOOM_ACCOUNT_ID")
 
     if client_id && client_secret && account_id do
-      {:ok, %{
-        client_id: client_id,
-        client_secret: client_secret,
-        account_id: account_id
-      }}
+      {:ok,
+       %{
+         client_id: client_id,
+         client_secret: client_secret,
+         account_id: account_id
+       }}
     else
       {:error, :missing_credentials}
     end
@@ -161,14 +163,15 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
 
   # Generates an OAuth2 access token for Zoom API
   defp generate_access_token(credentials) do
-    client = OAuth2.Client.new([
-      strategy: OAuth2.Strategy.ClientCredentials,
-      client_id: credentials.client_id,
-      client_secret: credentials.client_secret,
-      site: "https://zoom.us",
-      token_url: "/oauth/token",
-      params: %{"account_id" => credentials.account_id}
-    ])
+    client =
+      OAuth2.Client.new(
+        strategy: OAuth2.Strategy.ClientCredentials,
+        client_id: credentials.client_id,
+        client_secret: credentials.client_secret,
+        site: "https://zoom.us",
+        token_url: "/oauth/token",
+        params: %{"account_id" => credentials.account_id}
+      )
 
     case OAuth2.Client.get_token(client) do
       {:ok, %{token: %{access_token: access_token}}} ->
@@ -192,21 +195,23 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
     start_time = format_appointment_time(_appointment)
 
     # Prepare the request body
-    body = Jason.encode!(%{
-      topic: "Appointment with Dr. #{get_doctor_name(_appointment)}",
-      type: 2, # Scheduled meeting
-      start_time: start_time,
-      duration: _appointment.duration,
-      timezone: "UTC",
-      settings: %{
-        host_video: true,
-        participant_video: true,
-        join_before_host: true,
-        mute_upon_entry: true,
-        waiting_room: false,
-        auto_recording: "none"
-      }
-    })
+    body =
+      Jason.encode!(%{
+        topic: "Appointment with Dr. #{get_doctor_name(_appointment)}",
+        # Scheduled meeting
+        type: 2,
+        start_time: start_time,
+        duration: _appointment.duration,
+        timezone: "UTC",
+        settings: %{
+          host_video: true,
+          participant_video: true,
+          join_before_host: true,
+          mute_upon_entry: true,
+          waiting_room: false,
+          auto_recording: "none"
+        }
+      })
 
     # Make the API request
     headers = [
@@ -229,7 +234,7 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
 
             {:ok, meeting_data}
 
-          {:error, _} ->
+          {:error, _unused} ->
             Logger.error("Failed to parse Zoom API response: #{inspect(response_body)}")
             {:error, :invalid_response}
         end
@@ -257,21 +262,23 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
       start_time = format_appointment_time(_appointment)
 
       # Prepare the request body
-      body = Jason.encode!(%{
-        topic: "Appointment with Dr. #{get_doctor_name(_appointment)}",
-        type: 2, # Scheduled meeting
-        start_time: start_time,
-        duration: _appointment.duration,
-        timezone: "UTC",
-        settings: %{
-          host_video: true,
-          participant_video: true,
-          join_before_host: true,
-          mute_upon_entry: true,
-          waiting_room: false,
-          auto_recording: "none"
-        }
-      })
+      body =
+        Jason.encode!(%{
+          topic: "Appointment with Dr. #{get_doctor_name(_appointment)}",
+          # Scheduled meeting
+          type: 2,
+          start_time: start_time,
+          duration: _appointment.duration,
+          timezone: "UTC",
+          settings: %{
+            host_video: true,
+            participant_video: true,
+            join_before_host: true,
+            mute_upon_entry: true,
+            waiting_room: false,
+            auto_recording: "none"
+          }
+        })
 
       # Make the API request
       headers = [
@@ -283,9 +290,10 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
         {:ok, %{status_code: status}} when status in 200..299 ->
           # Meeting updated successfully, return the original meeting data
           # with any updates from the _appointment
-          updated_meeting_data = Map.merge(meeting_data, %{
-            provider: "zoom"
-          })
+          updated_meeting_data =
+            Map.merge(meeting_data, %{
+              provider: "zoom"
+            })
 
           {:ok, updated_meeting_data}
 
@@ -333,10 +341,11 @@ defmodule Clinicpro.VirtualMeetings.CustomZoomAdapter do
 
   # Helper function to format _appointment time for Zoom API
   defp format_appointment_time(_appointment) do
-    naive_datetime = NaiveDateTime.new!(
-      _appointment.appointment_date,
-      _appointment.appointment_time
-    )
+    naive_datetime =
+      NaiveDateTime.new!(
+        _appointment.appointment_date,
+        _appointment.appointment_time
+      )
 
     # Convert to ISO8601 format
     naive_datetime

@@ -18,6 +18,7 @@ defmodule Clinicpro.Utils.Slug do
   """
   @spec generate(String.t() | nil) :: String.t()
   def generate(nil), do: ""
+
   def generate(string) when is_binary(string) do
     string
     |> String.downcase()

@@ -84,7 +84,7 @@ defmodule Clinicpro.MPesa.Transaction do
   """
   def update_request_ids(id, checkout_request_id, merchant_request_id) do
     _transaction = get_by_id(id)
-    
+
     if _transaction do
       _transaction
       |> Ecto.Changeset.change(%{
@@ -114,7 +114,14 @@ defmodule Clinicpro.MPesa.Transaction do
   * `{:ok, _transaction}` - On success
   * `{:error, changeset}` - On failure
   """
-  def update_status(id, status, result_code, result_desc, transaction_id \\ nil, transaction_date \\ nil) do
+  def update_status(
+        id,
+        status,
+        result_code,
+        result_desc,
+        transaction_id \\ nil,
+        transaction_date \\ nil
+      ) do
     attrs = %{
       status: status,
       result_code: result_code,
@@ -125,10 +132,11 @@ defmodule Clinicpro.MPesa.Transaction do
     attrs = if transaction_id, do: Map.put(attrs, :transaction_id, transaction_id), else: attrs
 
     # Add transaction_date if provided
-    attrs = if transaction_date, do: Map.put(attrs, :transaction_date, transaction_date), else: attrs
+    attrs =
+      if transaction_date, do: Map.put(attrs, :transaction_date, transaction_date), else: attrs
 
     _transaction = get_by_id(id)
-    
+
     if _transaction do
       _transaction
       |> Ecto.Changeset.change(attrs)
@@ -223,13 +231,14 @@ defmodule Clinicpro.MPesa.Transaction do
   """
   def list_by_clinic(_clinic_id, _opts \\ %{}) do
     limit = Map.get(_opts, :limit)
-    
-    query = Transaction
-    |> where(_clinic_id: ^_clinic_id)
-    |> order_by(desc: :inserted_at)
-    
+
+    query =
+      Transaction
+      |> where(_clinic_id: ^_clinic_id)
+      |> order_by(desc: :inserted_at)
+
     query = if limit, do: limit(query, ^limit), else: query
-    
+
     Repo.all(query)
   end
 
@@ -246,15 +255,17 @@ defmodule Clinicpro.MPesa.Transaction do
   * List of transactions
   """
   def list_by_invoice(invoice_id, _clinic_id \\ nil) do
-    query = Transaction
-    |> where(invoice_id: ^invoice_id)
-    |> order_by(desc: :inserted_at)
+    query =
+      Transaction
+      |> where(invoice_id: ^invoice_id)
+      |> order_by(desc: :inserted_at)
 
-    query = if _clinic_id do
-      query |> where(_clinic_id: ^_clinic_id)
-    else
-      query
-    end
+    query =
+      if _clinic_id do
+        query |> where(_clinic_id: ^_clinic_id)
+      else
+        query
+      end
 
     Repo.all(query)
   end
@@ -406,11 +417,12 @@ defmodule Clinicpro.MPesa.Transaction do
   * Sum of _transaction amounts
   """
   def sum_amount_by_clinic_and_status(_clinic_id, status) do
-    result = Transaction
-    |> where(_clinic_id: ^_clinic_id)
-    |> where(status: ^status)
-    |> Repo.aggregate(:sum, :amount)
-    
+    result =
+      Transaction
+      |> where(_clinic_id: ^_clinic_id)
+      |> where(status: ^status)
+      |> Repo.aggregate(:sum, :amount)
+
     result || 0.0
   end
 
@@ -429,28 +441,31 @@ defmodule Clinicpro.MPesa.Transaction do
   * `{transactions, pagination}` - List of transactions and pagination info
   """
   def paginate_by_clinic(_clinic_id, filters \\ %{}, _page \\ 1, _per_page \\ 20) do
-    query = Transaction
-    |> where(_clinic_id: ^_clinic_id)
-    |> apply_filters(filters)
-    |> order_by(desc: :inserted_at)
+    query =
+      Transaction
+      |> where(_clinic_id: ^_clinic_id)
+      |> apply_filters(filters)
+      |> order_by(desc: :inserted_at)
 
     # Get total count for pagination
     total_count = Repo.aggregate(query, :count, :id)
     total_pages = ceil(total_count / _per_page)
 
     # Apply pagination
-    transactions = query
-    |> limit(^_per_page)
-    |> offset(^((_page - 1) * _per_page))
-    |> Repo.all()
+    transactions =
+      query
+      |> limit(^_per_page)
+      |> offset(^((_page - 1) * _per_page))
+      |> Repo.all()
 
     # Return transactions with pagination info
-    {transactions, %{
-      _page: _page,
-      _per_page: _per_page,
-      total_count: total_count,
-      total_pages: total_pages
-    }}
+    {transactions,
+     %{
+       _page: _page,
+       _per_page: _per_page,
+       total_count: total_count,
+       total_pages: total_pages
+     }}
   end
 
   # Private functions
@@ -458,9 +473,19 @@ defmodule Clinicpro.MPesa.Transaction do
   defp changeset(_transaction, attrs) do
     _transaction
     |> cast(attrs, [
-      :_clinic_id, :invoice_id, :patient_id, :phone_number, :amount, :status,
-      :reference, :checkout_request_id, :merchant_request_id, :transaction_id,
-      :transaction_date, :result_code, :result_desc
+      :_clinic_id,
+      :invoice_id,
+      :patient_id,
+      :phone_number,
+      :amount,
+      :status,
+      :reference,
+      :checkout_request_id,
+      :merchant_request_id,
+      :transaction_id,
+      :transaction_date,
+      :result_code,
+      :result_desc
     ])
     |> validate_required([:_clinic_id, :invoice_id, :patient_id, :phone_number, :amount, :status])
     |> validate_inclusion(:status, ["pending", "completed", "failed"])
@@ -469,30 +494,52 @@ defmodule Clinicpro.MPesa.Transaction do
 
   defp apply_filters(query, filters) do
     Enum.reduce(filters, query, fn
-      {:status, nil}, query -> query
-      {:status, ""}, query -> query
-      {:status, status}, query -> where(query, [t], t.status == ^status)
-      
-      {:invoice_id, nil}, query -> query
-      {:invoice_id, ""}, query -> query
-      {:invoice_id, invoice_id}, query -> where(query, [t], t.invoice_id == ^invoice_id)
-      
-      {:patient_id, nil}, query -> query
-      {:patient_id, ""}, query -> query
-      {:patient_id, patient_id}, query -> where(query, [t], t.patient_id == ^patient_id)
-      
-      {:from_date, nil}, query -> query
-      {:from_date, from_date}, query -> where(query, [t], t.inserted_at >= ^from_date)
-      
-      {:to_date, nil}, query -> query
-      {:to_date, to_date}, query -> 
+      {:status, nil}, query ->
+        query
+
+      {:status, ""}, query ->
+        query
+
+      {:status, status}, query ->
+        where(query, [t], t.status == ^status)
+
+      {:invoice_id, nil}, query ->
+        query
+
+      {:invoice_id, ""}, query ->
+        query
+
+      {:invoice_id, invoice_id}, query ->
+        where(query, [t], t.invoice_id == ^invoice_id)
+
+      {:patient_id, nil}, query ->
+        query
+
+      {:patient_id, ""}, query ->
+        query
+
+      {:patient_id, patient_id}, query ->
+        where(query, [t], t.patient_id == ^patient_id)
+
+      {:from_date, nil}, query ->
+        query
+
+      {:from_date, from_date}, query ->
+        where(query, [t], t.inserted_at >= ^from_date)
+
+      {:to_date, nil}, query ->
+        query
+
+      {:to_date, to_date}, query ->
         # Add a day to include the entire end date
-        to_date = 
+        to_date =
           to_date
           |> NaiveDateTime.new!(~T[23:59:59])
+
         where(query, [t], t.inserted_at <= ^to_date)
-      
-      _, query -> query
+
+      _unused, query ->
+        query
     end)
   end
 end

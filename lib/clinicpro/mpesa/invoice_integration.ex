@@ -51,7 +51,8 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
     with {:ok, invoice} <- Invoices.get_invoice(invoice_id, _clinic_id),
          amount = amount || invoice.amount,
          patient_id = invoice.patient_id,
-         {:ok, _transaction} <- MPesa.initiate_stk_push(_clinic_id, invoice_id, patient_id, phone_number, amount) do
+         {:ok, _transaction} <-
+           MPesa.initiate_stk_push(_clinic_id, invoice_id, patient_id, phone_number, amount) do
       {:ok, _transaction}
     else
       {:error, reason} -> {:error, reason}
@@ -107,7 +108,7 @@ defmodule Clinicpro.MPesa.InvoiceIntegration do
           :unpaid
       end
     else
-      {:error, _} -> :error
+      {:error, _unused} -> :error
     end
   end
 

@@ -201,20 +201,22 @@ defmodule Clinicpro.Paystack.Transaction do
   """
   def get_statistics(_clinic_id) do
     # Get total transactions and amount
-    total_query = from t in Transaction,
-      where: t._clinic_id == ^_clinic_id,
-      select: %{
-        count: count(t.id),
-        amount: sum(t.amount)
-      }
+    total_query =
+      from t in Transaction,
+        where: t._clinic_id == ^_clinic_id,
+        select: %{
+          count: count(t.id),
+          amount: sum(t.amount)
+        }
 
     # Get completed transactions and amount
-    completed_query = from t in Transaction,
-      where: t._clinic_id == ^_clinic_id and t.status == "completed",
-      select: %{
-        count: count(t.id),
-        amount: sum(t.amount)
-      }
+    completed_query =
+      from t in Transaction,
+        where: t._clinic_id == ^_clinic_id and t.status == "completed",
+        select: %{
+          count: count(t.id),
+          amount: sum(t.amount)
+        }
 
     total_stats = Repo.one(total_query) || %{count: 0, amount: 0}
     completed_stats = Repo.one(completed_query) || %{count: 0, amount: 0}
@@ -232,12 +234,29 @@ defmodule Clinicpro.Paystack.Transaction do
   defp changeset(_transaction, attrs) do
     _transaction
     |> cast(attrs, [
-      :_clinic_id, :email, :amount, :reference, :paystack_reference, :description,
-      :status, :authorization_url, :access_code, :payment_date, :channel,
-      :currency, :fees, :gateway_response, :metadata
+      :_clinic_id,
+      :email,
+      :amount,
+      :reference,
+      :paystack_reference,
+      :description,
+      :status,
+      :authorization_url,
+      :access_code,
+      :payment_date,
+      :channel,
+      :currency,
+      :fees,
+      :gateway_response,
+      :metadata
     ])
     |> validate_required([
-      :_clinic_id, :email, :amount, :reference, :description, :status
+      :_clinic_id,
+      :email,
+      :amount,
+      :reference,
+      :description,
+      :status
     ])
     |> unique_constraint(:reference)
     |> unique_constraint(:paystack_reference)

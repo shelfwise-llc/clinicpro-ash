@@ -86,8 +86,8 @@ defmodule Clinicpro.MPesaMultiClinicTest do
     }
 
     # Simulate a successful response
-    checkout_request_id = "ws_CO_#{clinic.id}_#{patient.id}_#{:rand.uniform(99999)}"
-    merchant_request_id = "#{clinic.id}_#{patient.id}_#{:rand.uniform(99999)}"
+    checkout_request_id = "ws_CO_#{clinic.id}_unused#{patient.id}_unused#{:rand.uniform(99999)}"
+    merchant_request_id = "#{clinic.id}_unused#{patient.id}_unused#{:rand.uniform(99999)}"
 
     # Create a mock transaction record
     transaction = %{

@@ -16,9 +16,14 @@ defmodule Clinicpro.Repo.Migrations.CreatePaystackConfigs do
 
     # Add indexes
     create index(:paystack_configs, [:clinic_id])
-    create unique_index(:paystack_configs, [:clinic_id, :active], where: "active = true", name: :paystack_configs_clinic_id_active_index)
+
+    create unique_index(:paystack_configs, [:clinic_id, :active],
+             where: "active = true",
+             name: :paystack_configs_clinic_id_active_index
+           )
 
     # Add a comment to the table
-    execute "COMMENT ON TABLE paystack_configs IS 'Stores Paystack configuration settings for each clinic'", ""
+    execute "COMMENT ON TABLE paystack_configs IS 'Stores Paystack configuration settings for each clinic'",
+            ""
   end
 end

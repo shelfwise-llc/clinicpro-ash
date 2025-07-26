@@ -32,23 +32,26 @@ defmodule Clinicpro.MPesa do
   """
   def initiate_stk_push(phone_number, amount, reference, description, _clinic_id) do
     # Create a pending _transaction
-    with {:ok, _transaction} <- create_pending_transaction(phone_number, amount, reference, description, _clinic_id),
+    with {:ok, _transaction} <-
+           create_pending_transaction(phone_number, amount, reference, description, _clinic_id),
          # Get the STK Push module (allows for mocking in tests)
          stk_push_module <- get_stk_push_module(),
          # Send the STK Push request
-         {:ok, response} <- stk_push_module.send_stk_push(phone_number, amount, reference, description, _clinic_id) do
-
+         {:ok, response} <-
+           stk_push_module.send_stk_push(phone_number, amount, reference, description, _clinic_id) do
       # Update the _transaction with the checkout request ID and merchant request ID
-      {:ok, updated_transaction} = Transaction.update(_transaction, %{
-        checkout_request_id: response.checkout_request_id,
-        merchant_request_id: response.merchant_request_id
-      })
+      {:ok, updated_transaction} =
+        Transaction.update(_transaction, %{
+          checkout_request_id: response.checkout_request_id,
+          merchant_request_id: response.merchant_request_id
+        })
 
       # Return the checkout request ID and _transaction
-      {:ok, %{
-        checkout_request_id: response.checkout_request_id,
-        _transaction: updated_transaction
-      }}
+      {:ok,
+       %{
+         checkout_request_id: response.checkout_request_id,
+         _transaction: updated_transaction
+       }}
     end
   end
 
@@ -78,7 +81,11 @@ defmodule Clinicpro.MPesa do
           stk_push_module = get_stk_push_module()
 
           # Check the status with M-Pesa
-          case stk_push_module.query_stk_push_status(checkout_request_id, _transaction.merchant_request_id, _clinic_id) do
+          case stk_push_module.query_stk_push_status(
+                 checkout_request_id,
+                 _transaction.merchant_request_id,
+                 _clinic_id
+               ) do
             {:ok, status_response} ->
               # Update the _transaction based on the status response
               update_transaction_from_status(_transaction, status_response)
@@ -286,11 +293,12 @@ defmodule Clinicpro.MPesa do
     }
 
     # Add transaction_id if available
-    attrs = if Map.has_key?(status_response, :transaction_id) do
-      Map.put(attrs, :transaction_id, status_response.transaction_id)
-    else
-      attrs
-    end
+    attrs =
+      if Map.has_key?(status_response, :transaction_id) do
+        Map.put(attrs, :transaction_id, status_response.transaction_id)
+      else
+        attrs
+      end
 
     # Update the _transaction
     Transaction.update(_transaction, attrs)

@@ -32,7 +32,7 @@ defmodule ClinicproWeb.MPesaAdminView do
       "processing" -> "bg-blue-100 text-blue-800"
       "failed" -> "bg-red-100 text-red-800"
       "cancelled" -> "bg-gray-100 text-gray-800"
-      _ -> "bg-gray-100 text-gray-800"
+      _unused -> "bg-gray-100 text-gray-800"
     end
   end
 
@@ -45,7 +45,7 @@ defmodule ClinicproWeb.MPesaAdminView do
       "c2b_validation" -> "bg-blue-100 text-blue-800"
       "c2b_confirmation" -> "bg-indigo-100 text-indigo-800"
       "transaction_status" -> "bg-yellow-100 text-yellow-800"
-      _ -> "bg-gray-100 text-gray-800"
+      _unused -> "bg-gray-100 text-gray-800"
     end
   end
 
@@ -58,7 +58,7 @@ defmodule ClinicproWeb.MPesaAdminView do
       "c2b_validation" -> "C2B Validation"
       "c2b_confirmation" -> "C2B Confirmation"
       "transaction_status" -> "Transaction Status"
-      _ -> String.replace(type || "", "_", " ") |> String.capitalize()
+      _unused -> String.replace(type || "", "_unused", " ") |> String.capitalize()
     end
   end
 
@@ -117,7 +117,7 @@ defmodule ClinicproWeb.MPesaAdminView do
       {:ok, decoded} ->
         Jason.encode!(decoded, pretty: true)
 
-      _ ->
+      _unused ->
         json
     end
   end
@@ -125,7 +125,7 @@ defmodule ClinicproWeb.MPesaAdminView do
   def format_json(data) do
     case Jason.encode(data, pretty: true) do
       {:ok, encoded} -> encoded
-      _ -> inspect(data)
+      _unused -> inspect(data)
     end
   end
 
@@ -166,7 +166,7 @@ defmodule ClinicproWeb.MPesaAdminView do
             "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
         )
 
-      _ ->
+      _unused ->
         content_tag(:span, env,
           class:
             "px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800"

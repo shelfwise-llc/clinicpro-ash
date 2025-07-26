@@ -1,16 +1,16 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Contact Information</h1>
-  
+
   <%= workflow_progress(assigns) %>
-  
+
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <h2 class="text-2xl font-semibold mb-4">Provide your contact details</h2>
-    
+
     <div class="mb-6 bg-gray-50 p-4 rounded-md">
       <h3 class="text-lg font-medium mb-2">Selected Appointment Type</h3>
       <p class="text-gray-700"><%= @appointment_type %></p>
     </div>
-    
+
     <.form :let={_f} for={%{}} action={~p"/booking/phone"} method="post">
       <div class="space-y-6">
         <div>
@@ -25,7 +25,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
             Email Address
@@ -38,7 +38,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">
             Phone Number
@@ -51,7 +51,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
             Preferred Date
@@ -65,7 +65,7 @@
             required
           />
         </div>
-        
+
         <div>
           <label for="time" class="block text-sm font-medium text-gray-700 mb-1">
             Preferred Time
@@ -82,7 +82,7 @@
             <option value="evening">Evening (6:00 PM - 8:00 PM)</option>
           </select>
         </div>
-        
+
         <div>
           <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">
             Reason for Visit
@@ -94,7 +94,7 @@
             class="w-full border-gray-300 rounded-md shadow-sm"
           ></textarea>
         </div>
-        
+
         <div class="flex items-center">
           <input
             id="terms"
@@ -104,16 +104,20 @@
             required
           />
           <label for="terms" class="ml-2 block text-sm text-gray-700">
-            I agree to the <a href="#" class="text-blue-600 hover:text-blue-800">terms and conditions</a>
+            I agree to the
+            <a href="#" class="text-blue-600 hover:text-blue-800">terms and conditions</a>
           </label>
         </div>
-        
+
         <div class="mt-8 flex justify-between">
           <a href={~p"/booking/type"} class="text-blue-600 hover:text-blue-800">
             &larr; Back
           </a>
-          
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md">
+
+          <button
+            type="submit"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md"
+          >
             Continue
           </button>
         </div>

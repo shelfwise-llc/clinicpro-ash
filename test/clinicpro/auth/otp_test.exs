@@ -104,7 +104,7 @@ defmodule Clinicpro.Auth.OTPTest do
       clinic1: clinic1
     } do
       # Generate OTP
-      {:ok, _} = OTP.generate_otp(patient1.id, clinic1.id)
+      {:ok, _unused} = OTP.generate_otp(patient1.id, clinic1.id)
 
       # Try to validate with incorrect OTP
       assert {:error, :invalid_otp} = OTP.validate_otp(patient1.id, clinic1.id, "000000")
@@ -147,7 +147,7 @@ defmodule Clinicpro.Auth.OTPTest do
       # This test is a bit tricky since we're not actually sending SMS/emails
       # We'll just verify that the function returns the expected structure
       assert {:ok, %{otp: otp, contact: contact, method: method}} =
-        OTP.send_otp(patient1.id, clinic1.id)
+               OTP.send_otp(patient1.id, clinic1.id)
 
       assert is_binary(otp)
       assert String.length(otp) == 6
@@ -160,7 +160,7 @@ defmodule Clinicpro.Auth.OTPTest do
       clinic1: clinic1
     } do
       # First generate an OTP secret
-      {:ok, _} = OTP.generate_otp(patient1.id, clinic1.id)
+      {:ok, _unused} = OTP.generate_otp(patient1.id, clinic1.id)
 
       # Generate QR code URL
       assert {:ok, uri} = OTP.generate_qr_code_url(patient1.id, clinic1.id)

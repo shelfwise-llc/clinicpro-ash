@@ -34,7 +34,8 @@ defmodule ClinicproWeb.AdminBypassController do
       case changeset do
         %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
           put_change(changeset, :password_hash, Bcrypt.hash_pwd_salt(password))
-        _ ->
+
+        _unused ->
           changeset
       end
     end
@@ -46,9 +47,9 @@ defmodule ClinicproWeb.AdminBypassController do
     invoice_stats = get_invoice_stats()
     recent_invoices = Invoice.list_recent_invoices(5)
     recent_transactions = Clinicpro.MPesa.list_recent_transactions(5)
-    
-    render(conn, :index, 
-      page_title: "Admin Dashboard", 
+
+    render(conn, :index,
+      page_title: "Admin Dashboard",
       recent_activity: recent_activity,
       invoice_stats: invoice_stats,
       recent_invoices: recent_invoices,
@@ -95,13 +96,17 @@ defmodule ClinicproWeb.AdminBypassController do
         |> redirect(to: ~p"/admin/_doctors")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :edit_doctor, page_title: "Edit Doctor", doctor: doctor, changeset: changeset)
+        render(conn, :edit_doctor,
+          page_title: "Edit Doctor",
+          doctor: doctor,
+          changeset: changeset
+        )
     end
   end
 
   def delete_doctor(conn, %{"id" => doctor_id}) do
     doctor = Doctor.get_doctor!(doctor_id)
-    {:ok, _} = Doctor.delete_doctor(doctor)
+    {:ok, _unused} = Doctor.delete_doctor(doctor)
 
     conn
     |> put_flash(:info, "Doctor deleted successfully.")
@@ -134,7 +139,12 @@ defmodule ClinicproWeb.AdminBypassController do
   def edit_patient(conn, %{"id" => patient_id}) do
     patient = Patient.get_patient!(patient_id)
     changeset = Patient.change_patient(patient)
-    render(conn, :edit_patient, page_title: "Edit Patient", patient: patient, changeset: changeset)
+
+    render(conn, :edit_patient,
+      page_title: "Edit Patient",
+      patient: patient,
+      changeset: changeset
+    )
   end
 
   def update_patient(conn, %{"id" => patient_id, "patient" => patient_params}) do
@@ -147,13 +157,17 @@ defmodule ClinicproWeb.AdminBypassController do
         |> redirect(to: ~p"/admin/_patients")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :edit_patient, page_title: "Edit Patient", patient: patient, changeset: changeset)
+        render(conn, :edit_patient,
+          page_title: "Edit Patient",
+          patient: patient,
+          changeset: changeset
+        )
     end
   end
 
   def delete_patient(conn, %{"id" => patient_id}) do
     patient = Patient.get_patient!(patient_id)
-    {:ok, _} = Patient.delete_patient(patient)
+    {:ok, _unused} = Patient.delete_patient(patient)
 
     conn
     |> put_flash(:info, "Patient deleted successfully.")
@@ -170,10 +184,10 @@ defmodule ClinicproWeb.AdminBypassController do
     _doctors = Doctor.list_doctors()
     _patients = Patient.list_patients()
     changeset = Appointment.change_appointment(%Appointment{})
-    
-    render(conn, :new_appointment, 
-      page_title: "New Appointment", 
-      changeset: changeset, 
+
+    render(conn, :new_appointment,
+      page_title: "New Appointment",
+      changeset: changeset,
       _doctors: _doctors,
       _patients: _patients
     )
@@ -189,9 +203,9 @@ defmodule ClinicproWeb.AdminBypassController do
       {:error, %Ecto.Changeset{} = changeset} ->
         _doctors = Doctor.list_doctors()
         _patients = Patient.list_patients()
-        
-        render(conn, :new_appointment, 
-          page_title: "New Appointment", 
+
+        render(conn, :new_appointment,
+          page_title: "New Appointment",
           changeset: changeset,
           _doctors: _doctors,
           _patients: _patients
@@ -204,10 +218,10 @@ defmodule ClinicproWeb.AdminBypassController do
     _doctors = Doctor.list_doctors()
     _patients = Patient.list_patients()
     changeset = Appointment.change_appointment(_appointment)
-    
-    render(conn, :edit_appointment, 
-      page_title: "Edit Appointment", 
-      _appointment: _appointment, 
+
+    render(conn, :edit_appointment,
+      page_title: "Edit Appointment",
+      _appointment: _appointment,
       changeset: changeset,
       _doctors: _doctors,
       _patients: _patients
@@ -226,10 +240,10 @@ defmodule ClinicproWeb.AdminBypassController do
       {:error, %Ecto.Changeset{} = changeset} ->
         _doctors = Doctor.list_doctors()
         _patients = Patient.list_patients()
-        
-        render(conn, :edit_appointment, 
-          page_title: "Edit Appointment", 
-          _appointment: _appointment, 
+
+        render(conn, :edit_appointment,
+          page_title: "Edit Appointment",
+          _appointment: _appointment,
           changeset: changeset,
           _doctors: _doctors,
           _patients: _patients
@@ -239,7 +253,7 @@ defmodule ClinicproWeb.AdminBypassController do
 
   def delete_appointment(conn, %{"id" => appointment_id}) do
     _appointment = Appointment.get_appointment!(appointment_id)
-    {:ok, _} = Appointment.delete_appointment(_appointment)
+    {:ok, _unused} = Appointment.delete_appointment(_appointment)
 
     conn
     |> put_flash(:info, "Appointment deleted successfully.")
@@ -276,7 +290,7 @@ defmodule ClinicproWeb.AdminBypassController do
     # Get all clinics and _patients for filter dropdowns
     clinics = AdminBypass.list_clinics()
     _patients = AdminBypass.list_patients()
-    
+
     # Apply filters if provided
     filters = %{
       start_date: params["start_date"],
@@ -287,16 +301,16 @@ defmodule ClinicproWeb.AdminBypassController do
       min_amount: params["min_amount"],
       max_amount: params["max_amount"]
     }
-    
+
     # Get filtered invoices
     filtered_invoices = Invoice.filter_invoices(filters)
-    
+
     # Get invoice statistics
     stats = get_invoice_stats()
-    
+
     # Get monthly data for charts
     monthly_data = get_monthly_invoice_data()
-    
+
     # Create filter form
     filter_form = %{
       "start_date" => params["start_date"],
@@ -307,8 +321,8 @@ defmodule ClinicproWeb.AdminBypassController do
       "min_amount" => params["min_amount"],
       "max_amount" => params["max_amount"]
     }
-    
-    render(conn, :invoice_reports, 
+
+    render(conn, :invoice_reports,
       stats: stats,
       filtered_invoices: filtered_invoices,
       monthly_data: monthly_data,
@@ -317,7 +331,7 @@ defmodule ClinicproWeb.AdminBypassController do
       _patients: _patients
     )
   end
-  
+
   @doc """
   Exports invoice data to CSV based on the provided filters.
   """
@@ -332,83 +346,92 @@ defmodule ClinicproWeb.AdminBypassController do
       min_amount: params["min_amount"],
       max_amount: params["max_amount"]
     }
-    
+
     # Get filtered invoices with preloads
     invoices = Invoice.filter_invoices(filters)
-    
+
     # Generate CSV data
     csv_data = generate_invoice_csv(invoices)
-    
+
     # Set response headers for CSV download
     conn
     |> put_resp_content_type("text/csv")
-    |> put_resp_header("content-disposition", "attachment; filename=\"invoice_export_#{Date.utc_today()}.csv\"")
+    |> put_resp_header(
+      "content-disposition",
+      "attachment; filename=\"invoice_export_#{Date.utc_today()}.csv\""
+    )
     |> send_resp(200, csv_data)
   end
-  
+
   # Helper function to generate CSV data from invoices
   defp generate_invoice_csv(invoices) do
     # CSV header
     header = "Invoice Number,Date,Due Date,Patient,Clinic,Amount,Amount Paid,Status,Description\n"
-    
+
     # Generate rows
-    rows = Enum.map(invoices, fn invoice ->
-      patient_name = if invoice.patient, do: "#{invoice.patient.first_name} #{invoice.patient.last_name}", else: "Not specified"
-      
-      [
-        invoice.invoice_number,
-        Calendar.strftime(invoice.inserted_at, "%Y-%m-%d"),
-        if(invoice.due_date, do: Calendar.strftime(invoice.due_date, "%Y-%m-%d"), else: ""),
-        patient_name,
-        invoice.clinic.name,
-        invoice.amount,
-        invoice.amount_paid || "0.00",
-        invoice.status,
-        invoice.description || ""
-      ]
-      |> Enum.map(&csv_escape/1)
-      |> Enum.join(",")
-    end)
-    |> Enum.join("\n")
-    
+    rows =
+      Enum.map(invoices, fn invoice ->
+        patient_name =
+          if invoice.patient,
+            do: "#{invoice.patient.first_name} #{invoice.patient.last_name}",
+            else: "Not specified"
+
+        [
+          invoice.invoice_number,
+          Calendar.strftime(invoice.inserted_at, "%Y-%m-%d"),
+          if(invoice.due_date, do: Calendar.strftime(invoice.due_date, "%Y-%m-%d"), else: ""),
+          patient_name,
+          invoice.clinic.name,
+          invoice.amount,
+          invoice.amount_paid || "0.00",
+          invoice.status,
+          invoice.description || ""
+        ]
+        |> Enum.map(&csv_escape/1)
+        |> Enum.join(",")
+      end)
+      |> Enum.join("\n")
+
     header <> rows
   end
-  
+
   # Helper function to escape CSV values
   defp csv_escape(value) when is_binary(value) do
     if String.contains?(value, [",", "\"", "\n"]) do
-      "\"#{String.replace(value, "\"", "\"\"")}\"" 
+      "\"#{String.replace(value, "\"", "\"\"")}\""
     else
       value
     end
   end
+
   defp csv_escape(value) do
     to_string(value)
   end
-  
+
   # Helper function to get invoice statistics
   defp get_invoice_stats do
     # Get all invoices grouped by status
     invoices_by_status = Invoice.list_invoices_by_status()
-    
+
     # Calculate totals
-    total_count = Enum.reduce(invoices_by_status, 0, fn {_status, invoices}, acc -> 
-      acc + length(invoices)
-    end)
-    
+    total_count =
+      Enum.reduce(invoices_by_status, 0, fn {_status, invoices}, acc ->
+        acc + length(invoices)
+      end)
+
     # Get counts and amounts by status
     paid_invoices = Map.get(invoices_by_status, "paid", [])
     pending_invoices = Map.get(invoices_by_status, "pending", [])
     partial_invoices = Map.get(invoices_by_status, "partial", [])
-    
+
     # Calculate amounts
     paid_amount = sum_invoice_amounts(paid_invoices)
     pending_amount = sum_invoice_amounts(pending_invoices)
     partial_amount = sum_invoice_amounts(partial_invoices)
-    
+
     # Calculate total amount
     total_amount = Decimal.add(paid_amount, Decimal.add(pending_amount, partial_amount))
-    
+
     %{
       total_count: total_count,
       total_amount: total_amount,
@@ -420,43 +443,43 @@ defmodule ClinicproWeb.AdminBypassController do
       partial_amount: partial_amount
     }
   end
-  
+
   # Helper function to sum invoice amounts
   defp sum_invoice_amounts(invoices) do
     Enum.reduce(invoices, Decimal.new("0.00"), fn invoice, acc ->
       Decimal.add(acc, invoice.amount)
     end)
   end
-  
+
   # Helper function to get monthly invoice data for charts
   defp get_monthly_invoice_data do
     # Get current date and 6 months ago
     today = Date.utc_today()
     six_months_ago = Date.add(today, -180)
-    
+
     # Get all invoices from the last 6 months
     invoices = Invoice.list_invoices_since(six_months_ago)
-    
+
     # Group by month and status
     invoices
-    |> Enum.group_by(fn invoice -> 
+    |> Enum.group_by(fn invoice ->
       date = DateTime.to_date(invoice.inserted_at)
       "#{date.year}-#{String.pad_leading("#{date.month}", 2, "0")}"
     end)
     |> Enum.map(fn {month, month_invoices} ->
       # Group by status
       by_status = Enum.group_by(month_invoices, & &1.status)
-      
+
       # Calculate totals by status
       paid_amount = sum_invoice_amounts(Map.get(by_status, "paid", []))
       pending_amount = sum_invoice_amounts(Map.get(by_status, "pending", []))
       partial_amount = sum_invoice_amounts(Map.get(by_status, "partial", []))
-      
+
       # Format month for display
       [year, month_num] = String.split(month, "-")
       month_name = month_name_from_number(String.to_integer(month_num))
       display_month = "#{month_name} #{year}"
-      
+
       %{
         month: display_month,
         paid_amount: Decimal.to_float(paid_amount),
@@ -466,7 +489,7 @@ defmodule ClinicproWeb.AdminBypassController do
     end)
     |> Enum.sort_by(fn %{month: month} -> month end)
   end
-  
+
   # Helper function to get month name from number
   defp month_name_from_number(month_num) do
     case month_num do
@@ -484,11 +507,12 @@ defmodule ClinicproWeb.AdminBypassController do
       12 -> "Dec"
     end
   end
-  
+
   # Helper function to format percentage
   def format_percentage(part, total) when is_integer(part) and is_integer(total) and total > 0 do
     percentage = part / total * 100
     "#{Float.round(percentage, 1)}%"
   end
-  def format_percentage(_, _), do: "0%"
+
+  def format_percentage(_unused, _unused), do: "0%"
 end

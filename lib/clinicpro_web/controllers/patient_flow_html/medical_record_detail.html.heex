@@ -1,6 +1,6 @@
 <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
   <h1 class="text-2xl font-bold mb-6">Medical Record Details</h1>
-  
+
   <div class="mb-6 p-4 bg-gray-50 rounded-md">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold">Visit Information</h2>
@@ -8,7 +8,7 @@
         <%= @record.date %>
       </span>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <p class="text-sm text-gray-600">Doctor</p>
@@ -20,7 +20,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="mb-6 p-4 bg-gray-50 rounded-md">
     <h2 class="text-lg font-semibold mb-4">Vital Signs</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -38,34 +38,34 @@
       </div>
     </div>
   </div>
-  
+
   <div class="mb-6 p-4 bg-gray-50 rounded-md">
     <h2 class="text-lg font-semibold mb-4">Diagnosis & Treatment</h2>
-    
+
     <div class="mb-4">
       <p class="text-sm text-gray-600">Diagnosis</p>
       <p class="p-2 bg-white rounded"><%= @record.diagnosis %></p>
     </div>
-    
+
     <div class="mb-4">
       <p class="text-sm text-gray-600">Treatment Plan</p>
       <p class="p-2 bg-white rounded"><%= @record.treatment_plan %></p>
     </div>
-    
+
     <div class="mb-4">
       <p class="text-sm text-gray-600">Follow-up Instructions</p>
       <p class="p-2 bg-white rounded"><%= @record.follow_up %></p>
     </div>
-    
+
     <div class="mb-4">
       <p class="text-sm text-gray-600">Notes</p>
       <p class="p-2 bg-white rounded"><%= @record.notes %></p>
     </div>
   </div>
-  
+
   <div class="mb-6 p-4 bg-gray-50 rounded-md">
     <h2 class="text-lg font-semibold mb-4">Prescriptions</h2>
-    
+
     <%= if Enum.empty?(@record.prescriptions) do %>
       <p class="text-gray-500 italic">No prescriptions for this visit.</p>
     <% else %>
@@ -95,11 +95,11 @@
       </div>
     <% end %>
   </div>
-  
+
   <%= if !Enum.empty?(@record.lab_results) do %>
     <div class="mb-6 p-4 bg-gray-50 rounded-md">
       <h2 class="text-lg font-semibold mb-4">Lab Results</h2>
-      
+
       <div class="overflow-x-auto">
         <table class="min-w-full bg-white">
           <thead class="bg-gray-100">
@@ -134,16 +134,16 @@
       </div>
     </div>
   <% end %>
-  
+
   <div class="mt-8 flex justify-between">
-    <a 
-      href={~p"/patient/medical-records"} 
+    <a
+      href={~p"/patient/medical-records"}
       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
     >
       Back to Medical Records
     </a>
-    
-    <button 
+
+    <button
       type="button"
       class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
       onclick="window.print()"

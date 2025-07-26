@@ -25,19 +25,48 @@ defmodule DoctorFlowBypassTest do
   end
 
   defmodule MockAppointment do
-    defstruct [:id, :doctor_id, :patient_id, :scheduled_time, :status, :medical_details, :diagnosis]
+    defstruct [
+      :id,
+      :doctor_id,
+      :patient_id,
+      :scheduled_time,
+      :status,
+      :medical_details,
+      :diagnosis
+    ]
   end
 
   # Create mock data
   def create_mock_data do
     # Create mock users
-    doctor_user = %MockUser{id: "user_1", email: "doctor@example.com", name: "Dr. Smith", role: "doctor"}
-    patient_user = %MockUser{id: "user_2", email: "patient@example.com", name: "John Doe", role: "patient"}
-    
+    doctor_user = %MockUser{
+      id: "user_1",
+      email: "doctor@example.com",
+      name: "Dr. Smith",
+      role: "doctor"
+    }
+
+    patient_user = %MockUser{
+      id: "user_2",
+      email: "patient@example.com",
+      name: "John Doe",
+      role: "patient"
+    }
+
     # Create mock doctor and patient
-    doctor = %MockDoctor{id: "doctor_1", user_id: doctor_user.id, specialty: "General Medicine", years_experience: 10}
-    patient = %MockPatient{id: "patient_1", user_id: patient_user.id, medical_history: "No significant medical history"}
-    
+    doctor = %MockDoctor{
+      id: "doctor_1",
+      user_id: doctor_user.id,
+      specialty: "General Medicine",
+      years_experience: 10
+    }
+
+    patient = %MockPatient{
+      id: "patient_1",
+      user_id: patient_user.id,
+      medical_history: "No significant medical history"
+    }
+
     # Create mock appointments
     appointments = [
       %MockAppointment{
@@ -59,7 +88,7 @@ defmodule DoctorFlowBypassTest do
         diagnosis: nil
       }
     ]
-    
+
     %{
       doctor_user: doctor_user,
       patient_user: patient_user,
@@ -72,10 +101,10 @@ defmodule DoctorFlowBypassTest do
   # Test the doctor flow
   test "doctor flow bypass controller" do
     mock_data = create_mock_data()
-    
+
     # Test workflow validation
     appointment = List.first(mock_data.appointments)
-    
+
     # Test medical details validation
     medical_details = %{
       "temperature" => "98.6",
@@ -83,24 +112,24 @@ defmodule DoctorFlowBypassTest do
       "heart_rate" => "72",
       "symptoms" => "Headache, fatigue"
     }
-    
+
     assert WorkflowValidator.validate_medical_details(medical_details) == :ok
-    
+
     # Test diagnosis validation
     diagnosis = %{
       "condition" => "Migraine",
       "treatment" => "Rest, hydration, pain medication",
       "prescription" => "Ibuprofen 400mg as needed"
     }
-    
+
     assert WorkflowValidator.validate_diagnosis(diagnosis) == :ok
-    
+
     # Test workflow state transitions
     assert WorkflowValidator.validate_transition(:scheduled, :in_progress) == :ok
     assert WorkflowValidator.validate_transition(:in_progress, :medical_details_added) == :ok
     assert WorkflowValidator.validate_transition(:medical_details_added, :diagnosis_added) == :ok
     assert WorkflowValidator.validate_transition(:diagnosis_added, :completed) == :ok
-    
+
     IO.puts("All workflow validations passed!")
     IO.puts("Doctor flow bypass controller is ready for testing.")
     IO.puts("\nTo manually test the doctor flow, you can run:")

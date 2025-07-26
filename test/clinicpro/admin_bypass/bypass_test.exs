@@ -16,11 +16,12 @@ File.write!(accounts_file <> ".bak", accounts_content)
 IO.puts("Created backup of accounts.ex")
 
 # Replace the authentication block with a simplified version
-simplified_accounts = String.replace(accounts_content, ~r/authentication do.*?end/s, """
-authentication do
-  subject_name :user
-end
-""")
+simplified_accounts =
+  String.replace(accounts_content, ~r/authentication do.*?end/s, """
+  authentication do
+    subject_name :user
+  end
+  """)
 
 # Write the simplified version
 File.write!(accounts_file, simplified_accounts)
@@ -35,11 +36,12 @@ File.write!(user_file <> ".bak", user_content)
 IO.puts("Created backup of user.ex")
 
 # Replace the authentication block with a simplified version
-simplified_user = String.replace(user_content, ~r/authentication do.*?end/s, """
-authentication do
-  api Clinicpro.Accounts
-end
-""")
+simplified_user =
+  String.replace(user_content, ~r/authentication do.*?end/s, """
+  authentication do
+    api Clinicpro.Accounts
+  end
+  """)
 
 # Write the simplified version
 File.write!(user_file, simplified_user)
@@ -47,7 +49,14 @@ IO.puts("Simplified user.ex")
 
 # Run the isolated test
 IO.puts("Running isolated test...")
-{result, exit_code} = System.cmd("mix", ["test", "test/clinicpro_web/controllers/isolated_doctor_flow_controller_test.exs"], stderr_to_stdout: true)
+
+{result, exit_code} =
+  System.cmd(
+    "mix",
+    ["test", "test/clinicpro_web/controllers/isolated_doctor_flow_controller_test.exs"],
+    stderr_to_stdout: true
+  )
+
 IO.puts(result)
 
 # Restore the original files

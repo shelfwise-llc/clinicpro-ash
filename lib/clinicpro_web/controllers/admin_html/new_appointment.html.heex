@@ -3,29 +3,43 @@
     <h1 class="text-2xl font-bold">Schedule New Appointment</h1>
     <p class="text-gray-600">Create a new appointment in the system</p>
   </div>
-  
+
   <%= if flash = get_flash(@conn, :error) do %>
-    <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <div
+      class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
       <span class="block sm:inline"><%= flash %></span>
     </div>
   <% end %>
-  
+
   <div class="bg-white shadow overflow-hidden sm:rounded-lg">
     <form action={~p"/admin/appointments"} method="post" class="p-6">
       <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="col-span-1">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Appointment Details</h3>
-          
+
           <div class="mb-4">
             <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-            <input type="date" name="appointment[date]" id="date" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+            <input
+              type="date"
+              name="appointment[date]"
+              id="date"
+              required
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+            />
           </div>
-          
+
           <div class="mb-4">
             <label for="time" class="block text-sm font-medium text-gray-700">Time</label>
-            <select name="appointment[time]" id="time" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <select
+              name="appointment[time]"
+              id="time"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="">Select time</option>
               <option value="09:00 AM">09:00 AM</option>
               <option value="09:30 AM">09:30 AM</option>
@@ -46,10 +60,17 @@
               <option value="05:00 PM">05:00 PM</option>
             </select>
           </div>
-          
+
           <div class="mb-4">
-            <label for="duration" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
-            <select name="appointment[duration]" id="duration" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <label for="duration" class="block text-sm font-medium text-gray-700">
+              Duration (minutes)
+            </label>
+            <select
+              name="appointment[duration]"
+              id="duration"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="15">15 minutes</option>
               <option value="30" selected>30 minutes</option>
               <option value="45">45 minutes</option>
@@ -58,10 +79,17 @@
               <option value="120">120 minutes</option>
             </select>
           </div>
-          
+
           <div class="mb-4">
-            <label for="appointment_type" class="block text-sm font-medium text-gray-700">Appointment Type</label>
-            <select name="appointment[appointment_type]" id="appointment_type" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <label for="appointment_type" class="block text-sm font-medium text-gray-700">
+              Appointment Type
+            </label>
+            <select
+              name="appointment[appointment_type]"
+              id="appointment_type"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="Regular Checkup">Regular Checkup</option>
               <option value="Follow-up">Follow-up</option>
               <option value="Consultation">Consultation</option>
@@ -72,10 +100,15 @@
               <option value="Other">Other</option>
             </select>
           </div>
-          
+
           <div class="mb-4">
             <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-            <select name="appointment[status]" id="status" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <select
+              name="appointment[status]"
+              id="status"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="Scheduled" selected>Scheduled</option>
               <option value="Confirmed">Confirmed</option>
               <option value="Completed">Completed</option>
@@ -85,61 +118,104 @@
             </select>
           </div>
         </div>
-        
+
         <div class="col-span-1">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Patient & Doctor</h3>
-          
+
           <div class="mb-4">
-            <label for="patient_id" class="block text-sm font-medium text-gray-700">Patient</label>
-            <select name="appointment[patient_id]" id="patient_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <label for="patient_id" class="block text-sm font-medium text-gray-700">
+              Patient
+            </label>
+            <select
+              name="appointment[patient_id]"
+              id="patient_id"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="">Select patient</option>
               <%= for patient <- @patients do %>
                 <option value={patient.id}><%= patient.name %> (<%= patient.email %>)</option>
               <% end %>
             </select>
           </div>
-          
+
           <div class="mb-4">
             <label for="doctor_id" class="block text-sm font-medium text-gray-700">Doctor</label>
-            <select name="appointment[doctor_id]" id="doctor_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            <select
+              name="appointment[doctor_id]"
+              id="doctor_id"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            >
               <option value="">Select doctor</option>
               <%= for doctor <- @doctors do %>
                 <option value={doctor.id}><%= doctor.name %> (<%= doctor.specialty %>)</option>
               <% end %>
             </select>
           </div>
-          
+
           <div class="mb-4">
-            <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Visit</label>
-            <textarea name="appointment[reason]" id="reason" rows="3" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+            <label for="reason" class="block text-sm font-medium text-gray-700">
+              Reason for Visit
+            </label>
+            <textarea
+              name="appointment[reason]"
+              id="reason"
+              rows="3"
+              required
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+            ></textarea>
           </div>
-          
+
           <div class="mb-4">
-            <label for="notes" class="block text-sm font-medium text-gray-700">Additional Notes</label>
-            <textarea name="appointment[notes]" id="notes" rows="3" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+            <label for="notes" class="block text-sm font-medium text-gray-700">
+              Additional Notes
+            </label>
+            <textarea
+              name="appointment[notes]"
+              id="notes"
+              rows="3"
+              class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+            ></textarea>
           </div>
         </div>
       </div>
-      
+
       <div class="mt-6">
         <div class="mb-4">
           <div class="flex items-start">
             <div class="flex items-center h-5">
-              <input id="send_notifications" name="appointment[send_notifications]" type="checkbox" checked class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded" />
+              <input
+                id="send_notifications"
+                name="appointment[send_notifications]"
+                type="checkbox"
+                checked
+                class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded"
+              />
             </div>
             <div class="ml-3 text-sm">
-              <label for="send_notifications" class="font-medium text-gray-700">Send notifications</label>
-              <p class="text-gray-500">Send email and SMS notifications to the patient and doctor</p>
+              <label for="send_notifications" class="font-medium text-gray-700">
+                Send notifications
+              </label>
+              <p class="text-gray-500">
+                Send email and SMS notifications to the patient and doctor
+              </p>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div class="mt-6 flex items-center justify-end space-x-3">
-        <a href={~p"/admin/appointments"} class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <a
+          href={~p"/admin/appointments"}
+          class="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           Cancel
         </a>
-        <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <button
+          type="submit"
+          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
           Schedule Appointment
         </button>
       </div>

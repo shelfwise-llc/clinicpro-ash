@@ -29,7 +29,6 @@ defmodule Clinicpro.Paystack.Payment do
   def initialize_transaction(email, amount, reference, description, _clinic_id, metadata \\ %{}) do
     with {:ok, secret_key} <- Config.get_secret_key(_clinic_id),
          {:ok, subaccount} <- get_clinic_subaccount(_clinic_id) do
-
       # Build the payload
       payload = %{
         email: email,
@@ -44,11 +43,12 @@ defmodule Clinicpro.Paystack.Payment do
       # Make the API call
       case Http.post("/_transaction/initialize", payload, secret_key) do
         {:ok, %{"status" => true, "data" => data}} ->
-          {:ok, %{
-            authorization_url: data["authorization_url"],
-            access_code: data["access_code"],
-            reference: data["reference"]
-          }}
+          {:ok,
+           %{
+             authorization_url: data["authorization_url"],
+             access_code: data["access_code"],
+             reference: data["reference"]
+           }}
 
         {:ok, %{"status" => false, "message" => message}} ->
           {:error, message}
@@ -138,7 +138,10 @@ defmodule Clinicpro.Paystack.Payment do
     # Use a default secret key for this operation as it doesn't require clinic-specific auth
     {:ok, secret_key} = get_default_secret_key()
 
-    case Http.get("/bank/resolve?account_number=#{account_number}&bank_code=#{bank_code}", secret_key) do
+    case Http.get(
+           "/bank/resolve?account_number=#{account_number}&bank_code=#{bank_code}",
+           secret_key
+         ) do
       {:ok, %{"status" => true, "data" => data}} ->
         {:ok, data}
 
@@ -162,7 +165,7 @@ defmodule Clinicpro.Paystack.Payment do
   defp get_callback_url(_clinic_id) do
     case Config.get_active_config(_clinic_id) do
       {:ok, config} -> config.webhook_url
-      _ -> Application.get_env(:clinicpro, :paystack_default_callback_url)
+      _unused -> Application.get_env(:clinicpro, :paystack_default_callback_url)
     end
   end
 

@@ -70,10 +70,10 @@ defmodule Clinicpro.Appointment do
   """
   defp validate_time_range(changeset) do
     case {get_field(changeset, :start_time), get_field(changeset, :end_time)} do
-      {nil, _} ->
+      {nil, _unused} ->
         changeset
 
-      {_, nil} ->
+      {_unused, nil} ->
         changeset
 
       {start_time, end_time} ->
@@ -136,32 +136,32 @@ defmodule Clinicpro.Appointment do
   defp filter_by_status(query, %{status: status}) when is_binary(status) and status != "",
     do: where(query, [a], a.status == ^status)
 
-  defp filter_by_status(query, _), do: query
+  defp filter_by_status(query, _unused), do: query
 
   defp filter_by_date(query, %{date: date}) when not is_nil(date),
     do: where(query, [a], a.date == ^date)
 
-  defp filter_by_date(query, _), do: query
+  defp filter_by_date(query, _unused), do: query
 
   defp filter_by_doctor_id(query, %{doctor_id: doctor_id}) when not is_nil(doctor_id),
     do: where(query, [a], a.doctor_id == ^doctor_id)
 
-  defp filter_by_doctor_id(query, _), do: query
+  defp filter_by_doctor_id(query, _unused), do: query
 
   defp filter_by_patient_id(query, %{patient_id: patient_id}) when not is_nil(patient_id),
     do: where(query, [a], a.patient_id == ^patient_id)
 
-  defp filter_by_patient_id(query, _), do: query
+  defp filter_by_patient_id(query, _unused), do: query
 
   defp filter_by_type(query, %{type: type}) when is_binary(type) and type != "",
     do: where(query, [a], a.type == ^type)
 
-  defp filter_by_type(query, _), do: query
+  defp filter_by_type(query, _unused), do: query
 
   defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0,
     do: limit(query, ^limit)
 
-  defp limit_query(query, _), do: query
+  defp limit_query(query, _unused), do: query
 
   @doc """
   Lists appointments for a specific date.

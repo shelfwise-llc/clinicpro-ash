@@ -10,7 +10,13 @@ import Config
 config :clinicpro,
   ecto_repos: [Clinicpro.Repo],
   generators: [timestamp_type: :utc_datetime],
-  ash_apis: [Clinicpro.Accounts, Clinicpro.Clinics, Clinicpro.Appointments, Clinicpro.Patients, Clinicpro.Prescriptions]
+  ash_apis: [
+    Clinicpro.Accounts,
+    Clinicpro.Clinics,
+    Clinicpro.Appointments,
+    Clinicpro.Patients,
+    Clinicpro.Prescriptions
+  ]
 
 # Disable Ash API resource inclusion warnings
 config :ash, :validate_api_resource_inclusion?, false
@@ -50,11 +56,14 @@ config :esbuild,
 config :ash_authentication,
   user_identity_field: :email,
   # Use environment variable with fallback for development
-  signing_secret: System.get_env("AUTH_SIGNING_SECRET") || "dev-only-secret-please-change-in-production"
+  signing_secret:
+    System.get_env("AUTH_SIGNING_SECRET") || "dev-only-secret-please-change-in-production"
 
 # Token signing secret for AshAuthentication
 config :clinicpro,
-  token_signing_secret: System.get_env("TOKEN_SIGNING_SECRET") || "very_long_secret_that_is_used_for_signing_tokens_in_development_at_least_64_bytes_long"
+  token_signing_secret:
+    System.get_env("TOKEN_SIGNING_SECRET") ||
+      "very_long_secret_that_is_used_for_signing_tokens_in_development_at_least_64_bytes_long"
 
 # Configure JSON:API
 config :ash_json_api,

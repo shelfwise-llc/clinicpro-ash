@@ -15,34 +15,36 @@ defmodule Clinicpro.MPesaMultiClinicTest do
   describe "multi-tenant M-Pesa configuration" do
     test "creates clinic-specific configurations" do
       # Create config for clinic 1
-      {:ok, config1} = Config.create(%{
-        clinic_id: @clinic_1_id,
-        consumer_key: "test_key_1",
-        consumer_secret: "test_secret_1",
-        passkey: "test_passkey_1",
-        shortcode: "123456",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic1",
-        validation_url: "https://example.com/mpesa/validate/clinic1",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic1",
-        active: true
-      })
+      {:ok, config1} =
+        Config.create(%{
+          clinic_id: @clinic_1_id,
+          consumer_key: "test_key_1",
+          consumer_secret: "test_secret_1",
+          passkey: "test_passkey_1",
+          shortcode: "123456",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic1",
+          validation_url: "https://example.com/mpesa/validate/clinic1",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic1",
+          active: true
+        })
 
       # Create config for clinic 2
-      {:ok, config2} = Config.create(%{
-        clinic_id: @clinic_2_id,
-        consumer_key: "test_key_2",
-        consumer_secret: "test_secret_2",
-        passkey: "test_passkey_2",
-        shortcode: "654321",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic2",
-        validation_url: "https://example.com/mpesa/validate/clinic2",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic2",
-        active: true
-      })
+      {:ok, config2} =
+        Config.create(%{
+          clinic_id: @clinic_2_id,
+          consumer_key: "test_key_2",
+          consumer_secret: "test_secret_2",
+          passkey: "test_passkey_2",
+          shortcode: "654321",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic2",
+          validation_url: "https://example.com/mpesa/validate/clinic2",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic2",
+          active: true
+        })
 
       # Verify configs were created with correct clinic IDs
       assert config1.clinic_id == @clinic_1_id
@@ -67,19 +69,20 @@ defmodule Clinicpro.MPesaMultiClinicTest do
 
     test "activates and deactivates configurations" do
       # Create config for clinic 1
-      {:ok, config} = Config.create(%{
-        clinic_id: @clinic_1_id,
-        consumer_key: "test_key_1",
-        consumer_secret: "test_secret_1",
-        passkey: "test_passkey_1",
-        shortcode: "123456",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic1",
-        validation_url: "https://example.com/mpesa/validate/clinic1",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic1",
-        active: true
-      })
+      {:ok, config} =
+        Config.create(%{
+          clinic_id: @clinic_1_id,
+          consumer_key: "test_key_1",
+          consumer_secret: "test_secret_1",
+          passkey: "test_passkey_1",
+          shortcode: "123456",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic1",
+          validation_url: "https://example.com/mpesa/validate/clinic1",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic1",
+          active: true
+        })
 
       # Deactivate config
       {:ok, updated_config} = Config.deactivate(config.id)
@@ -94,57 +97,61 @@ defmodule Clinicpro.MPesaMultiClinicTest do
   describe "multi-tenant M-Pesa transactions" do
     setup do
       # Create configs for both clinics
-      {:ok, _config1} = Config.create(%{
-        clinic_id: @clinic_1_id,
-        consumer_key: "test_key_1",
-        consumer_secret: "test_secret_1",
-        passkey: "test_passkey_1",
-        shortcode: "123456",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic1",
-        validation_url: "https://example.com/mpesa/validate/clinic1",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic1",
-        active: true
-      })
+      {:ok, _config1} =
+        Config.create(%{
+          clinic_id: @clinic_1_id,
+          consumer_key: "test_key_1",
+          consumer_secret: "test_secret_1",
+          passkey: "test_passkey_1",
+          shortcode: "123456",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic1",
+          validation_url: "https://example.com/mpesa/validate/clinic1",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic1",
+          active: true
+        })
 
-      {:ok, _config2} = Config.create(%{
-        clinic_id: @clinic_2_id,
-        consumer_key: "test_key_2",
-        consumer_secret: "test_secret_2",
-        passkey: "test_passkey_2",
-        shortcode: "654321",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic2",
-        validation_url: "https://example.com/mpesa/validate/clinic2",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic2",
-        active: true
-      })
+      {:ok, _config2} =
+        Config.create(%{
+          clinic_id: @clinic_2_id,
+          consumer_key: "test_key_2",
+          consumer_secret: "test_secret_2",
+          passkey: "test_passkey_2",
+          shortcode: "654321",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic2",
+          validation_url: "https://example.com/mpesa/validate/clinic2",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic2",
+          active: true
+        })
 
       :ok
     end
 
     test "creates transactions isolated by clinic" do
       # Create transaction for clinic 1
-      {:ok, tx1} = Transaction.create(%{
-        clinic_id: @clinic_1_id,
-        invoice_id: "INV-001",
-        patient_id: "PAT-001",
-        phone_number: "254712345678",
-        amount: 1000.0,
-        status: "pending"
-      })
+      {:ok, tx1} =
+        Transaction.create(%{
+          clinic_id: @clinic_1_id,
+          invoice_id: "INV-001",
+          patient_id: "PAT-001",
+          phone_number: "254712345678",
+          amount: 1000.0,
+          status: "pending"
+        })
 
       # Create transaction for clinic 2
-      {:ok, tx2} = Transaction.create(%{
-        clinic_id: @clinic_2_id,
-        invoice_id: "INV-002",
-        patient_id: "PAT-002",
-        phone_number: "254712345679",
-        amount: 2000.0,
-        status: "pending"
-      })
+      {:ok, tx2} =
+        Transaction.create(%{
+          clinic_id: @clinic_2_id,
+          invoice_id: "INV-002",
+          patient_id: "PAT-002",
+          phone_number: "254712345679",
+          amount: 2000.0,
+          status: "pending"
+        })
 
       # Verify transactions were created with correct clinic IDs
       assert tx1.clinic_id == @clinic_1_id
@@ -162,14 +169,15 @@ defmodule Clinicpro.MPesaMultiClinicTest do
 
     test "updates transactions with request IDs" do
       # Create transaction for clinic 1
-      {:ok, tx} = Transaction.create(%{
-        clinic_id: @clinic_1_id,
-        invoice_id: "INV-001",
-        patient_id: "PAT-001",
-        phone_number: "254712345678",
-        amount: 1000.0,
-        status: "pending"
-      })
+      {:ok, tx} =
+        Transaction.create(%{
+          clinic_id: @clinic_1_id,
+          invoice_id: "INV-001",
+          patient_id: "PAT-001",
+          phone_number: "254712345678",
+          amount: 1000.0,
+          status: "pending"
+        })
 
       # Update with request IDs
       {:ok, updated_tx} = Transaction.update_request_ids(tx.id, "checkout-123", "merchant-123")
@@ -185,14 +193,15 @@ defmodule Clinicpro.MPesaMultiClinicTest do
 
     test "updates transaction status" do
       # Create transaction for clinic 1
-      {:ok, tx} = Transaction.create(%{
-        clinic_id: @clinic_1_id,
-        invoice_id: "INV-001",
-        patient_id: "PAT-001",
-        phone_number: "254712345678",
-        amount: 1000.0,
-        status: "pending"
-      })
+      {:ok, tx} =
+        Transaction.create(%{
+          clinic_id: @clinic_1_id,
+          invoice_id: "INV-001",
+          patient_id: "PAT-001",
+          phone_number: "254712345678",
+          amount: 1000.0,
+          status: "pending"
+        })
 
       # Update status to completed
       {:ok, updated_tx} = Transaction.update_status(tx.id, "completed", "0", "Success")
@@ -207,33 +216,35 @@ defmodule Clinicpro.MPesaMultiClinicTest do
   describe "M-Pesa STK Push with multi-tenant support" do
     setup do
       # Create configs for both clinics
-      {:ok, _config1} = Config.create(%{
-        clinic_id: @clinic_1_id,
-        consumer_key: "test_key_1",
-        consumer_secret: "test_secret_1",
-        passkey: "test_passkey_1",
-        shortcode: "123456",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic1",
-        validation_url: "https://example.com/mpesa/validate/clinic1",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic1",
-        active: true
-      })
+      {:ok, _config1} =
+        Config.create(%{
+          clinic_id: @clinic_1_id,
+          consumer_key: "test_key_1",
+          consumer_secret: "test_secret_1",
+          passkey: "test_passkey_1",
+          shortcode: "123456",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic1",
+          validation_url: "https://example.com/mpesa/validate/clinic1",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic1",
+          active: true
+        })
 
-      {:ok, _config2} = Config.create(%{
-        clinic_id: @clinic_2_id,
-        consumer_key: "test_key_2",
-        consumer_secret: "test_secret_2",
-        passkey: "test_passkey_2",
-        shortcode: "654321",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic2",
-        validation_url: "https://example.com/mpesa/validate/clinic2",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic2",
-        active: true
-      })
+      {:ok, _config2} =
+        Config.create(%{
+          clinic_id: @clinic_2_id,
+          consumer_key: "test_key_2",
+          consumer_secret: "test_secret_2",
+          passkey: "test_passkey_2",
+          shortcode: "654321",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic2",
+          validation_url: "https://example.com/mpesa/validate/clinic2",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic2",
+          active: true
+        })
 
       # Configure application to use MockSTKPush
       Application.put_env(:clinicpro, :mpesa_stk_push_module, Clinicpro.MPesa.MockSTKPush)
@@ -285,17 +296,29 @@ defmodule Clinicpro.MPesaMultiClinicTest do
         MPesa.initiate_stk_push("254712345679", 2000.0, "INV-002", "Test payment", @clinic_2_id)
 
       # Simulate callbacks
-      {:ok, callback1} = MockSTKPush.simulate_callback(
-        checkout1, merchant1, "254712345678", 1000.0, "MPESA123", true
-      )
+      {:ok, callback1} =
+        MockSTKPush.simulate_callback(
+          checkout1,
+          merchant1,
+          "254712345678",
+          1000.0,
+          "MPESA123",
+          true
+        )
 
-      {:ok, callback2} = MockSTKPush.simulate_callback(
-        checkout2, merchant2, "254712345679", 2000.0, "MPESA456", true
-      )
+      {:ok, callback2} =
+        MockSTKPush.simulate_callback(
+          checkout2,
+          merchant2,
+          "254712345679",
+          2000.0,
+          "MPESA456",
+          true
+        )
 
       # Process callbacks
-      {:ok, _} = MPesa.process_stk_push_callback(callback1)
-      {:ok, _} = MPesa.process_stk_push_callback(callback2)
+      {:ok, _unused} = MPesa.process_stk_push_callback(callback1)
+      {:ok, _unused} = MPesa.process_stk_push_callback(callback2)
 
       # Verify transactions were updated
       updated_tx1 = Transaction.get_by_id(tx1.id)
@@ -312,71 +335,85 @@ defmodule Clinicpro.MPesaMultiClinicTest do
   describe "M-Pesa C2B with multi-tenant support" do
     setup do
       # Create configs for both clinics
-      {:ok, _config1} = Config.create(%{
-        clinic_id: @clinic_1_id,
-        consumer_key: "test_key_1",
-        consumer_secret: "test_secret_1",
-        passkey: "test_passkey_1",
-        shortcode: "123456",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic1",
-        validation_url: "https://example.com/mpesa/validate/clinic1",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic1",
-        active: true
-      })
+      {:ok, _config1} =
+        Config.create(%{
+          clinic_id: @clinic_1_id,
+          consumer_key: "test_key_1",
+          consumer_secret: "test_secret_1",
+          passkey: "test_passkey_1",
+          shortcode: "123456",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic1",
+          validation_url: "https://example.com/mpesa/validate/clinic1",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic1",
+          active: true
+        })
 
-      {:ok, _config2} = Config.create(%{
-        clinic_id: @clinic_2_id,
-        consumer_key: "test_key_2",
-        consumer_secret: "test_secret_2",
-        passkey: "test_passkey_2",
-        shortcode: "654321",
-        environment: "sandbox",
-        base_url: "https://sandbox.safaricom.co.ke",
-        callback_url: "https://example.com/mpesa/callback/clinic2",
-        validation_url: "https://example.com/mpesa/validate/clinic2",
-        confirmation_url: "https://example.com/mpesa/confirm/clinic2",
-        active: true
-      })
+      {:ok, _config2} =
+        Config.create(%{
+          clinic_id: @clinic_2_id,
+          consumer_key: "test_key_2",
+          consumer_secret: "test_secret_2",
+          passkey: "test_passkey_2",
+          shortcode: "654321",
+          environment: "sandbox",
+          base_url: "https://sandbox.safaricom.co.ke",
+          callback_url: "https://example.com/mpesa/callback/clinic2",
+          validation_url: "https://example.com/mpesa/validate/clinic2",
+          confirmation_url: "https://example.com/mpesa/confirm/clinic2",
+          active: true
+        })
 
       :ok
     end
 
     test "processes C2B callbacks for different clinics" do
       # Create transactions for both clinics
-      {:ok, tx1} = Transaction.create(%{
-        clinic_id: @clinic_1_id,
-        invoice_id: "INV-001",
-        patient_id: "PAT-001",
-        phone_number: "254712345678",
-        amount: 1000.0,
-        status: "pending",
-        reference: "INV-001"
-      })
+      {:ok, tx1} =
+        Transaction.create(%{
+          clinic_id: @clinic_1_id,
+          invoice_id: "INV-001",
+          patient_id: "PAT-001",
+          phone_number: "254712345678",
+          amount: 1000.0,
+          status: "pending",
+          reference: "INV-001"
+        })
 
-      {:ok, tx2} = Transaction.create(%{
-        clinic_id: @clinic_2_id,
-        invoice_id: "INV-002",
-        patient_id: "PAT-002",
-        phone_number: "254712345679",
-        amount: 2000.0,
-        status: "pending",
-        reference: "INV-002"
-      })
+      {:ok, tx2} =
+        Transaction.create(%{
+          clinic_id: @clinic_2_id,
+          invoice_id: "INV-002",
+          patient_id: "PAT-002",
+          phone_number: "254712345679",
+          amount: 2000.0,
+          status: "pending",
+          reference: "INV-002"
+        })
 
       # Simulate C2B callbacks
-      {:ok, callback1} = MockSTKPush.simulate_c2b_callback(
-        "123456", "254712345678", 1000.0, "INV-001", "MPESA123"
-      )
+      {:ok, callback1} =
+        MockSTKPush.simulate_c2b_callback(
+          "123456",
+          "254712345678",
+          1000.0,
+          "INV-001",
+          "MPESA123"
+        )
 
-      {:ok, callback2} = MockSTKPush.simulate_c2b_callback(
-        "654321", "254712345679", 2000.0, "INV-002", "MPESA456"
-      )
+      {:ok, callback2} =
+        MockSTKPush.simulate_c2b_callback(
+          "654321",
+          "254712345679",
+          2000.0,
+          "INV-002",
+          "MPESA456"
+        )
 
       # Process callbacks
-      {:ok, _} = MPesa.process_c2b_confirmation(callback1)
-      {:ok, _} = MPesa.process_c2b_confirmation(callback2)
+      {:ok, _unused} = MPesa.process_c2b_confirmation(callback1)
+      {:ok, _unused} = MPesa.process_c2b_confirmation(callback2)
 
       # Verify transactions were updated
       updated_tx1 = Transaction.get_by_id(tx1.id)

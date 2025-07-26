@@ -58,7 +58,8 @@ defmodule Clinicpro.Admin do
     case changeset do
       %Ecto.Changeset{valid?: true, changes: %{password: password}} ->
         put_change(changeset, :password_hash, Bcrypt.hash_pwd_salt(password))
-      _ ->
+
+      _unused ->
         changeset
     end
   end
@@ -73,10 +74,13 @@ defmodule Clinicpro.Admin do
     cond do
       admin && Bcrypt.verify_pass(password, admin.password_hash) && admin.active ->
         {:ok, admin}
+
       admin && !admin.active ->
         {:error, "Account is inactive"}
+
       admin ->
         {:error, "Invalid password"}
+
       true ->
         # Prevent timing attacks by simulating password check
         Bcrypt.no_user_verify()

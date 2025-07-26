@@ -26,6 +26,7 @@ defmodule Clinicpro.MPesaTest do
 
     # Step 2: Test authentication
     IO.puts("\n2. Testing authentication...")
+
     case test_authentication(clinic_id) do
       {:ok, token} ->
         IO.puts("✓ Authentication successful. Token received.")
@@ -53,8 +54,10 @@ defmodule Clinicpro.MPesaTest do
       clinic_id: clinic_id,
       consumer_key: "GBOmMgVvYQoOZE1qZQds4dIGCSFhGbSuPX3gQR5egDROR069",
       consumer_secret: "pSwhuZTpcKWxUNOzHPLkPiGKpjAKOaU67VVXe5t2VAQXuuwH2c4UGlseElGvEVpF",
-      passkey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",  # Default sandbox passkey
-      shortcode: "174379",  # Default sandbox shortcode
+      # Default sandbox passkey
+      passkey: "bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919",
+      # Default sandbox shortcode
+      shortcode: "174379",
       environment: "sandbox",
       base_url: "https://sandbox.safaricom.co.ke",
       callback_url: "https://example.com/mpesa/callback",
@@ -65,6 +68,7 @@ defmodule Clinicpro.MPesaTest do
 
     # Delete any existing configs for this clinic
     existing_configs = Config.list_configs(clinic_id)
+
     Enum.each(existing_configs, fn config ->
       Config.deactivate(config.id)
     end)
@@ -100,7 +104,8 @@ defmodule Clinicpro.MPesaTest do
     patient_id = "TEST-PATIENT-#{System.os_time(:second)}"
 
     # Test amount
-    amount = 1  # Minimum amount for testing
+    # Minimum amount for testing
+    amount = 1
 
     IO.puts("Initiating STK Push to #{phone_number} for KES #{amount}...")
 

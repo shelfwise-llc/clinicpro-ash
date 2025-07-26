@@ -11,7 +11,7 @@ defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
   def index(conn, _params) do
     patient_id = get_session(conn, :user_id)
     medical_records = get_patient_medical_records(patient_id)
-    
+
     render(conn, :medical_records_index,
       medical_records: medical_records,
       patient_id: patient_id
@@ -23,14 +23,14 @@ defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
   """
   def show(conn, %{"id" => record_id}) do
     patient_id = get_session(conn, :user_id)
-    
+
     case get_medical_record(record_id, patient_id) do
       {:ok, record} ->
         render(conn, :medical_record_detail,
           record: record,
           patient_id: patient_id
         )
-        
+
       {:error, reason} ->
         conn
         |> put_flash(:error, "Cannot access medical record: #{reason}")
@@ -54,13 +54,16 @@ defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
   defp get_patient_medical_records(_patient_id) do
     # This is a placeholder implementation
     # In a real app, this would fetch data from a database
-    
+
     Enum.map(1..5, fn i ->
       %{
         id: "record-#{i}",
         date: Date.utc_today() |> Date.add(-i * 30),
-        doctor_name: "Dr. #{["Smith", "Johnson", "Williams", "Brown", "Jones"] |> Enum.at(rem(i, 5))}",
-        diagnosis: ["Common cold", "Annual checkup", "Sprained ankle", "Allergic reaction", "Migraine"] |> Enum.at(rem(i, 5)),
+        doctor_name:
+          "Dr. #{["Smith", "Johnson", "Williams", "Brown", "Jones"] |> Enum.at(rem(i, 5))}",
+        diagnosis:
+          ["Common cold", "Annual checkup", "Sprained ankle", "Allergic reaction", "Migraine"]
+          |> Enum.at(rem(i, 5)),
         has_prescriptions: rem(i, 2) == 0
       }
     end)
@@ -69,7 +72,7 @@ defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
   defp get_medical_record(record_id, _patient_id) do
     # This is a placeholder implementation
     # In a real app, this would fetch data from a database and verify patient access
-    
+
     record = %{
       id: record_id,
       date: Date.utc_today() |> Date.add(-30),
@@ -107,9 +110,10 @@ defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
           notes: "All values within normal range"
         }
       ],
-      notes: "Patient presented with symptoms of common cold including runny nose, sore throat, and mild fever."
+      notes:
+        "Patient presented with symptoms of common cold including runny nose, sore throat, and mild fever."
     }
-    
+
     {:ok, record}
   end
 end

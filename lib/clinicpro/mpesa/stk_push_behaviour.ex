@@ -22,12 +22,12 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
   - `{:error, reason}` - If the request failed
   """
   @callback send_stk_push(
-    phone_number :: String.t(),
-    amount :: number(),
-    reference :: String.t(),
-    description :: String.t(),
-    _clinic_id :: integer()
-  ) :: {:ok, map()} | {:error, any()}
+              phone_number :: String.t(),
+              amount :: number(),
+              reference :: String.t(),
+              description :: String.t(),
+              _clinic_id :: integer()
+            ) :: {:ok, map()} | {:error, any()}
 
   @doc """
   Queries the status of an STK Push request.
@@ -44,8 +44,8 @@ defmodule Clinicpro.MPesa.STKPushBehaviour do
   - `{:error, reason}` - If the request failed
   """
   @callback query_stk_push_status(
-    checkout_request_id :: String.t(),
-    merchant_request_id :: String.t(),
-    _clinic_id :: integer()
-  ) :: {:ok, map()} | {:error, any()}
+              checkout_request_id :: String.t(),
+              merchant_request_id :: String.t(),
+              _clinic_id :: integer()
+            ) :: {:ok, map()} | {:error, any()}
 end

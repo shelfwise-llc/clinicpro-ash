@@ -1,12 +1,12 @@
 <div class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
   <h1 class="text-2xl font-bold mb-6">Your Medical Records</h1>
-  
+
   <div class="mb-6">
     <p class="text-gray-600">
       Here you can view your complete medical history. Click on any record to see detailed information.
     </p>
   </div>
-  
+
   <%= if Enum.empty?(@medical_records) do %>
     <div class="p-4 bg-gray-50 rounded-md text-center">
       <p class="text-gray-500">You don't have any medical records yet.</p>
@@ -41,8 +41,8 @@
                 <% end %>
               </td>
               <td class="py-3 px-4 text-center">
-                <a 
-                  href={~p"/patient/medical-records/#{record.id}"} 
+                <a
+                  href={~p"/patient/medical-records/#{record.id}"}
                   class="text-blue-600 hover:text-blue-800 font-medium"
                 >
                   View Details
@@ -54,17 +54,17 @@
       </table>
     </div>
   <% end %>
-  
+
   <div class="mt-8 flex justify-between">
-    <a 
-      href={~p"/patient/dashboard"} 
+    <a
+      href={~p"/patient/dashboard"}
       class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
     >
       Back to Dashboard
     </a>
-    
-    <a 
-      href={~p"/patient/appointments/new"} 
+
+    <a
+      href={~p"/patient/appointments/new"}
       class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
     >
       Book New Appointment

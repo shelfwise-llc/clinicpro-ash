@@ -15,19 +15,33 @@ defmodule MockPatient do
 end
 
 defmodule MockAppointment do
-  defstruct [:id, :doctor_id, :patient_id, :date, :time, :type, :status, :medical_details, :diagnosis, :patient]
+  defstruct [
+    :id,
+    :doctor_id,
+    :patient_id,
+    :date,
+    :time,
+    :type,
+    :status,
+    :medical_details,
+    :diagnosis,
+    :patient
+  ]
 end
 
 # Mock workflow state management
 defmodule WorkflowState do
   def new(type, step, opts \\ %{}) do
-    Map.merge(%{
-      workflow_type: type,
-      current_step: step,
-      started_at: DateTime.utc_now()
-    }, opts)
+    Map.merge(
+      %{
+        workflow_type: type,
+        current_step: step,
+        started_at: DateTime.utc_now()
+      },
+      opts
+    )
   end
-  
+
   def advance(state, next_step, data \\ %{}) do
     state
     |> Map.put(:current_step, next_step)
@@ -45,21 +59,21 @@ defmodule DoctorApiClient do
       last_name: "Smith",
       specialty: "General Medicine"
     }
-    
+
     user = %MockUser{
       id: "user-123",
       email: "doctor@example.com",
       role: :doctor,
       doctor: doctor
     }
-    
+
     patient = %MockPatient{
       id: "patient-789",
       first_name: "Jane",
       last_name: "Doe",
       date_of_birth: "1990-01-01"
     }
-    
+
     appointment = %MockAppointment{
       id: "appt-456",
       doctor_id: doctor.id,
@@ -70,9 +84,9 @@ defmodule DoctorApiClient do
       status: "scheduled",
       patient: patient
     }
-    
+
     workflow_state = WorkflowState.new(:doctor_flow, :list_appointments)
-    
+
     %{
       user: user,
       doctor: doctor,
@@ -81,15 +95,16 @@ defmodule DoctorApiClient do
       workflow_state: workflow_state
     }
   end
-  
+
   # Simulate GET /doctor/appointments
   def list_appointments(state) do
     IO.puts("\n=== GET /doctor/appointments ===")
     IO.puts("Current step: #{state.workflow_state.current_step}")
-    
+
     appointments = [state.appointment]
-    
+
     IO.puts("Found #{length(appointments)} appointment(s):")
+
     Enum.each(appointments, fn appointment ->
       IO.puts("  ID: #{appointment.id}")
       IO.puts("  Date: #{appointment.date}")
@@ -98,84 +113,92 @@ defmodule DoctorApiClient do
       IO.puts("  Status: #{appointment.status}")
       IO.puts("  Patient: #{appointment.patient.first_name} #{appointment.patient.last_name}")
     end)
-    
+
     state
   end
-  
+
   # Simulate GET /doctor/appointments/:id
   def view_appointment(state, appointment_id) do
     IO.puts("\n=== GET /doctor/appointments/#{appointment_id} ===")
     IO.puts("Current step: #{state.workflow_state.current_step}")
-    
+
     # Update workflow state
-    workflow_state = WorkflowState.advance(state.workflow_state, :fill_medical_details, %{
-      appointment_id: appointment_id
-    })
-    
+    workflow_state =
+      WorkflowState.advance(state.workflow_state, :fill_medical_details, %{
+        appointment_id: appointment_id
+      })
+
     IO.puts("Appointment details:")
     IO.puts("  ID: #{state.appointment.id}")
     IO.puts("  Date: #{state.appointment.date}")
     IO.puts("  Time: #{state.appointment.time}")
     IO.puts("  Type: #{state.appointment.type}")
     IO.puts("  Status: #{state.appointment.status}")
-    IO.puts("  Patient: #{state.appointment.patient.first_name} #{state.appointment.patient.last_name}")
-    
+
+    IO.puts(
+      "  Patient: #{state.appointment.patient.first_name} #{state.appointment.patient.last_name}"
+    )
+
     IO.puts("\nWorkflow advanced to: #{workflow_state.current_step}")
-    
+
     %{state | workflow_state: workflow_state}
   end
-  
+
   # Simulate POST /doctor/medical_details/:id
   def submit_medical_details(state, appointment_id, medical_details) do
     IO.puts("\n=== POST /doctor/medical_details/#{appointment_id} ===")
     IO.puts("Current step: #{state.workflow_state.current_step}")
-    
+
     # Update workflow state
-    workflow_state = WorkflowState.advance(state.workflow_state, :record_diagnosis, %{
-      medical_details: medical_details
-    })
-    
+    workflow_state =
+      WorkflowState.advance(state.workflow_state, :record_diagnosis, %{
+        medical_details: medical_details
+      })
+
     IO.puts("Medical details submitted:")
+
     Enum.each(medical_details, fn {key, value} ->
       IO.puts("  #{key}: #{value}")
     end)
-    
+
     IO.puts("\nWorkflow advanced to: #{workflow_state.current_step}")
-    
+
     %{state | workflow_state: workflow_state}
   end
-  
+
   # Simulate POST /doctor/diagnosis/:id
   def submit_diagnosis(state, appointment_id, diagnosis) do
     IO.puts("\n=== POST /doctor/diagnosis/#{appointment_id} ===")
     IO.puts("Current step: #{state.workflow_state.current_step}")
-    
+
     # Update workflow state
-    workflow_state = WorkflowState.advance(state.workflow_state, :complete_appointment, %{
-      diagnosis: diagnosis
-    })
-    
+    workflow_state =
+      WorkflowState.advance(state.workflow_state, :complete_appointment, %{
+        diagnosis: diagnosis
+      })
+
     IO.puts("Diagnosis submitted:")
+
     Enum.each(diagnosis, fn {key, value} ->
       IO.puts("  #{key}: #{value}")
     end)
-    
+
     IO.puts("\nWorkflow advanced to: #{workflow_state.current_step}")
-    
+
     %{state | workflow_state: workflow_state}
   end
-  
+
   # Simulate POST /doctor/complete/:id
   def complete_appointment(state, appointment_id) do
     IO.puts("\n=== POST /doctor/complete/#{appointment_id} ===")
     IO.puts("Current step: #{state.workflow_state.current_step}")
-    
+
     # Update workflow state
     workflow_state = WorkflowState.advance(state.workflow_state, :completed)
-    
+
     IO.puts("Appointment completed successfully!")
     IO.puts("\nWorkflow advanced to: #{workflow_state.current_step}")
-    
+
     %{state | workflow_state: workflow_state}
   end
 end
@@ -195,6 +218,7 @@ medical_details = %{
   "pulse" => "72",
   "notes" => "Patient appears healthy"
 }
+
 state = DoctorApiClient.submit_medical_details(state, state.appointment.id, medical_details)
 
 diagnosis = %{
@@ -202,6 +226,7 @@ diagnosis = %{
   "treatment" => "Rest and fluids",
   "prescription" => "Paracetamol as needed"
 }
+
 state = DoctorApiClient.submit_diagnosis(state, state.appointment.id, diagnosis)
 
 state = DoctorApiClient.complete_appointment(state, state.appointment.id)

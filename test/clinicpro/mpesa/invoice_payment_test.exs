@@ -14,143 +14,158 @@ defmodule Clinicpro.InvoicePaymentTest do
   describe "invoice payment processing with multi-tenant support" do
     setup do
       # Create test clinics
-      {:ok, clinic1} = Clinicpro.Clinics.create_clinic(%{
-        name: "Test Clinic 1",
-        code: "TC1",
-        address: "123 Test St",
-        phone: "254700000001",
-        email: "clinic1@test.com"
-      })
+      {:ok, clinic1} =
+        Clinicpro.Clinics.create_clinic(%{
+          name: "Test Clinic 1",
+          code: "TC1",
+          address: "123 Test St",
+          phone: "254700000001",
+          email: "clinic1@test.com"
+        })
 
-      {:ok, clinic2} = Clinicpro.Clinics.create_clinic(%{
-        name: "Test Clinic 2",
-        code: "TC2",
-        address: "456 Test Ave",
-        phone: "254700000002",
-        email: "clinic2@test.com"
-      })
+      {:ok, clinic2} =
+        Clinicpro.Clinics.create_clinic(%{
+          name: "Test Clinic 2",
+          code: "TC2",
+          address: "456 Test Ave",
+          phone: "254700000002",
+          email: "clinic2@test.com"
+        })
 
       # Create test patients for each clinic
-      {:ok, patient1} = Clinicpro.Patients.create_patient(%{
-        first_name: "John",
-        last_name: "Doe",
-        phone_number: "254711111111",
-        email: "john@example.com",
-        clinic_id: clinic1.id
-      })
+      {:ok, patient1} =
+        Clinicpro.Patients.create_patient(%{
+          first_name: "John",
+          last_name: "Doe",
+          phone_number: "254711111111",
+          email: "john@example.com",
+          clinic_id: clinic1.id
+        })
 
-      {:ok, patient2} = Clinicpro.Patients.create_patient(%{
-        first_name: "Jane",
-        last_name: "Smith",
-        phone_number: "254722222222",
-        email: "jane@example.com",
-        clinic_id: clinic2.id
-      })
+      {:ok, patient2} =
+        Clinicpro.Patients.create_patient(%{
+          first_name: "Jane",
+          last_name: "Smith",
+          phone_number: "254722222222",
+          email: "jane@example.com",
+          clinic_id: clinic2.id
+        })
 
       # Create test doctors for each clinic
-      {:ok, doctor1} = Clinicpro.Doctors.create_doctor(%{
-        first_name: "Dr.",
-        last_name: "House",
-        phone_number: "254733333333",
-        email: "house@example.com",
-        clinic_id: clinic1.id,
-        specialization: "General"
-      })
+      {:ok, doctor1} =
+        Clinicpro.Doctors.create_doctor(%{
+          first_name: "Dr.",
+          last_name: "House",
+          phone_number: "254733333333",
+          email: "house@example.com",
+          clinic_id: clinic1.id,
+          specialization: "General"
+        })
 
-      {:ok, doctor2} = Clinicpro.Doctors.create_doctor(%{
-        first_name: "Dr.",
-        last_name: "Grey",
-        phone_number: "254744444444",
-        email: "grey@example.com",
-        clinic_id: clinic2.id,
-        specialization: "General"
-      })
+      {:ok, doctor2} =
+        Clinicpro.Doctors.create_doctor(%{
+          first_name: "Dr.",
+          last_name: "Grey",
+          phone_number: "254744444444",
+          email: "grey@example.com",
+          clinic_id: clinic2.id,
+          specialization: "General"
+        })
 
       # Create test appointments for each clinic
-      {:ok, appointment1} = Appointments.create_appointment(%{
-        patient_id: patient1.id,
-        doctor_id: doctor1.id,
-        clinic_id: clinic1.id,
-        date: DateTime.utc_now() |> DateTime.add(1, :day),
-        status: "confirmed",
-        type: "consultation",
-        payment_status: "pending"
-      })
+      {:ok, appointment1} =
+        Appointments.create_appointment(%{
+          patient_id: patient1.id,
+          doctor_id: doctor1.id,
+          clinic_id: clinic1.id,
+          date: DateTime.utc_now() |> DateTime.add(1, :day),
+          status: "confirmed",
+          type: "consultation",
+          payment_status: "pending"
+        })
 
-      {:ok, appointment2} = Appointments.create_appointment(%{
-        patient_id: patient2.id,
-        doctor_id: doctor2.id,
-        clinic_id: clinic2.id,
-        date: DateTime.utc_now() |> DateTime.add(1, :day),
-        status: "confirmed",
-        type: "consultation",
-        payment_status: "pending"
-      })
+      {:ok, appointment2} =
+        Appointments.create_appointment(%{
+          patient_id: patient2.id,
+          doctor_id: doctor2.id,
+          clinic_id: clinic2.id,
+          date: DateTime.utc_now() |> DateTime.add(1, :day),
+          status: "confirmed",
+          type: "consultation",
+          payment_status: "pending"
+        })
 
       # Create test invoices for each appointment
-      {:ok, invoice1} = Invoices.create_invoice(%{
-        patient_id: patient1.id,
-        clinic_id: clinic1.id,
-        appointment_id: appointment1.id,
-        reference_number: "INV-#{clinic1.code}-001",
-        date: DateTime.utc_now(),
-        due_date: DateTime.utc_now() |> DateTime.add(7, :day),
-        status: "pending",
-        payment_status: "pending",
-        subtotal: Decimal.new("1000.00"),
-        total: Decimal.new("1000.00"),
-        items: [
-          %{
-            description: "Consultation Fee",
-            quantity: 1,
-            unit_price: Decimal.new("1000.00")
-          }
-        ]
-      })
+      {:ok, invoice1} =
+        Invoices.create_invoice(%{
+          patient_id: patient1.id,
+          clinic_id: clinic1.id,
+          appointment_id: appointment1.id,
+          reference_number: "INV-#{clinic1.code}-001",
+          date: DateTime.utc_now(),
+          due_date: DateTime.utc_now() |> DateTime.add(7, :day),
+          status: "pending",
+          payment_status: "pending",
+          subtotal: Decimal.new("1000.00"),
+          total: Decimal.new("1000.00"),
+          items: [
+            %{
+              description: "Consultation Fee",
+              quantity: 1,
+              unit_price: Decimal.new("1000.00")
+            }
+          ]
+        })
 
-      {:ok, invoice2} = Invoices.create_invoice(%{
-        patient_id: patient2.id,
-        clinic_id: clinic2.id,
-        appointment_id: appointment2.id,
-        reference_number: "INV-#{clinic2.code}-001",
-        date: DateTime.utc_now(),
-        due_date: DateTime.utc_now() |> DateTime.add(7, :day),
-        status: "pending",
-        payment_status: "pending",
-        subtotal: Decimal.new("1500.00"),
-        total: Decimal.new("1500.00"),
-        items: [
-          %{
-            description: "Consultation Fee",
-            quantity: 1,
-            unit_price: Decimal.new("1500.00")
-          }
-        ]
-      })
+      {:ok, invoice2} =
+        Invoices.create_invoice(%{
+          patient_id: patient2.id,
+          clinic_id: clinic2.id,
+          appointment_id: appointment2.id,
+          reference_number: "INV-#{clinic2.code}-001",
+          date: DateTime.utc_now(),
+          due_date: DateTime.utc_now() |> DateTime.add(7, :day),
+          status: "pending",
+          payment_status: "pending",
+          subtotal: Decimal.new("1500.00"),
+          total: Decimal.new("1500.00"),
+          items: [
+            %{
+              description: "Consultation Fee",
+              quantity: 1,
+              unit_price: Decimal.new("1500.00")
+            }
+          ]
+        })
 
       # Mock the M-Pesa STK Push module
-      Mox.stub(Clinicpro.MPesa.STKPushMock, :request, fn phone_number, amount, reference, clinic_id ->
+      Mox.stub(Clinicpro.MPesa.STKPushMock, :request, fn phone_number,
+                                                         amount,
+                                                         reference,
+                                                         clinic_id ->
         # Return different responses based on clinic_id to test multi-tenant behavior
         case clinic_id do
           ^clinic1.id ->
-            {:ok, %{
-              "MerchantRequestID" => "123456-#{clinic1.id}",
-              "CheckoutRequestID" => "wx123-#{clinic1.id}",
-              "ResponseCode" => "0",
-              "ResponseDescription" => "Success. Request accepted for processing",
-              "CustomerMessage" => "Success. Request accepted for processing"
-            }}
+            {:ok,
+             %{
+               "MerchantRequestID" => "123456-#{clinic1.id}",
+               "CheckoutRequestID" => "wx123-#{clinic1.id}",
+               "ResponseCode" => "0",
+               "ResponseDescription" => "Success. Request accepted for processing",
+               "CustomerMessage" => "Success. Request accepted for processing"
+             }}
 
           ^clinic2.id ->
-            {:ok, %{
-              "MerchantRequestID" => "789012-#{clinic2.id}",
-              "CheckoutRequestID" => "wx456-#{clinic2.id}",
-              "ResponseCode" => "0",
-              "ResponseDescription" => "Success. Request accepted for processing",
-              "CustomerMessage" => "Success. Request accepted for processing"
-            }}
+            {:ok,
+             %{
+               "MerchantRequestID" => "789012-#{clinic2.id}",
+               "CheckoutRequestID" => "wx456-#{clinic2.id}",
+               "ResponseCode" => "0",
+               "ResponseDescription" => "Success. Request accepted for processing",
+               "CustomerMessage" => "Success. Request accepted for processing"
+             }}
 
-          _ ->
+          _unused ->
             {:error, "Invalid clinic ID"}
         end
       end)
@@ -170,7 +185,10 @@ defmodule Clinicpro.InvoicePaymentTest do
       }
     end
 
-    test "initiate_payment/2 creates transaction with correct clinic_id", %{invoice1: invoice1, invoice2: invoice2} do
+    test "initiate_payment/2 creates transaction with correct clinic_id", %{
+      invoice1: invoice1,
+      invoice2: invoice2
+    } do
       # Test payment for clinic 1
       {:ok, response1} = PaymentProcessor.initiate_payment(invoice1, "254711111111")
 
@@ -252,10 +270,12 @@ defmodule Clinicpro.InvoicePaymentTest do
 
       # Update transaction to completed
       transaction = Transaction.get_by_checkout_request_id(response["CheckoutRequestID"])
-      {:ok, _} = Transaction.update(transaction, %{
-        status: "completed",
-        transaction_id: "LHG31AA5TX"
-      })
+
+      {:ok, _unused} =
+        Transaction.update(transaction, %{
+          status: "completed",
+          transaction_id: "LHG31AA5TX"
+        })
 
       # Check status again - should be completed
       assert {:ok, :completed} = PaymentProcessor.check_payment_status(invoice1)
@@ -266,7 +286,7 @@ defmodule Clinicpro.InvoicePaymentTest do
       # Create a failed transaction for invoice2
       {:ok, response2} = PaymentProcessor.initiate_payment(invoice2, "254722222222")
       transaction2 = Transaction.get_by_checkout_request_id(response2["CheckoutRequestID"])
-      {:ok, _} = Transaction.update(transaction2, %{status: "failed", result_code: "1"})
+      {:ok, _unused} = Transaction.update(transaction2, %{status: "failed", result_code: "1"})
 
       # Check status - should be failed
       assert {:ok, :failed} = PaymentProcessor.check_payment_status(invoice2)

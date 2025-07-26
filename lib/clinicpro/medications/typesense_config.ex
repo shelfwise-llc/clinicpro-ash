@@ -46,7 +46,7 @@ defmodule Clinicpro.Medications.TypesenseConfig do
           create_collection(collection_name)
         end
 
-      {:error, _} ->
+      {:error, _unused} ->
         create_collection(collection_name)
     end
   end
@@ -117,12 +117,16 @@ defmodule Clinicpro.Medications.TypesenseConfig do
     collection_name = collection_name(_clinic_id)
 
     # Default search parameters
-    search_params = Map.merge(%{
-      "q" => query,
-      "query_by" => "name,code",
-      "sort_by" => "name:asc",
-      "_per_page" => 10
-    }, options)
+    search_params =
+      Map.merge(
+        %{
+          "q" => query,
+          "query_by" => "name,code",
+          "sort_by" => "name:asc",
+          "_per_page" => 10
+        },
+        options
+      )
 
     case Typesense.search(client(), collection_name, search_params) do
       {:ok, results} -> {:ok, results["hits"] || []}
