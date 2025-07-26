@@ -222,18 +222,18 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
         payment_reference: mpesa_receipt
       })
 
-    # If this is an _appointment invoice, update the _appointment status
+    # If this is an appointment invoice, update the appointment status
     if invoice.appointment_id do
-      _appointment = Appointments.get_appointment(invoice.appointment_id)
+      appointment = Appointments.get_appointment(invoice.appointment_id)
 
-      if _appointment do
+      if appointment do
         {:ok, _updated_appointment} =
-          Appointments.update_appointment(_appointment, %{
+          Appointments.update_appointment(appointment, %{
             payment_status: "paid"
           })
 
         # Send confirmation notification to the patient
-        send_payment_confirmation_notification(_appointment, updated_invoice)
+        send_payment_confirmation_notification(appointment, updated_invoice)
       end
     end
 
@@ -263,26 +263,26 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     {:ok, %{invoice: updated_invoice, transaction: updatedtransaction}}
   end
 
-  defp send_payment_confirmation_notification(_appointment, invoice) do
+  defp send_payment_confirmation_notification(appointment, invoice) do
     # Get the patient's phone number
-    phone_number = _appointment.patient.phone_number
+    phone_number = appointment.patient.phone_number
 
     # Get the clinic details
-    clinic = Clinics.get_clinic(get_clinic_id_from_appointment(_appointment))
+    clinic = Clinics.get_clinic(get_clinic_id_from_appointment(appointment))
 
     # Prepare the notification message
     message = """
     Payment Confirmed: #{invoice.reference_number}
     Amount: KES #{invoice.amount}
-    For: Appointment with Dr. #{_appointment.doctor.name}
-    Date: #{Calendar.strftime(_appointment.start_time, "%B %d, %Y at %I:%M %p")}
-    #{if _appointment.appointment_type == "virtual", do: "\nVirtual meeting link will be available before your _appointment.", else: "\nLocation: #{clinic.name}, #{clinic.address}"}
+    For: Appointment with Dr. #{appointment.doctor.name}
+    Date: #{Calendar.strftime(appointment.start_time, "%B %d, %Y at %I:%M %p")}
+    #{if appointment.appointment_type == "virtual", do: "\nVirtual meeting link will be available before your appointment.", else: "\nLocation: #{clinic.name}, #{clinic.address}"}
 
     Thank you for choosing #{clinic.name}.
     """
 
     # Send the SMS notification
-    Notifications.send_sms(phone_number, message, get_clinic_id_from_appointment(_appointment))
+    Notifications.send_sms(phone_number, message, get_clinic_id_from_appointment(appointment))
   end
 
   defp get_clinic_id_from_invoice(invoice) do
@@ -291,10 +291,10 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       invoice._clinic_id && invoice._clinic_id != "" ->
         invoice._clinic_id
 
-      # If the invoice is for an _appointment, get the clinic ID from the _appointment
+      # If the invoice is for an appointment, get the clinic ID from the appointment
       invoice.appointment_id ->
-        _appointment = Appointments.get_appointment(invoice.appointment_id)
-        get_clinic_id_from_appointment(_appointment)
+        appointment = Appointments.get_appointment(invoice.appointment_id)
+        get_clinic_id_from_appointment(appointment)
 
       # Otherwise, fall back to a default clinic ID
       true ->
@@ -302,16 +302,16 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     end
   end
 
-  defp get_clinic_id_from_appointment(_appointment) do
+  defp get_clinic_id_from_appointment(appointment) do
     cond do
-      # If the _appointment has a _clinic_id, use that
-      _appointment._clinic_id && _appointment._clinic_id != "" ->
-        _appointment._clinic_id
+      # If the appointment has a clinic_id, use that
+      appointment.clinic_id && appointment.clinic_id != "" ->
+        appointment.clinic_id
 
-      # If the _appointment has a doctor with a clinic association, use that
-      _appointment.doctor && _appointment.doctor._clinic_id &&
-          _appointment.doctor._clinic_id != "" ->
-        _appointment.doctor._clinic_id
+      # If the appointment has a doctor with a clinic association, use that
+      appointment.doctor && appointment.doctor.clinic_id &&
+          appointment.doctor.clinic_id != "" ->
+        appointment.doctor.clinic_id
 
       # Otherwise, fall back to a default clinic ID
       true ->
