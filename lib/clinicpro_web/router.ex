@@ -87,33 +87,33 @@ defmodule ClinicproWeb.Router do
     get "/settings", AdminController, :settings
     post "/settings", AdminController, :update_settings
 
-    # Admin M-Pesa routes
-    scope "/clinics/:_clinic_id/mpesa", ClinicproWeb do
-      # Removed duplicate pipe_through as it's already defined in the parent scope
-
-      get "/", MPesaAdminController, :index
-      get "/new", MPesaAdminController, :new_config
-      post "/", MPesaAdminController, :create_config
-      get "/:id/edit", MPesaAdminController, :edit_config
-      put "/:id", MPesaAdminController, :update_config
-      delete "/:id", MPesaAdminController, :delete
-      get "/transactions", MPesaAdminController, :list_transactions
-      get "/transactions/:id", MPesaAdminController, :transaction_details
-
-      # Configuration details
-      get "/configurations/:id", MPesaAdminController, :configuration_details
-      post "/configurations/:id/activate", MPesaAdminController, :activate_config
-      post "/configurations/:id/deactivate", MPesaAdminController, :deactivate_config
-
-      # Callback logs
-      get "/callbacks", MPesaAdminController, :callback_logs
-      get "/callbacks/:id", MPesaAdminController, :callback_details
-
-      # STK Push testing and URL registration
-      get "/test-stk-push", MPesaAdminController, :test_stk_push_form
-      post "/test-stk-push", MPesaAdminController, :test_stk_push
-      post "/register-urls/:id", MPesaAdminController, :register_urls
-    end
+    # Admin M-Pesa routes - DISABLED (Using Paystack instead)
+    # scope "/clinics/:_clinic_id/mpesa", ClinicproWeb do
+    #   # Removed duplicate pipe_through as it's already defined in the parent scope
+    #
+    #   get "/", MPesaAdminController, :index
+    #   get "/new", MPesaAdminController, :new_config
+    #   post "/", MPesaAdminController, :create_config
+    #   get "/:id/edit", MPesaAdminController, :edit_config
+    #   put "/:id", MPesaAdminController, :update_config
+    #   delete "/:id", MPesaAdminController, :delete
+    #   get "/transactions", MPesaAdminController, :list_transactions
+    #   get "/transactions/:id", MPesaAdminController, :transaction_details
+    #
+    #   # Configuration details
+    #   get "/configurations/:id", MPesaAdminController, :configuration_details
+    #   post "/configurations/:id/activate", MPesaAdminController, :activate_config
+    #   post "/configurations/:id/deactivate", MPesaAdminController, :deactivate_config
+    #
+    #   # Callback logs
+    #   get "/callbacks", MPesaAdminController, :callback_logs
+    #   get "/callbacks/:id", MPesaAdminController, :callback_details
+    #
+    #   # STK Push testing and URL registration
+    #   get "/test-stk-push", MPesaAdminController, :test_stk_push_form
+    #   post "/test-stk-push", MPesaAdminController, :test_stk_push
+    #   post "/register-urls/:id", MPesaAdminController, :register_urls
+    # end
 
     # Admin Paystack routes
     scope "/clinics/:_clinic_id/paystack", ClinicproWeb do
@@ -305,8 +305,9 @@ defmodule ClinicproWeb.Router do
 
     # Payment routes
     get "/payment/:invoice_id", PaymentController, :show
-    post "/payment/mpesa/initiate", PaymentController, :initiate_mpesa
-    get "/payment/mpesa/status/:transaction_id", PaymentController, :check_status
+
+    # post "/payment/mpesa/initiate", PaymentController, :initiate_mpesa  # DISABLED - Using Paystack
+    # get "/payment/mpesa/status/:transaction_id", PaymentController, :check_status  # DISABLED - Using Paystack
 
     # Appointment routes with type differentiation
     get "/_appointment/:id", AppointmentController, :show
@@ -314,17 +315,17 @@ defmodule ClinicproWeb.Router do
     get "/_appointment/onsite/:id", AppointmentController, :onsite_details
   end
 
-  # M-Pesa callback routes with clinic-specific paths
-  scope "/api/mpesa/callbacks", ClinicproWeb do
-    pipe_through :api
-
-    # STK Push callback route with _clinic_id parameter
-    post "/:_clinic_id/stk", MPesaCallbackController, :stk_callback
-
-    # C2B validation and confirmation routes with _clinic_id parameter
-    post "/:_clinic_id/validation", MPesaCallbackController, :c2b_validation
-    post "/:_clinic_id/confirmation", MPesaCallbackController, :c2b_confirmation
-  end
+  # M-Pesa callback routes with clinic-specific paths - DISABLED (Using Paystack instead)
+  # scope "/api/mpesa/callbacks", ClinicproWeb do
+  #   pipe_through :api
+  #
+  #   # STK Push callback route with _clinic_id parameter
+  #   post "/:_clinic_id/stk", MPesaCallbackController, :stk_callback
+  #
+  #   # C2B validation and confirmation routes with _clinic_id parameter
+  #   post "/:_clinic_id/validation", MPesaCallbackController, :c2b_validation
+  #   post "/:_clinic_id/confirmation", MPesaCallbackController, :c2b_confirmation
+  # end
 
   # Paystack webhook route
   scope "/api/paystack", ClinicproWeb do
