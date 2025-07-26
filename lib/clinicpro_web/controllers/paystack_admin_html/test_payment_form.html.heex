@@ -53,7 +53,7 @@
   </div>
 
   <.form :let={f} for={@changeset} action={@action} class="space-y-6">
-    <%= if @changeset.action do %>
+    {if @changeset.action do}
       <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -80,7 +80,7 @@
     <% end %>
 
     <div>
-      <%= label(f, :email, "Customer Email", class: "block text-sm font-medium text-gray-700") %>
+      {label(f, :email, "Customer Email", class: "block text-sm font-medium text-gray-700")}
       <div class="mt-1">
         <%= email_input(f, :email,
           class:
@@ -88,12 +88,12 @@
           placeholder: "customer@example.com"
         ) %>
       </div>
-      <%= error_tag(f, :email) %>
+      {error_tag(f, :email)}
       <p class="mt-1 text-sm text-gray-500">Email address of the customer making the payment.</p>
     </div>
 
     <div>
-      <%= label(f, :amount, "Amount (₦)", class: "block text-sm font-medium text-gray-700") %>
+      {label(f, :amount, "Amount (₦)", class: "block text-sm font-medium text-gray-700")}
       <div class="mt-1 relative rounded-md shadow-sm">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <span class="text-gray-500 sm:text-sm">₦</span>
@@ -106,7 +106,7 @@
           placeholder: "1000.00"
         ) %>
       </div>
-      <%= error_tag(f, :amount) %>
+      {error_tag(f, :amount)}
       <p class="mt-1 text-sm text-gray-500">Amount in Naira (minimum ₦100).</p>
     </div>
 
@@ -122,7 +122,7 @@
           placeholder: "Test payment for service"
         ) %>
       </div>
-      <%= error_tag(f, :description) %>
+      {error_tag(f, :description)}
       <p class="mt-1 text-sm text-gray-500">Brief description of what the payment is for.</p>
     </div>
 
@@ -137,13 +137,13 @@
           placeholder: "Leave blank to auto-generate"
         ) %>
       </div>
-      <%= error_tag(f, :reference) %>
+      {error_tag(f, :reference)}
       <p class="mt-1 text-sm text-gray-500">
         Optional custom reference for this transaction. If left blank, a reference will be auto-generated.
       </p>
     </div>
 
-    <%= if @active_subaccount do %>
+    {if @active_subaccount do}
       <div class="bg-gray-50 p-4 rounded-md">
         <div class="flex items-center">
           <%= checkbox(f, :use_subaccount,
@@ -154,8 +154,8 @@
               class: "text-sm font-medium text-gray-700"
             ) %>
             <p class="text-xs text-gray-500">
-              Split payment with <strong><%= @active_subaccount.business_name %></strong>
-              (<%= @active_subaccount.percentage_charge %>% of transaction amount)
+              Split payment with <strong>{@active_subaccount.business_name}</strong>
+              ({@active_subaccount.percentage_charge}% of transaction amount)
             </p>
           </div>
         </div>
@@ -173,7 +173,7 @@
           placeholder: "https://example.com/callback"
         ) %>
       </div>
-      <%= error_tag(f, :callback_url) %>
+      {error_tag(f, :callback_url)}
       <p class="mt-1 text-sm text-gray-500">
         URL to redirect to after payment. If left blank, you'll be redirected back to the dashboard.
       </p>

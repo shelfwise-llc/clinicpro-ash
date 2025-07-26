@@ -1,7 +1,7 @@
 <div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-semibold text-gray-800">
-      <%= if @subaccount, do: "Edit Paystack Subaccount", else: "New Paystack Subaccount" %>
+      {if @subaccount, do: "Edit Paystack Subaccount", else: "New Paystack Subaccount"}
     </h1>
     <div>
       <a
@@ -53,7 +53,7 @@
   </div>
 
   <.form :let={f} for={@changeset} action={@action} class="space-y-6">
-    <%= if @changeset.action do %>
+    {if @changeset.action do}
       <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -90,7 +90,7 @@
           placeholder: "Partner Business Name"
         ) %>
       </div>
-      <%= error_tag(f, :business_name) %>
+      {error_tag(f, :business_name)}
       <p class="mt-1 text-sm text-gray-500">
         The name of the business receiving the split payment.
       </p>
@@ -131,7 +131,7 @@
             "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
         ) %>
       </div>
-      <%= error_tag(f, :settlement_bank) %>
+      {error_tag(f, :settlement_bank)}
       <p class="mt-1 text-sm text-gray-500">The bank where funds will be settled to.</p>
     </div>
 
@@ -146,7 +146,7 @@
           placeholder: "10-digit account number"
         ) %>
       </div>
-      <%= error_tag(f, :account_number) %>
+      {error_tag(f, :account_number)}
       <p class="mt-1 text-sm text-gray-500">
         The 10-digit account number where funds will be settled.
       </p>
@@ -165,14 +165,14 @@
           step: "0.01"
         ) %>
       </div>
-      <%= error_tag(f, :percentage_charge) %>
+      {error_tag(f, :percentage_charge)}
       <p class="mt-1 text-sm text-gray-500">
         Percentage of the transaction amount that will go to this subaccount (0-100).
       </p>
     </div>
 
     <div>
-      <%= label(f, :description, "Description", class: "block text-sm font-medium text-gray-700") %>
+      {label(f, :description, "Description", class: "block text-sm font-medium text-gray-700")}
       <div class="mt-1">
         <%= textarea(f, :description,
           class:
@@ -181,7 +181,7 @@
           placeholder: "Optional description for this subaccount"
         ) %>
       </div>
-      <%= error_tag(f, :description) %>
+      {error_tag(f, :description)}
       <p class="mt-1 text-sm text-gray-500">A brief description of this subaccount (optional).</p>
     </div>
 

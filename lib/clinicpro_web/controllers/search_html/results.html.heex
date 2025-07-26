@@ -1,16 +1,16 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Search Results</h1>
 
-  <%= workflow_progress(assigns) %>
+  {workflow_progress(assigns)}
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
       <div>
         <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium inline-block">
-          Search: <%= @query %>
+          Search: {@query}
         </div>
         <div class="mt-2 md:mt-0 md:ml-4 text-sm text-gray-500 inline-block">
-          <%= @total_count %> results found
+          {@total_count} results found
         </div>
       </div>
 
@@ -24,20 +24,20 @@
       </div>
     </div>
 
-    <%= if @filters && map_size(@filters) > 0 do %>
+    {if @filters && map_size(@filters) > 0 do}
       <div class="mb-6 bg-gray-50 p-3 rounded-md">
         <h3 class="text-sm font-medium text-gray-700 mb-2">Applied Filters:</h3>
         <div class="flex flex-wrap gap-2">
-          <%= for {key, value} <- @filters do %>
-            <%= if is_list(value) do %>
-              <%= for item <- value do %>
+          {for {key, value} <- @filters do}
+            {if is_list(value) do}
+              {for item <- value do}
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                  <%= key %>: <%= item %>
+                  {key}: {item}
                 </span>
               <% end %>
             <% else %>
               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                <%= key %>: <%= value %>
+                {key}: {value}
               </span>
             <% end %>
           <% end %>
@@ -88,19 +88,19 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <%= for result <- @results do %>
+          {for result <- @results do}
             <tr class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900"><%= result.type %></div>
+                <div class="text-sm font-medium text-gray-900">{result.type}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900"><%= result.patient_name %></div>
+                <div class="text-sm font-medium text-gray-900">{result.patient_name}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= result.doctor_name %></div>
+                <div class="text-sm text-gray-900">{result.doctor_name}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= result.date %></div>
+                <div class="text-sm text-gray-900">{result.date}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{
@@ -111,7 +111,7 @@
                     _ -> "bg-gray-100 text-gray-800"
                   end
                 }"}>
-                  <%= result.status %>
+                  {result.status}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -128,10 +128,10 @@
       </table>
     </div>
 
-    <%= if @page_count > 1 do %>
+    {if @page_count > 1 do}
       <div class="mt-6 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
         <div class="flex flex-1 justify-between sm:hidden">
-          <%= if @page > 1 do %>
+          {if @page > 1 do}
             <a
               href={~p"/search/results?page=#{@page - 1}"}
               class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -144,7 +144,7 @@
             </span>
           <% end %>
 
-          <%= if @page < @page_count do %>
+          {if @page < @page_count do}
             <a
               href={~p"/search/results?page=#{@page + 1}"}
               class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
@@ -161,9 +161,9 @@
         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
-              Showing <span class="font-medium"><%= (@page - 1) * 10 + 1 %></span>
-              to <span class="font-medium"><%= min(@page * 10, @total_count) %></span>
-              of <span class="font-medium"><%= @total_count %></span>
+              Showing <span class="font-medium">{(@page - 1) * 10 + 1}</span>
+              to <span class="font-medium">{min(@page * 10, @total_count)}</span>
+              of <span class="font-medium">{@total_count}</span>
               results
             </p>
           </div>
@@ -173,7 +173,7 @@
               class="isolate inline-flex -space-x-px rounded-md shadow-sm"
               aria-label="Pagination"
             >
-              <%= if @page > 1 do %>
+              {if @page > 1 do}
                 <a
                   href={~p"/search/results?page=#{@page - 1}"}
                   class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
@@ -200,22 +200,22 @@
                 </span>
               <% end %>
 
-              <%= for page_num <- max(1, @page - 2)..min(@page_count, @page + 2) do %>
-                <%= if page_num == @page do %>
+              {for page_num <- max(1, @page - 2)..min(@page_count, @page + 2) do}
+                {if page_num == @page do}
                   <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
-                    <%= page_num %>
+                    {page_num}
                   </span>
                 <% else %>
                   <a
                     href={~p"/search/results?page=#{page_num}"}
                     class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"
                   >
-                    <%= page_num %>
+                    {page_num}
                   </a>
                 <% end %>
               <% end %>
 
-              <%= if @page < @page_count do %>
+              {if @page < @page_count do}
                 <a
                   href={~p"/search/results?page=#{@page + 1}"}
                   class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0"

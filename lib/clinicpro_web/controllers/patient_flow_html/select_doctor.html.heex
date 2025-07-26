@@ -57,7 +57,7 @@
     <h3 class="text-md font-medium mb-4">Available Doctors</h3>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <%= for doctor <- @available_doctors do %>
+      {for doctor <- @available_doctors do}
         <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
           <div class="p-4 flex">
             <div class="w-20 h-20 rounded-full bg-gray-200 flex-shrink-0">
@@ -81,12 +81,12 @@
             </div>
 
             <div class="ml-4 flex-grow">
-              <h4 class="font-medium"><%= doctor["name"] %></h4>
-              <p class="text-sm text-gray-600"><%= doctor["specialty"] %></p>
+              <h4 class="font-medium">{doctor["name"]}</h4>
+              <p class="text-sm text-gray-600">{doctor["specialty"]}</p>
 
               <div class="flex items-center mt-1">
                 <div class="flex">
-                  <%= for _ <- 1..trunc(doctor["rating"]) do %>
+                  {for _ <- 1..trunc(doctor["rating"]) do}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-4 w-4 text-yellow-500"
@@ -97,7 +97,7 @@
                     </svg>
                   <% end %>
 
-                  <%= if doctor["rating"] - trunc(doctor["rating"]) >= 0.5 do %>
+                  {if doctor["rating"] - trunc(doctor["rating"]) >= 0.5 do}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-4 w-4 text-yellow-500"
@@ -108,7 +108,7 @@
                     </svg>
                   <% end %>
                 </div>
-                <span class="text-xs text-gray-600 ml-1"><%= doctor["rating"] %>/5</span>
+                <span class="text-xs text-gray-600 ml-1">{doctor["rating"]}/5</span>
               </div>
             </div>
 

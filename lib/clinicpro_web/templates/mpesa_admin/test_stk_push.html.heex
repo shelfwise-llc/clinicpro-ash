@@ -44,13 +44,13 @@
         </div>
         <div class="ml-4">
           <h2 class="text-lg font-medium text-gray-900">
-            M-Pesa Configuration: <%= @config.shortcode %>
+            M-Pesa Configuration: {@config.shortcode}
             <span class={"ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{environment_badge(@config.environment)}"}>
-              <%= String.upcase(@config.environment) %>
+              {String.upcase(@config.environment)}
             </span>
           </h2>
           <p class="text-sm text-gray-500">
-            <%= if @config.active do %>
+            {if @config.active do}
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 <svg
                   class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400"
@@ -73,7 +73,7 @@
                 Inactive
               </span>
             <% end %>
-            | Last updated: <%= format_date_time(@config.updated_at) %>
+            | Last updated: {format_date_time(@config.updated_at)}
           </p>
         </div>
       </div>
@@ -99,7 +99,7 @@
           <p class="text-sm text-yellow-700">
             <strong>Note:</strong>
             This will initiate a real STK Push request to the phone number provided.
-            <%= if @config.environment == "sandbox" do %>
+            {if @config.environment == "sandbox" do}
               Since this is a sandbox environment, no actual money will be deducted.
             <% else %>
               <strong>
@@ -111,7 +111,7 @@
       </div>
     </div>
 
-    <%= form_for @changeset, Routes.mpesa_admin_path(@conn, :process_stk_push_test, @config.id), fn f -> %>
+    {form_for @changeset, Routes.mpesa_admin_path(@conn, :process_stk_push_test, @config.id), fn f ->}
       <div class="space-y-6">
         <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
           <div class="md:grid md:grid-cols-3 md:gap-6">
@@ -140,11 +140,11 @@
                   <p class="mt-2 text-sm text-gray-500">
                     Enter the phone number without the country code (e.g., 7XXXXXXXX)
                   </p>
-                  <%= error_tag(f, :phone_number) %>
+                  {error_tag(f, :phone_number)}
                 </div>
 
                 <div class="col-span-6 sm:col-span-3">
-                  <%= label(f, :amount, class: "block text-sm font-medium text-gray-700") %>
+                  {label(f, :amount, class: "block text-sm font-medium text-gray-700")}
                   <div class="mt-1 relative rounded-md shadow-sm">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <span class="text-gray-500 sm:text-sm">KES</span>
@@ -158,7 +158,7 @@
                     ) %>
                   </div>
                   <p class="mt-2 text-sm text-gray-500">Minimum amount is KES 1.00</p>
-                  <%= error_tag(f, :amount) %>
+                  {error_tag(f, :amount)}
                 </div>
 
                 <div class="col-span-6">
@@ -173,7 +173,7 @@
                   <p class="mt-2 text-sm text-gray-500">
                     A reference for this test payment (defaults to "Test Payment" if left blank)
                   </p>
-                  <%= error_tag(f, :reference) %>
+                  {error_tag(f, :reference)}
                 </div>
 
                 <div class="col-span-6">
@@ -188,7 +188,7 @@
                   <p class="mt-2 text-sm text-gray-500">
                     A description for this test payment (defaults to "Test STK Push" if left blank)
                   </p>
-                  <%= error_tag(f, :description) %>
+                  {error_tag(f, :description)}
                 </div>
               </div>
             </div>
@@ -210,12 +210,12 @@
       </div>
     <% end %>
 
-    <%= if @recent_transactions && length(@recent_transactions) > 0 do %>
+    {if @recent_transactions && length(@recent_transactions) > 0 do}
       <div class="mt-8">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Test Transactions</h3>
         <div class="bg-white shadow overflow-hidden sm:rounded-md">
           <ul class="divide-y divide-gray-200">
-            <%= for transaction <- @recent_transactions do %>
+            {for transaction <- @recent_transactions do}
               <li>
                 <a
                   href={Routes.mpesa_admin_path(@conn, :transaction_details, transaction.id)}
@@ -225,17 +225,17 @@
                     <div class="flex items-center justify-between">
                       <div class="flex items-center">
                         <p class="text-sm font-medium text-indigo-600 truncate">
-                          <%= transaction.reference %>
+                          {transaction.reference}
                         </p>
                         <div class="ml-2 flex-shrink-0 flex">
                           <p class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{transaction_status_class(transaction.status)}"}>
-                            <%= format_transaction_status(transaction.status) %>
+                            {format_transaction_status(transaction.status)}
                           </p>
                         </div>
                       </div>
                       <div class="ml-2 flex-shrink-0 flex">
                         <p class="text-sm text-gray-500">
-                          <%= format_amount(transaction.amount) %>
+                          {format_amount(transaction.amount)}
                         </p>
                       </div>
                     </div>
@@ -250,7 +250,7 @@
                           >
                             <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
                           </svg>
-                          <%= format_phone(transaction.phone) %>
+                          {format_phone(transaction.phone)}
                         </p>
                       </div>
                       <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
@@ -267,7 +267,7 @@
                           />
                         </svg>
                         <p>
-                          <%= format_date_time(transaction.inserted_at) %>
+                          {format_date_time(transaction.inserted_at)}
                         </p>
                       </div>
                     </div>

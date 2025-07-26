@@ -23,27 +23,27 @@
         </tr>
       </thead>
       <tbody>
-        <%= for appointment <- @appointments do %>
+        {for appointment <- @appointments do}
           <tr class="border-t">
-            <td class="py-3 px-4"><%= appointment.date %></td>
-            <td class="py-3 px-4"><%= appointment.start_time %> - <%= appointment.end_time %></td>
+            <td class="py-3 px-4">{appointment.date}</td>
+            <td class="py-3 px-4">{appointment.start_time} - {appointment.end_time}</td>
             <td class="py-3 px-4">
-              <%= if appointment.doctor do %>
-                <%= appointment.doctor.first_name %> <%= appointment.doctor.last_name %>
+              {if appointment.doctor do}
+                {appointment.doctor.first_name} {appointment.doctor.last_name}
               <% else %>
                 Unknown Doctor
               <% end %>
             </td>
             <td class="py-3 px-4">
-              <%= if appointment.patient do %>
-                <%= appointment.patient.first_name %> <%= appointment.patient.last_name %>
+              {if appointment.patient do}
+                {appointment.patient.first_name} {appointment.patient.last_name}
               <% else %>
                 Unknown Patient
               <% end %>
             </td>
-            <td class="py-3 px-4"><%= appointment.reason %></td>
+            <td class="py-3 px-4">{appointment.reason}</td>
             <td class="py-3 px-4">
-              <%= case appointment.status do %>
+              {case appointment.status do}
                 <% "scheduled" -> %>
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     Scheduled
@@ -62,7 +62,7 @@
                   </span>
                 <% _ -> %>
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                    <%= appointment.status %>
+                    {appointment.status}
                   </span>
               <% end %>
             </td>

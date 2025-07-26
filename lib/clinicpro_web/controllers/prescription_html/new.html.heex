@@ -4,7 +4,7 @@
     <div class="px-4 py-5 sm:px-6 bg-indigo-50">
       <h1 class="text-xl font-semibold text-gray-900">New Prescription</h1>
       <p class="mt-1 max-w-2xl text-sm text-gray-500">
-        Create a new prescription for <%= @appointment.patient.name %>
+        Create a new prescription for {@appointment.patient.name}
       </p>
     </div>
 
@@ -43,8 +43,8 @@
                 class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
               >
                 <option value="">Select form</option>
-                <%= for form <- @medication_forms do %>
-                  <option value={form}><%= form %></option>
+                {for form <- @medication_forms do}
+                  <option value={form}>{form}</option>
                 <% end %>
               </select>
             </div>
@@ -93,8 +93,8 @@
                 required
               >
                 <option value="">Select frequency</option>
-                <%= for frequency <- @medication_frequencies do %>
-                  <option value={frequency}><%= frequency %></option>
+                {for frequency <- @medication_frequencies do}
+                  <option value={frequency}>{frequency}</option>
                 <% end %>
               </select>
             </div>
@@ -112,8 +112,8 @@
                 required
               >
                 <option value="">Select duration</option>
-                <%= for duration <- @medication_durations do %>
-                  <option value={duration}><%= duration %></option>
+                {for duration <- @medication_durations do}
+                  <option value={duration}>{duration}</option>
                 <% end %>
               </select>
             </div>

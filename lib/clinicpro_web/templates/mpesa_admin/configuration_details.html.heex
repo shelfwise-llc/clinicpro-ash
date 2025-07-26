@@ -3,9 +3,21 @@
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">M-Pesa Configuration</h1>
       <div class="flex space-x-2">
-        <a href="<%= Routes.mpesa_admin_path(@conn, :configurations, @clinic_id) %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        <a
+          href={Routes.mpesa_admin_path(@conn, :configurations, @clinic_id)}
+          class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+              clip-rule="evenodd"
+            />
           </svg>
           Back to Configurations
         </a>
@@ -16,54 +28,78 @@
       <div class="flex items-center">
         <div class="flex-shrink-0">
           <span class="inline-flex items-center justify-center h-12 w-12 rounded-md bg-indigo-100 text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
             </svg>
           </span>
         </div>
         <div class="ml-4">
           <h2 class="text-lg font-medium text-gray-900">
-            Configuration ID: <%= @config.id %>
-            <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= config_status_class(@config.active) %>">
-              <%= config_status_text(@config.active) %>
+            Configuration ID: {@config.id}
+            <span class={"ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{config_status_class(@config.active)}"}>
+              {config_status_text(@config.active)}
             </span>
-            <%= environment_badge(@config.environment) %>
+            {environment_badge(@config.environment)}
           </h2>
           <p class="text-sm text-gray-500">
-            Last updated: <%= format_date_time(@config.updated_at) %>
+            Last updated: {format_date_time(@config.updated_at)}
           </p>
         </div>
       </div>
     </div>
 
-    <%= form_for @changeset, Routes.mpesa_admin_path(@conn, :update_configuration, @config.id, clinic_id: @clinic_id), fn f -> %>
+    {form_for @changeset, Routes.mpesa_admin_path(@conn, :update_configuration, @config.id, clinic_id: @clinic_id), fn f ->}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Authentication Settings</h3>
 
             <div class="mb-4">
-              <%= label f, :consumer_key, "Consumer Key", class: "block text-sm font-medium text-gray-700" %>
+              <%= label(f, :consumer_key, "Consumer Key",
+                class: "block text-sm font-medium text-gray-700"
+              ) %>
               <div class="mt-1 flex rounded-md shadow-sm">
-                <%= text_input f, :consumer_key, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+                <%= text_input(f, :consumer_key,
+                  class:
+                    "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                ) %>
               </div>
-              <%= error_tag f, :consumer_key %>
+              {error_tag(f, :consumer_key)}
             </div>
 
             <div class="mb-4">
-              <%= label f, :consumer_secret, "Consumer Secret", class: "block text-sm font-medium text-gray-700" %>
+              <%= label(f, :consumer_secret, "Consumer Secret",
+                class: "block text-sm font-medium text-gray-700"
+              ) %>
               <div class="mt-1 flex rounded-md shadow-sm">
-                <%= text_input f, :consumer_secret, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+                <%= text_input(f, :consumer_secret,
+                  class:
+                    "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                ) %>
               </div>
-              <%= error_tag f, :consumer_secret %>
+              {error_tag(f, :consumer_secret)}
             </div>
 
             <div class="mb-4">
-              <%= label f, :passkey, "Passkey", class: "block text-sm font-medium text-gray-700" %>
+              {label(f, :passkey, "Passkey", class: "block text-sm font-medium text-gray-700")}
               <div class="mt-1 flex rounded-md shadow-sm">
-                <%= text_input f, :passkey, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+                <%= text_input(f, :passkey,
+                  class:
+                    "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                ) %>
               </div>
-              <%= error_tag f, :passkey %>
+              {error_tag(f, :passkey)}
             </div>
           </div>
         </div>
@@ -73,31 +109,44 @@
             <h3 class="text-lg font-medium text-gray-900 mb-4">Business Settings</h3>
 
             <div class="mb-4">
-              <%= label f, :shortcode, "Shortcode", class: "block text-sm font-medium text-gray-700" %>
+              <%= label(f, :shortcode, "Shortcode",
+                class: "block text-sm font-medium text-gray-700"
+              ) %>
               <div class="mt-1 flex rounded-md shadow-sm">
-                <%= text_input f, :shortcode, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+                <%= text_input(f, :shortcode,
+                  class:
+                    "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                ) %>
               </div>
-              <%= error_tag f, :shortcode %>
+              {error_tag(f, :shortcode)}
             </div>
 
             <div class="mb-4">
-              <%= label f, :environment, "Environment", class: "block text-sm font-medium text-gray-700" %>
+              <%= label(f, :environment, "Environment",
+                class: "block text-sm font-medium text-gray-700"
+              ) %>
               <div class="mt-1 flex rounded-md shadow-sm">
-                <%= select f, :environment, ["sandbox": "sandbox", "production": "production"], class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+                <%= select(f, :environment, [sandbox: "sandbox", production: "production"],
+                  class:
+                    "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                ) %>
               </div>
-              <%= error_tag f, :environment %>
+              {error_tag(f, :environment)}
               <p class="mt-1 text-sm text-gray-500">
-                <span class="text-red-500 font-semibold">Warning:</span> Setting to production will use real money for transactions.
+                <span class="text-red-500 font-semibold">Warning:</span>
+                Setting to production will use real money for transactions.
               </p>
             </div>
 
             <div class="mb-4">
-              <%= label f, :active, "Status", class: "block text-sm font-medium text-gray-700" %>
+              {label(f, :active, "Status", class: "block text-sm font-medium text-gray-700")}
               <div class="mt-1 flex items-center">
-                <%= checkbox f, :active, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+                <%= checkbox(f, :active,
+                  class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                ) %>
                 <span class="ml-2 text-sm text-gray-700">Active</span>
               </div>
-              <%= error_tag f, :active %>
+              {error_tag(f, :active)}
               <p class="mt-1 text-sm text-gray-500">
                 Only one configuration can be active at a time. Activating this will deactivate all others.
               </p>
@@ -111,44 +160,62 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Callback URLs</h3>
 
           <div class="mb-4">
-            <%= label f, :base_url, "Base URL", class: "block text-sm font-medium text-gray-700" %>
+            {label(f, :base_url, "Base URL", class: "block text-sm font-medium text-gray-700")}
             <div class="mt-1 flex rounded-md shadow-sm">
-              <%= text_input f, :base_url, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+              <%= text_input(f, :base_url,
+                class:
+                  "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              ) %>
             </div>
-            <%= error_tag f, :base_url %>
+            {error_tag(f, :base_url)}
             <p class="mt-1 text-sm text-gray-500">
               Base URL for your application (e.g., https://example.com)
             </p>
           </div>
 
           <div class="mb-4">
-            <%= label f, :callback_url, "STK Push Callback URL", class: "block text-sm font-medium text-gray-700" %>
+            <%= label(f, :callback_url, "STK Push Callback URL",
+              class: "block text-sm font-medium text-gray-700"
+            ) %>
             <div class="mt-1 flex rounded-md shadow-sm">
-              <%= text_input f, :callback_url, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+              <%= text_input(f, :callback_url,
+                class:
+                  "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              ) %>
             </div>
-            <%= error_tag f, :callback_url %>
+            {error_tag(f, :callback_url)}
             <p class="mt-1 text-sm text-gray-500">
               URL to receive STK Push callbacks (e.g., /api/mpesa/callbacks/stk)
             </p>
           </div>
 
           <div class="mb-4">
-            <%= label f, :validation_url, "C2B Validation URL", class: "block text-sm font-medium text-gray-700" %>
+            <%= label(f, :validation_url, "C2B Validation URL",
+              class: "block text-sm font-medium text-gray-700"
+            ) %>
             <div class="mt-1 flex rounded-md shadow-sm">
-              <%= text_input f, :validation_url, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+              <%= text_input(f, :validation_url,
+                class:
+                  "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              ) %>
             </div>
-            <%= error_tag f, :validation_url %>
+            {error_tag(f, :validation_url)}
             <p class="mt-1 text-sm text-gray-500">
               URL to validate C2B transactions (e.g., /api/mpesa/callbacks/validation)
             </p>
           </div>
 
           <div class="mb-4">
-            <%= label f, :confirmation_url, "C2B Confirmation URL", class: "block text-sm font-medium text-gray-700" %>
+            <%= label(f, :confirmation_url, "C2B Confirmation URL",
+              class: "block text-sm font-medium text-gray-700"
+            ) %>
             <div class="mt-1 flex rounded-md shadow-sm">
-              <%= text_input f, :confirmation_url, class: "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" %>
+              <%= text_input(f, :confirmation_url,
+                class:
+                  "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              ) %>
             </div>
-            <%= error_tag f, :confirmation_url %>
+            {error_tag(f, :confirmation_url)}
             <p class="mt-1 text-sm text-gray-500">
               URL to confirm C2B transactions (e.g., /api/mpesa/callbacks/confirmation)
             </p>
@@ -158,15 +225,30 @@
 
       <div class="flex justify-between">
         <div>
-          <%= if @config.id do %>
-            <%= link "Delete Configuration", to: Routes.mpesa_admin_path(@conn, :delete_configuration, @config.id, clinic_id: @clinic_id), method: :delete, data: [confirm: "Are you sure? This will permanently delete this configuration."], class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+          {if @config.id do}
+            <%= link("Delete Configuration",
+              to:
+                Routes.mpesa_admin_path(@conn, :delete_configuration, @config.id,
+                  clinic_id: @clinic_id
+                ),
+              method: :delete,
+              data: [confirm: "Are you sure? This will permanently delete this configuration."],
+              class:
+                "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            ) %>
           <% end %>
         </div>
         <div class="flex space-x-2">
-          <a href="<%= Routes.mpesa_admin_path(@conn, :configurations, @clinic_id) %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <a
+            href={Routes.mpesa_admin_path(@conn, :configurations, @clinic_id)}
+            class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
             Cancel
           </a>
-          <%= submit "Save Configuration", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+          <%= submit("Save Configuration",
+            class:
+              "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          ) %>
         </div>
       </div>
     <% end %>
@@ -174,21 +256,57 @@
     <div class="mt-8 border-t border-gray-200 pt-6">
       <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <a href="<%= Routes.mpesa_admin_path(@conn, :test_stk_push, @clinic_id, config_id: @config.id) %>" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+        <a
+          href={Routes.mpesa_admin_path(@conn, :test_stk_push, @clinic_id, config_id: @config.id)}
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
+              clip-rule="evenodd"
+            />
           </svg>
           Test STK Push
         </a>
-        <a href="<%= Routes.mpesa_admin_path(@conn, :transactions, @clinic_id, config_id: @config.id) %>" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2h10a1 1 0 100-2H3zm0 4a1 1 0 000 2h10a1 1 0 100-2H3zm0 4a1 1 0 100 2h10a1 1 0 100-2H3z" clip-rule="evenodd" />
+        <a
+          href={Routes.mpesa_admin_path(@conn, :transactions, @clinic_id, config_id: @config.id)}
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M3 3a1 1 0 000 2h10a1 1 0 100-2H3zm0 4a1 1 0 000 2h10a1 1 0 100-2H3zm0 4a1 1 0 100 2h10a1 1 0 100-2H3z"
+              clip-rule="evenodd"
+            />
           </svg>
           View Transactions
         </a>
-        <a href="<%= Routes.mpesa_admin_path(@conn, :callback_logs, @clinic_id, config_id: @config.id) %>" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        <a
+          href={Routes.mpesa_admin_path(@conn, :callback_logs, @clinic_id, config_id: @config.id)}
+          class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            />
           </svg>
           View Callback Logs
         </a>

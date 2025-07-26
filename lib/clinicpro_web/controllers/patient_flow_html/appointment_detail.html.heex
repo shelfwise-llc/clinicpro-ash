@@ -14,50 +14,50 @@
           _ -> "bg-gray-100 text-gray-800"
         end
       ]}>
-        <%= @appointment.status %>
+        {@appointment.status}
       </span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-600">Date</p>
-        <p class="font-medium"><%= @appointment.date %></p>
+        <p class="font-medium">{@appointment.date}</p>
       </div>
       <div>
         <p class="text-sm text-gray-600">Time</p>
-        <p class="font-medium"><%= @appointment.time %> (<%= @appointment.duration %> minutes)</p>
+        <p class="font-medium">{@appointment.time} ({@appointment.duration} minutes)</p>
       </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
       <div>
         <p class="text-sm text-gray-600">Doctor</p>
-        <p class="font-medium"><%= @appointment.doctor_name %></p>
+        <p class="font-medium">{@appointment.doctor_name}</p>
       </div>
       <div>
         <p class="text-sm text-gray-600">Specialty</p>
-        <p class="font-medium"><%= @appointment.doctor_specialty %></p>
+        <p class="font-medium">{@appointment.doctor_specialty}</p>
       </div>
     </div>
 
     <div class="mb-4">
       <p class="text-sm text-gray-600">Reason for Visit</p>
-      <p class="font-medium"><%= @appointment.reason %></p>
+      <p class="font-medium">{@appointment.reason}</p>
     </div>
 
     <div class="mb-4">
       <p class="text-sm text-gray-600">Location</p>
-      <p class="font-medium"><%= @appointment.location %></p>
+      <p class="font-medium">{@appointment.location}</p>
     </div>
 
-    <%= if @appointment.notes && @appointment.notes != "" do %>
+    {if @appointment.notes && @appointment.notes != "" do}
       <div class="mb-4">
         <p class="text-sm text-gray-600">Notes</p>
-        <p class="font-medium"><%= @appointment.notes %></p>
+        <p class="font-medium">{@appointment.notes}</p>
       </div>
     <% end %>
 
-    <%= if @appointment.video_link do %>
+    {if @appointment.video_link do}
       <div class="mt-6">
         <p class="text-sm text-gray-600 mb-2">Video Consultation Link</p>
         <a
@@ -89,7 +89,7 @@
       Back to Appointments
     </a>
 
-    <%= if @appointment.status == "Confirmed" do %>
+    {if @appointment.status == "Confirmed" do}
       <div class="flex space-x-4">
         <a
           href={~p"/patient/appointments/#{@appointment.id}/reschedule"}

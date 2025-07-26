@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Confirm Your Details</h1>
 
-  <%= workflow_progress(assigns) %>
+  {workflow_progress(assigns)}
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <h2 class="text-2xl font-semibold mb-4">Please confirm your appointment details</h2>
@@ -11,22 +11,22 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <p class="text-gray-600 mb-1">Doctor</p>
-          <p class="font-medium"><%= @appointment_data.doctor_name %></p>
+          <p class="font-medium">{@appointment_data.doctor_name}</p>
         </div>
 
         <div>
           <p class="text-gray-600 mb-1">Date</p>
-          <p class="font-medium"><%= @appointment_data.date %></p>
+          <p class="font-medium">{@appointment_data.date}</p>
         </div>
 
         <div>
           <p class="text-gray-600 mb-1">Time</p>
-          <p class="font-medium"><%= @appointment_data.time %></p>
+          <p class="font-medium">{@appointment_data.time}</p>
         </div>
 
         <div>
           <p class="text-gray-600 mb-1">Location</p>
-          <p class="font-medium"><%= @appointment_data.location %></p>
+          <p class="font-medium">{@appointment_data.location}</p>
         </div>
       </div>
     </div>

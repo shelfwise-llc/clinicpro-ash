@@ -28,21 +28,21 @@
     </div>
   </div>
 
-  <%= if flash = get_flash(@conn, :info) do %>
+  {if flash = get_flash(@conn, :info) do}
     <div
       class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
       role="alert"
     >
-      <span class="block sm:inline"><%= flash %></span>
+      <span class="block sm:inline">{flash}</span>
     </div>
   <% end %>
 
-  <%= if flash = get_flash(@conn, :error) do %>
+  {if flash = get_flash(@conn, :error) do}
     <div
       class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       role="alert"
     >
-      <span class="block sm:inline"><%= flash %></span>
+      <span class="block sm:inline">{flash}</span>
     </div>
   <% end %>
 
@@ -141,44 +141,44 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <%= for patient <- @patients do %>
+          {for patient <- @patients do}
             <tr class="patient-row" data-gender={patient.gender} data-status={patient.status}>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10">
                     <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                       <span class="text-gray-600 font-medium">
-                        <%= String.first(patient.name) %>
+                        {String.first(patient.name)}
                       </span>
                     </div>
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900">
-                      <%= patient.name %>
+                      {patient.name}
                     </div>
                     <div class="text-sm text-gray-500">
-                      ID: <%= patient.id %>
+                      ID: {patient.id}
                     </div>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= patient.email %></div>
-                <div class="text-sm text-gray-500"><%= patient.phone %></div>
+                <div class="text-sm text-gray-900">{patient.email}</div>
+                <div class="text-sm text-gray-500">{patient.phone}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">
                   <%= Calendar.strftime(patient.date_of_birth, "%b %d, %Y") %>
                 </div>
                 <div class="text-sm text-gray-500">
-                  <%= Timex.diff(Date.utc_today(), patient.date_of_birth, :years) %> years old
+                  {Timex.diff(Date.utc_today(), patient.date_of_birth, :years)} years old
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= patient.gender %>
+                {patient.gender}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <%= case patient.status do %>
+                {case patient.status do}
                   <% "Active" -> %>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                       Active
@@ -189,7 +189,7 @@
                     </span>
                   <% _ -> %>
                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                      <%= patient.status %>
+                      {patient.status}
                     </span>
                 <% end %>
               </td>
@@ -250,7 +250,7 @@
             <p class="text-sm text-gray-700">
               Showing <span class="font-medium">1</span>
               to <span class="font-medium">10</span>
-              of <span class="font-medium"><%= length(@patients) %></span>
+              of <span class="font-medium">{length(@patients)}</span>
               patients
             </p>
           </div>

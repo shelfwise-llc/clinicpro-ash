@@ -35,8 +35,8 @@
       </div>
 
       <div class="ml-4">
-        <h3 class="font-medium"><%= @selected_doctor["name"] %></h3>
-        <p class="text-sm text-gray-600"><%= @selected_doctor["specialty"] %></p>
+        <h3 class="font-medium">{@selected_doctor["name"]}</h3>
+        <p class="text-sm text-gray-600">{@selected_doctor["specialty"]}</p>
       </div>
     </div>
   </div>
@@ -55,7 +55,7 @@
       # Sort dates
       sorted_dates = slots_by_date |> Map.keys() |> Enum.sort() %>
 
-      <%= for date <- sorted_dates do %>
+      {for date <- sorted_dates do}
         <% slots = slots_by_date[date]
         available_slots = Enum.filter(slots, fn slot -> slot["available"] end) %>
         <div class="w-full md:w-1/3 px-2 mb-4">
@@ -70,18 +70,18 @@
             </div>
 
             <div class="p-3">
-              <%= if Enum.empty?(available_slots) do %>
+              {if Enum.empty?(available_slots) do}
                 <p class="text-center text-gray-500 py-2">No available slots</p>
               <% else %>
                 <div class="grid grid-cols-2 gap-2">
-                  <%= for slot <- available_slots do %>
+                  {for slot <- available_slots do}
                     <form action={~p"/patient/appointments/date"} method="post" class="block">
                       <input type="hidden" name="slot_id" value={slot["id"]} />
                       <button
                         type="submit"
                         class="w-full py-2 px-1 text-center border rounded hover:bg-blue-50 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                       >
-                        <%= slot["time"] %>
+                        {slot["time"]}
                       </button>
                     </form>
                   <% end %>

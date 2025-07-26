@@ -1,8 +1,8 @@
 <div class="container mx-auto px-4 py-8">
   <div class="bg-white rounded-lg shadow-lg p-6">
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold"><%= if @action == :edit, do: "Edit", else: "New" %> M-Pesa Configuration</h1>
-      <a href="<%= Routes.mpesa_admin_path(@conn, :index) %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <h1 class="text-2xl font-bold">{if @action == :edit, do: "Edit", else: "New"} M-Pesa Configuration</h1>
+      <a href={Routes.mpesa_admin_path(@conn, :index)} class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
         </svg>
@@ -10,7 +10,7 @@
       </a>
     </div>
 
-    <%= if @changeset.action do %>
+    {if @changeset.action do}
       <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -27,7 +27,7 @@
       </div>
     <% end %>
 
-    <%= form_for @changeset, @action_path, fn f -> %>
+    {form_for @changeset, @action_path, fn f ->}
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="col-span-1 md:col-span-2">
           <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
@@ -48,43 +48,43 @@
 
         <div>
           <label for="environment" class="block text-sm font-medium text-gray-700 mb-1">Environment</label>
-          <%= select f, :environment, ["sandbox": "sandbox", "production": "production"], class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" %>
-          <%= error_tag f, :environment %>
+          {select f, :environment, ["sandbox": "sandbox", "production": "production"], class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"}
+          {error_tag f, :environment}
           <p class="mt-1 text-sm text-gray-500">Use 'sandbox' for testing and 'production' for live transactions.</p>
         </div>
 
         <div>
           <label for="shortcode" class="block text-sm font-medium text-gray-700 mb-1">Shortcode</label>
-          <%= text_input f, :shortcode, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "e.g., 174379" %>
-          <%= error_tag f, :shortcode %>
+          {text_input f, :shortcode, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "e.g., 174379"}
+          {error_tag f, :shortcode}
           <p class="mt-1 text-sm text-gray-500">Your M-Pesa paybill or till number.</p>
         </div>
 
         <div>
           <label for="consumer_key" class="block text-sm font-medium text-gray-700 mb-1">Consumer Key</label>
-          <%= text_input f, :consumer_key, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
-          <%= error_tag f, :consumer_key %>
+          {text_input f, :consumer_key, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"}
+          {error_tag f, :consumer_key}
           <p class="mt-1 text-sm text-gray-500">API consumer key from Safaricom Daraja portal.</p>
         </div>
 
         <div>
           <label for="consumer_secret" class="block text-sm font-medium text-gray-700 mb-1">Consumer Secret</label>
-          <%= password_input f, :consumer_secret, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
-          <%= error_tag f, :consumer_secret %>
+          {password_input f, :consumer_secret, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"}
+          {error_tag f, :consumer_secret}
           <p class="mt-1 text-sm text-gray-500">API consumer secret from Safaricom Daraja portal.</p>
         </div>
 
         <div>
           <label for="passkey" class="block text-sm font-medium text-gray-700 mb-1">Passkey</label>
-          <%= password_input f, :passkey, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" %>
-          <%= error_tag f, :passkey %>
+          {password_input f, :passkey, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"}
+          {error_tag f, :passkey}
           <p class="mt-1 text-sm text-gray-500">Online passkey for STK Push transactions.</p>
         </div>
 
         <div>
           <label for="base_url" class="block text-sm font-medium text-gray-700 mb-1">Base URL</label>
-          <%= text_input f, :base_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://sandbox.safaricom.co.ke" %>
-          <%= error_tag f, :base_url %>
+          {text_input f, :base_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://sandbox.safaricom.co.ke"}
+          {error_tag f, :base_url}
           <p class="mt-1 text-sm text-gray-500">API base URL (automatically set based on environment).</p>
         </div>
 
@@ -97,28 +97,28 @@
 
         <div>
           <label for="callback_url" class="block text-sm font-medium text-gray-700 mb-1">STK Push Callback URL</label>
-          <%= text_input f, :callback_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://example.com/mpesa/callback" %>
-          <%= error_tag f, :callback_url %>
+          {text_input f, :callback_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://example.com/mpesa/callback"}
+          {error_tag f, :callback_url}
           <p class="mt-1 text-sm text-gray-500">URL to receive STK Push transaction results.</p>
         </div>
 
         <div>
           <label for="validation_url" class="block text-sm font-medium text-gray-700 mb-1">C2B Validation URL</label>
-          <%= text_input f, :validation_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://example.com/mpesa/validate" %>
-          <%= error_tag f, :validation_url %>
+          {text_input f, :validation_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://example.com/mpesa/validate"}
+          {error_tag f, :validation_url}
           <p class="mt-1 text-sm text-gray-500">URL to validate C2B transactions (optional).</p>
         </div>
 
         <div>
           <label for="confirmation_url" class="block text-sm font-medium text-gray-700 mb-1">C2B Confirmation URL</label>
-          <%= text_input f, :confirmation_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://example.com/mpesa/confirm" %>
-          <%= error_tag f, :confirmation_url %>
+          {text_input f, :confirmation_url, class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "https://example.com/mpesa/confirm"}
+          {error_tag f, :confirmation_url}
           <p class="mt-1 text-sm text-gray-500">URL to receive C2B transaction confirmations.</p>
         </div>
 
         <div>
           <div class="flex items-center">
-            <%= checkbox f, :active, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" %>
+            {checkbox f, :active, class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"}
             <label for="active" class="ml-2 block text-sm text-gray-900">Active</label>
           </div>
           <p class="mt-1 text-sm text-gray-500">Enable this configuration for processing payments.</p>
@@ -127,7 +127,7 @@
 
       <div class="mt-8 flex justify-end">
         <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          <%= if @action == :edit, do: "Update", else: "Create" %> Configuration
+          {if @action == :edit, do: "Update", else: "Create"} Configuration
         </button>
       </div>
     <% end %>

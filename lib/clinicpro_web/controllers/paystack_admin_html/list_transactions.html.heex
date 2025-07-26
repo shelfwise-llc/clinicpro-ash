@@ -71,7 +71,7 @@
       </.form>
     </div>
 
-    <%= if Enum.empty?(@transactions) do %>
+    {if Enum.empty?(@transactions) do}
       <div class="bg-gray-50 p-8 rounded-md text-center">
         <p class="text-gray-600">No transactions found matching your criteria.</p>
       </div>
@@ -119,16 +119,16 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <%= for transaction <- @transactions do %>
+            {for transaction <- @transactions do}
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-mono">
-                  <%= String.slice(transaction.reference, 0, 16) %>...
+                  {String.slice(transaction.reference, 0, 16)}...
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  ₦<%= format_amount(transaction.amount) %>
+                  ₦{format_amount(transaction.amount)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <%= transaction.email %>
+                  {transaction.email}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class={[
@@ -140,11 +140,11 @@
                       _ -> "bg-gray-100 text-gray-800"
                     end
                   ]}>
-                    <%= humanize_status(transaction.status) %>
+                    {humanize_status(transaction.status)}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <%= format_date(transaction.inserted_at) %>
+                  {format_date(transaction.inserted_at)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <a
@@ -155,7 +155,7 @@
                   >
                     View
                   </a>
-                  <%= if transaction.status == "pending" do %>
+                  {if transaction.status == "pending" do}
                     <span class="mx-1">|</span>
                     <.form
                       :let={_f}
@@ -180,17 +180,17 @@
 
       <div class="mt-6 flex items-center justify-between">
         <div class="text-sm text-gray-700">
-          Showing <span class="font-medium"><%= (@page - 1) * @per_page + 1 %></span>
+          Showing <span class="font-medium">{(@page - 1) * @per_page + 1}</span>
           to
           <span class="font-medium">
-            <%= min((@page - 1) * @per_page + length(@transactions), @total_count) %>
+            {min((@page - 1) * @per_page + length(@transactions), @total_count)}
           </span>
-          of <span class="font-medium"><%= @total_count %></span>
+          of <span class="font-medium">{@total_count}</span>
           transactions
         </div>
 
         <div class="flex space-x-2">
-          <%= if @page > 1 do %>
+          {if @page > 1 do}
             <a
               href={
                 ~p"/admin/clinics/#{@clinic_id}/paystack/transactions?page=#{@page - 1}&per_page=#{@per_page}&status=#{@status}&search=#{@search}"
@@ -205,7 +205,7 @@
             </span>
           <% end %>
 
-          <%= if @page * @per_page < @total_count do %>
+          {if @page * @per_page < @total_count do}
             <a
               href={
                 ~p"/admin/clinics/#{@clinic_id}/paystack/transactions?page=#{@page + 1}&per_page=#{@per_page}&status=#{@status}&search=#{@search}"

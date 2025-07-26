@@ -25,7 +25,7 @@
         </div>
         <div class="ml-4">
           <h2 class="text-sm font-medium text-gray-600">Total Doctors</h2>
-          <p class="text-2xl font-semibold"><%= @stats.total_doctors %></p>
+          <p class="text-2xl font-semibold">{@stats.total_doctors}</p>
         </div>
       </div>
     </div>
@@ -50,7 +50,7 @@
         </div>
         <div class="ml-4">
           <h2 class="text-sm font-medium text-gray-600">Total Patients</h2>
-          <p class="text-2xl font-semibold"><%= @stats.total_patients %></p>
+          <p class="text-2xl font-semibold">{@stats.total_patients}</p>
         </div>
       </div>
     </div>
@@ -75,7 +75,7 @@
         </div>
         <div class="ml-4">
           <h2 class="text-sm font-medium text-gray-600">Total Appointments</h2>
-          <p class="text-2xl font-semibold"><%= @stats.total_appointments %></p>
+          <p class="text-2xl font-semibold">{@stats.total_appointments}</p>
         </div>
       </div>
     </div>
@@ -100,7 +100,7 @@
         </div>
         <div class="ml-4">
           <h2 class="text-sm font-medium text-gray-600">Upcoming Appointments</h2>
-          <p class="text-2xl font-semibold"><%= @stats.upcoming_appointments %></p>
+          <p class="text-2xl font-semibold">{@stats.upcoming_appointments}</p>
         </div>
       </div>
     </div>
@@ -125,7 +125,7 @@
         </div>
         <div class="ml-4">
           <h2 class="text-sm font-medium text-gray-600">Completed Appointments</h2>
-          <p class="text-2xl font-semibold"><%= @stats.completed_appointments %></p>
+          <p class="text-2xl font-semibold">{@stats.completed_appointments}</p>
         </div>
       </div>
     </div>
@@ -157,10 +157,10 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <%= for activity <- @recent_activity do %>
+              {for activity <- @recent_activity do}
                 <tr>
                   <td class="py-3 px-4">
-                    <%= case activity.type do %>
+                    {case activity.type do}
                       <% "appointment" -> %>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                           Appointment
@@ -179,16 +179,16 @@
                         </span>
                       <% _ -> %>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                          <%= activity.type %>
+                          {activity.type}
                         </span>
                     <% end %>
                   </td>
-                  <td class="py-3 px-4 text-sm text-gray-900"><%= activity.action %></td>
-                  <td class="py-3 px-4 text-sm text-gray-900"><%= activity.user %></td>
+                  <td class="py-3 px-4 text-sm text-gray-900">{activity.action}</td>
+                  <td class="py-3 px-4 text-sm text-gray-900">{activity.user}</td>
                   <td class="py-3 px-4 text-sm text-gray-500">
                     <%= Calendar.strftime(activity.timestamp, "%b %d, %Y %H:%M") %>
                   </td>
-                  <td class="py-3 px-4 text-sm text-gray-900"><%= activity.details %></td>
+                  <td class="py-3 px-4 text-sm text-gray-900">{activity.details}</td>
                 </tr>
               <% end %>
             </tbody>

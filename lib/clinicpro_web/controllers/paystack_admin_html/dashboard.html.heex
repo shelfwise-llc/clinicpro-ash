@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <%= if !@has_active_config do %>
+  {if !@has_active_config do}
     <div class="bg-yellow-50 border border-yellow-200 rounded-md p-6 mb-8">
       <div class="flex">
         <div class="flex-shrink-0">
@@ -80,8 +80,8 @@
         <div>
           <p class="text-sm text-gray-500 font-medium">Configuration</p>
           <p class="text-lg font-semibold text-gray-700">
-            <%= if @has_active_config do %>
-              Active (<%= @config_environment %>)
+            {if @has_active_config do}
+              Active ({@config_environment})
             <% else %>
               Not Configured
             <% end %>
@@ -125,8 +125,8 @@
         <div>
           <p class="text-sm text-gray-500 font-medium">Subaccounts</p>
           <p class="text-lg font-semibold text-gray-700">
-            <%= if @has_active_subaccount do %>
-              <%= @subaccount_count %> (<%= @active_subaccount_count %> active)
+            {if @has_active_subaccount do}
+              {@subaccount_count} ({@active_subaccount_count} active)
             <% else %>
               Not Configured
             <% end %>
@@ -164,7 +164,7 @@
         <div>
           <p class="text-sm text-gray-500 font-medium">Transactions</p>
           <p class="text-lg font-semibold text-gray-700">
-            <%= @transaction_count %> total
+            {@transaction_count} total
           </p>
         </div>
       </div>
@@ -199,7 +199,7 @@
         <div>
           <p class="text-sm text-gray-500 font-medium">Test Payment</p>
           <p class="text-lg font-semibold text-gray-700">
-            <%= if @has_active_config do %>
+            {if @has_active_config do}
               Available
             <% else %>
               Unavailable
@@ -235,7 +235,7 @@
       </a>
     </div>
 
-    <%= if Enum.empty?(@recent_transactions) do %>
+    {if Enum.empty?(@recent_transactions) do}
       <div class="text-center py-8 text-gray-500">
         <p>No transactions found.</p>
       </div>
@@ -283,16 +283,16 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <%= for transaction <- @recent_transactions do %>
+            {for transaction <- @recent_transactions do}
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-mono">
-                  <%= String.slice(transaction.reference, 0, 16) %>...
+                  {String.slice(transaction.reference, 0, 16)}...
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  ₦<%= format_amount(transaction.amount) %>
+                  ₦{format_amount(transaction.amount)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                  <%= transaction.email %>
+                  {transaction.email}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span class={[
@@ -304,11 +304,11 @@
                       _ -> "bg-gray-100 text-gray-800"
                     end
                   ]}>
-                    <%= humanize_status(transaction.status) %>
+                    {humanize_status(transaction.status)}
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <%= format_date(transaction.inserted_at) %>
+                  {format_date(transaction.inserted_at)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <a

@@ -169,33 +169,33 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <%= if Enum.empty?(@transactions) do %>
+          {if Enum.empty?(@transactions) do}
             <tr>
               <td colspan="7" class="px-6 py-8 text-center text-gray-500">
                 No transactions found matching your criteria.
               </td>
             </tr>
           <% else %>
-            <%= for transaction <- @transactions do %>
+            {for transaction <- @transactions do}
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <%= if transaction.transaction_date do %>
+                  {if transaction.transaction_date do}
                     <%= Calendar.strftime(transaction.transaction_date, "%Y-%m-%d %H:%M") %>
                   <% else %>
                     <%= Calendar.strftime(transaction.inserted_at, "%Y-%m-%d %H:%M") %>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
-                  <%= String.slice(transaction.reference, 0, 16) %>...
+                  {String.slice(transaction.reference, 0, 16)}...
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <%= transaction.email %>
+                  {transaction.email}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                  ₦<%= :erlang.float_to_binary(transaction.amount / 100, decimals: 2) %>
+                  ₦{:erlang.float_to_binary(transaction.amount / 100, decimals: 2)}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <%= case transaction.status do %>
+                  {case transaction.status do}
                     <% "success" -> %>
                       <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                         Success
@@ -214,13 +214,13 @@
                       </span>
                     <% _ -> %>
                       <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                        <%= transaction.status %>
+                        {transaction.status}
                       </span>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <%= if transaction.channel do %>
-                    <%= String.capitalize(transaction.channel) %>
+                  {if transaction.channel do}
+                    {String.capitalize(transaction.channel)}
                   <% else %>
                     -
                   <% end %>
@@ -240,7 +240,7 @@
                     >
                       View
                     </a>
-                    <%= if transaction.status == "pending" do %>
+                    {if transaction.status == "pending" do}
                       <%= link("Verify",
                         to:
                           Routes.paystack_admin_path(
@@ -265,19 +265,19 @@
 
   <div class="mt-6 flex items-center justify-between">
     <div class="text-sm text-gray-700">
-      Showing <span class="font-medium"><%= length(@transactions) %></span>
+      Showing <span class="font-medium">{length(@transactions)}</span>
       transactions
-      <%= if @total_entries > 0 do %>
-        of <span class="font-medium"><%= @total_entries %></span> total
+      {if @total_entries > 0 do}
+        of <span class="font-medium">{@total_entries}</span> total
       <% end %>
     </div>
 
-    <%= if @total_pages > 1 do %>
+    {if @total_pages > 1 do}
       <nav
         class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
         aria-label="Pagination"
       >
-        <%= if @page > 1 do %>
+        {if @page > 1 do}
           <a
             href={
               Routes.paystack_admin_path(@conn, :list_transactions, @clinic_id,
@@ -324,10 +324,10 @@
           </span>
         <% end %>
 
-        <%= for page_num <- max(1, @page - 2)..min(@total_pages, @page + 2) do %>
-          <%= if page_num == @page do %>
+        {for page_num <- max(1, @page - 2)..min(@total_pages, @page + 2) do}
+          {if page_num == @page do}
             <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
-              <%= page_num %>
+              {page_num}
             </span>
           <% else %>
             <a
@@ -342,12 +342,12 @@
               }
               class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              <%= page_num %>
+              {page_num}
             </a>
           <% end %>
         <% end %>
 
-        <%= if @page < @total_pages do %>
+        {if @page < @total_pages do}
           <a
             href={
               Routes.paystack_admin_path(@conn, :list_transactions, @clinic_id,

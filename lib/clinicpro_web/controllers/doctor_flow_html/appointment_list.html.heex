@@ -49,26 +49,26 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <%= for appointment <- @appointments do %>
+          {for appointment <- @appointments do}
             <tr>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm font-medium text-gray-900">
-                  <%= appointment.patient_name %>
+                  {appointment.patient_name}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= appointment.time %></div>
-                <div class="text-sm text-gray-500"><%= appointment.date %></div>
+                <div class="text-sm text-gray-900">{appointment.time}</div>
+                <div class="text-sm text-gray-500">{appointment.date}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= appointment.duration %> min</div>
+                <div class="text-sm text-gray-900">{appointment.duration} min</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900"><%= appointment.reason %></div>
+                <div class="text-sm text-gray-900">{appointment.reason}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  <%= appointment.status %>
+                  {appointment.status}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
