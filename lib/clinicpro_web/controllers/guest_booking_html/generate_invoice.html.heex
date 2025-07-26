@@ -1,13 +1,13 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Appointment Summary</h1>
 
-  {workflow_progress(assigns)}
+  <%= workflow_progress(assigns) %>
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-semibold">Booking Details</h2>
       <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-        Invoice #{@invoice_number}
+        Invoice #<%= @invoice_number %>
       </span>
     </div>
 
@@ -16,15 +16,15 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <p class="text-gray-600 mb-1">Name</p>
-          <p class="font-medium">{@contact_info["name"]}</p>
+          <p class="font-medium"><%= @contact_info["name"] %></p>
         </div>
         <div>
           <p class="text-gray-600 mb-1">Email</p>
-          <p class="font-medium">{@contact_info["email"]}</p>
+          <p class="font-medium"><%= @contact_info["email"] %></p>
         </div>
         <div>
           <p class="text-gray-600 mb-1">Phone</p>
-          <p class="font-medium">{@contact_info["phone"]}</p>
+          <p class="font-medium"><%= @contact_info["phone"] %></p>
         </div>
       </div>
     </div>
@@ -34,19 +34,19 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <p class="text-gray-600 mb-1">Type</p>
-          <p class="font-medium">{@appointment_type}</p>
+          <p class="font-medium"><%= @appointment_type %></p>
         </div>
         <div>
           <p class="text-gray-600 mb-1">Preferred Date</p>
-          <p class="font-medium">{@contact_info["preferred_date"]}</p>
+          <p class="font-medium"><%= @contact_info["preferred_date"] %></p>
         </div>
         <div>
           <p class="text-gray-600 mb-1">Preferred Time</p>
-          <p class="font-medium">{@contact_info["preferred_time"]}</p>
+          <p class="font-medium"><%= @contact_info["preferred_time"] %></p>
         </div>
         <div>
           <p class="text-gray-600 mb-1">Reason for Visit</p>
-          <p class="font-medium">{@contact_info["reason"] || "Not specified"}</p>
+          <p class="font-medium"><%= @contact_info["reason"] || "Not specified" %></p>
         </div>
       </div>
     </div>
@@ -73,10 +73,10 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {@appointment_type} Appointment
+              <%= @appointment_type %> Appointment
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              ${@appointment_fee}
+              $<%= @appointment_fee %>
             </td>
           </tr>
           <tr>
@@ -84,7 +84,7 @@
               Total
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-              ${@appointment_fee}
+              $<%= @appointment_fee %>
             </td>
           </tr>
         </tbody>

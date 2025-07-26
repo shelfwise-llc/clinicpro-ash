@@ -6,32 +6,32 @@
     <div class="grid grid-cols-2 gap-4">
       <div>
         <p class="text-sm text-gray-600">Patient</p>
-        <p class="font-medium">{@appointment_data.patient_name}</p>
+        <p class="font-medium"><%= @appointment_data.patient_name %></p>
       </div>
       <div>
         <p class="text-sm text-gray-600">Date & Time</p>
-        <p class="font-medium">{@appointment_data.date} at {@appointment_data.time}</p>
+        <p class="font-medium"><%= @appointment_data.date %> at <%= @appointment_data.time %></p>
       </div>
     </div>
   </div>
 
   <div class="mb-6 p-4 bg-gray-50 rounded-md">
     <h2 class="text-lg font-semibold mb-2">Diagnosis</h2>
-    <p>{@diagnosis["primary_diagnosis"]}</p>
-    {if @diagnosis["secondary_diagnosis"] && @diagnosis["secondary_diagnosis"] != "" do}
+    <p><%= @diagnosis["primary_diagnosis"] %></p>
+    <%= if @diagnosis["secondary_diagnosis"] && @diagnosis["secondary_diagnosis"] != "" do %>
       <p class="mt-2 text-sm text-gray-600">
-        Secondary: {@diagnosis["secondary_diagnosis"]}
+        Secondary: <%= @diagnosis["secondary_diagnosis"] %>
       </p>
     <% end %>
-    {if @diagnosis["notes"] && @diagnosis["notes"] != "" do}
-      <p class="mt-2 text-sm italic">{@diagnosis["notes"]}</p>
+    <%= if @diagnosis["notes"] && @diagnosis["notes"] != "" do %>
+      <p class="mt-2 text-sm italic"><%= @diagnosis["notes"] %></p>
     <% end %>
   </div>
 
   <div class="mb-6">
     <h2 class="text-lg font-semibold mb-4">Current Prescriptions</h2>
 
-    {if Enum.empty?(@prescriptions) do}
+    <%= if Enum.empty?(@prescriptions) do %>
       <p class="text-gray-500 italic">No prescriptions added yet.</p>
     <% else %>
       <div class="overflow-x-auto">
@@ -46,13 +46,13 @@
             </tr>
           </thead>
           <tbody>
-            {for prescription <- @prescriptions do}
+            <%= for prescription <- @prescriptions do %>
               <tr class="border-t">
-                <td class="py-2 px-4">{prescription["medication_name"]}</td>
-                <td class="py-2 px-4">{prescription["dosage"]}</td>
-                <td class="py-2 px-4">{prescription["frequency"]}</td>
-                <td class="py-2 px-4">{prescription["duration"]}</td>
-                <td class="py-2 px-4">{prescription["instructions"]}</td>
+                <td class="py-2 px-4"><%= prescription["medication_name"] %></td>
+                <td class="py-2 px-4"><%= prescription["dosage"] %></td>
+                <td class="py-2 px-4"><%= prescription["frequency"] %></td>
+                <td class="py-2 px-4"><%= prescription["duration"] %></td>
+                <td class="py-2 px-4"><%= prescription["instructions"] %></td>
               </tr>
             <% end %>
           </tbody>

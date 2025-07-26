@@ -15,9 +15,9 @@
             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
             <option value="">All Event Types</option>
-            {for event_type <- @event_types do}
+            <%= for event_type <- @event_types do %>
               <option value={event_type} selected={@filters.event_type == event_type}>
-                {event_type}
+                <%= event_type %>
               </option>
             <% end %>
           </select>
@@ -133,31 +133,31 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          {if Enum.empty?(@webhook_logs) do}
+          <%= if Enum.empty?(@webhook_logs) do %>
             <tr>
               <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
                 No webhook logs found matching the criteria.
               </td>
             </tr>
           <% else %>
-            {for log <- @webhook_logs do}
+            <%= for log <- @webhook_logs do %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {log.event_type}
+                  <%= log.event_type %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {log.reference}
+                  <%= log.reference %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                   <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{webhook_status_class(log.status)}"}>
-                    {humanize_webhook_status(log.status)}
+                    <%= humanize_webhook_status(log.status) %>
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format_processing_time(log.processing_time)}
+                  <%= format_processing_time(log.processing_time) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format_date(log.inserted_at)}
+                  <%= format_date(log.inserted_at) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <a
@@ -176,7 +176,7 @@
     <!-- Pagination -->
     <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
       <div class="flex-1 flex justify-between sm:hidden">
-        {if @page > 1 do}
+        <%= if @page > 1 do %>
           <a
             href={
               ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page - 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
@@ -191,7 +191,7 @@
           </span>
         <% end %>
 
-        {if @total_count > @page * @per_page do}
+        <%= if @total_count > @page * @per_page do %>
           <a
             href={
               ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page + 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
@@ -209,9 +209,9 @@
       <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
         <div>
           <p class="text-sm text-gray-700">
-            Showing <span class="font-medium">{(@page - 1) * @per_page + 1}</span>
-            to <span class="font-medium">{min(@page * @per_page, @total_count)}</span>
-            of <span class="font-medium">{@total_count}</span>
+            Showing <span class="font-medium"><%= (@page - 1) * @per_page + 1 %></span>
+            to <span class="font-medium"><%= min(@page * @per_page, @total_count) %></span>
+            of <span class="font-medium"><%= @total_count %></span>
             results
           </p>
         </div>
@@ -220,7 +220,7 @@
             class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
             aria-label="Pagination"
           >
-            {if @page > 1 do}
+            <%= if @page > 1 do %>
               <a
                 href={
                   ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page - 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"
@@ -262,10 +262,10 @@
             <% end %>
             <!-- Current Page -->
             <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
-              {@page}
+              <%= @page %>
             </span>
 
-            {if @total_count > @page * @per_page do}
+            <%= if @total_count > @page * @per_page do %>
               <a
                 href={
                   ~p"/clinics/#{@clinic_id}/paystack/webhooks?page=#{@page + 1}&per_page=#{@per_page}&event_type=#{@filters.event_type}&status=#{@filters.status}&reference=#{@filters.reference}"

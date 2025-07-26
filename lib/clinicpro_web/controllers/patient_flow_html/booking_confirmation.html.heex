@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Booking Confirmation</h1>
 
-  {workflow_progress(assigns)}
+  <%= workflow_progress(assigns) %>
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
@@ -28,32 +28,32 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
       <div>
         <p class="text-gray-600 mb-2">Doctor</p>
-        <p class="font-medium">{@appointment_data.doctor_name}</p>
+        <p class="font-medium"><%= @appointment_data.doctor_name %></p>
       </div>
 
       <div>
         <p class="text-gray-600 mb-2">Specialty</p>
-        <p class="font-medium">{@appointment_data.specialty}</p>
+        <p class="font-medium"><%= @appointment_data.specialty %></p>
       </div>
 
       <div>
         <p class="text-gray-600 mb-2">Date</p>
-        <p class="font-medium">{@appointment_data.date}</p>
+        <p class="font-medium"><%= @appointment_data.date %></p>
       </div>
 
       <div>
         <p class="text-gray-600 mb-2">Time</p>
-        <p class="font-medium">{@appointment_data.time}</p>
+        <p class="font-medium"><%= @appointment_data.time %></p>
       </div>
 
       <div>
         <p class="text-gray-600 mb-2">Duration</p>
-        <p class="font-medium">{@appointment_data.duration} minutes</p>
+        <p class="font-medium"><%= @appointment_data.duration %> minutes</p>
       </div>
 
       <div>
         <p class="text-gray-600 mb-2">Location</p>
-        <p class="font-medium">{@appointment_data.location}</p>
+        <p class="font-medium"><%= @appointment_data.location %></p>
       </div>
     </div>
 
@@ -63,21 +63,21 @@
       <div class="mb-4">
         <p class="text-gray-600 mb-1">Concerns</p>
         <p class="bg-gray-50 p-3 rounded">
-          {@confirmation_details["concerns"] || "None provided"}
+          <%= @confirmation_details["concerns"] || "None provided" %>
         </p>
       </div>
 
       <div class="mb-4">
         <p class="text-gray-600 mb-1">Medications</p>
         <p class="bg-gray-50 p-3 rounded">
-          {@confirmation_details["medications"] || "None provided"}
+          <%= @confirmation_details["medications"] || "None provided" %>
         </p>
       </div>
 
       <div class="mb-4">
         <p class="text-gray-600 mb-1">Allergies</p>
         <p class="bg-gray-50 p-3 rounded">
-          {@confirmation_details["allergies"] || "None provided"}
+          <%= @confirmation_details["allergies"] || "None provided" %>
         </p>
       </div>
     </div>

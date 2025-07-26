@@ -1,12 +1,12 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Search Filters</h1>
 
-  {workflow_progress(assigns)}
+  <%= workflow_progress(assigns) %>
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <div class="flex items-center mb-6">
       <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-        Search: {@query}
+        Search: <%= @query %>
       </div>
       <a href={~p"/search"} class="ml-4 text-sm text-blue-600 hover:text-blue-800">
         Edit Search
@@ -22,7 +22,7 @@
             Date Range
           </label>
           <div class="space-y-2">
-            {for option <- @filter_options.date_range do}
+            <%= for option <- @filter_options.date_range do %>
               <div class="flex items-center">
                 <input
                   id={"date_range_#{option}"}
@@ -32,7 +32,7 @@
                   class="h-4 w-4 text-blue-600 border-gray-300"
                 />
                 <label for={"date_range_#{option}"} class="ml-2 block text-sm text-gray-700">
-                  {option}
+                  <%= option %>
                 </label>
               </div>
             <% end %>
@@ -74,7 +74,7 @@
             Appointment Types
           </label>
           <div class="space-y-2">
-            {for option <- @filter_options.appointment_types do}
+            <%= for option <- @filter_options.appointment_types do %>
               <div class="flex items-center">
                 <input
                   id={"appointment_type_#{option}"}
@@ -84,7 +84,7 @@
                   class="h-4 w-4 text-blue-600 border-gray-300 rounded"
                 />
                 <label for={"appointment_type_#{option}"} class="ml-2 block text-sm text-gray-700">
-                  {option}
+                  <%= option %>
                 </label>
               </div>
             <% end %>
@@ -96,7 +96,7 @@
             Patient Status
           </label>
           <div class="space-y-2">
-            {for option <- @filter_options.patient_status do}
+            <%= for option <- @filter_options.patient_status do %>
               <div class="flex items-center">
                 <input
                   id={"patient_status_#{option}"}
@@ -106,7 +106,7 @@
                   class="h-4 w-4 text-blue-600 border-gray-300 rounded"
                 />
                 <label for={"patient_status_#{option}"} class="ml-2 block text-sm text-gray-700">
-                  {option}
+                  <%= option %>
                 </label>
               </div>
             <% end %>
@@ -118,7 +118,7 @@
             Medical Records
           </label>
           <div class="space-y-2">
-            {for option <- @filter_options.medical_records do}
+            <%= for option <- @filter_options.medical_records do %>
               <div class="flex items-center">
                 <input
                   id={"medical_records_#{option}"}
@@ -128,7 +128,7 @@
                   class="h-4 w-4 text-blue-600 border-gray-300 rounded"
                 />
                 <label for={"medical_records_#{option}"} class="ml-2 block text-sm text-gray-700">
-                  {option}
+                  <%= option %>
                 </label>
               </div>
             <% end %>

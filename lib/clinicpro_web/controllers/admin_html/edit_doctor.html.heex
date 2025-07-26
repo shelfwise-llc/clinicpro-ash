@@ -4,12 +4,12 @@
     <p class="text-gray-600">Update doctor profile information</p>
   </div>
 
-  {if flash = get_flash(@conn, :error) do}
+  <%= if flash = get_flash(@conn, :error) do %>
     <div
       class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       role="alert"
     >
-      <span class="block sm:inline">{flash}</span>
+      <span class="block sm:inline"><%= flash %></span>
     </div>
   <% end %>
 
@@ -179,7 +179,7 @@
                 name="doctor[bio]"
                 rows="3"
                 class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
-              >{@doctor.bio}</textarea>
+              ><%= @doctor.bio %></textarea>
             </div>
             <p class="mt-2 text-sm text-gray-500">
               Brief description of the doctor's background and expertise.

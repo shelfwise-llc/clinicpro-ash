@@ -1,7 +1,7 @@
 <div class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
   <div class="flex items-center justify-between mb-6">
     <h1 class="text-xl font-semibold text-gray-800">
-      {if @config, do: "Edit Paystack Configuration", else: "New Paystack Configuration"}
+      <%= if @config, do: "Edit Paystack Configuration", else: "New Paystack Configuration" %>
     </h1>
     <div>
       <a
@@ -53,7 +53,7 @@
   </div>
 
   <.form :let={f} for={@changeset} action={@action} class="space-y-6">
-    {if @changeset.action do}
+    <%= if @changeset.action do %>
       <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -80,7 +80,7 @@
     <% end %>
 
     <div>
-      {label(f, :name, "Configuration Name", class: "block text-sm font-medium text-gray-700")}
+      <%= label(f, :name, "Configuration Name", class: "block text-sm font-medium text-gray-700") %>
       <div class="mt-1">
         <%= text_input(f, :name,
           class:
@@ -88,26 +88,26 @@
           placeholder: "e.g., Production Config"
         ) %>
       </div>
-      {error_tag(f, :name)}
+      <%= error_tag(f, :name) %>
       <p class="mt-1 text-sm text-gray-500">A descriptive name to identify this configuration.</p>
     </div>
 
     <div>
-      {label(f, :environment, "Environment", class: "block text-sm font-medium text-gray-700")}
+      <%= label(f, :environment, "Environment", class: "block text-sm font-medium text-gray-700") %>
       <div class="mt-1">
         <%= select(f, :environment, [test: "test", live: "live"],
           class:
             "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
         ) %>
       </div>
-      {error_tag(f, :environment)}
+      <%= error_tag(f, :environment) %>
       <p class="mt-1 text-sm text-gray-500">
         Select 'test' for testing or 'live' for production.
       </p>
     </div>
 
     <div>
-      {label(f, :public_key, "Public Key", class: "block text-sm font-medium text-gray-700")}
+      <%= label(f, :public_key, "Public Key", class: "block text-sm font-medium text-gray-700") %>
       <div class="mt-1">
         <%= text_input(f, :public_key,
           class:
@@ -115,14 +115,14 @@
           placeholder: "pk_test_..."
         ) %>
       </div>
-      {error_tag(f, :public_key)}
+      <%= error_tag(f, :public_key) %>
       <p class="mt-1 text-sm text-gray-500">
         Your Paystack public key. Starts with 'pk_test_' or 'pk_live_'.
       </p>
     </div>
 
     <div>
-      {label(f, :secret_key, "Secret Key", class: "block text-sm font-medium text-gray-700")}
+      <%= label(f, :secret_key, "Secret Key", class: "block text-sm font-medium text-gray-700") %>
       <div class="mt-1">
         <%= password_input(f, :secret_key,
           class:
@@ -130,7 +130,7 @@
           placeholder: "sk_test_..."
         ) %>
       </div>
-      {error_tag(f, :secret_key)}
+      <%= error_tag(f, :secret_key) %>
       <p class="mt-1 text-sm text-gray-500">
         Your Paystack secret key. Starts with 'sk_test_' or 'sk_live_'. This is kept private.
       </p>
@@ -146,7 +146,7 @@
             "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
         ) %>
       </div>
-      {error_tag(f, :webhook_secret)}
+      <%= error_tag(f, :webhook_secret) %>
       <p class="mt-1 text-sm text-gray-500">
         Your Paystack webhook secret for verifying webhook signatures.
       </p>

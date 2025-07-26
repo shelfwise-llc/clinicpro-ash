@@ -14,7 +14,7 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <div class="bg-white rounded-lg shadow p-6">
       <h2 class="text-xl font-semibold mb-4">Doctors</h2>
-      <p class="text-4xl font-bold">{length(@recent_activity.doctors)}</p>
+      <p class="text-4xl font-bold"><%= length(@recent_activity.doctors) %></p>
       <div class="mt-4">
         <.link href={~p"/admin_bypass/doctors"} class="text-blue-600 hover:underline">
           View all doctors
@@ -24,7 +24,7 @@
 
     <div class="bg-white rounded-lg shadow p-6">
       <h2 class="text-xl font-semibold mb-4">Patients</h2>
-      <p class="text-4xl font-bold">{length(@recent_activity.patients)}</p>
+      <p class="text-4xl font-bold"><%= length(@recent_activity.patients) %></p>
       <div class="mt-4">
         <.link href={~p"/admin_bypass/patients"} class="text-blue-600 hover:underline">
           View all patients
@@ -34,7 +34,7 @@
 
     <div class="bg-white rounded-lg shadow p-6">
       <h2 class="text-xl font-semibold mb-4">Appointments</h2>
-      <p class="text-4xl font-bold">{length(@recent_activity.appointments)}</p>
+      <p class="text-4xl font-bold"><%= length(@recent_activity.appointments) %></p>
       <div class="mt-4">
         <.link href={~p"/admin_bypass/appointments"} class="text-blue-600 hover:underline">
           View all appointments
@@ -60,25 +60,25 @@
             </tr>
           </thead>
           <tbody>
-            {for appointment <- @recent_activity.appointments do}
+            <%= for appointment <- @recent_activity.appointments do %>
               <tr>
-                <td class="py-2 px-4 border-b">{appointment.date}</td>
-                <td class="py-2 px-4 border-b">{appointment.start_time}</td>
+                <td class="py-2 px-4 border-b"><%= appointment.date %></td>
+                <td class="py-2 px-4 border-b"><%= appointment.start_time %></td>
                 <td class="py-2 px-4 border-b">
-                  {if appointment.doctor do}
-                    {appointment.doctor.first_name} {appointment.doctor.last_name}
+                  <%= if appointment.doctor do %>
+                    <%= appointment.doctor.first_name %> <%= appointment.doctor.last_name %>
                   <% else %>
                     Unknown Doctor
                   <% end %>
                 </td>
                 <td class="py-2 px-4 border-b">
-                  {if appointment.patient do}
-                    {appointment.patient.first_name} {appointment.patient.last_name}
+                  <%= if appointment.patient do %>
+                    <%= appointment.patient.first_name %> <%= appointment.patient.last_name %>
                   <% else %>
                     Unknown Patient
                   <% end %>
                 </td>
-                <td class="py-2 px-4 border-b">{appointment.status}</td>
+                <td class="py-2 px-4 border-b"><%= appointment.status %></td>
               </tr>
             <% end %>
           </tbody>
@@ -98,13 +98,13 @@
             </tr>
           </thead>
           <tbody>
-            {for patient <- @recent_activity.patients do}
+            <%= for patient <- @recent_activity.patients do %>
               <tr>
                 <td class="py-2 px-4 border-b">
-                  {patient.first_name} {patient.last_name}
+                  <%= patient.first_name %> <%= patient.last_name %>
                 </td>
-                <td class="py-2 px-4 border-b">{patient.email}</td>
-                <td class="py-2 px-4 border-b">{patient.phone}</td>
+                <td class="py-2 px-4 border-b"><%= patient.email %></td>
+                <td class="py-2 px-4 border-b"><%= patient.phone %></td>
               </tr>
             <% end %>
           </tbody>
@@ -124,13 +124,13 @@
             </tr>
           </thead>
           <tbody>
-            {for doctor <- @recent_activity.doctors do}
+            <%= for doctor <- @recent_activity.doctors do %>
               <tr>
                 <td class="py-2 px-4 border-b">
-                  {doctor.first_name} {doctor.last_name}
+                  <%= doctor.first_name %> <%= doctor.last_name %>
                 </td>
-                <td class="py-2 px-4 border-b">{doctor.specialty}</td>
-                <td class="py-2 px-4 border-b">{doctor.email}</td>
+                <td class="py-2 px-4 border-b"><%= doctor.specialty %></td>
+                <td class="py-2 px-4 border-b"><%= doctor.email %></td>
               </tr>
             <% end %>
           </tbody>

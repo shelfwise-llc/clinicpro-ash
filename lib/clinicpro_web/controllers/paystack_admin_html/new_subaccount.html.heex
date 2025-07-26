@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6">
     <h1 class="text-2xl font-bold">Add New Paystack Subaccount</h1>
-    <p class="text-gray-600">For Clinic {@clinic_id}</p>
+    <p class="text-gray-600">For Clinic <%= @clinic_id %></p>
   </div>
 
   <div class="bg-white rounded-lg shadow p-6">
@@ -11,43 +11,43 @@
       action={@action || ~p"/admin/clinics/#{@clinic_id}/paystack/subaccounts"}
       method="post"
     >
-      {if @changeset.action do}
+      <%= if @changeset.action do %>
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
           <p>Oops, something went wrong! Please check the errors below.</p>
         </div>
       <% end %>
 
       <div class="mb-6">
-        {label(f, :business_name, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :business_name, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= text_input(f, :business_name,
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :business_name)}
+        <%= error_tag(f, :business_name) %>
         <p class="text-gray-500 text-xs mt-1">The name of the business for this subaccount</p>
       </div>
 
       <div class="mb-6">
-        {label(f, :settlement_bank, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :settlement_bank, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= select(f, :settlement_bank, Enum.map(@banks, &{&1["name"], &1["code"]}),
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :settlement_bank)}
+        <%= error_tag(f, :settlement_bank) %>
       </div>
 
       <div class="mb-6">
-        {label(f, :account_number, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :account_number, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= text_input(f, :account_number,
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :account_number)}
+        <%= error_tag(f, :account_number) %>
         <p class="text-gray-500 text-xs mt-1">10-digit NUBAN account number</p>
       </div>
 
       <div class="mb-6">
-        {label(f, :percentage_charge, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :percentage_charge, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= number_input(f, :percentage_charge,
           step: "0.01",
           min: "0",
@@ -55,28 +55,28 @@
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :percentage_charge)}
+        <%= error_tag(f, :percentage_charge) %>
         <p class="text-gray-500 text-xs mt-1">
           Percentage of transaction amount to charge as fee (0-100)
         </p>
       </div>
 
       <div class="mb-6">
-        {label(f, :description, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :description, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= textarea(f, :description,
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :description)}
+        <%= error_tag(f, :description) %>
         <p class="text-gray-500 text-xs mt-1">Optional description for this subaccount</p>
       </div>
 
       <div class="mb-6">
-        {label f, :active, class: "flex items-center" do}
-          {checkbox(f, :active, class: "mr-2")}
+        <%= label f, :active, class: "flex items-center" do %>
+          <%= checkbox(f, :active, class: "mr-2") %>
           <span class="text-gray-700 text-sm font-bold">Set as active subaccount</span>
         <% end %>
-        {error_tag(f, :active)}
+        <%= error_tag(f, :active) %>
         <p class="text-gray-500 text-xs mt-1">
           If checked, this will be set as the active subaccount for this clinic
         </p>

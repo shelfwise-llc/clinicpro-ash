@@ -7,7 +7,7 @@
     </p>
   </div>
 
-  {if Enum.empty?(@medical_records) do}
+  <%= if Enum.empty?(@medical_records) do %>
     <div class="p-4 bg-gray-50 rounded-md text-center">
       <p class="text-gray-500">You don't have any medical records yet.</p>
     </div>
@@ -24,13 +24,13 @@
           </tr>
         </thead>
         <tbody>
-          {for record <- @medical_records do}
+          <%= for record <- @medical_records do %>
             <tr class="border-t hover:bg-gray-50">
-              <td class="py-3 px-4">{record.date}</td>
-              <td class="py-3 px-4">{record.doctor_name}</td>
-              <td class="py-3 px-4">{record.diagnosis}</td>
+              <td class="py-3 px-4"><%= record.date %></td>
+              <td class="py-3 px-4"><%= record.doctor_name %></td>
+              <td class="py-3 px-4"><%= record.diagnosis %></td>
               <td class="py-3 px-4 text-center">
-                {if record.has_prescriptions do}
+                <%= if record.has_prescriptions do %>
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     Yes
                   </span>

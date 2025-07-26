@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <div class="mb-6">
     <h1 class="text-2xl font-bold">Edit Paystack Configuration</h1>
-    <p class="text-gray-600">For Clinic {@clinic_id}</p>
+    <p class="text-gray-600">For Clinic <%= @clinic_id %></p>
   </div>
 
   <div class="bg-white rounded-lg shadow p-6">
@@ -12,61 +12,61 @@
       method="post"
     >
       <input type="hidden" name="_method" value="put" />
-      {if @changeset.action do}
+      <%= if @changeset.action do %>
         <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
           <p>Oops, something went wrong! Please check the errors below.</p>
         </div>
       <% end %>
 
       <div class="mb-6">
-        {label(f, :environment, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :environment, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= select(f, :environment, ["test", "production"],
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :environment)}
+        <%= error_tag(f, :environment) %>
       </div>
 
       <div class="mb-6">
-        {label(f, :public_key, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :public_key, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= text_input(f, :public_key,
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :public_key)}
+        <%= error_tag(f, :public_key) %>
         <p class="text-gray-500 text-xs mt-1">Example: pk_test_1234567890abcdef</p>
       </div>
 
       <div class="mb-6">
-        {label(f, :secret_key, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :secret_key, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= text_input(f, :secret_key,
           value: @config.secret_key,
           placeholder: "••••••••••••••••••••••",
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :secret_key)}
+        <%= error_tag(f, :secret_key) %>
         <p class="text-gray-500 text-xs mt-1">Leave blank to keep the current secret key</p>
       </div>
 
       <div class="mb-6">
-        {label(f, :webhook_secret, class: "block text-gray-700 text-sm font-bold mb-2")}
+        <%= label(f, :webhook_secret, class: "block text-gray-700 text-sm font-bold mb-2") %>
         <%= text_input(f, :webhook_secret,
           value: @config.webhook_secret,
           placeholder: "••••••••••••••••••••••",
           class:
             "shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         ) %>
-        {error_tag(f, :webhook_secret)}
+        <%= error_tag(f, :webhook_secret) %>
         <p class="text-gray-500 text-xs mt-1">Leave blank to keep the current webhook secret</p>
       </div>
 
       <div class="mb-6">
-        {label f, :active, class: "flex items-center" do}
-          {checkbox(f, :active, class: "mr-2")}
+        <%= label f, :active, class: "flex items-center" do %>
+          <%= checkbox(f, :active, class: "mr-2") %>
           <span class="text-gray-700 text-sm font-bold">Set as active configuration</span>
         <% end %>
-        {error_tag(f, :active)}
+        <%= error_tag(f, :active) %>
         <p class="text-gray-500 text-xs mt-1">
           If checked, this will be set as the active configuration for this clinic
         </p>

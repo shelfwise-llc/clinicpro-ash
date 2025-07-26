@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Medical Details</h1>
 
-  {workflow_progress(assigns)}
+  <%= workflow_progress(assigns) %>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
     <!-- Patient History Sidebar -->
@@ -11,12 +11,12 @@
 
         <div class="mb-4">
           <p class="text-gray-600 mb-2">Patient Name</p>
-          <p class="font-medium">{@appointment_data.patient_name}</p>
+          <p class="font-medium"><%= @appointment_data.patient_name %></p>
         </div>
 
         <div class="mb-4">
           <p class="text-gray-600 mb-2">Patient ID</p>
-          <p class="font-medium">{@appointment_data.patient_id}</p>
+          <p class="font-medium"><%= @appointment_data.patient_id %></p>
         </div>
 
         <div class="border-t border-gray-200 my-4"></div>
@@ -24,14 +24,14 @@
         <h3 class="text-lg font-medium mb-3">Previous Visits</h3>
 
         <div class="space-y-4">
-          {for visit <- @patient_history do}
+          <%= for visit <- @patient_history do %>
             <div class="bg-gray-50 p-3 rounded-md">
               <div class="flex justify-between items-center mb-2">
-                <p class="font-medium">{visit.date}</p>
-                <p class="text-sm text-gray-500">{visit.doctor}</p>
+                <p class="font-medium"><%= visit.date %></p>
+                <p class="text-sm text-gray-500"><%= visit.doctor %></p>
               </div>
-              <p class="text-sm mb-1"><strong>Diagnosis:</strong> {visit.diagnosis}</p>
-              <p class="text-sm"><strong>Prescription:</strong> {visit.prescription}</p>
+              <p class="text-sm mb-1"><strong>Diagnosis:</strong> <%= visit.diagnosis %></p>
+              <p class="text-sm"><strong>Prescription:</strong> <%= visit.prescription %></p>
             </div>
           <% end %>
         </div>

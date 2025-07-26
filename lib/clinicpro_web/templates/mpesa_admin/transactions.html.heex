@@ -2,7 +2,7 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">M-Pesa Transactions</h1>
-      <a href={Routes.mpesa_admin_path(@conn, :index)} class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <a href="<%= Routes.mpesa_admin_path(@conn, :index) %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
         </svg>
@@ -13,20 +13,20 @@
     <!-- Filter Form -->
     <div class="mb-6 bg-gray-50 p-4 rounded-lg">
       <h2 class="text-lg font-medium text-gray-900 mb-4">Filter Transactions</h2>
-      {form_for @conn, Routes.mpesa_admin_path(@conn, :transactions), [method: :get, class: "space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4"], fn f ->}
+      <%= form_for @conn, Routes.mpesa_admin_path(@conn, :transactions), [method: :get, class: "space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4"], fn f -> %>
         <div>
           <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          {select f, :status, [{"All", ""}, {"Completed", "completed"}, {"Pending", "pending"}, {"Failed", "failed"}], selected: @filters["status"], class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"}
+          <%= select f, :status, [{"All", ""}, {"Completed", "completed"}, {"Pending", "pending"}, {"Failed", "failed"}], selected: @filters["status"], class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" %>
         </div>
 
         <div>
           <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-          {text_input f, :phone, value: @filters["phone"], class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "e.g., 254712345678"}
+          <%= text_input f, :phone, value: @filters["phone"], class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "e.g., 254712345678" %>
         </div>
 
         <div>
           <label for="reference" class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
-          {text_input f, :reference, value: @filters["reference"], class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "Transaction Reference"}
+          <%= text_input f, :reference, value: @filters["reference"], class: "mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md", placeholder: "Transaction Reference" %>
         </div>
 
         <div class="flex items-end">
@@ -36,8 +36,8 @@
             </svg>
             Filter
           </button>
-          {if any_filters_active?(@filters) do}
-            <a href={Routes.mpesa_admin_path(@conn, :transactions)} class="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+          <%= if any_filters_active?(@filters) do %>
+            <a href="<%= Routes.mpesa_admin_path(@conn, :transactions) %>" class="ml-2 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               Clear Filters
             </a>
           <% end %>
@@ -47,7 +47,7 @@
 
     <!-- Transactions Table -->
     <div class="overflow-x-auto mb-6">
-      {if Enum.empty?(@transactions) do}
+      <%= if Enum.empty?(@transactions) do %>
         <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
@@ -57,7 +57,7 @@
             </div>
             <div class="ml-3">
               <p class="text-sm text-yellow-700">
-                No transactions found. {if any_filters_active?(@filters), do: "Try adjusting your filters or clear them to see all transactions."}
+                No transactions found. <%= if any_filters_active?(@filters), do: "Try adjusting your filters or clear them to see all transactions." %>
               </p>
             </div>
           </div>
@@ -76,32 +76,32 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            {for transaction <- @transactions do}
+            <%= for transaction <- @transactions do %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {transaction.reference}
+                  <%= transaction.reference %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format_phone(transaction.phone)}
+                  <%= format_phone(transaction.phone) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format_amount(transaction.amount)}
+                  <%= format_amount(transaction.amount) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{transaction_type_class(transaction.type)}"}>
-                    {format_transaction_type(transaction.type)}
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= transaction_type_class(transaction.type) %>">
+                    <%= format_transaction_type(transaction.type) %>
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{transaction_status_class(transaction.status)}"}>
-                    {format_transaction_status(transaction.status)}
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= transaction_status_class(transaction.status) %>">
+                    <%= format_transaction_status(transaction.status) %>
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format_date(transaction.transaction_date || transaction.inserted_at)}
+                  <%= format_date(transaction.transaction_date || transaction.inserted_at) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <a href={Routes.mpesa_admin_path(@conn, :transaction_details, transaction.id)} class="text-indigo-600 hover:text-indigo-900">View</a>
+                  <a href="<%= Routes.mpesa_admin_path(@conn, :transaction_details, transaction.id) %>" class="text-indigo-600 hover:text-indigo-900">View</a>
                 </td>
               </tr>
             <% end %>
@@ -111,17 +111,17 @@
     </div>
 
     <!-- Pagination -->
-    {if @pagination.total_pages > 1 do}
+    <%= if @pagination.total_pages > 1 do %>
       <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
         <div class="flex flex-1 justify-between sm:hidden">
-          {if @pagination.prev_page do}
-            <a href={build_pagination_path(@conn, @filters, @pagination.prev_page)} class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+          <%= if @pagination.prev_page do %>
+            <a href="<%= build_pagination_path(@conn, @filters, @pagination.prev_page) %>" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
           <% else %>
             <span class="relative inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500">Previous</span>
           <% end %>
 
-          {if @pagination.next_page do}
-            <a href={build_pagination_path(@conn, @filters, @pagination.next_page)} class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+          <%= if @pagination.next_page do %>
+            <a href="<%= build_pagination_path(@conn, @filters, @pagination.next_page) %>" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
           <% else %>
             <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-500">Next</span>
           <% end %>
@@ -130,14 +130,14 @@
         <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
-              Showing <span class="font-medium">{@pagination.start_item}</span> to <span class="font-medium">{@pagination.end_item}</span> of <span class="font-medium">{@pagination.total_items}</span> results
+              Showing <span class="font-medium"><%= @pagination.start_item %></span> to <span class="font-medium"><%= @pagination.end_item %></span> of <span class="font-medium"><%= @pagination.total_items %></span> results
             </p>
           </div>
 
           <div>
             <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
-              {if @pagination.prev_page do}
-                <a href={build_pagination_path(@conn, @filters, @pagination.prev_page)} class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+              <%= if @pagination.prev_page do %>
+                <a href="<%= build_pagination_path(@conn, @filters, @pagination.prev_page) %>" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                   <span class="sr-only">Previous</span>
                   <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
@@ -152,20 +152,20 @@
                 </span>
               <% end %>
 
-              {for page <- pagination_range(@pagination) do}
-                {if page == @pagination.current_page do}
+              <%= for page <- pagination_range(@pagination) do %>
+                <%= if page == @pagination.current_page do %>
                   <span aria-current="page" class="relative z-10 inline-flex items-center bg-indigo-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                    {page}
+                    <%= page %>
                   </span>
                 <% else %>
-                  <a href={build_pagination_path(@conn, @filters, page)} class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-                    {page}
+                  <a href="<%= build_pagination_path(@conn, @filters, page) %>" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                    <%= page %>
                   </a>
                 <% end %>
               <% end %>
 
-              {if @pagination.next_page do}
-                <a href={build_pagination_path(@conn, @filters, @pagination.next_page)} class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+              <%= if @pagination.next_page do %>
+                <a href="<%= build_pagination_path(@conn, @filters, @pagination.next_page) %>" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                   <span class="sr-only">Next</span>
                   <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                     <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />

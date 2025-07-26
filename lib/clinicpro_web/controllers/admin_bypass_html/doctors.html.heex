@@ -22,14 +22,14 @@
         </tr>
       </thead>
       <tbody>
-        {for doctor <- @doctors do}
+        <%= for doctor <- @doctors do %>
           <tr class="border-t">
-            <td class="py-3 px-4">{doctor.first_name} {doctor.last_name}</td>
-            <td class="py-3 px-4">{doctor.specialty}</td>
-            <td class="py-3 px-4">{doctor.email}</td>
-            <td class="py-3 px-4">{doctor.phone}</td>
+            <td class="py-3 px-4"><%= doctor.first_name %> <%= doctor.last_name %></td>
+            <td class="py-3 px-4"><%= doctor.specialty %></td>
+            <td class="py-3 px-4"><%= doctor.email %></td>
+            <td class="py-3 px-4"><%= doctor.phone %></td>
             <td class="py-3 px-4">
-              {if doctor.active do}
+              <%= if doctor.active do %>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   Active
                 </span>

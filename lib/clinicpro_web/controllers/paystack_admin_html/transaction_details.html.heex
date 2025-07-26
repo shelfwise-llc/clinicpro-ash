@@ -37,19 +37,19 @@
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Reference</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-mono">
-            {@transaction.reference}
+            <%= @transaction.reference %>
           </dd>
         </div>
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Amount</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-semibold">
-            ₦{:erlang.float_to_binary(@transaction.amount / 100, decimals: 2)}
+            ₦<%= :erlang.float_to_binary(@transaction.amount / 100, decimals: 2) %>
           </dd>
         </div>
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Status</dt>
           <dd class="mt-1 text-sm sm:mt-0 sm:col-span-2">
-            {case @transaction.status do}
+            <%= case @transaction.status do %>
               <% "success" -> %>
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                   Success
@@ -68,7 +68,7 @@
                 </span>
               <% _ -> %>
                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                  {@transaction.status}
+                  <%= @transaction.status %>
                 </span>
             <% end %>
           </dd>
@@ -76,20 +76,20 @@
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Customer Email</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {@transaction.email}
+            <%= @transaction.email %>
           </dd>
         </div>
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Description</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {@transaction.description || "-"}
+            <%= @transaction.description || "-" %>
           </dd>
         </div>
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Payment Channel</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {if @transaction.channel do}
-              {String.capitalize(@transaction.channel)}
+            <%= if @transaction.channel do %>
+              <%= String.capitalize(@transaction.channel) %>
             <% else %>
               -
             <% end %>
@@ -98,13 +98,13 @@
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Currency</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {@transaction.currency || "NGN"}
+            <%= @transaction.currency || "NGN" %>
           </dd>
         </div>
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Transaction Date</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {if @transaction.transaction_date do}
+            <%= if @transaction.transaction_date do %>
               <%= Calendar.strftime(@transaction.transaction_date, "%B %d, %Y at %H:%M:%S") %>
             <% else %>
               <%= Calendar.strftime(@transaction.inserted_at, "%B %d, %Y at %H:%M:%S") %>
@@ -114,7 +114,7 @@
         <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Subaccount</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-            {if @transaction.subaccount_id do}
+            <%= if @transaction.subaccount_id do %>
               <span class="px-2 py-1 text-xs rounded bg-blue-50 text-blue-700">
                 Subaccount used
               </span>
@@ -126,14 +126,14 @@
         <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
           <dt class="text-sm font-medium text-gray-500">Paystack ID</dt>
           <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-mono">
-            {@transaction.paystack_id || "-"}
+            <%= @transaction.paystack_id || "-" %>
           </dd>
         </div>
       </dl>
     </div>
   </div>
 
-  {if @transaction.status == "pending" do}
+  <%= if @transaction.status == "pending" do %>
     <div class="mb-8 flex justify-center">
       <%= link("Verify Transaction",
         to: Routes.paystack_admin_path(@conn, :verify_transaction, @clinic_id, @transaction.id),
@@ -150,17 +150,17 @@
       <p class="mt-1 max-w-2xl text-sm text-gray-500">History of events for this transaction.</p>
     </div>
     <div class="border-t border-gray-200">
-      {if Enum.empty?(@events) do}
+      <%= if Enum.empty?(@events) do %>
         <div class="px-4 py-5 text-center text-gray-500">
           No events recorded for this transaction.
         </div>
       <% else %>
         <div class="flow-root px-4 py-5">
           <ul role="list" class="-mb-8">
-            {for {event, index} <- Enum.with_index(@events) do}
+            <%= for {event, index} <- Enum.with_index(@events) do %>
               <li>
                 <div class="relative pb-8">
-                  {if index != length(@events) - 1 do}
+                  <%= if index != length(@events) - 1 do %>
                     <span
                       class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
                       aria-hidden="true"
@@ -169,7 +169,7 @@
                   <% end %>
                   <div class="relative flex space-x-3">
                     <div>
-                      {case event.type do}
+                      <%= case event.type do %>
                         <% "created" -> %>
                           <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
                             <svg
@@ -294,14 +294,14 @@
                     <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                       <div>
                         <p class="text-sm text-gray-500">
-                          {String.capitalize(event.type)}
+                          <%= String.capitalize(event.type) %>
                           <span class="font-medium text-gray-900">
-                            {event.message}
+                            <%= event.message %>
                           </span>
                         </p>
                         <%= if event.metadata && event.metadata != %{} do %>
                           <div class="mt-2 text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded overflow-auto max-h-32">
-                            <pre>{Jason.encode!(event.metadata, pretty: true)}</pre>
+                            <pre><%= Jason.encode!(event.metadata, pretty: true) %></pre>
                           </div>
                         <% end %>
                       </div>

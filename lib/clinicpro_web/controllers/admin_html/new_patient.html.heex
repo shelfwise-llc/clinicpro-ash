@@ -4,12 +4,12 @@
     <p class="text-gray-600">Create a new patient record in the system</p>
   </div>
 
-  {if flash = get_flash(@conn, :error) do}
+  <%= if flash = get_flash(@conn, :error) do %>
     <div
       class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
       role="alert"
     >
-      <span class="block sm:inline">{flash}</span>
+      <span class="block sm:inline"><%= flash %></span>
     </div>
   <% end %>
 

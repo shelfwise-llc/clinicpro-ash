@@ -2,7 +2,7 @@
   <div class="bg-white rounded-lg shadow-lg p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">M-Pesa Configurations</h1>
-      <a href={Routes.mpesa_admin_path(@conn, :new_config)} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <a href="<%= Routes.mpesa_admin_path(@conn, :new_config) %>" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
         </svg>
@@ -10,7 +10,7 @@
       </a>
     </div>
 
-    {if Enum.empty?(@configs) do}
+    <%= if Enum.empty?(@configs) do %>
       <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
         <div class="flex">
           <div class="flex-shrink-0">
@@ -38,37 +38,37 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            {for config <- @configs do}
+            <%= for config <- @configs do %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {config.shortcode}
+                  <%= config.shortcode %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {environment_badge(config.environment)}
+                  <%= environment_badge(config.environment) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class={"px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{config_status_class(config.active)}"}>
-                    {config_status_text(config.active)}
+                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= config_status_class(config.active) %>">
+                    <%= config_status_text(config.active) %>
                   </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {format_date(config.updated_at)}
+                  <%= format_date(config.updated_at) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <div class="flex space-x-2">
-                    <a href={Routes.mpesa_admin_path(@conn, :edit_config, config.id)} class="text-indigo-600 hover:text-indigo-900">
+                    <a href="<%= Routes.mpesa_admin_path(@conn, :edit_config, config.id) %>" class="text-indigo-600 hover:text-indigo-900">
                       Edit
                     </a>
-                    {if config.active do}
-                      <a href={Routes.mpesa_admin_path(@conn, :deactivate_config, config.id)} class="text-red-600 hover:text-red-900" data-confirm="Are you sure you want to deactivate this configuration?">
+                    <%= if config.active do %>
+                      <a href="<%= Routes.mpesa_admin_path(@conn, :deactivate_config, config.id) %>" class="text-red-600 hover:text-red-900" data-confirm="Are you sure you want to deactivate this configuration?">
                         Deactivate
                       </a>
                     <% else %>
-                      <a href={Routes.mpesa_admin_path(@conn, :activate_config, config.id)} class="text-green-600 hover:text-green-900">
+                      <a href="<%= Routes.mpesa_admin_path(@conn, :activate_config, config.id) %>" class="text-green-600 hover:text-green-900">
                         Activate
                       </a>
                     <% end %>
-                    <a href={Routes.mpesa_admin_path(@conn, :test_stk_push, config.id)} class="text-blue-600 hover:text-blue-900">
+                    <a href="<%= Routes.mpesa_admin_path(@conn, :test_stk_push, config.id) %>" class="text-blue-600 hover:text-blue-900">
                       Test STK Push
                     </a>
                   </div>
@@ -86,26 +86,26 @@
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
             <dt class="text-sm font-medium text-gray-500 truncate">Total Transactions</dt>
-            <dd class="mt-1 text-3xl font-semibold text-gray-900">{@stats.total_count}</dd>
+            <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= @stats.total_count %></dd>
           </div>
         </div>
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
             <dt class="text-sm font-medium text-gray-500 truncate">Successful Transactions</dt>
-            <dd class="mt-1 text-3xl font-semibold text-green-600">{@stats.completed_count}</dd>
+            <dd class="mt-1 text-3xl font-semibold text-green-600"><%= @stats.completed_count %></dd>
           </div>
         </div>
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
             <dt class="text-sm font-medium text-gray-500 truncate">Total Amount</dt>
-            <dd class="mt-1 text-3xl font-semibold text-gray-900">{format_amount(@stats.total_amount)}</dd>
+            <dd class="mt-1 text-3xl font-semibold text-gray-900"><%= format_amount(@stats.total_amount) %></dd>
           </div>
         </div>
       </div>
     </div>
 
     <div class="mt-6">
-      <a href={Routes.mpesa_admin_path(@conn, :transactions)} class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+      <a href="<%= Routes.mpesa_admin_path(@conn, :transactions) %>" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
         </svg>

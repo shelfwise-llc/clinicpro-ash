@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-8">
   <h1 class="text-3xl font-bold mb-6">Booking Confirmed</h1>
 
-  {workflow_progress(assigns)}
+  <%= workflow_progress(assigns) %>
 
   <div class="bg-white shadow-md rounded-lg p-6 mt-8">
     <div class="text-center mb-8">
@@ -23,7 +23,7 @@
       </div>
       <h2 class="text-2xl font-semibold mb-2">Your appointment has been confirmed!</h2>
       <p class="text-gray-600">
-        A confirmation email has been sent to {@contact_info["email"]}
+        A confirmation email has been sent to <%= @contact_info["email"] %>
       </p>
     </div>
 
@@ -33,23 +33,23 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p class="text-gray-600 mb-1">Booking Reference</p>
-            <p class="font-medium">{@booking_reference}</p>
+            <p class="font-medium"><%= @booking_reference %></p>
           </div>
           <div>
             <p class="text-gray-600 mb-1">Appointment Type</p>
-            <p class="font-medium">{@appointment_type}</p>
+            <p class="font-medium"><%= @appointment_type %></p>
           </div>
           <div>
             <p class="text-gray-600 mb-1">Patient Name</p>
-            <p class="font-medium">{@contact_info["name"]}</p>
+            <p class="font-medium"><%= @contact_info["name"] %></p>
           </div>
           <div>
             <p class="text-gray-600 mb-1">Preferred Date</p>
-            <p class="font-medium">{@contact_info["preferred_date"]}</p>
+            <p class="font-medium"><%= @contact_info["preferred_date"] %></p>
           </div>
           <div>
             <p class="text-gray-600 mb-1">Preferred Time</p>
-            <p class="font-medium">{@contact_info["preferred_time"]}</p>
+            <p class="font-medium"><%= @contact_info["preferred_time"] %></p>
           </div>
         </div>
       </div>

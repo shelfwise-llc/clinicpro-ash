@@ -46,20 +46,20 @@
         </div>
         <div class="ml-4">
           <h2 class="text-lg font-medium text-gray-900">
-            Configuration ID: {@config.id}
+            Configuration ID: <%= @config.id %>
             <span class={"ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full #{config_status_class(@config.active)}"}>
-              {config_status_text(@config.active)}
+              <%= config_status_text(@config.active) %>
             </span>
-            {environment_badge(@config.environment)}
+            <%= environment_badge(@config.environment) %>
           </h2>
           <p class="text-sm text-gray-500">
-            Last updated: {format_date_time(@config.updated_at)}
+            Last updated: <%= format_date_time(@config.updated_at) %>
           </p>
         </div>
       </div>
     </div>
 
-    {form_for @changeset, Routes.mpesa_admin_path(@conn, :update_configuration, @config.id, clinic_id: @clinic_id), fn f ->}
+    <%= form_for @changeset, Routes.mpesa_admin_path(@conn, :update_configuration, @config.id, clinic_id: @clinic_id), fn f -> %>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div class="bg-white overflow-hidden shadow rounded-lg">
           <div class="px-4 py-5 sm:p-6">
@@ -75,7 +75,7 @@
                     "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 ) %>
               </div>
-              {error_tag(f, :consumer_key)}
+              <%= error_tag(f, :consumer_key) %>
             </div>
 
             <div class="mb-4">
@@ -88,18 +88,18 @@
                     "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 ) %>
               </div>
-              {error_tag(f, :consumer_secret)}
+              <%= error_tag(f, :consumer_secret) %>
             </div>
 
             <div class="mb-4">
-              {label(f, :passkey, "Passkey", class: "block text-sm font-medium text-gray-700")}
+              <%= label(f, :passkey, "Passkey", class: "block text-sm font-medium text-gray-700") %>
               <div class="mt-1 flex rounded-md shadow-sm">
                 <%= text_input(f, :passkey,
                   class:
                     "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 ) %>
               </div>
-              {error_tag(f, :passkey)}
+              <%= error_tag(f, :passkey) %>
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@
                     "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 ) %>
               </div>
-              {error_tag(f, :shortcode)}
+              <%= error_tag(f, :shortcode) %>
             </div>
 
             <div class="mb-4">
@@ -131,7 +131,7 @@
                     "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 ) %>
               </div>
-              {error_tag(f, :environment)}
+              <%= error_tag(f, :environment) %>
               <p class="mt-1 text-sm text-gray-500">
                 <span class="text-red-500 font-semibold">Warning:</span>
                 Setting to production will use real money for transactions.
@@ -139,14 +139,14 @@
             </div>
 
             <div class="mb-4">
-              {label(f, :active, "Status", class: "block text-sm font-medium text-gray-700")}
+              <%= label(f, :active, "Status", class: "block text-sm font-medium text-gray-700") %>
               <div class="mt-1 flex items-center">
                 <%= checkbox(f, :active,
                   class: "h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                 ) %>
                 <span class="ml-2 text-sm text-gray-700">Active</span>
               </div>
-              {error_tag(f, :active)}
+              <%= error_tag(f, :active) %>
               <p class="mt-1 text-sm text-gray-500">
                 Only one configuration can be active at a time. Activating this will deactivate all others.
               </p>
@@ -160,14 +160,14 @@
           <h3 class="text-lg font-medium text-gray-900 mb-4">Callback URLs</h3>
 
           <div class="mb-4">
-            {label(f, :base_url, "Base URL", class: "block text-sm font-medium text-gray-700")}
+            <%= label(f, :base_url, "Base URL", class: "block text-sm font-medium text-gray-700") %>
             <div class="mt-1 flex rounded-md shadow-sm">
               <%= text_input(f, :base_url,
                 class:
                   "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               ) %>
             </div>
-            {error_tag(f, :base_url)}
+            <%= error_tag(f, :base_url) %>
             <p class="mt-1 text-sm text-gray-500">
               Base URL for your application (e.g., https://example.com)
             </p>
@@ -183,7 +183,7 @@
                   "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               ) %>
             </div>
-            {error_tag(f, :callback_url)}
+            <%= error_tag(f, :callback_url) %>
             <p class="mt-1 text-sm text-gray-500">
               URL to receive STK Push callbacks (e.g., /api/mpesa/callbacks/stk)
             </p>
@@ -199,7 +199,7 @@
                   "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               ) %>
             </div>
-            {error_tag(f, :validation_url)}
+            <%= error_tag(f, :validation_url) %>
             <p class="mt-1 text-sm text-gray-500">
               URL to validate C2B transactions (e.g., /api/mpesa/callbacks/validation)
             </p>
@@ -215,7 +215,7 @@
                   "flex-1 min-w-0 block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               ) %>
             </div>
-            {error_tag(f, :confirmation_url)}
+            <%= error_tag(f, :confirmation_url) %>
             <p class="mt-1 text-sm text-gray-500">
               URL to confirm C2B transactions (e.g., /api/mpesa/callbacks/confirmation)
             </p>
@@ -225,7 +225,7 @@
 
       <div class="flex justify-between">
         <div>
-          {if @config.id do}
+          <%= if @config.id do %>
             <%= link("Delete Configuration",
               to:
                 Routes.mpesa_admin_path(@conn, :delete_configuration, @config.id,

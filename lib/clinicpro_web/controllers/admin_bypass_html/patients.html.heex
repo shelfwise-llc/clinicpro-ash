@@ -23,15 +23,15 @@
         </tr>
       </thead>
       <tbody>
-        {for patient <- @patients do}
+        <%= for patient <- @patients do %>
           <tr class="border-t">
-            <td class="py-3 px-4">{patient.first_name} {patient.last_name}</td>
-            <td class="py-3 px-4">{patient.email}</td>
-            <td class="py-3 px-4">{patient.phone}</td>
-            <td class="py-3 px-4">{patient.date_of_birth}</td>
-            <td class="py-3 px-4">{patient.gender}</td>
+            <td class="py-3 px-4"><%= patient.first_name %> <%= patient.last_name %></td>
+            <td class="py-3 px-4"><%= patient.email %></td>
+            <td class="py-3 px-4"><%= patient.phone %></td>
+            <td class="py-3 px-4"><%= patient.date_of_birth %></td>
+            <td class="py-3 px-4"><%= patient.gender %></td>
             <td class="py-3 px-4">
-              {if patient.active do}
+              <%= if patient.active do %>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                   Active
                 </span>

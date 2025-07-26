@@ -11,17 +11,17 @@
   <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
     <div class="bg-white rounded-lg shadow p-4">
       <p class="text-sm text-gray-500">Total Invoices</p>
-      <p class="text-2xl font-bold">{@stats.total_count}</p>
+      <p class="text-2xl font-bold"><%= @stats.total_count %></p>
       <p class="text-sm text-gray-500 mt-2">
-        Total Value: {Number.Currency.number_to_currency(@stats.total_amount)}
+        Total Value: <%= Number.Currency.number_to_currency(@stats.total_amount) %>
       </p>
     </div>
 
     <div class="bg-green-50 rounded-lg shadow p-4">
       <p class="text-sm text-gray-500">Paid Invoices</p>
-      <p class="text-2xl font-bold text-green-700">{@stats.paid_count}</p>
+      <p class="text-2xl font-bold text-green-700"><%= @stats.paid_count %></p>
       <p class="text-sm text-gray-500 mt-2">
-        {Number.Currency.number_to_currency(@stats.paid_amount)} (<%= format_percentage(
+        <%= Number.Currency.number_to_currency(@stats.paid_amount) %> (<%= format_percentage(
           @stats.paid_count,
           @stats.total_count
         ) %>)
@@ -30,9 +30,9 @@
 
     <div class="bg-yellow-50 rounded-lg shadow p-4">
       <p class="text-sm text-gray-500">Pending Invoices</p>
-      <p class="text-2xl font-bold text-yellow-700">{@stats.pending_count}</p>
+      <p class="text-2xl font-bold text-yellow-700"><%= @stats.pending_count %></p>
       <p class="text-sm text-gray-500 mt-2">
-        {Number.Currency.number_to_currency(@stats.pending_amount)} (<%= format_percentage(
+        <%= Number.Currency.number_to_currency(@stats.pending_amount) %> (<%= format_percentage(
           @stats.pending_count,
           @stats.total_count
         ) %>)
@@ -41,9 +41,9 @@
 
     <div class="bg-blue-50 rounded-lg shadow p-4">
       <p class="text-sm text-gray-500">Partial Payments</p>
-      <p class="text-2xl font-bold text-blue-700">{@stats.partial_count}</p>
+      <p class="text-2xl font-bold text-blue-700"><%= @stats.partial_count %></p>
       <p class="text-sm text-gray-500 mt-2">
-        {Number.Currency.number_to_currency(@stats.partial_amount)} (<%= format_percentage(
+        <%= Number.Currency.number_to_currency(@stats.partial_amount) %> (<%= format_percentage(
           @stats.partial_count,
           @stats.total_count
         ) %>)
@@ -236,30 +236,30 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          {if length(@filtered_invoices) > 0 do}
-            {for invoice <- @filtered_invoices do}
+          <%= if length(@filtered_invoices) > 0 do %>
+            <%= for invoice <- @filtered_invoices do %>
               <tr>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {invoice.invoice_number}
+                  <%= invoice.invoice_number %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <%= Calendar.strftime(invoice.inserted_at, "%b %d, %Y") %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {if invoice.patient do}
-                    {invoice.patient.first_name} {invoice.patient.last_name}
+                  <%= if invoice.patient do %>
+                    <%= invoice.patient.first_name %> <%= invoice.patient.last_name %>
                   <% else %>
                     <span class="text-gray-400">Not specified</span>
                   <% end %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {invoice.clinic.name}
+                  <%= invoice.clinic.name %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {Number.Currency.number_to_currency(invoice.amount)}
+                  <%= Number.Currency.number_to_currency(invoice.amount) %>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                  {case invoice.status do}
+                  <%= case invoice.status do %>
                     <% "pending" -> %>
                       <span class="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
                         Pending
@@ -278,7 +278,7 @@
                       </span>
                     <% _ -> %>
                       <span class="inline-flex rounded-full bg-gray-100 px-2 text-xs font-semibold leading-5 text-gray-800">
-                        {String.capitalize(invoice.status)}
+                        <%= String.capitalize(invoice.status) %>
                       </span>
                   <% end %>
                 </td>
@@ -289,7 +289,7 @@
                   >
                     View
                   </.link>
-                  {if invoice.status in ["pending", "partial"] do}
+                  <%= if invoice.status in ["pending", "partial"] do %>
                     <.link
                       href={~p"/admin_bypass/invoices/#{invoice}/payment"}
                       class="text-green-600 hover:text-green-900"
@@ -313,7 +313,7 @@
     <div class="px-6 py-4 border-t border-gray-200">
       <div class="flex items-center justify-between">
         <div class="text-sm text-gray-700">
-          Showing <span class="font-medium">{length(@filtered_invoices)}</span> invoices
+          Showing <span class="font-medium"><%= length(@filtered_invoices) %></span> invoices
         </div>
       </div>
     </div>
@@ -328,7 +328,7 @@
     const ctx = document.getElementById('payment-trends-chart').getContext('2d');
     
     // Parse data from server
-    const monthlyData = {Jason.encode!(@monthly_data)};
+    const monthlyData = <%= Jason.encode!(@monthly_data) %>;
     
     // Extract labels and datasets
     const labels = monthlyData.map(item => item.month);

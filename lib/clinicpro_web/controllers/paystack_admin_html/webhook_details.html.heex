@@ -6,47 +6,47 @@
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-lg font-semibold">Event Information</h2>
         <span class={"px-3 py-1 text-xs font-semibold rounded-full #{webhook_status_class(@webhook_log.status)}"}>
-          {humanize_webhook_status(@webhook_log.status)}
+          <%= humanize_webhook_status(@webhook_log.status) %>
         </span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <p class="text-sm font-medium text-gray-500">Event Type</p>
-          <p class="mt-1 text-sm text-gray-900">{@webhook_log.event_type}</p>
+          <p class="mt-1 text-sm text-gray-900"><%= @webhook_log.event_type %></p>
         </div>
 
         <div>
           <p class="text-sm font-medium text-gray-500">Reference</p>
-          <p class="mt-1 text-sm text-gray-900">{@webhook_log.reference || "-"}</p>
+          <p class="mt-1 text-sm text-gray-900"><%= @webhook_log.reference || "-" %></p>
         </div>
 
         <div>
           <p class="text-sm font-medium text-gray-500">Created At</p>
-          <p class="mt-1 text-sm text-gray-900">{format_date(@webhook_log.inserted_at)}</p>
+          <p class="mt-1 text-sm text-gray-900"><%= format_date(@webhook_log.inserted_at) %></p>
         </div>
 
         <div>
           <p class="text-sm font-medium text-gray-500">Updated At</p>
-          <p class="mt-1 text-sm text-gray-900">{format_date(@webhook_log.updated_at)}</p>
+          <p class="mt-1 text-sm text-gray-900"><%= format_date(@webhook_log.updated_at) %></p>
         </div>
 
         <div>
           <p class="text-sm font-medium text-gray-500">Processing Time</p>
           <p class="mt-1 text-sm text-gray-900">
-            {format_processing_time(@webhook_log.processing_time)}
+            <%= format_processing_time(@webhook_log.processing_time) %>
           </p>
         </div>
 
-        {if @webhook_log.status == "failed" do}
+        <%= if @webhook_log.status == "failed" do %>
           <div>
             <p class="text-sm font-medium text-gray-500">Error Message</p>
-            <p class="mt-1 text-sm text-red-600">{@webhook_log.error_message || "-"}</p>
+            <p class="mt-1 text-sm text-red-600"><%= @webhook_log.error_message || "-" %></p>
           </div>
         <% end %>
       </div>
 
-      {if @webhook_log.status == "failed" do}
+      <%= if @webhook_log.status == "failed" do %>
         <div class="mt-4">
           <form
             action={~p"/clinics/#{@clinic_id}/paystack/webhooks/#{@webhook_log.id}/retry"}
@@ -65,7 +65,7 @@
     </div>
   </div>
 
-  {if @webhook_log.transaction do}
+  <%= if @webhook_log.transaction do %>
     <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
       <div class="p-6">
         <h2 class="text-lg font-semibold mb-4">Related Transaction</h2>
@@ -73,27 +73,27 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p class="text-sm font-medium text-gray-500">Transaction Reference</p>
-            <p class="mt-1 text-sm text-gray-900">{@webhook_log.transaction.reference}</p>
+            <p class="mt-1 text-sm text-gray-900"><%= @webhook_log.transaction.reference %></p>
           </div>
 
           <div>
             <p class="text-sm font-medium text-gray-500">Amount</p>
             <p class="mt-1 text-sm text-gray-900">
-              ₦{format_amount(@webhook_log.transaction.amount)}
+              ₦<%= format_amount(@webhook_log.transaction.amount) %>
             </p>
           </div>
 
           <div>
             <p class="text-sm font-medium text-gray-500">Status</p>
             <p class={"mt-1 text-sm #{status_class(@webhook_log.transaction.status)}"}>
-              {humanize_status(@webhook_log.transaction.status)}
+              <%= humanize_status(@webhook_log.transaction.status) %>
             </p>
           </div>
 
           <div>
             <p class="text-sm font-medium text-gray-500">Customer Email</p>
             <p class="mt-1 text-sm text-gray-900">
-              {@webhook_log.transaction.customer_email}
+              <%= @webhook_log.transaction.customer_email %>
             </p>
           </div>
         </div>
@@ -115,22 +115,22 @@
       <h2 class="text-lg font-semibold mb-4">Webhook Payload</h2>
 
       <div class="bg-gray-50 p-4 rounded-md">
-        <pre class="text-xs overflow-x-auto"><code>{format_json(@webhook_log.payload)}</code></pre>
+        <pre class="text-xs overflow-x-auto"><code><%= format_json(@webhook_log.payload) %></code></pre>
       </div>
     </div>
   </div>
 
-  {if @webhook_log.processing_history && length(@webhook_log.processing_history) > 0 do}
+  <%= if @webhook_log.processing_history && length(@webhook_log.processing_history) > 0 do %>
     <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6">
       <div class="p-6">
         <h2 class="text-lg font-semibold mb-4">Processing History</h2>
 
         <div class="flow-root">
           <ul role="list" class="-mb-8">
-            {for {entry, index} <- Enum.with_index(@webhook_log.processing_history) do}
+            <%= for {entry, index} <- Enum.with_index(@webhook_log.processing_history) do %>
               <li>
                 <div class="relative pb-8">
-                  {if index != length(@webhook_log.processing_history) - 1 do}
+                  <%= if index != length(@webhook_log.processing_history) - 1 do %>
                     <span
                       class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
                       aria-hidden="true"
@@ -139,7 +139,7 @@
                   <% end %>
                   <div class="relative flex space-x-3">
                     <div>
-                      {case entry["status"] do}
+                      <%= case entry["status"] do %>
                         <% "processed" -> %>
                           <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
                             <svg
@@ -207,16 +207,16 @@
                         <p class="text-sm text-gray-500">
                           Status changed to
                           <span class="font-medium text-gray-900">
-                            {humanize_webhook_status(entry["status"])}
+                            <%= humanize_webhook_status(entry["status"]) %>
                           </span>
-                          {if entry["error_message"] do}
-                            <span class="text-red-600">- {entry["error_message"]}</span>
+                          <%= if entry["error_message"] do %>
+                            <span class="text-red-600">- <%= entry["error_message"] %></span>
                           <% end %>
                         </p>
                       </div>
                       <div class="text-right text-sm whitespace-nowrap text-gray-500">
                         <time datetime={entry["timestamp"]}>
-                          {format_date(entry["timestamp"])}
+                          <%= format_date(entry["timestamp"]) %>
                         </time>
                       </div>
                     </div>
