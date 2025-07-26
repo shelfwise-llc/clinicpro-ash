@@ -158,3 +158,4 @@ For detailed information about this integration, see the following documentation
 * AshAuthentication: https://hexdocs.pm/ash_authentication
 * Phoenix Framework: https://www.phoenixframework.org/
 * Elixir: https://elixir-lang.org/
+# CI/CD Pipeline Status
