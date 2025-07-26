@@ -4,9 +4,18 @@ defmodule Clinicpro.Mocks.Accounts do
   This completely bypasses the Ash resources to avoid compilation issues.
   """
 
-  alias Clinicpro.TestBypass.MockUser
-  alias Clinicpro.TestBypass.MockDoctor
-  alias Clinicpro.TestBypass.MockPatient
+  # Define structs locally to avoid compilation order issues
+  defmodule MockUser do
+    defstruct [:id, :email, :role, :doctor, :patient, :admin]
+  end
+
+  defmodule MockDoctor do
+    defstruct [:id, :first_name, :last_name, :specialty, :clinic_id]
+  end
+
+  defmodule MockPatient do
+    defstruct [:id, :first_name, :last_name, :date_of_birth]
+  end
 
   # User management functions
   def get_user(id) do

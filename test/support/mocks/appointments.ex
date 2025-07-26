@@ -4,10 +4,22 @@ defmodule Clinicpro.Mocks.Appointments do
   This completely bypasses the Ash resources to avoid compilation issues.
   """
 
-  alias Clinicpro.TestBypass.MockAppointment
-  alias Clinicpro.TestBypass.MockUser
-  alias Clinicpro.TestBypass.MockDoctor
-  alias Clinicpro.TestBypass.MockPatient
+  # Define structs locally to avoid compilation order issues
+  defmodule MockAppointment do
+    defstruct [:id, :patient_name, :date, :time, :reason, :status, :clinic_id, :doctor_id, :patient_id, :type, :medical_details, :diagnosis]
+  end
+
+  defmodule MockUser do
+    defstruct [:id, :email, :role, :doctor, :patient, :admin]
+  end
+
+  defmodule MockDoctor do
+    defstruct [:id, :first_name, :last_name, :specialty, :clinic_id]
+  end
+
+  defmodule MockPatient do
+    defstruct [:id, :first_name, :last_name, :date_of_birth]
+  end
 
   # Appointment management functions
   def get_appointment(id) do

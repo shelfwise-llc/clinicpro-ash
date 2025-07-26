@@ -9,10 +9,23 @@ defmodule ClinicproWeb.ControllerTestBypass do
   import Phoenix.ConnTest
   import Plug.Conn
 
-  alias Clinicpro.TestBypass.MockUser
-  alias Clinicpro.TestBypass.MockDoctor
-  alias Clinicpro.TestBypass.MockPatient
-  alias Clinicpro.TestBypass.MockAppointment
+  # Define structs locally to avoid compilation order issues
+  defmodule MockUser do
+    defstruct [:id, :email, :role, :doctor, :patient, :admin]
+  end
+
+  defmodule MockDoctor do
+    defstruct [:id, :first_name, :last_name, :specialty, :clinic_id]
+  end
+
+  defmodule MockPatient do
+    defstruct [:id, :first_name, :last_name, :date_of_birth]
+  end
+
+  defmodule MockAppointment do
+    defstruct [:id, :patient_name, :date, :time, :reason, :status, :clinic_id, :doctor_id, :patient_id, :type, :medical_details, :diagnosis]
+  end
+
   alias Clinicpro.Mocks.Accounts
 
   @endpoint ClinicproWeb.Endpoint
