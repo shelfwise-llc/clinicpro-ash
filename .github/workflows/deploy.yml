@@ -85,6 +85,8 @@ jobs:
         echo "$HOME/.railway/bin" >> $GITHUB_PATH
         
     - name: Deploy to Railway
-      run: railway up --service clinicpro-ash
+      run: |
+        railway link --project desirable-integrity --environment production
+        railway up --service clinicpro-ash
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
