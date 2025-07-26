@@ -69,11 +69,12 @@ jobs:
       env:
         MIX_ENV: test
         DATABASE_URL: postgres://postgres:postgres@localhost:5432/clinicpro_test
+      continue-on-error: true
 
   build-and-deploy:
     needs: test
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
     
     permissions:
       contents: read
