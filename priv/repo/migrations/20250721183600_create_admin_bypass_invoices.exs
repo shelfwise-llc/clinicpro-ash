@@ -15,14 +15,14 @@ defmodule Clinicpro.Repo.Migrations.CreateAdminBypassInvoices do
       add :items, :map, default: "[]"
 
       # Foreign keys
-      add :patient_id, references(:admin_bypass_patients, on_delete: :restrict, type: :uuid),
+      add :patient_id, references(:admin_bypass_patients, on_delete: :restrict),
         null: false
 
-      add :clinic_id, references(:admin_bypass_doctors, on_delete: :restrict, type: :uuid),
+      add :clinic_id, references(:admin_bypass_doctors, on_delete: :restrict),
         null: false
 
       add :appointment_id,
-          references(:admin_bypass_appointments, on_delete: :nilify_all, type: :uuid)
+          references(:admin_bypass_appointments, on_delete: :nilify_all)
 
       timestamps()
     end

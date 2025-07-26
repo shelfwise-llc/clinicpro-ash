@@ -13,9 +13,9 @@ defmodule Clinicpro.Repo.Migrations.UpdatePrescriptionsForMultiTenant do
       add :instructions, :string, default: ""
       add :created_at, :utc_datetime_usec, null: false
 
-      add :appointment_id, references(:appointments, on_delete: :nilify_all, type: :uuid)
-      add :doctor_id, references(:users, on_delete: :nilify_all, type: :uuid)
-      add :patient_id, references(:users, on_delete: :nilify_all, type: :uuid)
+      add :appointment_id, references(:appointments, on_delete: :nilify_all)
+      add :doctor_id, references(:doctors, on_delete: :nilify_all)
+      add :patient_id, references(:patients, on_delete: :nilify_all)
 
       timestamps()
     end

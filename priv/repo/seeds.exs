@@ -39,7 +39,7 @@ patient_role = create_role.("patient", "Person receiving medical care")
 create_user = fn email, first_name, last_name, role ->
   # Check if user already exists
   case User
-       |> Ash.Query.filter(email == ^email)
+       |> Ash.Query.filter(email == email)
        |> Ash.read_one(api: Accounts) do
     {:ok, user} ->
       Logger.info("User '#{email}' already exists")

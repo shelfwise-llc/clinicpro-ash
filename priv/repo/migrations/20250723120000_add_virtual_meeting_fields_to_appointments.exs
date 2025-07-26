@@ -5,7 +5,7 @@ defmodule Clinicpro.Repo.Migrations.AddVirtualMeetingFieldsToAppointments do
     alter table(:appointments) do
       add :meeting_link, :string
       add :appointment_type, :string, default: "onsite"
-      add :clinic_id, references(:clinics, on_delete: :nilify_all), null: true
+      add :clinic_id, references(:clinics, on_delete: :nilify_all, type: :binary_id), null: true
     end
 
     # Add an index for faster lookups by clinic
