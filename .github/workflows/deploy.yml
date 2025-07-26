@@ -54,6 +54,7 @@ jobs:
       run: mix compile
       env:
         MIX_ENV: test
+        DATABASE_URL: postgres://postgres:postgres@localhost:5432/clinicpro_test
         
     - name: Run tests
       run: mix test
