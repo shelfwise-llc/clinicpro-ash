@@ -28,12 +28,12 @@ defmodule ClinicproWeb.PatientAuthController do
         |> put_session(:pending_otp_patient_id, patient.id)
         |> put_session(:pending_otp_clinic_id, clinic_id)
         |> put_flash(:info, "OTP sent to #{contact}. For development: #{otp}")
-        |> redirect(to: ~p"/patient/verify-otp?clinic_id=#{clinic_id}")
+        |> redirect(to: ~p"/patient/verify-otp?_clinic_id=#{_clinic_id}")
 
       {:error, reason} ->
         conn
         |> put_flash(:error, "Failed to send OTP: #{inspect(reason)}")
-        |> redirect(to: ~p"/patient/request-otp?clinic_id=#{clinic_id}")
+        |> redirect(to: ~p"/patient/request-otp?_clinic_id=#{_clinic_id}")
     end
   end
 
@@ -45,7 +45,7 @@ defmodule ClinicproWeb.PatientAuthController do
       nil ->
         conn
         |> put_flash(:error, "Please request an OTP first")
-        |> redirect(to: ~p"/patient/request-otp?clinic_id=#{clinic_id}")
+        |> redirect(to: ~p"/patient/request-otp?_clinic_id=#{_clinic_id}")
 
       _patient_id ->
         render(conn, :verify_otp, clinic_id: clinic_id)
@@ -78,12 +78,12 @@ defmodule ClinicproWeb.PatientAuthController do
       {:error, :invalid_otp} ->
         conn
         |> put_flash(:error, "Invalid OTP. Please try again.")
-        |> redirect(to: ~p"/patient/verify-otp?clinic_id=#{clinic_id}")
+        |> redirect(to: ~p"/patient/verify-otp?_clinic_id=#{_clinic_id}")
 
       {:error, reason} ->
         conn
         |> put_flash(:error, "Authentication failed: #{inspect(reason)}")
-        |> redirect(to: ~p"/patient/request-otp?clinic_id=#{clinic_id}")
+        |> redirect(to: ~p"/patient/request-otp?_clinic_id=#{_clinic_id}")
     end
   end
 

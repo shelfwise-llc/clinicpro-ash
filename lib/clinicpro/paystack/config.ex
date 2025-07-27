@@ -11,7 +11,7 @@ defmodule Clinicpro.Paystack.Config do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias __MODULE__
 
   schema "paystack_configs" do
@@ -238,5 +238,30 @@ defmodule Clinicpro.Paystack.Config do
     |> Repo.update_all(set: [is_active: false])
 
     :ok
+  end
+
+  @doc """
+  Gets the secret key from the active configuration for a clinic.
+
+  ## Parameters
+
+  * `clinic_id` - ID of the clinic
+
+  ## Returns
+
+  * `{:ok, secret_key}` - The secret key from the active configuration
+  * `{:error, :not_found}` - No active configuration found
+  * `{:error, :no_secret_key}` - Active configuration found but no secret key
+
+  """
+  def get_secret_key(clinic_id) do
+    case get_active(clinic_id) do
+      {:ok, config} when is_binary(config.secret_key) and config.secret_key != "" ->
+        {:ok, config.secret_key}
+      {:ok, _} ->
+        {:error, :no_secret_key}
+      error ->
+        error
+    end
   end
 end

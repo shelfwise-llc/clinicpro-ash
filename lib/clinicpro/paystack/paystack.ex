@@ -18,35 +18,36 @@ defmodule Clinicpro.Paystack do
 
   * `email` - Customer's email address
   * `amount` - Amount in Naira
-  * `reference` - Optional custom reference (if not provided, one will be generated)
+  * `payment_ref` - Optional custom reference (if not provided, one will be generated)
   * `description` - Description of the payment
-  * `_clinic_id` - ID of the clinic
-  * `_opts` - Additional options:
+  * `clinic_id` - ID of the clinic
+  * `opts` - Additional options:
     * `:callback_url` - URL to redirect to after payment
     * `:metadata` - Additional data to include with the _transaction
     * `:use_subaccount` - Whether to use the active subaccount
 
   ## Returns
 
-  * `{:ok, %{_transaction: _transaction, authorization_url: url}}` - Success
+  * `{:ok, %{transaction: transaction, authorization_url: url}}` - Success
   * `{:error, reason}` - Error reason
 
   """
-  def initialize_payment(email, amount, reference \\ nil, description, _clinic_id, _opts \\ []) do
-    # Generate a reference if not provided
-    reference = reference || generate_reference(_clinic_id)
+  def initialize_payment(email, amount, payment_ref \\ nil, description, clinic_id, opts \\ []) do
+    # Generate a payment reference if not provided
+    final_payment_ref = payment_ref || generate_reference(clinic_id)
 
     # Extract options
-    callback_url = Keyword.get(_opts, :callback_url)
-    metadata = Keyword.get(_opts, :metadata)
-    use_subaccount = Keyword.get(_opts, :use_subaccount, false)
+    callback_url = Keyword.get(opts, :callback_url)
+    metadata = Keyword.get(opts, :metadata)
+    use_subaccount = Keyword.get(opts, :use_subaccount, false)
 
     # Initialize the payment
     Transaction.initialize_payment(
       email,
       amount,
+      final_payment_ref,
       description,
-      _clinic_id,
+      clinic_id,
       callback_url,
       metadata,
       use_subaccount
@@ -58,8 +59,8 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `reference` - Transaction reference to verify
-  * `_clinic_id` - ID of the clinic
+  * `payment_reference` - Transaction reference to verify
+  * `clinic_id` - ID of the clinic
 
   ## Returns
 
@@ -67,8 +68,8 @@ defmodule Clinicpro.Paystack do
   * `{:error, reason}` - Error reason
 
   """
-  def verify_payment(reference, _clinic_id) do
-    Transaction.verify_payment(reference, _clinic_id)
+  def verify_payment(payment_reference, clinic_id) do
+    Transaction.verify_payment(payment_reference, clinic_id)
   end
 
   @doc """
@@ -86,8 +87,8 @@ defmodule Clinicpro.Paystack do
   * `{:error, reason}` - Error reason
 
   """
-  def process_webhook(payload, signature, _clinic_id) do
-    Callback.process_webhook(payload, signature, _clinic_id)
+  def process_webhook(payload, signature, clinic_id) do
+    Callback.process_webhook(payload, signature, clinic_id)
   end
 
   @doc """
@@ -95,15 +96,15 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `_clinic_id` - ID of the clinic
+  * `clinic_id` - ID of the clinic
 
   ## Returns
 
-  * Map with _transaction statistics
+  * Map with transaction statistics
 
   """
-  def get_transaction_stats(_clinic_id) do
-    Transaction.get_stats(_clinic_id)
+  def get_transaction_stats(clinic_id) do
+    Transaction.get_stats(clinic_id)
   end
 
   @doc """
@@ -111,7 +112,7 @@ defmodule Clinicpro.Paystack do
 
   ## Parameters
 
-  * `_clinic_id` - ID of the clinic
+  * `clinic_id` - ID of the clinic
   * `limit` - Maximum number of transactions to return (default: 50)
   * `offset` - Number of transactions to skip (default: 0)
 
@@ -120,8 +121,8 @@ defmodule Clinicpro.Paystack do
   * List of transactions
 
   """
-  def list_transactions(_clinic_id, limit \\ 50, offset \\ 0) do
-    Transaction.list_by_clinic(_clinic_id, limit, offset)
+  def list_transactions(clinic_id, limit \\ 50, offset \\ 0) do
+    Transaction.list_by_clinic(clinic_id, limit, offset)
   end
 
   @doc """
@@ -398,9 +399,9 @@ defmodule Clinicpro.Paystack do
 
   # Private functions
 
-  defp generate_reference(_clinic_id) do
+  defp generate_reference(clinic_id) do
     timestamp = DateTime.utc_now() |> DateTime.to_unix()
     random = :rand.uniform(1_000_000)
-    "paystack_#{_clinic_id}_unused#{timestamp}_unused#{random}"
+    "paystack_#{clinic_id}_#{timestamp}_#{random}"
   end
 end

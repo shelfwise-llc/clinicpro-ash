@@ -6,10 +6,10 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 config :clinicpro, Clinicpro.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "clinicpro_test#{System.get_env("MIX_TEST_PARTITION")}",
+  username: System.get_env("TEST_DB_USERNAME") || "alex",
+  password: System.get_env("TEST_DB_PASSWORD") || "123",
+  hostname: System.get_env("TEST_DB_HOSTNAME") || "localhost",
+  database: System.get_env("TEST_DB_NAME") || "clinicpro_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 

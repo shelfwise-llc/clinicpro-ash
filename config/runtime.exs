@@ -20,21 +20,28 @@ if System.get_env("PHX_SERVER") do
   config :clinicpro, ClinicproWeb.Endpoint, server: true
 end
 
+# For all environments, check if DATABASE_URL is set (Railway deployment)
+if database_url = System.get_env("DATABASE_URL") do
+  config :clinicpro, Clinicpro.Repo,
+    url: database_url,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+end
+
 if config_env() == :prod do
-  database_url =
-    System.get_env("DATABASE_URL") ||
-      raise """
-      environment variable DATABASE_URL is missing.
-      For example: ecto://USER:PASS@HOST/DATABASE
-      """
+  # If DATABASE_URL wasn't set above, raise an error in production
+  unless System.get_env("DATABASE_URL") do
+    raise """
+    environment variable DATABASE_URL is missing.
+    For example: ecto://USER:PASS@HOST/DATABASE
+    """
+  end
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  config :clinicpro, Clinicpro.Repo,
-    # ssl: true,
-    url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-    socket_options: maybe_ipv6
+  # Add IPv6 support if configured
+  if maybe_ipv6 != [] do
+    config :clinicpro, Clinicpro.Repo, socket_options: maybe_ipv6
+  end
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you

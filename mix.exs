@@ -81,12 +81,15 @@ defmodule Clinicpro.MixProject do
       {:ash_json_api, "~> 0.34"},
 
       # Authentication
-      {:ash_authentication, "~> 3.12.4"},
       # For secure password hashing
       {:argon2_elixir, "~> 3.0"},
-      {:ash_authentication_phoenix, "~> 1.9"},
       # For admin authentication
       {:bcrypt_elixir, "~> 3.0"},
+
+      # Guardian for JWT Authentication
+      {:guardian, "~> 2.3"},
+      # For token tracking and revocation
+      {:guardian_db, "~> 2.1"},
 
       # Admin Interface
       {:ash_admin, "~> 0.8"},

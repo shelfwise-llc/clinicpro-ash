@@ -69,6 +69,39 @@ defmodule Clinicpro.Paystack.Http do
     end
   end
 
+  @doc """
+  Makes a PUT request to the Paystack API.
+
+  ## Parameters
+
+  - `endpoint` - The API endpoint to call (e.g., "/subaccount/SUB_123")
+  - `payload` - The data to send in the request body
+  - `secret_key` - The secret key to use for authentication
+  - `base_url` - The base URL for the API (optional)
+
+  ## Returns
+
+  - `{:ok, response}` - If successful
+  - `{:error, reason}` - If failed
+  """
+  def put(endpoint, payload, secret_key, base_url \\ nil) do
+    url = build_url(endpoint, base_url)
+    headers = build_headers(secret_key)
+    body = Jason.encode!(payload)
+
+    case HTTPoison.put(url, body, headers) do
+      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}}
+      when status_code in 200..299 ->
+        {:ok, Jason.decode!(response_body)}
+
+      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}} ->
+        {:error, "HTTP Error #{status_code}: #{response_body}"}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, "HTTP Request Failed: #{inspect(reason)}"}
+    end
+  end
+
   # Private functions
 
   defp build_url(endpoint, nil), do: "#{@default_base_url}#{endpoint}"

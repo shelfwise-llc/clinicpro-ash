@@ -2,10 +2,10 @@ import Config
 
 # Configure your database
 config :clinicpro, Clinicpro.Repo,
-  username: "alex",
-  password: "123",
-  hostname: "localhost",
-  database: "clinicpro_dev",
+  username: System.get_env("DEV_DB_USERNAME") || "alex",
+  password: System.get_env("DEV_DB_PASSWORD") || "123",
+  hostname: System.get_env("DEV_DB_HOSTNAME") || "localhost",
+  database: System.get_env("DEV_DB_NAME") || "clinicpro_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10

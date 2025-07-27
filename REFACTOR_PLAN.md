@@ -1,13 +1,13 @@
 # ClinicPro Authentication & Payment Refactor Plan
 
 ## Current Status
-- ✅ **Archive Branch Created**: `archive/pre-auth-refactor` 
+- ✅ **Archive Branch Created**: `archive/pre-auth-refactor`
 - ✅ **Development Branch**: `feature/auth-paystack-refactor`
 - ✅ **Compilation**: Working (with warnings)
 - ❌ **Tests**: Failing due to Mox configuration
 - ❌ **Authentication**: AshAuthentication disabled due to compatibility issues
 
-## Phase 1: Fix Critical Issues (Day 1)
+## Phase 1: Fix Critical Issues
 
 ### 1.1 Fix Test Infrastructure
 - [ ] Fix Mox configuration in test_helper.exs
@@ -21,7 +21,7 @@
 - [ ] Remove unused functions and aliases
 - [ ] Fix undefined module references
 
-## Phase 2: Authentication Refactor (Days 2-3)
+## Phase 2: Authentication Refactor
 
 ### 2.1 Remove AshAuthentication
 - [ ] Remove AshAuthentication dependencies from mix.exs
@@ -41,7 +41,7 @@
 - [ ] Update user roles and permissions
 - [ ] Test clinic-specific user access
 
-## Phase 3: Payment Integration (Days 4-5)
+## Phase 3: Payment Integration
 
 ### 3.1 Complete Paystack Integration
 - [ ] Fix missing Paystack.API module
@@ -60,7 +60,7 @@
 - [ ] Clean up M-Pesa references in payment processor
 - [ ] Update multi-tenant architecture to use Paystack only
 
-## Phase 4: Testing & Deployment (Day 6)
+## Phase 4: Testing & Deployment
 
 ### 4.1 Comprehensive Testing
 - [ ] Fix all test failures
@@ -123,7 +123,7 @@
 - `test/support/` - Clean up mock modules
 - Add comprehensive integration tests
 
-## Timeline: 6 Days Total
+## Timeline:
 - **Day 1**: Fix tests and warnings
 - **Days 2-3**: Authentication refactor
 - **Days 4-5**: Payment integration

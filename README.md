@@ -1,23 +1,37 @@
-# ClinicPro - Ash Framework Implementation
+# ClinicPro - Medical Clinic Management System
 
 ClinicPro is a medical clinic management system built with Elixir, Phoenix, and the Ash Framework. This system manages appointments, patient records, and doctor workflows in a modern, secure web application.
 
 ## Current Status
 
-The project is currently under active development with a focus on implementing the doctor workflow. We're using Ash Framework 2.17.x with AshAuthentication 3.12.4 and ash_phoenix 1.3.x.
+The project is currently under active development with the following key features:
 
-### Known Issues
+1. **Multi-tenant Architecture**: Each clinic has isolated data and configurations
+2. **Paystack Payment Integration**: Secure payment processing (M-Pesa integration is disabled)
+3. **Guardian JWT Authentication**: Secure authentication with multi-tenant support
+4. **Doctor and Patient Workflows**: Complete appointment management system
 
-There are currently compilation issues with AshAuthentication's magic link strategy. The error occurs in the transformer with: `key :type not found in: nil`. This is being addressed by properly configuring the magic link strategy in the User resource.
+### Payment Processing
+
+- **Paystack**: Active payment gateway with full multi-tenant support
+- **M-Pesa**: Integration is currently disabled (code is preserved in comments for reference)
+
+### Authentication System
+
+The application uses Guardian JWT authentication with the following features:
+
+1. **JWT Token-based Authentication**: Secure, stateless authentication
+2. **Role-based Access Control**: Admin, doctor, and patient roles
+3. **Multi-tenant Isolation**: Users can only access their clinic's resources
+4. **Password Reset Flow**: Complete forgot/reset password functionality
 
 ## Development Approach
 
-To allow development to continue while addressing the AshAuthentication issues, we've implemented a bypass approach:
+To ensure maintainable and robust code, we follow these practices:
 
-1. **Isolated Test Runner**: A standalone test environment that doesn't depend on the main application
-2. **Mock Implementations**: Mock structs for User, Doctor, Patient, and Appointment
-3. **Workflow State Management**: A module to simulate the controller's workflow state
-4. **Bypass Controller**: A controller implementation that works without AshAuthentication
+1. **Multi-tenant Architecture**: All features respect clinic isolation
+2. **Comprehensive Testing**: Unit and integration tests for critical paths
+3. **Phased Refactoring**: Systematic approach to code improvements
 
 ## Doctor Flow Implementation
 
@@ -71,41 +85,41 @@ While AshAuthentication issues are being resolved, you can use the bypass contro
 
 2. Access the doctor flow at `/doctor/appointments`
 
-## Authentication
+## M-Pesa Integration (Disabled)
 
-The project uses AshAuthentication with magic link strategy. The configuration approach is:
+The project previously included M-Pesa integration, which has been disabled in favor of Paystack. The M-Pesa code remains in the codebase (commented out) for reference purposes.
 
-1. Minimal configuration at the API level
-2. Magic link strategy configuration at the User resource level
-3. MagicLinkSender module implementing the required behavior
-4. Token configuration at the API level only
+### Paystack Integration
 
-## M-Pesa Integration
+The project now uses Paystack as the primary payment gateway:
 
-The project includes a comprehensive M-Pesa integration with multi-tenant support:
-
-### Key Features
-
-* **Multi-tenant Architecture**: Each clinic has its own M-Pesa configuration
-* **Payment Methods**: Supports both STK Push and C2B payment methods
+* **Multi-tenant Architecture**: Each clinic has its own Paystack configuration
+* **Payment Processing**: Supports standard Paystack payment flow
 * **Transaction Isolation**: Transactions are isolated by clinic
-* **Admin Interface**: Dedicated admin interface for managing M-Pesa configurations
+* **Admin Interface**: Dedicated admin interface for managing Paystack configurations
 
 ### Components
 
-* `Clinicpro.MPesa` - Main module in `/lib/clinicpro/mpesa/mpesa.ex`
-* `Clinicpro.MPesa.Config` - Configuration management with multi-tenant support
-* `Clinicpro.MPesa.Auth` - Authentication handling for Safaricom Daraja API
-* `Clinicpro.MPesa.STKPush` - STK Push implementation for payment requests
-* `Clinicpro.MPesa.C2B` - C2B URL registration and payment handling
-* `Clinicpro.MPesa.Transaction` - Transaction management with clinic isolation
-* `Clinicpro.MPesa.Callback` - Callback handling for payment notifications
+* `Clinicpro.Paystack` - Main module in `/lib/clinicpro/paystack/paystack.ex`
+* `Clinicpro.Paystack.Config` - Configuration management with multi-tenant support
+* `Clinicpro.Paystack.API` - API client for Paystack
+* `Clinicpro.Paystack.Transaction` - Transaction management with clinic isolation
+* `Clinicpro.Paystack.Callback` - Webhook handling for payment notifications
 
-### Running M-Pesa Tests
+## M-Pesa and Virtual Meetings Integration
 
-```bash
-./run_mpesa_tests.exs
-```
+The project includes a comprehensive integration between M-Pesa payment processing and virtual meeting generation with the following features:
+
+- **Multi-tenant architecture**: Each clinic has isolated configurations for M-Pesa and virtual meetings
+- **Real API integrations**: Support for Google Meet and Zoom with proper authentication
+- **Fallback mechanisms**: SimpleAdapter fallback for API failures
+- **Comprehensive testing**: Unit, integration, and real API tests
+
+For detailed information about this integration, see the following documentation:
+
+- [Integration Summary](docs/mpesa_virtual_meetings_integration_summary.md)
+- [Deployment Guide](docs/mpesa_virtual_meetings_deployment.md)
+- [Testing Checklist](docs/integration_testing_checklist.md)
 
 ## Test Organization
 
@@ -134,23 +148,6 @@ To run specific test groups, use the following scripts:
 - `mix run run_mpesa_tests.exs` - Run all M-Pesa tests
 - `mix run run_admin_bypass_tests.exs` - Run all admin bypass tests
 - `mix run run_workflow_tests.exs` - Run all workflow tests
-
-For more detailed information about the M-Pesa integration, see the [M-Pesa documentation](docs/mpesa/README.md).
-
-## M-Pesa and Virtual Meetings Integration
-
-The project includes a comprehensive integration between M-Pesa payment processing and virtual meeting generation with the following features:
-
-- **Multi-tenant architecture**: Each clinic has isolated configurations for M-Pesa and virtual meetings
-- **Real API integrations**: Support for Google Meet and Zoom with proper authentication
-- **Fallback mechanisms**: SimpleAdapter fallback for API failures
-- **Comprehensive testing**: Unit, integration, and real API tests
-
-For detailed information about this integration, see the following documentation:
-
-- [Integration Summary](docs/mpesa_virtual_meetings_integration_summary.md)
-- [Deployment Guide](docs/mpesa_virtual_meetings_deployment.md)
-- [Testing Checklist](docs/integration_testing_checklist.md)
 
 ## Learn More
 

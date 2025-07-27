@@ -60,7 +60,7 @@ defmodule ClinicproWeb.Router do
     get "/edit_appointment/:id", AdminController, :edit_appointment
 
     # Doctors management
-    get "/_doctors", AdminController, :_doctors
+    get "/doctors", AdminController, :doctors
     get "/_doctors/new", AdminController, :new_doctor
     post "/_doctors", AdminController, :create_doctor
     get "/_doctors/:id/edit", AdminController, :edit_doctor
@@ -68,7 +68,7 @@ defmodule ClinicproWeb.Router do
     post "/_doctors/:id/delete", AdminController, :delete_doctor
 
     # Patients management
-    get "/_patients", AdminController, :_patients
+    get "/patients", AdminController, :patients
     get "/_patients/new", AdminController, :new_patient
     post "/_patients", AdminController, :create_patient
     get "/_patients/:id/edit", AdminController, :edit_patient
@@ -116,7 +116,7 @@ defmodule ClinicproWeb.Router do
     # end
 
     # Admin Paystack routes
-    scope "/clinics/:_clinic_id/paystack" do
+    scope "/clinics/:clinic_id/paystack" do
       # Configuration management
       get "/", PaystackAdminController, :index
       get "/new", PaystackAdminController, :new_config
@@ -166,7 +166,7 @@ defmodule ClinicproWeb.Router do
     post "/seed", AdminBypassController, :seed_database
 
     # Doctors management
-    get "/_doctors", AdminBypassController, :_doctors
+    get "/doctors", AdminBypassController, :doctors
     get "/_doctors/new", AdminBypassController, :new_doctor
     post "/_doctors", AdminBypassController, :create_doctor
     get "/_doctors/:id/edit", AdminBypassController, :edit_doctor
@@ -174,7 +174,7 @@ defmodule ClinicproWeb.Router do
     delete "/_doctors/:id", AdminBypassController, :delete_doctor
 
     # Patients management
-    get "/_patients", AdminBypassController, :_patients
+    get "/patients", AdminBypassController, :patients
     get "/_patients/new", AdminBypassController, :new_patient
     post "/_patients", AdminBypassController, :create_patient
     get "/_patients/:id/edit", AdminBypassController, :edit_patient
@@ -190,7 +190,7 @@ defmodule ClinicproWeb.Router do
     delete "/appointments/:id", AdminBypassController, :delete_appointment
 
     # Invoices management
-    scope "/clinics/:_clinic_id", ClinicproWeb do
+    scope "/clinics/:clinic_id", ClinicproWeb do
       get "/invoices", InvoiceController, :index
       get "/invoices/new", InvoiceController, :new
       post "/invoices", InvoiceController, :create

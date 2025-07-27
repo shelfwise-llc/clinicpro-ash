@@ -52,18 +52,11 @@ config :esbuild,
     env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
   ]
 
-# Configure Ash Authentication
-config :ash_authentication,
-  user_identity_field: :email,
-  # Use environment variable with fallback for development
-  signing_secret:
-    System.get_env("AUTH_SIGNING_SECRET") || "dev-only-secret-please-change-in-production"
-
-# Token signing secret for AshAuthentication
-config :clinicpro,
-  token_signing_secret:
-    System.get_env("TOKEN_SIGNING_SECRET") ||
-      "very_long_secret_that_is_used_for_signing_tokens_in_development_at_least_64_bytes_long"
+# Guardian configuration for JWT authentication
+config :clinicpro, Clinicpro.Auth.Guardian,
+  issuer: "clinicpro",
+  secret_key: System.get_env("GUARDIAN_SECRET_KEY") || "dev_only_guardian_secret_key_please_change_in_production_at_least_64_bytes_long",
+  ttl: {30, :day}
 
 # Configure JSON:API
 config :ash_json_api,
@@ -89,6 +82,18 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# Guardian DB configuration for token storage
+
+# GuardianDB configuration
+config :guardian, Guardian.DB,
+  repo: Clinicpro.Repo,
+  # default
+  schema_name: "guardian_tokens",
+  # store refresh tokens
+  token_types: ["refresh_token"],
+  # 60 minutes
+  sweep_interval: 60
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -6,7 +6,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   # Apply authentication plug to ensure only authenticated _patients can access
   plug :ensure_authenticated_patient when action in [:index, :new, :create, :show, :cancel]
 
-  # Apply workflow validator for the appointment booking process
+  # Apply workflow validator for the _appointment booking process
   plug WorkflowValidator,
        [workflow: :appointment_booking] when action in [:select_doctor, :select_date, :confirm]
 
@@ -40,32 +40,32 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   end
 
   @doc """
-  Display a specific appointment for the patient.
+  Display a specific _appointment for the patient.
   """
   def show(conn, %{"id" => appointment_id}) do
     patient_id = get_session(conn, :user_id)
 
     case get_appointment(appointment_id, patient_id) do
-      {:ok, appointment} ->
+      {:ok, _appointment} ->
         render(conn, :appointment_detail,
-          appointment: appointment,
+          _appointment: _appointment,
           patient_id: patient_id
         )
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Cannot access appointment: #{reason}")
+        |> put_flash(:error, "Cannot access _appointment: #{reason}")
         |> redirect(to: ~p"/patient/appointments")
     end
   end
 
   @doc """
-  Start the appointment booking process - select doctor.
+  Start the _appointment booking process - select doctor.
   """
   def new(conn, _params) do
     patient_id = get_session(conn, :user_id)
 
-    # Initialize the workflow for this appointment booking
+    # Initialize the workflow for this _appointment booking
     conn = WorkflowValidator.init_workflow(conn, :appointment_booking, "booking-#{patient_id}")
 
     # Get available _doctors
@@ -129,14 +129,14 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   end
 
   @doc """
-  Display the appointment confirmation _page.
+  Display the _appointment confirmation _page.
   """
   def confirm(conn, _params) do
     patient_id = get_session(conn, :user_id)
     selected_doctor = get_session(conn, :selected_doctor)
     selected_slot = get_session(conn, :selected_slot)
 
-    render(conn, :confirmappointment,
+    render(conn, :confirm_appointment,
       selected_doctor: selected_doctor,
       selected_slot: selected_slot,
       patient_id: patient_id
@@ -144,15 +144,15 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   end
 
   @doc """
-  Process appointment confirmation and create the appointment.
+  Process _appointment confirmation and create the _appointment.
   """
   def confirm_submit(conn, %{"reason" => reason}) do
     patient_id = get_session(conn, :user_id)
     selected_doctor = get_session(conn, :selected_doctor)
     selected_slot = get_session(conn, :selected_slot)
 
-    # In a real app, this would create the appointment in the database
-    appointment = %{
+    # In a real app, this would create the _appointment in the database
+    _appointment = %{
       id: "appt-#{:rand.uniform(1000)}",
       patient_id: patient_id,
       doctor_id: selected_doctor["id"],
@@ -165,8 +165,8 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
       status: "Confirmed"
     }
 
-    # Log the appointment creation for development purposes
-    Logger.info("Appointment created: #{inspect(appointment)}")
+    # Log the _appointment creation for development purposes
+    Logger.info("Appointment created: #{inspect(_appointment)}")
 
     # Clear session data
     conn = delete_session(conn, :selected_doctor_id)
@@ -184,13 +184,13 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   end
 
   @doc """
-  Cancel an existing appointment.
+  Cancel an existing _appointment.
   """
   def cancel(conn, %{"id" => appointment_id}) do
     patient_id = get_session(conn, :user_id)
 
-    # In a real app, this would update the appointment status in the database
-    Logger.info("Cancelling appointment #{appointment_id} for patient #{patient_id}")
+    # In a real app, this would update the _appointment status in the database
+    Logger.info("Cancelling _appointment #{appointment_id} for patient #{patient_id}")
 
     conn
     |> put_flash(:info, "Appointment cancelled successfully")
@@ -239,7 +239,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
     # This is a placeholder implementation
     # In a real app, this would fetch data from a database and verify patient access
 
-    appointment = %{
+    _appointment = %{
       id: appointment_id,
       doctor_name: "Dr. Smith",
       doctor_specialty: "Cardiology",
@@ -253,7 +253,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
       video_link: nil
     }
 
-    {:ok, appointment}
+    {:ok, _appointment}
   end
 
   defp get_available_doctors do

@@ -2,10 +2,10 @@ defmodule Clinicpro.Accounts.Emails.MagicLinkEmail do
   @moduledoc """
   Email module for sending magic link authentication emails.
 
-  This module handles the generation and sending of magic link emails
-  for passwordless authentication.
+  This module is disabled as part of the authentication refactoring to Guardian JWT.
+  Kept for reference purposes only.
   """
-  use AshAuthentication.Sender
+  # Disabled: use AshAuthentication.Sender
   import Swoosh.Email
 
   @doc """
@@ -17,7 +17,7 @@ defmodule Clinicpro.Accounts.Emails.MagicLinkEmail do
   * `token` - The authentication token
   * `subject` - The email subject
   """
-  @impl AshAuthentication.Sender
+  # @impl AshAuthentication.Sender
   def send(user, token, _opts) do
     # Build the magic link URL
     url = ClinicproWeb.Endpoint.url() <> "/auth/user/magic-link/#{token}"

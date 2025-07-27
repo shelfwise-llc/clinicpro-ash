@@ -28,8 +28,9 @@ Application.ensure_all_started(:mox)
 Mox.defmock(Clinicpro.MockAccountsAPI, for: Clinicpro.AccountsAPIBehaviour)
 Mox.defmock(Clinicpro.MockAppointmentsAPI, for: Clinicpro.AppointmentsAPIBehaviour)
 
-# Configure Mox for global mode
-Application.put_env(:mox, :global, true)
+# Configure Mox for global mode (allows expectations to be defined in setup blocks)
+Mox.set_mode(Clinicpro.MockAccountsAPI, :global)
+Mox.set_mode(Clinicpro.MockAppointmentsAPI, :global)
 
 # Set up the test bypass
 Clinicpro.TestBypass.Setup.setup()

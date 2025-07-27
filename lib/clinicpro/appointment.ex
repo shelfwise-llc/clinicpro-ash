@@ -39,7 +39,7 @@ defmodule Clinicpro.Appointment do
       :notes,
       :doctor_id,
       :patient_id,
-      :_clinic_id,
+      :clinic_id,
       :meeting_link,
       :appointment_type
     ])
@@ -55,7 +55,7 @@ defmodule Clinicpro.Appointment do
     |> validate_time_range()
     |> foreign_key_constraint(:doctor_id)
     |> foreign_key_constraint(:patient_id)
-    |> foreign_key_constraint(:_clinic_id)
+    |> foreign_key_constraint(:clinic_id)
   end
 
   @doc """
@@ -118,16 +118,16 @@ defmodule Clinicpro.Appointment do
   * `:date` - Filter by specific date
   * `:doctor_id` - Filter by doctor
   * `:patient_id` - Filter by patient
-  * `:type` - Filter by _appointment type
+  * `:type` - Filter by appointment type
   """
-  def list(_opts) do
+  def list(opts) do
     __MODULE__
-    |> filter_by_status(_opts)
-    |> filter_by_date(_opts)
-    |> filter_by_doctor_id(_opts)
-    |> filter_by_patient_id(_opts)
-    |> filter_by_type(_opts)
-    |> limit_query(_opts)
+    |> filter_by_status(opts)
+    |> filter_by_date(opts)
+    |> filter_by_doctor_id(opts)
+    |> filter_by_patient_id(opts)
+    |> filter_by_type(opts)
+    |> limit_query(opts)
     |> Repo.all()
     |> Repo.preload([:doctor, :patient, :clinic])
   end
@@ -136,32 +136,32 @@ defmodule Clinicpro.Appointment do
   defp filter_by_status(query, %{status: status}) when is_binary(status) and status != "",
     do: where(query, [a], a.status == ^status)
 
-  defp filter_by_status(query, _unused), do: query
+  defp filter_by_status(query, _opts), do: query
 
   defp filter_by_date(query, %{date: date}) when not is_nil(date),
     do: where(query, [a], a.date == ^date)
 
-  defp filter_by_date(query, _unused), do: query
+  defp filter_by_date(query, _opts), do: query
 
   defp filter_by_doctor_id(query, %{doctor_id: doctor_id}) when not is_nil(doctor_id),
     do: where(query, [a], a.doctor_id == ^doctor_id)
 
-  defp filter_by_doctor_id(query, _unused), do: query
+  defp filter_by_doctor_id(query, _opts), do: query
 
   defp filter_by_patient_id(query, %{patient_id: patient_id}) when not is_nil(patient_id),
     do: where(query, [a], a.patient_id == ^patient_id)
 
-  defp filter_by_patient_id(query, _unused), do: query
+  defp filter_by_patient_id(query, _opts), do: query
 
   defp filter_by_type(query, %{type: type}) when is_binary(type) and type != "",
     do: where(query, [a], a.type == ^type)
 
-  defp filter_by_type(query, _unused), do: query
+  defp filter_by_type(query, _opts), do: query
 
   defp limit_query(query, %{limit: limit}) when is_integer(limit) and limit > 0,
     do: limit(query, ^limit)
 
-  defp limit_query(query, _unused), do: query
+  defp limit_query(query, _opts), do: query
 
   @doc """
   Lists appointments for a specific date.

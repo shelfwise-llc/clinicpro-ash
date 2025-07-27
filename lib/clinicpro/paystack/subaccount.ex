@@ -80,7 +80,8 @@ defmodule Clinicpro.Paystack.Subaccount do
              attrs["account_number"],
              attrs["percentage_charge"],
              attrs["description"],
-             attrs["_clinic_id"]
+             attrs["_clinic_id"],
+             attrs["active"]
            ) do
       # Then save to our database with the subaccount code from Paystack
       attrs = Map.put(attrs, "subaccount_code", paystack_response["data"]["subaccount_code"])
@@ -187,7 +188,7 @@ defmodule Clinicpro.Paystack.Subaccount do
 
   """
   def activate(id) do
-    Repo._transaction(fn ->
+    Repo.transaction(fn ->
       with {:ok, subaccount} <- get(id),
            :ok <- deactivate_all_for_clinic(subaccount._clinic_id),
            {:ok, updated_subaccount} <- Repo.update(changeset(subaccount, %{is_active: true})) do
