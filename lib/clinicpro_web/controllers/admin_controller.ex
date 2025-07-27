@@ -451,8 +451,7 @@ defmodule ClinicproWeb.AdminController do
           action: "scheduled",
           user: doctor_name,
           timestamp: appointment.inserted_at || ~U[2023-01-01 00:00:00Z],
-          details:
-            "#{appointment.type} appointment with #{patient_name} on #{appointment.date}"
+          details: "#{appointment.type} appointment with #{patient_name} on #{appointment.date}"
         }
       end)
 

@@ -1,4 +1,5 @@
-defmodule Clinicpro.Mocks.Appointments do
+unless Code.ensure_loaded?(Clinicpro.Mocks.Appointments) do
+  defmodule Clinicpro.Mocks.Appointments do
   @moduledoc """
   Mock implementation of the Appointments API for tests.
   This completely bypasses the Ash resources to avoid compilation issues.
@@ -131,5 +132,6 @@ defmodule Clinicpro.Mocks.Appointments do
        id: appointment_id,
        status: "completed"
      }}
+  end
   end
 end

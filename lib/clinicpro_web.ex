@@ -113,7 +113,7 @@ defmodule ClinicproWeb do
     end
   end
 
-  defp verified_routes do
+  def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
         endpoint: ClinicproWeb.Endpoint,

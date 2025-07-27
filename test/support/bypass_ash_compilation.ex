@@ -1,4 +1,5 @@
-defmodule Clinicpro.TestBypass.AshCompilation do
+unless Code.ensure_loaded?(Clinicpro.TestBypass.AshCompilation) do
+  defmodule Clinicpro.TestBypass.AshCompilation do
   @moduledoc """
   This module provides functions to bypass Ash resource compilation issues in tests.
 
@@ -32,5 +33,6 @@ defmodule Clinicpro.TestBypass.AshCompilation do
     end
 
     :ok
+  end
   end
 end

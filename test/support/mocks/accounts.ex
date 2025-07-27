@@ -1,21 +1,22 @@
-defmodule Clinicpro.Mocks.Accounts do
-  @moduledoc """
-  Mock implementation of the Accounts API for tests.
-  This completely bypasses the Ash resources to avoid compilation issues.
-  """
+unless Code.ensure_loaded?(Clinicpro.Mocks.Accounts) do
+  defmodule Clinicpro.Mocks.Accounts do
+    @moduledoc """
+    Mock implementation of the Accounts API for tests.
+    This completely bypasses the Ash resources to avoid compilation issues.
+    """
 
-  # Define structs locally to avoid compilation order issues
-  defmodule MockUser do
-    defstruct [:id, :email, :role, :doctor, :patient, :admin]
-  end
+    # Define structs locally to avoid compilation order issues
+    defmodule MockUser do
+      defstruct [:id, :email, :role, :doctor, :patient, :admin]
+    end
 
-  defmodule MockDoctor do
-    defstruct [:id, :first_name, :last_name, :specialty, :clinic_id]
-  end
+    defmodule MockDoctor do
+      defstruct [:id, :first_name, :last_name, :specialty, :clinic_id]
+    end
 
-  defmodule MockPatient do
-    defstruct [:id, :first_name, :last_name, :date_of_birth]
-  end
+    defmodule MockPatient do
+      defstruct [:id, :first_name, :last_name, :date_of_birth]
+    end
 
   # User management functions
   def get_user(id) do
@@ -87,5 +88,6 @@ defmodule Clinicpro.Mocks.Accounts do
   def send_magic_link(email) do
     token = generate_magic_link_token(email)
     {:ok, token}
+  end
   end
 end
