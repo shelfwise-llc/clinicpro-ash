@@ -86,8 +86,9 @@ jobs:
         
     - name: Deploy to Railway
       run: |
-        railway login --token $RAILWAY_TOKEN
-        railway link 77c00a97-4d76-42e6-827f-e8a61a64642b
-        railway up --detach
+        export RAILWAY_TOKEN=${{ secrets.RAILWAY_TOKEN }}
+        railway up --service clinicpro-ash --environment production
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        RAILWAY_PROJECT_ID: 77c00a97-4d76-42e6-827f-e8a61a64642b
+        RAILWAY_ENVIRONMENT_ID: 0ccb32bf-7b08-4d0b-a6ca-d0b0a915ae36
