@@ -160,7 +160,7 @@ defmodule Clinicpro.MPesa.Helpers do
     # For now, we'll use a simple implementation that delegates to the Config module
     alias Clinicpro.MPesa.Config
 
-    case Config.find_by_shortcode(shortcode) do
+    case Config.get_clinic_id_from_shortcode(shortcode) do
       nil ->
         Logger.error("No clinic found for shortcode: #{shortcode}")
         {:error, :shortcode_not_found}
@@ -183,14 +183,14 @@ defmodule Clinicpro.MPesa.Helpers do
   - `{:ok, patient_id}` - If the mapping was successful
   - `{:error, :invoice_not_found}` - If the invoice was not found
   """
-  def map_invoice_to_patient_id(invoice_id, _clinic_id) do
+  def map_invoice_to_patient_id(invoice_id, clinic_id) do
     # This would typically query the database to find the patient associated with this invoice
     # For now, we'll use a simple implementation that assumes the Invoice module exists
     alias Clinicpro.Invoice
 
-    case Invoice.get_by_id(invoice_id, _clinic_id) do
+    case Invoice.get_by_id(invoice_id, clinic_id) do
       nil ->
-        Logger.error("No invoice found with ID #{invoice_id} for clinic #{_clinic_id}")
+        Logger.error("No invoice found with ID #{invoice_id} for clinic #{clinic_id}")
         {:error, :invoice_not_found}
 
       invoice ->

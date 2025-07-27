@@ -10,7 +10,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   import Ecto.Changeset
   import Ecto.Query
 
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias Clinicpro.Paystack.{Config, Http}
   alias __MODULE__
 
@@ -42,8 +42,8 @@ defmodule Clinicpro.Paystack.SubAccount do
   - `{:ok, %{subaccount_code: code}}` - If successful
   - `{:error, reason}` - If failed
   """
-  def create(business_name, settlement_bank, account_number, _clinic_id, percentage_charge \\ nil) do
-    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
+  def create(business_name, settlement_bank, account_number, clinic_id, percentage_charge \\ nil) do
+    with {:ok, secret_key} <- Config.get_secret_key(clinic_id) do
       # Build the payload
       payload =
         %{
@@ -119,8 +119,8 @@ defmodule Clinicpro.Paystack.SubAccount do
   - `{:ok, %{}}` - If successful
   - `{:error, reason}` - If failed
   """
-  def update_on_paystack(subaccount_code, attrs, _clinic_id) do
-    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
+  def update_on_paystack(subaccount_code, attrs, clinic_id) do
+    with {:ok, secret_key} <- Config.get_secret_key(clinic_id) do
       # Make the API call
       case Http.put("/subaccount/#{subaccount_code}", remove_nil_values(attrs), secret_key) do
         {:ok, %{"status" => true}} ->
@@ -163,8 +163,8 @@ defmodule Clinicpro.Paystack.SubAccount do
   * `{:ok, subaccount}` - If an active subaccount was found
   * `{:error, :no_active_subaccount}` - If no active subaccount was found
   """
-  def get_active_subaccount(_clinic_id) do
-    case Repo.get_by(SubAccount, _clinic_id: _clinic_id, active: true) do
+  def get_active_subaccount(clinic_id) do
+    case Repo.get_by(SubAccount, _clinic_id: clinic_id, active: true) do
       nil -> {:error, :no_active_subaccount}
       subaccount -> {:ok, subaccount}
     end
@@ -194,9 +194,9 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   * List of subaccounts
   """
-  def list_subaccounts(_clinic_id) do
+  def list_subaccounts(clinic_id) do
     SubAccount
-    |> where(_clinic_id: ^_clinic_id)
+    |> where(_clinic_id: ^clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end

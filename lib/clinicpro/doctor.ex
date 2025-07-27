@@ -2,7 +2,7 @@ defmodule Clinicpro.Doctor do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias Clinicpro.Appointment
 
   schema "_doctors" do

@@ -5,7 +5,7 @@ defmodule Clinicpro.AdminBypass.Seeder do
   """
 
   alias Clinicpro.AdminBypass.{Doctor, Patient, Appointment}
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
 
   @doc """
   Seeds the database with sample _doctors, _patients, and appointments.

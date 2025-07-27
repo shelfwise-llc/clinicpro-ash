@@ -6,7 +6,7 @@ defmodule Clinicpro.Auth.OTP do
 
   alias Clinicpro.Auth.OTPSecret
   alias Clinicpro.Auth.OTPDelivery
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias Clinicpro.Patient
   alias Clinicpro.Clinic
 

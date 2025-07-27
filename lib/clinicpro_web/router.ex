@@ -116,7 +116,7 @@ defmodule ClinicproWeb.Router do
     # end
 
     # Admin Paystack routes
-    scope "/clinics/:_clinic_id/paystack", ClinicproWeb do
+    scope "/clinics/:_clinic_id/paystack" do
       # Configuration management
       get "/", PaystackAdminController, :index
       get "/new", PaystackAdminController, :new_config
@@ -232,7 +232,7 @@ defmodule ClinicproWeb.Router do
     get "/booking/complete", GuestBookingController, :complete
 
     # Public Patient Authentication Routes
-    scope "/patient", ClinicproWeb do
+    scope "/patient" do
       # Patient Authentication with OTP
       get "/request-otp", PatientAuthController, :request_otp
       post "/send-otp", PatientAuthController, :send_otp
@@ -242,7 +242,7 @@ defmodule ClinicproWeb.Router do
     end
 
     # Protected Patient Routes
-    scope "/patient", ClinicproWeb do
+    scope "/patient" do
       pipe_through [:patient_auth]
 
       # Patient Dashboard

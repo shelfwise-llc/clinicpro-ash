@@ -11,7 +11,7 @@ defmodule Clinicpro.Paystack.Subaccount do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias Clinicpro.Paystack.API
   alias __MODULE__
 
@@ -146,8 +146,8 @@ defmodule Clinicpro.Paystack.Subaccount do
   * `{:error, :not_found}` - No active subaccount found
 
   """
-  def get_active(_clinic_id) do
-    case Repo.one(from s in Subaccount, where: s._clinic_id == ^_clinic_id and s.active == true) do
+  def get_active(clinic_id) do
+    case Repo.one(from s in Subaccount, where: s._clinic_id == ^clinic_id and s.active == true) do
       nil -> {:error, :not_found}
       subaccount -> {:ok, subaccount}
     end
@@ -165,10 +165,10 @@ defmodule Clinicpro.Paystack.Subaccount do
   * List of subaccounts
 
   """
-  def list_by_clinic(_clinic_id) do
+  def list_by_clinic(clinic_id) do
     Repo.all(
       from s in Subaccount,
-        where: s._clinic_id == ^_clinic_id,
+        where: s._clinic_id == ^clinic_id,
         order_by: [desc: s.active, desc: s.inserted_at]
     )
   end
@@ -242,8 +242,8 @@ defmodule Clinicpro.Paystack.Subaccount do
   defp maybe_deactivate_other_subaccounts(changeset) do
     case get_change(changeset, :is_active) do
       true ->
-        _clinic_id = get_field(changeset, :_clinic_id)
-        deactivate_all_for_clinic(_clinic_id)
+        clinic_id = get_field(changeset, :_clinic_id)
+        deactivate_all_for_clinic(clinic_id)
         changeset
 
       _unused ->
@@ -252,8 +252,8 @@ defmodule Clinicpro.Paystack.Subaccount do
   end
 
   # Deactivate all subaccounts for a clinic
-  defp deactivate_all_for_clinic(_clinic_id) do
-    from(s in Subaccount, where: s._clinic_id == ^_clinic_id)
+  defp deactivate_all_for_clinic(clinic_id) do
+    from(s in Subaccount, where: s._clinic_id == ^clinic_id)
     |> Repo.update_all(set: [is_active: false])
 
     :ok

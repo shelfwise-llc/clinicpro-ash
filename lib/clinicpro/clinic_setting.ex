@@ -2,7 +2,7 @@ defmodule Clinicpro.ClinicSetting do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias __MODULE__
 
   @default_settings %{

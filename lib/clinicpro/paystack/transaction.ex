@@ -10,7 +10,7 @@ defmodule Clinicpro.Paystack.Transaction do
   import Ecto.Changeset
   import Ecto.Query
 
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias __MODULE__
 
   schema "paystack_transactions" do

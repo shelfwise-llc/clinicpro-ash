@@ -4,7 +4,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
   Supports multi-tenant configuration for different clinics.
   """
 
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias Clinicpro.Patient
   alias Clinicpro.Clinic
 

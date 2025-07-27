@@ -7,7 +7,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
   alias Clinicpro.Invoices
   alias Clinicpro.MPesa.STKPush
-  # # alias Clinicpro.MPesa.Transaction
+  alias Clinicpro.MPesa.Transaction
   alias Clinicpro.MPesa.Config
   alias Clinicpro.Appointments
   alias Clinicpro.Clinics
@@ -38,7 +38,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     formatted_phone = format_phone_number(phone_number)
 
     # Get the clinic-specific M-Pesa configuration
-    mpesa_config = Config.get_config_for_clinic(clinic_id)
+    mpesa_config = Config.get_config(clinic_id)
 
     # Set up the callback URL (use the provided one or the default for the clinic)
     final_callback_url = callback_url || mpesa_config.stk_callback_url
@@ -71,7 +71,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
         # Update the invoice status to "payment_initiated"
         {:ok, _updated_invoice} =
-          Invoices.update_invoice(invoice, %{
+          Invoices.update_invoice_status(invoice, %{
             payment_status: "payment_initiated",
             payment_method: "mpesa",
             last_payment_attempt: DateTime.utc_now()
@@ -87,7 +87,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
         # Update the invoice with the failed status
         {:ok, _updated_invoice} =
-          Invoices.update_invoice(invoice, %{
+          Invoices.update_invoice_status(invoice, %{
             payment_status: "payment_failed",
             payment_method: "mpesa",
             last_payment_attempt: DateTime.utc_now(),
@@ -168,7 +168,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
         clinic_id = transaction.clinic_id
 
         # Get the clinic-specific M-Pesa configuration
-        mpesa_config = Config.get_config_for_clinic(clinic_id)
+        mpesa_config = Config.get_config(clinic_id)
 
         # Check the status of the transaction with M-Pesa
         case STKPush.query_status(transaction.checkout_request_id, mpesa_config) do
@@ -215,7 +215,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
     # Update the invoice status
     {:ok, updated_invoice} =
-      Invoices.update_invoice(invoice, %{
+      Invoices.update_invoice_status(invoice, %{
         status: "paid",
         payment_status: "completed",
         payment_date: DateTime.utc_now(),
@@ -224,11 +224,11 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
     # If this is an appointment invoice, update the appointment status
     if invoice.appointment_id do
-      appointment = Appointments.get_appointment(invoice.appointment_id)
+      appointment = Appointment.get(invoice.appointment_id)
 
       if appointment do
-        {:ok, _updated_appointment} =
-          Appointments.update_appointment(appointment, %{
+        {:ok, _} =
+          Appointment.update(appointment, %{
             payment_status: "paid"
           })
 
@@ -255,7 +255,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
     # Update the invoice status
     {:ok, updated_invoice} =
-      Invoices.update_invoice(invoice, %{
+      Invoices.update_invoice_status(invoice, %{
         payment_status: "failed",
         payment_error: result_desc
       })
@@ -293,7 +293,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
       # If the invoice is for an appointment, get the clinic ID from the appointment
       invoice.appointment_id ->
-        appointment = Appointments.get_appointment(invoice.appointment_id)
+        appointment = Appointment.get(invoice.appointment_id)
         get_clinic_id_from_appointment(appointment)
 
       # Otherwise, fall back to a default clinic ID

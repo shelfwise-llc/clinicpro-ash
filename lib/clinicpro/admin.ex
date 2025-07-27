@@ -2,7 +2,7 @@ defmodule Clinicpro.Admin do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
 
   schema "admins" do
     field :active, :boolean, default: true

@@ -430,29 +430,29 @@ defmodule ClinicproWeb.AdminController do
     # Get recent appointments
     recent_appointments =
       Clinicpro.Appointment.list(limit: 5)
-      |> Enum.map(fn _appointment ->
+      |> Enum.map(fn appointment ->
         # Preload doctor and patient if not already loaded
-        _appointment =
-          if Ecto.assoc_loaded?(_appointment.doctor) && Ecto.assoc_loaded?(_appointment.patient) do
-            _appointment
+        appointment =
+          if Ecto.assoc_loaded?(appointment.doctor) && Ecto.assoc_loaded?(appointment.patient) do
+            appointment
           else
-            Clinicpro.Repo.preload(_appointment, [:doctor, :patient])
+            Clinicpro.Repo.preload(appointment, [:doctor, :patient])
           end
 
-        doctor_name = if _appointment.doctor, do: _appointment.doctor.name, else: "Unknown Doctor"
+        doctor_name = if appointment.doctor, do: appointment.doctor.name, else: "Unknown Doctor"
 
         patient_name =
-          if _appointment.patient,
-            do: Clinicpro.Patient.full_name(_appointment.patient),
+          if appointment.patient,
+            do: Clinicpro.Patient.full_name(appointment.patient),
             else: "Unknown Patient"
 
         %{
-          type: "_appointment",
+          type: "appointment",
           action: "scheduled",
           user: doctor_name,
-          timestamp: _appointment.inserted_at || ~U[2023-01-01 00:00:00Z],
+          timestamp: appointment.inserted_at || ~U[2023-01-01 00:00:00Z],
           details:
-            "#{_appointment.type} _appointment with #{patient_name} on #{_appointment.date}"
+            "#{appointment.type} appointment with #{patient_name} on #{appointment.date}"
         }
       end)
 
@@ -523,7 +523,7 @@ defmodule ClinicproWeb.AdminController do
     # Get _appointment from the database with doctor and patient preloaded
     case Clinicpro.Appointment.get_with_associations(appointment_id) do
       nil -> {:error, "Appointment not found"}
-      _appointment -> {:ok, _appointment}
+      appointment -> {:ok, appointment}
     end
   end
 
@@ -572,8 +572,8 @@ defmodule ClinicproWeb.AdminController do
   Display the _doctors management _page.
   """
   def _doctors(conn, _params) do
-    _doctors = Clinicpro.Doctor.list()
-    render(conn, :_doctors, _doctors: _doctors)
+    doctors = Clinicpro.Doctor.list()
+    render(conn, :_doctors, doctors: doctors)
   end
 
   defp get_admins do
@@ -583,9 +583,9 @@ defmodule ClinicproWeb.AdminController do
 
   # Helper to format changeset errors into a readable string
   defp error_messages(changeset) do
-    Ecto.Changeset.traverse_errors(changeset, fn {msg, _opts} ->
+    Ecto.Changeset.traverse_errors(changeset, fn {msg, opts} ->
       Regex.replace(~r"%{(\w+)}", msg, fn _unused, key ->
-        _opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
+        opts |> Keyword.get(String.to_existing_atom(key), key) |> to_string()
       end)
     end)
     |> Enum.map(fn {k, v} -> "#{k} #{Enum.join(v, ", ")}" end)
