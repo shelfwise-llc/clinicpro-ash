@@ -87,7 +87,7 @@ jobs:
     - name: Deploy to Railway
       run: |
         echo "Linking to Railway project..."
-        railway link 77c00a97-4d76-42e6-827f-e8a61a64642b
+        railway link --project 77c00a97-4d76-42e6-827f-e8a61a64642b
         echo "Deploying to Railway..."
         railway up --detach
       env:
