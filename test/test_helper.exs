@@ -29,8 +29,10 @@ Mox.defmock(Clinicpro.MockAccountsAPI, for: Clinicpro.AccountsAPIBehaviour)
 Mox.defmock(Clinicpro.MockAppointmentsAPI, for: Clinicpro.AppointmentsAPIBehaviour)
 
 # Configure Mox for global mode (allows expectations to be defined in setup blocks)
-Mox.set_mode(Clinicpro.MockAccountsAPI, :global)
-Mox.set_mode(Clinicpro.MockAppointmentsAPI, :global)
+# Using Mox.stub_with instead of Mox.set_mode which is not available in Mox 1.2.0
+# This allows the mocks to be used across different processes
+Mox.stub_with(Clinicpro.MockAccountsAPI, Clinicpro.Mocks.Accounts)
+Mox.stub_with(Clinicpro.MockAppointmentsAPI, Clinicpro.Mocks.Appointments)
 
 # Set up the test bypass
 Clinicpro.TestBypass.Setup.setup()

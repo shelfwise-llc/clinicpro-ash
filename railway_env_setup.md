@@ -13,16 +13,16 @@ This guide explains how to set up the required environment variables for your Cl
 | `PHX_HOST` | Host name for production | `clinicpro.up.railway.app` |
 | `PORT` | Port for the application (set by Railway) | `4000` |
 
-### M-Pesa Integration Variables
+### Paystack Integration Variables
 
-Based on the multi-tenant M-Pesa integration in ClinicPro, you'll need:
+Based on the multi-tenant Paystack integration in ClinicPro, you'll need:
 
 | Variable | Description |
 |----------|-------------|
-| `MPESA_DEFAULT_CONSUMER_KEY` | Default Safaricom Daraja API consumer key |
-| `MPESA_DEFAULT_CONSUMER_SECRET` | Default Safaricom Daraja API consumer secret |
-| `MPESA_DEFAULT_PASSKEY` | Default passkey for STK Push |
-| `MPESA_DEFAULT_SHORTCODE` | Default business shortcode |
+| `PAYSTACK_DEFAULT_PUBLIC_KEY` | Default Paystack public key |
+| `PAYSTACK_DEFAULT_SECRET_KEY` | Default Paystack secret key |
+| `PAYSTACK_DEFAULT_MERCHANT_EMAIL` | Default merchant email |
+| `PAYSTACK_DEFAULT_CALLBACK_URL` | Default callback URL for payment verification |
 
 ### Paystack Integration Variables
 

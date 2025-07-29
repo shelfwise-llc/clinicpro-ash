@@ -1,13 +1,13 @@
 defmodule ClinicproWeb.Plugs.EnsurePatientAuth do
   @moduledoc """
   This plug ensures that a patient is authenticated.
-  If not, it redirects to the login _page.
+  If not, it redirects to the login page.
   """
 
   import Plug.Conn
   import Phoenix.Controller
 
-  def init(opts), do: opts
+  def init(_opts), do: _opts
 
   def call(conn, _opts) do
     if patient_id = get_session(conn, :patient_id) do
@@ -16,11 +16,11 @@ defmodule ClinicproWeb.Plugs.EnsurePatientAuth do
 
       conn
       |> assign(:current_patient_id, patient_id)
-      |> assign(:current_clinic_id, clinic_id)
+      |> assign(:currentclinic_id, clinic_id)
     else
       # Patient is not authenticated
       conn
-      |> put_flash(:error, "You must be logged in to access this _page")
+      |> put_flash(:error, "You must be logged in to access this page")
       |> redirect(to: "/")
       |> halt()
     end

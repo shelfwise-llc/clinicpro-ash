@@ -1,5 +1,6 @@
 defmodule Clinicpro.Auth.GuardianTest do
   use Clinicpro.DataCase
+  import Mox
 
   alias Clinicpro.Auth.Guardian
   alias Clinicpro.Accounts.AuthUser

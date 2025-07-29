@@ -100,8 +100,7 @@ defmodule Clinicpro.MixProject do
       # Testing Tools
       {:mox, "~> 1.0", only: :test},
 
-      # HTTP Client for M-Pesa Integration
-      {:httpoison, "~> 2.0"},
+
 
       # OTP Authentication
       {:nimble_totp, "~> 1.0"},
@@ -111,6 +110,7 @@ defmodule Clinicpro.MixProject do
       {:goth, "~> 1.3"},
 
       # HTTP Client for API Integration
+      {:httpoison, "~> 2.2"},
       {:oauth2, "~> 2.0"},
       {:ex_typesense, "~> 0.6.0"},
 

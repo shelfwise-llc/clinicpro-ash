@@ -26,11 +26,11 @@ defmodule ClinicproWeb.DoctorFlowIsolatedTest do
   end
 
   # Mock data for tests
-  @mock_doctor %MockUser{
+  @mock_doctor %{
     id: "user-123",
     email: "doctor@example.com",
     role: :doctor,
-    doctor: %MockDoctor{
+    doctor: %{
       id: "doctor-123",
       first_name: "John",
       last_name: "Smith",
@@ -39,14 +39,39 @@ defmodule ClinicproWeb.DoctorFlowIsolatedTest do
     }
   }
 
-  @mock_appointment %MockAppointment{
-    id: "appt-456",
+  @mock_patient %{
+    id: "user-456",
+    email: "patient@example.com",
+    role: :patient,
+    patient: %{
+      id: "patient-456",
+      first_name: "Jane",
+      last_name: "Doe",
+      date_of_birth: "1990-01-01"
+    }
+  }
+
+  @mock_appointment %{
+    id: "appt-123",
     doctor_id: "doctor-123",
-    patient_id: "patient-789",
-    date: "2025-07-25",
-    time: "10:00 AM",
-    type: "Consultation",
-    status: "scheduled"
+    patient_id: "patient-456",
+    date: "2023-06-15",
+    time: "10:00",
+    type: "virtual",
+    status: "scheduled",
+    patient: %{
+      id: "patient-456",
+      first_name: "Jane",
+      last_name: "Doe",
+      date_of_birth: "1990-01-01"
+    },
+    doctor: %{
+      id: "doctor-123",
+      first_name: "John",
+      last_name: "Smith",
+      specialty: "General Medicine",
+      clinic_id: "clinic-123"
+    }
   }
 
   # Helper function to authenticate a user

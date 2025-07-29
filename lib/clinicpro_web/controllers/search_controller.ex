@@ -21,7 +21,7 @@ defmodule ClinicproWeb.SearchController do
        when action in [:detail]
 
   @doc """
-  Initial search _page with query input.
+  Initial search page with query input.
   """
   def index(conn, _params) do
     workflow_state = conn.assigns[:workflow_state]
@@ -169,13 +169,13 @@ defmodule ClinicproWeb.SearchController do
     results =
       Enum.map(((page - 1) * 10 + 1)..(page * 10), fn i ->
         %{
-          id: "_appointment-#{i}",
+          id: "appointment-#{i}",
           type: "Appointment",
           patient_name: "Patient #{i}",
           doctor_name: "Dr. Smith",
           date: Date.utc_today() |> Date.add(i),
           status: Enum.random(["Scheduled", "Completed", "Cancelled"]),
-          notes: "Medical notes for _appointment #{i}"
+          notes: "Medical notes for appointment #{i}"
         }
       end)
 
@@ -184,7 +184,7 @@ defmodule ClinicproWeb.SearchController do
       results: results,
       # Mock total
       total_count: 50,
-      # Mock _page count
+      # Mock page count
       page_count: 5
     }
   end

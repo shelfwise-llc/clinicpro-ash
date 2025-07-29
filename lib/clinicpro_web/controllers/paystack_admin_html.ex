@@ -20,7 +20,9 @@ defmodule ClinicproWeb.PaystackAdminHTML do
   def label(form, field, text \\ nil, opts \\ []),
     do: Phoenix.HTML.Form.label(form, field, text, opts)
 
-  def number_input(form, field, opts \\ []), do: Phoenix.HTML.Form.number_input(form, field, opts)
+  def number_input(form, field, opts \\ []),
+    do: Phoenix.HTML.Form.number_input(form, field, opts)
+
   def email_input(form, field, opts \\ []), do: Phoenix.HTML.Form.email_input(form, field, opts)
   def submit(value, opts \\ []), do: Phoenix.HTML.Form.submit(value, opts)
   def error_tag(form, field), do: ClinicproWeb.ErrorHelpers.error_tag(form, field)
@@ -151,6 +153,11 @@ defmodule ClinicproWeb.PaystackAdminHTML do
   def webhook_status_class("failed"), do: "bg-red-100 text-red-800"
   def webhook_status_class("pending"), do: "bg-yellow-100 text-yellow-800"
   def webhook_status_class(_unused), do: "bg-gray-100 text-gray-800"
+
+  def webhook_status_badge("processed"), do: "bg-green-100 text-green-800"
+  def webhook_status_badge("failed"), do: "bg-red-100 text-red-800"
+  def webhook_status_badge("pending"), do: "bg-yellow-100 text-yellow-800"
+  def webhook_status_badge(_unused), do: "bg-gray-100 text-gray-800"
 
   def humanize_webhook_status("processed"), do: "Processed"
   def humanize_webhook_status("failed"), do: "Failed"

@@ -3,7 +3,11 @@
 
   <div class="bg-white shadow-md rounded-lg p-6 mb-6">
     <h2 class="text-lg font-semibold mb-4">Filter Webhook Logs</h2>
-    <form method="get" action={~p"/clinics/#{@clinic_id}/paystack/webhooks"} class="space-y-4">
+    <form
+      method="get"
+      action={~p"/admin/clinics/#{@clinic_id}/paystack/webhooks"}
+      class="space-y-4"
+    >
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label for="event_type" class="block text-sm font-medium text-gray-700">
@@ -79,7 +83,7 @@
             Filter
           </button>
           <a
-            href={~p"/clinics/#{@clinic_id}/paystack/webhooks"}
+            href={~p"/admin/clinics/#{@clinic_id}/paystack/webhooks"}
             class="ml-2 inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Reset
@@ -161,7 +165,7 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <a
-                    href={~p"/clinics/#{@clinic_id}/paystack/webhooks/#{log.id}"}
+                    href={~p"/admin/clinics/#{@clinic_id}/paystack/webhooks/#{log.id}"}
                     class="text-indigo-600 hover:text-indigo-900 mr-3"
                   >
                     View Details

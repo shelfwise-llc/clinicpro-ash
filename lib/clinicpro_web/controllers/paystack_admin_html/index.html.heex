@@ -398,7 +398,10 @@
   <div class="bg-white rounded-lg shadow p-6">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-xl font-semibold">Recent Transactions</h2>
-      <a href={~p"/admin/paystack/transactions"} class="text-blue-500 hover:text-blue-700">
+      <a
+        href={~p"/admin/clinics/#{@clinic_id}/paystack/transactions"}
+        class="text-blue-500 hover:text-blue-700"
+      >
         View All Transactions
       </a>
     </div>
@@ -437,7 +440,9 @@
                 <td class="py-2 px-4"><%= format_date(transaction.inserted_at) %></td>
                 <td class="py-2 px-4">
                   <a
-                    href={~p"/admin/paystack/transactions/#{transaction.id}"}
+                    href={
+                      ~p"/admin/clinics/#{@clinic_id}/paystack/transactions/#{transaction.id}"
+                    }
                     class="text-blue-500 hover:text-blue-700"
                   >
                     View
@@ -455,7 +460,7 @@
   <!-- Test Payment Button -->
   <div class="mt-8 text-center">
     <a
-      href={~p"/admin/paystack/test-payment"}
+      href={~p"/admin/clinics/#{@clinic_id}/paystack/test-payment"}
       class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg inline-block"
     >
       Make Test Payment

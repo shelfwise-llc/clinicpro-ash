@@ -11,7 +11,8 @@ defmodule Clinicpro.Repo.Migrations.CreateGuardianTokens do
       add :exp, :bigint
       add :jwt, :text
       add :claims, :map
-      add :clinic_id, :binary_id  # Added for multi-tenant support
+      # Added for multi-tenant support
+      add :clinic_id, :binary_id
 
       timestamps()
     end

@@ -73,12 +73,7 @@ defmodule ClinicproWeb.InvoiceHTML.Show do
               <div class="mt-4 border-t border-gray-200 pt-4">
                 <h3 class="text-base font-medium text-gray-900">Pay Now</h3>
                 <div class="mt-2">
-                  <.live_component
-                    module={ClinicproWeb.Components.MPesaPaymentButton}
-                    id={"mpesa-payment-#{@invoice.id}"}
-                    invoice={@invoice}
-                    patient={@patient}
-                  />
+                  <p class="text-sm text-gray-500">Payment processing is handled through Paystack.</p>
                 </div>
               </div>
             <% end %>

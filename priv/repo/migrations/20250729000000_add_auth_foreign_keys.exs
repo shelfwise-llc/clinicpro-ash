@@ -14,7 +14,7 @@ defmodule Clinicpro.Repo.Migrations.AddAuthForeignKeys do
 
     # Create index on auth_users.clinic_id for faster lookups
     create index(:auth_users, [:clinic_id])
-    
+
     # Create index on auth_user_tokens.clinic_id for faster lookups
     create index(:auth_user_tokens, [:clinic_id])
   end

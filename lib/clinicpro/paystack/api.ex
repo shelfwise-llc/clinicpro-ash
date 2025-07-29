@@ -34,7 +34,7 @@ defmodule Clinicpro.Paystack.API do
         percentage_charge,
         description \\ nil,
         clinic_id,
-        active \\ true
+        _active \\ true
       ) do
     payload = %{
       business_name: business_name,
@@ -68,7 +68,12 @@ defmodule Clinicpro.Paystack.API do
   ## Parameters
 
   * `subaccount_code` - Paystack subaccount code
-  * `updates` - Map of fields to update
+  * `business_name` - Name of the business
+  * `settlement_bank` - Bank code for settlements
+  * `account_number` - Account number for settlements
+  * `percentage_charge` - Percentage to charge on transactions
+  * `description` - Optional description of the subaccount
+  * `active` - Whether this subaccount should be active
   * `clinic_id` - ID of the clinic this subaccount belongs to
 
   ## Returns
@@ -76,7 +81,28 @@ defmodule Clinicpro.Paystack.API do
   * `{:ok, response}` - Successful response from Paystack
   * `{:error, reason}` - Error response
   """
-  def update_subaccount(subaccount_code, updates, clinic_id) do
+  def update_subaccount(
+        subaccount_code,
+        business_name,
+        settlement_bank,
+        account_number,
+        percentage_charge,
+        description \\ nil,
+        active,
+        _clinic_id
+      ) do
+    updates = %{
+      business_name: business_name,
+      settlement_bank: settlement_bank,
+      account_number: account_number,
+      percentage_charge: percentage_charge,
+      description: description,
+      active: active
+    }
+
+    # Get clinic_id from the subaccount metadata or use a default
+    clinic_id = get_clinic_id_from_subaccount(subaccount_code) || 1
+
     case Http.put("/subaccount/#{subaccount_code}", updates, get_secret_key(clinic_id)) do
       {:ok, %{status: 200, body: body}} ->
         {:ok, body}
@@ -126,17 +152,17 @@ defmodule Clinicpro.Paystack.API do
 
   * `clinic_id` - ID of the clinic to get subaccounts for
   * `page` - Page number for pagination
-  * `per_page` - Number of results per page
+  * `perpage` - Number of results per page
 
   ## Returns
 
   * `{:ok, response}` - Successful response from Paystack
   * `{:error, reason}` - Error response
   """
-  def list_subaccounts(clinic_id, page \\ 1, per_page \\ 50) do
+  def list_subaccounts(clinic_id, page \\ 1, perpage \\ 50) do
     params = %{
       page: page,
-      perPage: per_page
+      perPage: perpage
     }
 
     case Http.get("/subaccount", get_secret_key(clinic_id), params) do
@@ -247,7 +273,7 @@ defmodule Clinicpro.Paystack.API do
     end
   end
 
-  defp get_clinic_config(clinic_id) do
+  defp get_clinic_config(_clinic_id) do
     # This would typically fetch the clinic's Paystack configuration from the database
     # For now, we'll use a simple mock implementation
     {:ok, %{secret_key: Application.get_env(:clinicpro, :paystack)[:secret_key]}}
@@ -257,6 +283,108 @@ defmodule Clinicpro.Paystack.API do
     # This would typically fetch the clinic's email from the database
     # For now, we'll use a placeholder
     "clinic#{clinic_id}@clinicpro.com"
+  end
+
+  @doc """
+  Gets transaction details with events from Paystack.
+
+  ## Parameters
+
+  * `transaction_id` - Paystack transaction ID
+  * `clinic_id` - ID of the clinic that processed the payment
+
+  ## Returns
+
+  * `{:ok, response}` - Successful response from Paystack
+  * `{:error, reason}` - Error response
+  """
+  def get_transaction_with_events(transaction_id, clinic_id) do
+    case Http.get("/transaction/#{transaction_id}", get_secret_key(clinic_id)) do
+      {:ok, %{status: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %{status: status, body: body}} ->
+        Logger.error("Paystack transaction fetch failed: #{inspect(body)}")
+        {:error, %{status: status, body: body}}
+
+      {:error, reason} ->
+        Logger.error("Paystack request failed: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Lists transactions from Paystack with pagination.
+
+  ## Parameters
+
+  * `clinic_id` - ID of the clinic to list transactions for
+  * `page` - Page number for pagination
+  * `perpage` - Number of results per page
+  * `filters` - Map of filters to apply (e.g., status, customer, amount)
+
+  ## Returns
+
+  * `{:ok, response}` - Successful response from Paystack
+  * `{:error, reason}` - Error response
+  """
+  def list_transactions(clinic_id, page \\ 1, perpage \\ 50, filters \\ %{}) do
+    params =
+      Map.merge(
+        %{
+          page: page,
+          perPage: perpage
+        },
+        filters
+      )
+
+    case Http.get("/transaction", get_secret_key(clinic_id), params) do
+      {:ok, %{status: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %{status: status, body: body}} ->
+        Logger.error("Paystack transaction list failed: #{inspect(body)}")
+        {:error, %{status: status, body: body}}
+
+      {:error, reason} ->
+        Logger.error("Paystack request failed: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
+  @doc """
+  Lists available banks for a country.
+
+  ## Parameters
+
+  * `country` - Country code (e.g., "nigeria", "ghana")
+  * `clinic_id` - ID of the clinic
+
+  ## Returns
+
+  * `{:ok, banks}` - List of banks
+  * `{:error, reason}` - Error response
+  """
+  def list_banks(country \\ "nigeria", clinic_id) do
+    case Http.get("/bank?country=#{country}", get_secret_key(clinic_id)) do
+      {:ok, %{status: 200, body: body}} ->
+        {:ok, body}
+
+      {:ok, %{status: status, body: body}} ->
+        Logger.error("Paystack bank list fetch failed: #{inspect(body)}")
+        {:error, %{status: status, body: body}}
+
+      {:error, reason} ->
+        Logger.error("Paystack request failed: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
+  # Helper function to get clinic_id from a subaccount
+  defp get_clinic_id_from_subaccount(_subaccount_code) do
+    # This would typically fetch the clinic ID from the subaccount in the database
+    # For now, we'll use a default value
+    1
   end
 
   defp maybe_add_subaccount(payload, nil), do: payload

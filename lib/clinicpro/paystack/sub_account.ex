@@ -15,7 +15,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   alias __MODULE__
 
   schema "paystack_subaccounts" do
-    field :_clinic_id, :integer
+    field :clinic_id, :integer
     field :subaccount_code, :string
     field :business_name, :string
     field :settlement_bank, :string
@@ -34,7 +34,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   - `business_name` - The business name for the subaccount
   - `settlement_bank` - The bank code for settlements
   - `account_number` - The account number for settlements
-  - `_clinic_id` - The ID of the clinic
+  - `clinic_id` - The ID of the clinic
   - `percentage_charge` - The percentage charge for the subaccount (optional)
 
   ## Returns
@@ -112,7 +112,7 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   - `subaccount_code` - The subaccount code to update
   - `attrs` - Map of attributes to update
-  - `_clinic_id` - The ID of the clinic
+  - `clinic_id` - The ID of the clinic
 
   ## Returns
 
@@ -156,7 +156,7 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to get the subaccount for
+  * `clinic_id` - The ID of the clinic to get the subaccount for
 
   ## Returns
 
@@ -164,7 +164,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   * `{:error, :no_active_subaccount}` - If no active subaccount was found
   """
   def get_active_subaccount(clinic_id) do
-    case Repo.get_by(SubAccount, _clinic_id: clinic_id, active: true) do
+    case Repo.get_by(SubAccount, clinic_id: clinic_id, active: true) do
       nil -> {:error, :no_active_subaccount}
       subaccount -> {:ok, subaccount}
     end
@@ -179,7 +179,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   """
   def list_subaccounts do
     SubAccount
-    |> order_by(asc: :_clinic_id)
+    |> order_by(asc: :clinic_id)
     |> Repo.all()
   end
 
@@ -188,7 +188,7 @@ defmodule Clinicpro.Paystack.SubAccount do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to list subaccounts for
+  * `clinic_id` - The ID of the clinic to list subaccounts for
 
   ## Returns
 
@@ -196,7 +196,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   """
   def list_subaccounts(clinic_id) do
     SubAccount
-    |> where(_clinic_id: ^clinic_id)
+    |> where(clinic_id: ^clinic_id)
     |> order_by(desc: :inserted_at)
     |> Repo.all()
   end
@@ -220,7 +220,7 @@ defmodule Clinicpro.Paystack.SubAccount do
 
     if subaccount do
       # Deactivate all other subaccounts for this clinic
-      from(s in SubAccount, where: s._clinic_id == ^subaccount._clinic_id and s.id != ^id)
+      from(s in SubAccount, where: s.clinic_id == ^subaccount.clinic_id and s.id != ^id)
       |> Repo.update_all(set: [active: false])
 
       # Activate this subaccount
@@ -261,7 +261,7 @@ defmodule Clinicpro.Paystack.SubAccount do
   defp changeset(subaccount, attrs) do
     subaccount
     |> cast(attrs, [
-      :_clinic_id,
+      :clinic_id,
       :subaccount_code,
       :business_name,
       :settlement_bank,
@@ -270,14 +270,14 @@ defmodule Clinicpro.Paystack.SubAccount do
       :active
     ])
     |> validate_required([
-      :_clinic_id,
+      :clinic_id,
       :subaccount_code,
       :business_name,
       :settlement_bank,
       :account_number
     ])
     |> unique_constraint(:subaccount_code)
-    |> unique_constraint(:_clinic_id,
+    |> unique_constraint(:clinic_id,
       name: :paystack_subaccounts_clinic_id_active_index,
       message: "already has an active Paystack subaccount"
     )

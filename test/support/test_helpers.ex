@@ -3,13 +3,13 @@ defmodule Clinicpro.TestHelpers do
   Helper functions for testing the ClinicPro application.
 
   This module provides functions for setting up test data and mocking external API calls
-  for M-Pesa and Virtual Meetings integration tests.
-  """
+  for Paystack and Virtual Meetings integration tests.
+  "
 
   alias Clinicpro.Repo
   alias Clinicpro.Clinics.Clinic
   alias Clinicpro.AdminBypass.Appointment
-  alias Clinicpro.MPesa.Transaction
+  alias Clinicpro.Paystack.Transaction
 
   @doc """
   Creates a test clinic with the given name and configuration.
@@ -19,12 +19,6 @@ defmodule Clinicpro.TestHelpers do
       Map.merge(
         %{
           name: name,
-          mpesa_config: %{
-            consumer_key: "test_consumer_key",
-            consumer_secret: "test_consumer_secret",
-            passkey: "test_passkey",
-            shortcode: "test_shortcode"
-          },
           virtual_meeting_config: %{
             adapter: "Clinicpro.VirtualMeetings.SimpleAdapter"
           }
@@ -32,7 +26,7 @@ defmodule Clinicpro.TestHelpers do
         attrs
       )
 
-    %Clinic{}
+    %Clinicpro.Clinics.Clinic{}
     |> struct(attrs)
     |> Repo.insert()
   end
@@ -60,49 +54,52 @@ defmodule Clinicpro.TestHelpers do
         attrs
       )
 
-    %Appointment{}
+    %Clinicpro.AdminBypass.Appointment{}
     |> struct(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Creates a test M-Pesa transaction for the given clinic.
+  Creates a test Paystack transaction for the given clinic.
   """
   def create_test_transaction(clinic_id, attrs \\ %{}) do
-    attrs =
+    default_attrs =
       Map.merge(
         %{
           clinic_id: clinic_id,
+          email: "test@example.com",
           amount: 1000,
-          phone_number: "254712345678",
-          reference: "REF-#{Ecto.UUID.generate()}",
-          description: "Test payment",
-          merchant_request_id: "MR-#{Ecto.UUID.generate()}",
-          checkout_request_id: "CR-#{Ecto.UUID.generate()}",
+          reference: "TEST-#{Ecto.UUID.generate()}",
+          description: "Test transaction",
           status: "pending"
         },
         attrs
       )
 
-    %Transaction{}
-    |> struct(attrs)
+    %Clinicpro.Paystack.Transaction{}
+    |> struct(default_attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Mocks an M-Pesa payment callback for the given transaction.
+  Mocks a Paystack payment callback for the given transaction.
   """
-  def mock_mpesa_callback(transaction) do
+  def mock_paystack_callback(transaction) do
     %{
-      "ResultCode" => "0",
-      "ResultDesc" => "Success",
-      "MerchantRequestID" => transaction.merchant_request_id,
-      "CheckoutRequestID" => transaction.checkout_request_id,
-      "Amount" => transaction.amount,
-      "MpesaReceiptNumber" => "LHG#{:rand.uniform(999_999)}",
-      "TransactionDate" =>
-        "#{Date.utc_today() |> Date.to_string() |> String.replace("-", "")}#{Time.utc_now() |> Time.to_string() |> String.slice(0, 8) |> String.replace(":", "")}",
-      "PhoneNumber" => transaction.phone_number
+      "event" => "charge.success",
+      "data" => %{
+        "id" => transaction.id,
+        "status" => "success",
+        "reference" => transaction.reference,
+        "amount" => transaction.amount,
+        "paid_at" => DateTime.utc_now() |> DateTime.to_iso8601(),
+        "channel" => "card",
+        "currency" => "KES",
+        "metadata" => %{},
+        "customer" => %{
+          "email" => transaction.email
+        }
+      }
     }
   end
 

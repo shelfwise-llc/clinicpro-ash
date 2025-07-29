@@ -15,8 +15,8 @@ defmodule ClinicproWeb.RouterBypass do
         # List appointments
         get "/appointments", DoctorFlowBypassController, :list_appointments
 
-        # Access _appointment details
-        get "/appointments/:id", DoctorFlowBypassController, :access_appointment
+        # Access appointment details
+        get "/appointments/:id", DoctorFlowBypassController, :accessappointment
 
         # Medical details
         get "/appointments/:id/medical_details",
@@ -31,9 +31,9 @@ defmodule ClinicproWeb.RouterBypass do
         get "/appointments/:id/diagnosis", DoctorFlowBypassController, :record_diagnosis_form
         post "/appointments/:id/diagnosis", DoctorFlowBypassController, :record_diagnosis
 
-        # Complete _appointment
+        # Complete appointment
         get "/appointments/:id/complete", DoctorFlowBypassController, :complete_appointment_form
-        post "/appointments/:id/complete", DoctorFlowBypassController, :complete_appointment
+        post "/appointments/:id/complete", DoctorFlowBypassController, :completeappointment
       end
     end
   end

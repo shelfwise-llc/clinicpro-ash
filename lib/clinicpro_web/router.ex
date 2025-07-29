@@ -32,6 +32,18 @@ defmodule ClinicproWeb.Router do
     plug ClinicproWeb.Plugs.EnsurePatientAuth
   end
 
+  pipeline :doctor_auth do
+    plug ClinicproWeb.Plugs.EnsureDoctorAuth
+  end
+
+  pipeline :admin_layout do
+    plug :put_root_layout, {ClinicproWeb.Layouts, :admin}
+  end
+
+  pipeline :require_admin_login do
+    plug ClinicproWeb.Plugs.EnsureAdminAuth
+  end
+
   # Authentication routes - temporarily disabled
   # scope "/auth" do
   #   pipe_through :browser
@@ -57,7 +69,7 @@ defmodule ClinicproWeb.Router do
     # Admin edit routes with ID parameter
     get "/edit_doctor/:id", AdminController, :edit_doctor
     get "/edit_patient/:id", AdminController, :edit_patient
-    get "/edit_appointment/:id", AdminController, :edit_appointment
+    get "/editappointment/:id", AdminController, :editappointment
 
     # Doctors management
     get "/doctors", AdminController, :doctors
@@ -77,18 +89,18 @@ defmodule ClinicproWeb.Router do
 
     # Appointments management
     get "/appointments", AdminController, :appointments
-    get "/appointments/new", AdminController, :new_appointment
-    post "/appointments", AdminController, :create_appointment
-    get "/appointments/:id/edit", AdminController, :edit_appointment
-    put "/appointments/:id", AdminController, :update_appointment
-    post "/appointments/:id/delete", AdminController, :delete_appointment
+    get "/appointments/new", AdminController, :newappointment
+    post "/appointments", AdminController, :createappointment
+    get "/appointments/:id/edit", AdminController, :editappointment
+    put "/appointments/:id", AdminController, :updateappointment
+    post "/appointments/:id/delete", AdminController, :deleteappointment
 
     # Clinic settings
     get "/settings", AdminController, :settings
     post "/settings", AdminController, :update_settings
 
     # Admin M-Pesa routes - DISABLED (Using Paystack instead)
-    # scope "/clinics/:_clinic_id/mpesa", ClinicproWeb do
+    # scope "/clinics/:clinic_id/mpesa", ClinicproWeb do
     #   # Removed duplicate pipe_through as it's already defined in the parent scope
     #
     #   get "/", MPesaAdminController, :index
@@ -116,34 +128,54 @@ defmodule ClinicproWeb.Router do
     # end
 
     # Admin Paystack routes
-    scope "/clinics/:clinic_id/paystack" do
-      # Configuration management
-      get "/", PaystackAdminController, :index
+    scope "/admin/clinics/:clinic_id/paystack", ClinicproWeb do
+      pipe_through [:admin_layout, :require_admin_login]
+      
+      # Dashboard and main routes
+      get "/", PaystackAdminController, :dashboard
       get "/new", PaystackAdminController, :new_config
       post "/", PaystackAdminController, :create_config
+      get "/:id", PaystackAdminController, :show_config
       get "/:id/edit", PaystackAdminController, :edit_config
       put "/:id", PaystackAdminController, :update_config
       delete "/:id", PaystackAdminController, :delete_config
-
-      # Configuration activation/deactivation
+      get "/:id/deactivate", PaystackAdminController, :deactivate_config
+      get "/:id/activate", PaystackAdminController, :activate_config
       post "/:id/activate", PaystackAdminController, :activate_config
       post "/:id/deactivate", PaystackAdminController, :deactivate_config
+      
+      # Configuration management
+      get "/configs", PaystackAdminController, :list_configs
+      get "/configs/new", PaystackAdminController, :new_config
+      post "/configs", PaystackAdminController, :create_config
+      get "/configs/:id", PaystackAdminController, :show_config
+      get "/configs/:id/edit", PaystackAdminController, :edit_config
+      put "/configs/:id", PaystackAdminController, :update_config
+      delete "/configs/:id", PaystackAdminController, :delete_config
+
+      # Configuration activation/deactivation
+      post "/configs/:id/activate", PaystackAdminController, :activate_config
+      post "/configs/:id/deactivate", PaystackAdminController, :deactivate_config
 
       # Subaccount management
+      get "/subaccounts", PaystackAdminController, :list_subaccounts
       get "/subaccounts/new", PaystackAdminController, :new_subaccount
       post "/subaccounts", PaystackAdminController, :create_subaccount
+      get "/subaccounts/:id", PaystackAdminController, :show_subaccount
+      get "/subaccounts/:id/edit", PaystackAdminController, :edit_subaccount
+      put "/subaccounts/:id", PaystackAdminController, :update_subaccount
       get "/subaccounts/:id/activate", PaystackAdminController, :activate_subaccount
       get "/subaccounts/:id/deactivate", PaystackAdminController, :deactivate_subaccount
       delete "/subaccounts/:id", PaystackAdminController, :delete_subaccount
 
       # Transaction management
       get "/transactions", PaystackAdminController, :list_transactions
-      get "/transactions/:id", PaystackAdminController, :transaction_details
+      get "/transactions/:id", PaystackAdminController, :show_transaction
       post "/transactions/:id/verify", PaystackAdminController, :verify_transaction
-
+      
       # Test payment
       get "/test-payment", PaystackAdminController, :test_payment_form
-      post "/test-payment", PaystackAdminController, :create_test_payment
+      post "/test-payment", PaystackAdminController, :process_test_payment
 
       # Webhook logs
       get "/webhooks", PaystackAdminController, :webhook_logs
@@ -153,6 +185,35 @@ defmodule ClinicproWeb.Router do
 
     # Keep ash_admin at the end for backward compatibility
     ash_admin("/ash")
+  end
+
+  # Doctor authentication routes (public)
+  scope "/doctor", ClinicproWeb do
+    pipe_through :browser
+
+    # Doctor authentication
+    get "/", DoctorAuthController, :login
+    get "/login", DoctorAuthController, :login
+    post "/login", DoctorAuthController, :login_submit
+    get "/logout", DoctorAuthController, :logout
+    post "/logout", DoctorAuthController, :logout
+  end
+
+  # Doctor protected routes (requires authentication)
+  scope "/doctor", ClinicproWeb do
+    pipe_through [:browser, :doctor_auth]
+
+    # Dashboard
+    get "/dashboard", DoctorController, :dashboard
+
+    # Patient management
+    get "/patients", DoctorController, :patients
+    get "/patients/:id", DoctorController, :show_patient
+
+    # Appointment management
+    get "/appointments", DoctorController, :appointments
+    get "/appointments/:id", DoctorController, :show_appointment
+    put "/appointments/:id", DoctorController, :update_appointment
   end
 
   # Admin Bypass Routes (Direct Ecto operations)
@@ -183,11 +244,11 @@ defmodule ClinicproWeb.Router do
 
     # Appointments management
     get "/appointments", AdminBypassController, :appointments
-    get "/appointments/new", AdminBypassController, :new_appointment
-    post "/appointments", AdminBypassController, :create_appointment
-    get "/appointments/:id/edit", AdminBypassController, :edit_appointment
-    put "/appointments/:id", AdminBypassController, :update_appointment
-    delete "/appointments/:id", AdminBypassController, :delete_appointment
+    get "/appointments/new", AdminBypassController, :newappointment
+    post "/appointments", AdminBypassController, :createappointment
+    get "/appointments/:id/edit", AdminBypassController, :editappointment
+    put "/appointments/:id", AdminBypassController, :updateappointment
+    delete "/appointments/:id", AdminBypassController, :deleteappointment
 
     # Invoices management
     scope "/clinics/:clinic_id", ClinicproWeb do
@@ -248,6 +309,10 @@ defmodule ClinicproWeb.Router do
       # Patient Dashboard
       get "/dashboard", PatientAuthController, :dashboard
 
+      # Patient Booking
+      get "/book-appointment", PatientAuthController, :book_appointment
+      post "/book-appointment", PatientAuthController, :create_appointment
+
       # Patient Flow
       get "/receive-link/:token", PatientFlowController, :receive_link
       get "/welcome", PatientFlowController, :welcome
@@ -273,8 +338,8 @@ defmodule ClinicproWeb.Router do
 
     # Doctor Flow
     get "/doctor/appointments", DoctorFlowController, :list_appointments
-    get "/doctor/_appointment/:id", DoctorFlowController, :access_appointment
-    post "/doctor/_appointment/:id", DoctorFlowController, :access_appointment_submit
+    get "/doctor/appointment/:id", DoctorFlowController, :accessappointment
+    post "/doctor/appointment/:id", DoctorFlowController, :access_appointment_submit
     get "/doctor/medical-details/:id", DoctorFlowController, :fill_medical_details
     post "/doctor/medical-details/:id", DoctorFlowController, :fill_medical_details_submit
     # Add missing doctor flow routes
@@ -310,21 +375,21 @@ defmodule ClinicproWeb.Router do
     # get "/payment/mpesa/status/:transaction_id", PaymentController, :check_status  # DISABLED - Using Paystack
 
     # Appointment routes with type differentiation
-    get "/_appointment/:id", AppointmentController, :show
-    get "/_appointment/virtual/:id", AppointmentController, :virtual_link
-    get "/_appointment/onsite/:id", AppointmentController, :onsite_details
+    get "/appointment/:id", AppointmentController, :show
+    get "/appointment/virtual/:id", AppointmentController, :virtual_link
+    get "/appointment/onsite/:id", AppointmentController, :onsite_details
   end
 
   # M-Pesa callback routes with clinic-specific paths - DISABLED (Using Paystack instead)
   # scope "/api/mpesa/callbacks", ClinicproWeb do
   #   pipe_through :api
   #
-  #   # STK Push callback route with _clinic_id parameter
-  #   post "/:_clinic_id/stk", MPesaCallbackController, :stk_callback
+  #   # STK Push callback route with clinic_id parameter
+  #   post "/:clinic_id/stk", MPesaCallbackController, :stk_callback
   #
-  #   # C2B validation and confirmation routes with _clinic_id parameter
-  #   post "/:_clinic_id/validation", MPesaCallbackController, :c2b_validation
-  #   post "/:_clinic_id/confirmation", MPesaCallbackController, :c2b_confirmation
+  #   # C2B validation and confirmation routes with clinic_id parameter
+  #   post "/:clinic_id/validation", MPesaCallbackController, :c2b_validation
+  #   post "/:clinic_id/confirmation", MPesaCallbackController, :c2b_confirmation
   # end
 
   # Paystack webhook route

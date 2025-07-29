@@ -10,11 +10,12 @@ defmodule Clinicpro.Repo.Migrations.CreateGuardianAuthTables do
         AND table_name = 'guardian_tokens'
       );
     """
-    
-    table_exists = case Ecto.Adapters.SQL.query(Clinicpro.Repo, query, []) do
-      {:ok, %{rows: [[true]]}} -> true
-      _ -> false
-    end
+
+    table_exists =
+      case Ecto.Adapters.SQL.query(Clinicpro.Repo, query, []) do
+        {:ok, %{rows: [[true]]}} -> true
+        _ -> false
+      end
 
     unless table_exists do
       # Create guardian_tokens table for GuardianDB

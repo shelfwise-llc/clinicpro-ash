@@ -4,36 +4,32 @@ defmodule Clinicpro.Auth.OTPTest do
   alias Clinicpro.Auth.OTP
   alias Clinicpro.Auth.OTPSecret
   alias Clinicpro.Patient
-  alias Clinicpro.Clinic
+  alias Clinicpro.Clinics.Clinic
   alias Clinicpro.Repo
+  alias Clinicpro.ClinicSetting
 
   describe "OTP multi-tenant authentication" do
     setup do
       # Create two test clinics
       {:ok, clinic1} =
-        %Clinic{
-          name: "Test Clinic 1",
-          email: "clinic1@example.com",
-          phone_number: "1234567890"
-        }
+        %Clinic{}
         |> Repo.insert()
 
       {:ok, clinic2} =
-        %Clinic{
-          name: "Test Clinic 2",
-          email: "clinic2@example.com",
-          phone_number: "0987654321"
-        }
+        %Clinic{}
         |> Repo.insert()
 
-      # Create test patients for each clinic
+      # No clinic settings needed as ClinicSetting is not multi-tenant
+
+      # Create patients for each clinic
       {:ok, patient1} =
         %Patient{
           first_name: "John",
           last_name: "Doe",
-          email: "john@example.com",
-          phone_number: "1111111111",
-          clinic_id: clinic1.id
+          date_of_birth: ~D[1990-01-01],
+          gender: "male",
+          phone: "+1234567890",
+          email: "john.doe@example.com"
         }
         |> Repo.insert()
 
@@ -41,18 +37,14 @@ defmodule Clinicpro.Auth.OTPTest do
         %Patient{
           first_name: "Jane",
           last_name: "Smith",
-          email: "jane@example.com",
-          phone_number: "2222222222",
-          clinic_id: clinic2.id
+          date_of_birth: ~D[1995-05-15],
+          gender: "female",
+          phone: "+0987654321",
+          email: "jane.smith@example.com"
         }
         |> Repo.insert()
 
-      %{
-        clinic1: clinic1,
-        clinic2: clinic2,
-        patient1: patient1,
-        patient2: patient2
-      }
+      %{clinic1: clinic1, clinic2: clinic2, patient1: patient1, patient2: patient2}
     end
 
     test "generate_otp creates a new OTP secret for a patient in a clinic", %{

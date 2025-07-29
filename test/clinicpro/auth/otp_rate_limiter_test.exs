@@ -13,11 +13,7 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
 
     # Create a test clinic
     {:ok, clinic} =
-      %Clinic{
-        name: "Test Clinic",
-        email: "clinic@example.com",
-        phone_number: "1234567890"
-      }
+      %Clinicpro.Clinics.Clinic{}
       |> Repo.insert()
 
     # Create a test patient
@@ -26,8 +22,7 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
         first_name: "Test",
         last_name: "Patient",
         email: "patient@example.com",
-        phone_number: "9876543210",
-        clinic_id: clinic.id
+        phone: "9876543210"
       }
       |> Repo.insert()
 
@@ -103,8 +98,7 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
           first_name: "Another",
           last_name: "Patient",
           email: "another@example.com",
-          phone_number: "5555555555",
-          clinic_id: clinic.id
+          phone: "5555555555"
         }
         |> Repo.insert()
 
@@ -125,11 +119,7 @@ defmodule Clinicpro.Auth.OTPRateLimiterTest do
     test "isolates attempts between clinics", %{patient: patient} do
       # Create another clinic
       {:ok, clinic2} =
-        %Clinic{
-          name: "Another Clinic",
-          email: "another@example.com",
-          phone_number: "5555555555"
-        }
+        %Clinicpro.Clinics.Clinic{}
         |> Repo.insert()
 
       # Create config for the second clinic

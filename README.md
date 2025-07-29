@@ -7,14 +7,13 @@ ClinicPro is a medical clinic management system built with Elixir, Phoenix, and 
 The project is currently under active development with the following key features:
 
 1. **Multi-tenant Architecture**: Each clinic has isolated data and configurations
-2. **Paystack Payment Integration**: Secure payment processing (M-Pesa integration is disabled)
+2. **Paystack Payment Integration**: Secure payment processing
 3. **Guardian JWT Authentication**: Secure authentication with multi-tenant support
 4. **Doctor and Patient Workflows**: Complete appointment management system
 
 ### Payment Processing
 
 - **Paystack**: Active payment gateway with full multi-tenant support
-- **M-Pesa**: Integration is currently disabled (code is preserved in comments for reference)
 
 ### Authentication System
 
@@ -85,9 +84,9 @@ While AshAuthentication issues are being resolved, you can use the bypass contro
 
 2. Access the doctor flow at `/doctor/appointments`
 
-## M-Pesa Integration (Disabled)
+## Payment Processing
 
-The project previously included M-Pesa integration, which has been disabled in favor of Paystack. The M-Pesa code remains in the codebase (commented out) for reference purposes.
+The project uses Paystack for payment processing, which has been fully integrated with multi-tenant support.
 
 ### Paystack Integration
 
@@ -106,20 +105,14 @@ The project now uses Paystack as the primary payment gateway:
 * `Clinicpro.Paystack.Transaction` - Transaction management with clinic isolation
 * `Clinicpro.Paystack.Callback` - Webhook handling for payment notifications
 
-## M-Pesa and Virtual Meetings Integration
+## Paystack and Virtual Meetings Integration
 
-The project includes a comprehensive integration between M-Pesa payment processing and virtual meeting generation with the following features:
+The project includes a comprehensive integration between Paystack payment processing and virtual meeting generation with the following features:
 
-- **Multi-tenant architecture**: Each clinic has isolated configurations for M-Pesa and virtual meetings
+- **Multi-tenant architecture**: Each clinic has isolated configurations for Paystack and virtual meetings
 - **Real API integrations**: Support for Google Meet and Zoom with proper authentication
 - **Fallback mechanisms**: SimpleAdapter fallback for API failures
 - **Comprehensive testing**: Unit, integration, and real API tests
-
-For detailed information about this integration, see the following documentation:
-
-- [Integration Summary](docs/mpesa_virtual_meetings_integration_summary.md)
-- [Deployment Guide](docs/mpesa_virtual_meetings_deployment.md)
-- [Testing Checklist](docs/integration_testing_checklist.md)
 
 ## Test Organization
 
@@ -130,7 +123,7 @@ The test files have been reorganized into a more structured directory layout:
 ```
 test/
 ├── clinicpro/
-│   ├── mpesa/             # M-Pesa integration tests
+│   ├── paystack/          # Paystack integration tests
 │   ├── admin_bypass/      # Admin bypass tests
 │   ├── auth/              # Authentication tests
 │   ├── workflow/          # Workflow tests
@@ -145,7 +138,7 @@ test/
 
 To run specific test groups, use the following scripts:
 
-- `mix run run_mpesa_tests.exs` - Run all M-Pesa tests
+- `mix run run_paystack_tests.exs` - Run all Paystack tests
 - `mix run run_admin_bypass_tests.exs` - Run all admin bypass tests
 - `mix run run_workflow_tests.exs` - Run all workflow tests
 

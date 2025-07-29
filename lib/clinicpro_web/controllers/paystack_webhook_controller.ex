@@ -15,7 +15,7 @@ defmodule ClinicproWeb.PaystackWebhookController do
   def handle(conn, _params) do
     with {:ok, body, conn} <- extract_request_body(conn),
          {:ok, payload} <- Jason.decode(body),
-         clinic_id <- extract_clinic_id(payload),
+         clinic_id <- extractclinic_id(payload),
          {:ok, _result} <-
            Paystack.process_webhook(payload, clinic_id, conn.assigns[:request_signature]) do
       # Log successful webhook processing
@@ -60,11 +60,11 @@ defmodule ClinicproWeb.PaystackWebhookController do
   end
 
   # Extract clinic ID from payload metadata or _transaction reference
-  defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}})
+  defp extractclinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}})
        when is_integer(clinic_id),
        do: clinic_id
 
-  defp extract_clinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}})
+  defp extractclinic_id(%{"data" => %{"metadata" => %{"clinic_id" => clinic_id}}})
        when is_binary(clinic_id) do
     case Integer.parse(clinic_id) do
       {id, _unused} -> id
@@ -72,13 +72,13 @@ defmodule ClinicproWeb.PaystackWebhookController do
     end
   end
 
-  # Fallback to extracting from reference if metadata doesn't contain _clinic_id
-  defp extract_clinic_id(%{"data" => %{"reference" => reference}}) when is_binary(reference) do
-    case Paystack.extract_clinic_id_from_reference(reference) do
+  # Fallback to extracting from reference if metadata doesn't contain clinic_id
+  defp extractclinic_id(%{"data" => %{"reference" => reference}}) when is_binary(reference) do
+    case Clinicpro.Paystack.extract_clinic_id_from_reference(reference) do
       {:ok, clinic_id} -> clinic_id
       _unused -> nil
     end
   end
 
-  defp extract_clinic_id(_unused), do: nil
+  defp extractclinic_id(_unused), do: nil
 end

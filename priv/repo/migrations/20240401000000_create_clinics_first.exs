@@ -4,14 +4,14 @@ defmodule Clinicpro.Repo.Migrations.CreateClinicsFirst do
   def up do
     # First, check if the clinics table already exists
     table_exists = table_exists?(:clinics)
-    
+
     unless table_exists do
       # Create the clinics table with the same structure as the existing migration
       create table(:clinics, primary_key: false) do
         add :id, :binary_id, primary_key: true
         timestamps(type: :utc_datetime)
       end
-      
+
       # Mark the original clinics migration as completed
       execute """
         INSERT INTO schema_migrations (version, inserted_at)
@@ -24,7 +24,7 @@ defmodule Clinicpro.Repo.Migrations.CreateClinicsFirst do
   def down do
     # This is not reversible since we're fixing migration order
   end
-  
+
   # Helper function to check if a table exists
   defp table_exists?(table_name) do
     query = """
@@ -34,7 +34,7 @@ defmodule Clinicpro.Repo.Migrations.CreateClinicsFirst do
         AND table_name = '#{table_name}'
       );
     """
-    
+
     case Ecto.Adapters.SQL.query(Clinicpro.Repo, query, []) do
       {:ok, %{rows: [[true]]}} -> true
       _ -> false

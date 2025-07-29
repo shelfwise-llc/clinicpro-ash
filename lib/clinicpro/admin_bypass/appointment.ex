@@ -24,8 +24,8 @@ defmodule Clinicpro.AdminBypass.Appointment do
   end
 
   @doc false
-  def changeset(_appointment, attrs) do
-    _appointment
+  def changeset(appointment, attrs) do
+    appointment
     |> cast(attrs, [
       :doctor_id,
       :patient_id,
@@ -67,7 +67,7 @@ defmodule Clinicpro.AdminBypass.Appointment do
     |> Clinicpro.Repo.preload([:doctor, :patient])
   end
 
-  def get_appointment!(id), do: Clinicpro.Repo.get!(__MODULE__, id)
+  def getappointment!(id), do: Clinicpro.Repo.get!(__MODULE__, id)
 
   def get_appointment_with_associations!(id) do
     __MODULE__
@@ -75,23 +75,23 @@ defmodule Clinicpro.AdminBypass.Appointment do
     |> Clinicpro.Repo.preload([:doctor, :patient])
   end
 
-  def create_appointment(attrs \\ %{}) do
+  def createappointment(attrs \\ %{}) do
     %__MODULE__{}
     |> changeset(attrs)
     |> Clinicpro.Repo.insert()
   end
 
-  def update_appointment(%__MODULE__{} = _appointment, attrs) do
-    _appointment
+  def updateappointment(%__MODULE__{} = appointment, attrs) do
+    appointment
     |> changeset(attrs)
     |> Clinicpro.Repo.update()
   end
 
-  def delete_appointment(%__MODULE__{} = _appointment) do
-    Clinicpro.Repo.delete(_appointment)
+  def deleteappointment(%__MODULE__{} = appointment) do
+    Clinicpro.Repo.delete(appointment)
   end
 
-  def change_appointment(%__MODULE__{} = _appointment, attrs \\ %{}) do
-    changeset(_appointment, attrs)
+  def changeappointment(%__MODULE__{} = appointment, attrs \\ %{}) do
+    changeset(appointment, attrs)
   end
 end

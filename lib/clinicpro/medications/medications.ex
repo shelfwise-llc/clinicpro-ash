@@ -13,8 +13,8 @@ defmodule Clinicpro.Medications do
   Searches for medications in the clinic's collection.
   Returns a list of matching medications.
   """
-  def search(_clinic_id, query, options \\ %{}) do
-    case TypesenseConfig.search_medications(_clinic_id, query, options) do
+  def search(clinic_id, query, options \\ %{}) do
+    case TypesenseConfig.search_medications(clinic_id, query, options) do
       {:ok, results} ->
         {:ok, Enum.map(results, fn hit -> hit["document"] end)}
 
@@ -26,11 +26,11 @@ defmodule Clinicpro.Medications do
   @doc """
   Adds a medication to the clinic's collection.
   """
-  def add_medication(_clinic_id, attrs) do
+  def add_medication(clinic_id, attrs) do
     # Generate a UUID if not provided
     medication = Map.put_new(attrs, "id", UUID.generate())
 
-    case TypesenseConfig.index_medication(_clinic_id, medication) do
+    case TypesenseConfig.index_medication(clinic_id, medication) do
       {:ok, result} -> {:ok, result}
       {:error, error} -> {:error, error}
     end
@@ -40,7 +40,7 @@ defmodule Clinicpro.Medications do
   Bulk imports medications for a clinic.
   Useful for initial setup or data migration.
   """
-  def bulk_import(_clinic_id, medications) do
+  def bulk_import(clinic_id, medications) do
     # Ensure each medication has an ID
     medications =
       Enum.map(medications, fn med ->
@@ -48,10 +48,10 @@ defmodule Clinicpro.Medications do
       end)
 
     # Create the collection if it doesn't exist
-    TypesenseConfig.create_collection_if_not_exists(_clinic_id)
+    TypesenseConfig.create_collection_if_not_exists(clinic_id)
 
     # Get the collection name
-    collection_name = TypesenseConfig.collection_name(_clinic_id)
+    collection_name = TypesenseConfig.collection_name(clinic_id)
 
     # Import the medications
     TypesenseConfig.client()

@@ -4,7 +4,8 @@
 import Config
 
 # Completely disable AshAuthentication in tests
-config :ash_authentication, :bypass_compile_time_checks, true
+# Commented out due to missing dependency
+# config :ash_authentication, :bypass_compile_time_checks, true
 
 # Configure mock modules for tests
 config :clinicpro, :accounts_api, Clinicpro.TestBypass.MockAccounts

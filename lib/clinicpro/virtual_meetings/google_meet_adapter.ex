@@ -25,11 +25,11 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   alias Goth.Token
 
   @doc """
-  Creates a new Google Meet meeting for an _appointment.
+  Creates a new Google Meet meeting for an appointment.
 
   ## Parameters
 
-  * `_appointment` - The _appointment to create a meeting for
+  * `appointment` - The appointment to create a meeting for
   * `_opts` - Additional options for the meeting creation
 
   ## Returns
@@ -38,10 +38,10 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   * `{:error, reason}` - On failure, returns an error reason
   """
   @impl true
-  def create_meeting(_appointment, _opts \\ []) do
-    with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
+  def create_meeting(appointment, _opts \\ []) do
+    with {:ok, appointment} <- get_appointment_with_associations(appointment),
          {:ok, client} <- get_google_client(),
-         {:ok, event} <- create_calendar_event(client, _appointment, _opts) do
+         {:ok, event} <- create_calendar_event(client, appointment, _opts) do
       # Extract meeting details from the created event
       meeting_data = %{
         url: event.hangoutLink,
@@ -70,7 +70,7 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
 
   ## Parameters
 
-  * `_appointment` - The _appointment with the meeting to update
+  * `appointment` - The appointment with the meeting to update
   * `_opts` - Additional options for the meeting update
 
   ## Returns
@@ -79,11 +79,11 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   * `{:error, reason}` - On failure, returns an error reason
   """
   @impl true
-  def update_meeting(_appointment, _opts \\ []) do
-    with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
+  def update_meeting(appointment, _opts \\ []) do
+    with {:ok, appointment} <- get_appointment_with_associations(appointment),
          {:ok, client} <- get_google_client(),
-         meeting_data <- extract_meeting_data(_appointment),
-         {:ok, event} <- update_calendar_event(client, _appointment, meeting_data, _opts) do
+         meeting_data <- extract_meeting_data(appointment),
+         {:ok, event} <- update_calendar_event(client, appointment, meeting_data, _opts) do
       # Extract updated meeting details
       updated_meeting_data = %{
         url: event.hangoutLink,
@@ -111,7 +111,7 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
 
   ## Parameters
 
-  * `_appointment` - The _appointment with the meeting to delete
+  * `appointment` - The appointment with the meeting to delete
   * `_opts` - Additional options for the meeting deletion
 
   ## Returns
@@ -120,10 +120,10 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
   * `{:error, reason}` - On failure, returns an error reason
   """
   @impl true
-  def delete_meeting(_appointment, _opts \\ []) do
-    with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
+  def delete_meeting(appointment, _opts \\ []) do
+    with {:ok, appointment} <- get_appointment_with_associations(appointment),
          {:ok, client} <- get_google_client(),
-         meeting_data <- extract_meeting_data(_appointment),
+         meeting_data <- extract_meeting_data(appointment),
          {:ok, _response} <- delete_calendar_event(client, meeting_data, _opts) do
       :ok
     else
@@ -139,14 +139,14 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
 
   # Private functions
 
-  defp get_appointment_with_associations(%Appointment{} = _appointment) do
-    _appointment = Repo.preload(_appointment, [:patient, :doctor, :clinic])
-    {:ok, _appointment}
+  defp get_appointment_with_associations(%Appointment{} = appointment) do
+    appointment = Repo.preload(appointment, [:patient, :doctor, :clinic])
+    {:ok, appointment}
   end
 
   defp get_appointment_with_associations(appointment_id) when is_integer(appointment_id) do
-    case Appointment.get_appointment(appointment_id) do
-      {:ok, _appointment} -> get_appointment_with_associations(_appointment)
+    case Appointment.getappointment(appointment_id) do
+      {:ok, appointment} -> get_appointment_with_associations(appointment)
       error -> error
     end
   end
@@ -192,14 +192,14 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
     end
   end
 
-  defp create_calendar_event(client, _appointment, _opts) do
+  defp create_calendar_event(client, appointment, _opts) do
     calendar_id = get_calendar_id(_opts)
 
-    # Format _appointment details for the event
-    summary = format_event_summary(_appointment)
-    description = format_event_description(_appointment)
-    start_time = format_event_start_time(_appointment)
-    end_time = format_event_end_time(_appointment)
+    # Format appointment details for the event
+    summary = format_event_summary(appointment)
+    description = format_event_description(appointment)
+    start_time = format_event_start_time(appointment)
+    end_time = format_event_end_time(appointment)
 
     # Create event with Google Meet conferencing
     event = %Event{
@@ -215,15 +215,15 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
       },
       conferenceData: %ConferenceData{
         createRequest: %CreateConferenceRequest{
-          requestId: "#{_appointment.id}-#{:os.system_time(:millisecond)}",
+          requestId: "#{appointment.id}-#{:os.system_time(:millisecond)}",
           conferenceSolutionKey: %{
             type: "hangoutsMeet"
           }
         }
       },
       attendees: [
-        %{email: _appointment.patient.email},
-        %{email: _appointment.clinic.email}
+        %{email: appointment.patient.email},
+        %{email: appointment.clinic.email}
       ]
     }
 
@@ -235,7 +235,7 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
     )
   end
 
-  defp update_calendar_event(client, _appointment, meeting_data, _opts) do
+  defp update_calendar_event(client, appointment, meeting_data, _opts) do
     calendar_id = meeting_data[:calendar_id] || get_calendar_id(_opts)
     event_id = meeting_data[:event_id]
 
@@ -246,10 +246,10 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
       case Events.calendar_events_get(client, calendar_id, event_id) do
         {:ok, existing_event} ->
           # Update event details
-          summary = format_event_summary(_appointment)
-          description = format_event_description(_appointment)
-          start_time = format_event_start_time(_appointment)
-          end_time = format_event_end_time(_appointment)
+          summary = format_event_summary(appointment)
+          description = format_event_description(appointment)
+          start_time = format_event_start_time(appointment)
+          end_time = format_event_end_time(appointment)
 
           updated_event = %{
             existing_event
@@ -289,41 +289,41 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
     end
   end
 
-  defp extract_meeting_data(_appointment) do
-    case _appointment.meeting_data do
+  defp extract_meeting_data(appointment) do
+    case appointment.meeting_data do
       nil -> %{}
       meeting_data when is_map(meeting_data) -> meeting_data
       _unused -> %{}
     end
   end
 
-  defp format_event_summary(_appointment) do
-    patient_name = "#{_appointment.patient.first_name} #{_appointment.patient.last_name}"
-    doctor_name = "#{_appointment.doctor.first_name} #{_appointment.doctor.last_name}"
+  defp format_event_summary(appointment) do
+    patient_name = "#{appointment.patient.first_name} #{appointment.patient.last_name}"
+    doctor_name = "#{appointment.doctor.first_name} #{appointment.doctor.last_name}"
 
-    "ClinicPro: #{patient_name} _appointment with Dr. #{doctor_name}"
+    "ClinicPro: #{patient_name} appointment with Dr. #{doctor_name}"
   end
 
-  defp format_event_description(_appointment) do
+  defp format_event_description(appointment) do
     """
-    Virtual _appointment via Google Meet
+    Virtual appointment via Google Meet
 
-    Patient: #{_appointment.patient.first_name} #{_appointment.patient.last_name}
-    Doctor: #{_appointment.doctor.first_name} #{_appointment.doctor.last_name}
-    Clinic: #{_appointment.clinic.name}
-    Date: #{Calendar.strftime(_appointment.appointment_date, "%B %d, %Y")}
-    Time: #{Calendar.strftime(_appointment.appointment_time, "%H:%M")}
-    Duration: #{_appointment.duration} minutes
+    Patient: #{appointment.patient.first_name} #{appointment.patient.last_name}
+    Doctor: #{appointment.doctor.first_name} #{appointment.doctor.last_name}
+    Clinic: #{appointment.clinic.name}
+    Date: #{Calendar.strftime(appointment.appointment_date, "%B %d, %Y")}
+    Time: #{Calendar.strftime(appointment.appointment_time, "%H:%M")}
+    Duration: #{appointment.duration} minutes
 
-    This is an automatically generated meeting link for a ClinicPro virtual _appointment.
+    This is an automatically generated meeting link for a ClinicPro virtual appointment.
     """
   end
 
-  defp format_event_start_time(_appointment) do
+  defp format_event_start_time(appointment) do
     naive_datetime =
       NaiveDateTime.new!(
-        _appointment.appointment_date,
-        _appointment.appointment_time
+        appointment.appointment_date,
+        appointment.appointment_time
       )
 
     # Convert to DateTime with UTC timezone
@@ -331,15 +331,15 @@ defmodule Clinicpro.VirtualMeetings.GoogleMeetAdapter do
     DateTime.to_iso8601(datetime)
   end
 
-  defp format_event_end_time(_appointment) do
+  defp format_event_end_time(appointment) do
     naive_datetime =
       NaiveDateTime.new!(
-        _appointment.appointment_date,
-        _appointment.appointment_time
+        appointment.appointment_date,
+        appointment.appointment_time
       )
 
-    # Add _appointment duration in minutes
-    end_naive_datetime = NaiveDateTime.add(naive_datetime, _appointment.duration * 60, :second)
+    # Add appointment duration in minutes
+    end_naive_datetime = NaiveDateTime.add(naive_datetime, appointment.duration * 60, :second)
 
     # Convert to DateTime with UTC timezone
     datetime = DateTime.from_naive!(end_naive_datetime, "Etc/UTC")

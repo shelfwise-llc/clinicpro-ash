@@ -2,7 +2,7 @@ defmodule Clinicpro.Appointments.Appointment do
   @moduledoc """
   Appointment resource for ClinicPro.
 
-  This resource represents a scheduled _appointment between a patient and a doctor
+  This resource represents a scheduled appointment between a patient and a doctor
   at a specific clinic.
   """
   use Ash.Resource,

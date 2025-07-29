@@ -11,7 +11,6 @@ defmodule Clinicpro.InvoicesTest do
 
   alias Clinicpro.AdminBypass.{Invoice, Patient, Doctor, Appointment}
   alias Clinicpro.Invoices
-  alias Clinicpro.MPesa.Transaction
 
   describe "process_completed_payment/1" do
     setup do
@@ -98,7 +97,7 @@ defmodule Clinicpro.InvoicesTest do
       {:ok, virtual_transaction} =
         Transaction.update(virtual_transaction, %{
           status: "completed",
-          mpesa_receipt_number: "LHG31AA4AY",
+          receipt_number: "LHG31AA4AY",
           transaction_date: "20230601121212"
         })
 
@@ -116,7 +115,7 @@ defmodule Clinicpro.InvoicesTest do
       {:ok, onsite_transaction} =
         Transaction.update(onsite_transaction, %{
           status: "completed",
-          mpesa_receipt_number: "MJ41H4AABC",
+          receipt_number: "MJ41H4AABC",
           transaction_date: "20230601141414"
         })
 
@@ -141,8 +140,8 @@ defmodule Clinicpro.InvoicesTest do
 
       # Verify invoice was updated correctly
       assert updated_invoice.status == "paid"
-      assert updated_invoice.notes =~ "Payment processed via M-Pesa"
-      assert updated_invoice.notes =~ transaction.mpesa_receipt_number
+      assert updated_invoice.notes =~ "Payment processed via Paystack"
+      assert updated_invoice.notes =~ transaction.receipt_number
 
       # Verify appointment was updated correctly
       updated_appointment =
@@ -162,8 +161,8 @@ defmodule Clinicpro.InvoicesTest do
 
       # Verify invoice was updated correctly
       assert updated_invoice.status == "paid"
-      assert updated_invoice.notes =~ "Payment processed via M-Pesa"
-      assert updated_invoice.notes =~ transaction.mpesa_receipt_number
+      assert updated_invoice.notes =~ "Payment processed via Paystack"
+      assert updated_invoice.notes =~ transaction.receipt_number
 
       # Verify appointment was updated correctly
       updated_appointment =

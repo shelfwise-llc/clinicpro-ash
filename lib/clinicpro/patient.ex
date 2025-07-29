@@ -124,7 +124,7 @@ defmodule Clinicpro.Patient do
   @doc """
   Lists all active _patients.
   """
-  def list_active do
+  def listactive do
     __MODULE__
     |> where(active: true)
     |> Repo.all()

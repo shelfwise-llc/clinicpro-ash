@@ -9,7 +9,8 @@ config :clinicpro, Clinicpro.Repo,
   username: System.get_env("TEST_DB_USERNAME") || "alex",
   password: System.get_env("TEST_DB_PASSWORD") || "123",
   hostname: System.get_env("TEST_DB_HOSTNAME") || "localhost",
-  database: System.get_env("TEST_DB_NAME") || "clinicpro_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database:
+    System.get_env("TEST_DB_NAME") || "clinicpro_test#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
@@ -32,8 +33,7 @@ config :logger, level: :warning
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
-# Configure M-Pesa mock modules for testing
-config :clinicpro, :mpesa_stk_push_module, Clinicpro.MPesa.STKPushMock
+# Configure PaymentProcessor mock module for testing
 config :clinicpro, :payment_processor_module, Clinicpro.Invoices.PaymentProcessorMock
 
 # Configure the default clinic ID for tests
@@ -55,7 +55,8 @@ config :clinicpro, :token_signing_secret, "test_secret_key_for_ash_authenticatio
 config :clinicpro, :test_bypass_enabled, true
 
 # Bypass AshAuthentication compilation in tests
-config :ash_authentication, :bypass_compile_time_checks, true
+# Commented out due to missing dependency
+# config :ash_authentication, :bypass_compile_time_checks, true
 
 # Completely disable Ash resources in tests to avoid compilation issues
 config :ash, :disable_async_creation, true

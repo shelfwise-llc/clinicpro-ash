@@ -24,11 +24,11 @@ defmodule Clinicpro.Prescriptions.Prescription do
     attribute(:medication_strength, :string)
     attribute(:refills, :integer, default: 0)
     attribute(:is_controlled_substance, :boolean, default: false)
-    attribute(:_clinic_id, :uuid, allow_nil?: false)
+    attribute(:clinic_id, :uuid, allow_nil?: false)
   end
 
   relationships do
-    belongs_to :_appointment, Clinicpro.Appointments.Appointment
+    belongs_to :appointment, Clinicpro.Appointments.Appointment
     belongs_to :doctor, Clinicpro.Accounts.User
     belongs_to :patient, Clinicpro.Accounts.User
     belongs_to :clinic, Clinicpro.Clinics.Clinic
@@ -37,16 +37,16 @@ defmodule Clinicpro.Prescriptions.Prescription do
   actions do
     defaults([:create, :read, :update, :destroy])
 
-    create :create_for_appointment do
+    create :create_forappointment do
       argument(:appointment_id, :uuid, allow_nil?: false)
       argument(:doctor_id, :uuid, allow_nil?: false)
       argument(:patient_id, :uuid, allow_nil?: false)
-      argument(:_clinic_id, :uuid, allow_nil?: false)
+      argument(:clinic_id, :uuid, allow_nil?: false)
 
       change(set_attribute(:appointment_id, arg(:appointment_id)))
       change(set_attribute(:doctor_id, arg(:doctor_id)))
       change(set_attribute(:patient_id, arg(:patient_id)))
-      change(set_attribute(:_clinic_id, arg(:_clinic_id)))
+      change(set_attribute(:clinic_id, arg(:clinic_id)))
     end
 
     read :list_by_patient do
@@ -59,17 +59,17 @@ defmodule Clinicpro.Prescriptions.Prescription do
       filter(expr(doctor_id == ^arg(:doctor_id)))
     end
 
-    read :list_by_appointment do
+    read :list_byappointment do
       argument(:appointment_id, :uuid, allow_nil?: false)
       filter(expr(appointment_id == ^arg(:appointment_id)))
     end
 
     read :list_by_clinic do
-      argument(:_clinic_id, :uuid, allow_nil?: false)
-      filter(expr(_clinic_id == ^arg(:_clinic_id)))
+      argument(:clinic_id, :uuid, allow_nil?: false)
+      filter(expr(clinic_id == ^arg(:clinic_id)))
     end
   end
 
   # Multi-tenant isolation is handled through Ecto queries
-  # Each query filters by _clinic_id to ensure proper data isolation
+  # Each query filters by clinic_id to ensure proper data isolation
 end

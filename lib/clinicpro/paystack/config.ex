@@ -15,7 +15,7 @@ defmodule Clinicpro.Paystack.Config do
   alias __MODULE__
 
   schema "paystack_configs" do
-    field :_clinic_id, :integer
+    field :clinic_id, :integer
     field :environment, :string
     field :public_key, :string
     field :secret_key, :string
@@ -30,10 +30,10 @@ defmodule Clinicpro.Paystack.Config do
   """
   def changeset(config, attrs) do
     config
-    |> cast(attrs, [:_clinic_id, :environment, :public_key, :secret_key, :webhook_secret, :active])
-    |> validate_required([:_clinic_id, :environment, :public_key, :secret_key])
+    |> cast(attrs, [:clinic_id, :environment, :public_key, :secret_key, :webhook_secret, :active])
+    |> validate_required([:clinic_id, :environment, :public_key, :secret_key])
     |> validate_inclusion(:environment, ["test", "production"])
-    |> unique_constraint([:_clinic_id, :public_key])
+    |> unique_constraint([:clinic_id, :public_key])
     |> maybe_deactivate_other_configs()
   end
 
@@ -104,7 +104,7 @@ defmodule Clinicpro.Paystack.Config do
 
   ## Parameters
 
-  * `_clinic_id` - ID of the clinic
+  * `clinic_id` - ID of the clinic
 
   ## Returns
 
@@ -112,29 +112,44 @@ defmodule Clinicpro.Paystack.Config do
   * `{:error, :not_found}` - No active configuration found
 
   """
-  def get_active(_clinic_id) do
-    case Repo.one(from c in Config, where: c._clinic_id == ^_clinic_id and c.active == true) do
+  def getactive(clinic_id) do
+    case Repo.one(from c in Config, where: c.clinic_id == ^clinic_id and c.active == true) do
       nil -> {:error, :not_found}
       config -> {:ok, config}
     end
   end
 
   @doc """
+  Gets the active Paystack configuration for a clinic.
+  This is an alias for getactive/1 for better naming consistency.
+
+  ## Parameters
+
+  * `clinic_id` - ID of the clinic
+
+  ## Returns
+
+  * `{:ok, config}` - The active configuration
+  * `{:error, :not_found}` - No active configuration found
+  """
+  def get_active_config(clinic_id), do: getactive(clinic_id)
+
+  @doc """
   Lists all Paystack configurations for a clinic.
 
   ## Parameters
 
-  * `_clinic_id` - ID of the clinic
+  * `clinic_id` - ID of the clinic
 
   ## Returns
 
   * List of configurations
 
   """
-  def list_by_clinic(_clinic_id) do
+  def list_by_clinic(clinic_id) do
     Repo.all(
       from c in Config,
-        where: c._clinic_id == ^_clinic_id,
+        where: c.clinic_id == ^clinic_id,
         order_by: [desc: c.active, desc: c.inserted_at]
     )
   end
@@ -155,8 +170,8 @@ defmodule Clinicpro.Paystack.Config do
   def activate(id) do
     Repo._transaction(fn ->
       with {:ok, config} <- get(id),
-           :ok <- deactivate_all_for_clinic(config._clinic_id),
-           {:ok, updated_config} <- Repo.update(changeset(config, %{is_active: true})) do
+           :ok <- deactivate_all_for_clinic(config.clinic_id),
+           {:ok, updated_config} <- Repo.update(changeset(config, %{isactive: true})) do
         updated_config
       else
         {:error, reason} -> Repo.rollback(reason)
@@ -179,7 +194,7 @@ defmodule Clinicpro.Paystack.Config do
   """
   def deactivate(id) do
     with {:ok, config} <- get(id) do
-      Repo.update(changeset(config, %{is_active: false}))
+      Repo.update(changeset(config, %{isactive: false}))
     end
   end
 
@@ -221,10 +236,10 @@ defmodule Clinicpro.Paystack.Config do
 
   # Deactivate all other configs for the clinic if this one is being activated
   defp maybe_deactivate_other_configs(changeset) do
-    case get_change(changeset, :is_active) do
+    case get_change(changeset, :isactive) do
       true ->
-        _clinic_id = get_field(changeset, :_clinic_id)
-        deactivate_all_for_clinic(_clinic_id)
+        clinic_id = get_field(changeset, :clinic_id)
+        deactivate_all_for_clinic(clinic_id)
         changeset
 
       _unused ->
@@ -233,9 +248,9 @@ defmodule Clinicpro.Paystack.Config do
   end
 
   # Deactivate all configs for a clinic
-  defp deactivate_all_for_clinic(_clinic_id) do
-    from(c in Config, where: c._clinic_id == ^_clinic_id)
-    |> Repo.update_all(set: [is_active: false])
+  defp deactivate_all_for_clinic(clinic_id) do
+    from(c in Config, where: c.clinic_id == ^clinic_id)
+    |> Repo.update_all(set: [isactive: false])
 
     :ok
   end
@@ -255,11 +270,13 @@ defmodule Clinicpro.Paystack.Config do
 
   """
   def get_secret_key(clinic_id) do
-    case get_active(clinic_id) do
+    case getactive(clinic_id) do
       {:ok, config} when is_binary(config.secret_key) and config.secret_key != "" ->
         {:ok, config.secret_key}
+
       {:ok, _} ->
         {:error, :no_secret_key}
+
       error ->
         error
     end

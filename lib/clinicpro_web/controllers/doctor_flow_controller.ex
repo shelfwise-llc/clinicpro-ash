@@ -7,7 +7,7 @@ defmodule ClinicproWeb.DoctorFlowController do
   plug WorkflowValidator,
        [workflow: :doctor_flow]
        when action in [
-              :access_appointment,
+              :accessappointment,
               :fill_medical_details,
               :record_diagnosis,
               :manage_prescriptions,
@@ -18,8 +18,8 @@ defmodule ClinicproWeb.DoctorFlowController do
   plug WorkflowValidator,
        [
          workflow: :doctor_flow,
-         required_step: :access_appointment,
-         redirect_to: "/doctor/_appointment"
+         required_step: :accessappointment,
+         redirect_to: "/doctor/appointment"
        ]
        when action in [:fill_medical_details]
 
@@ -47,40 +47,40 @@ defmodule ClinicproWeb.DoctorFlowController do
        ]
        when action in [:save_to_profile]
 
-  # Handle the access _appointment step.
-  # This is the entry point for _doctors accessing an _appointment.
-  def access_appointment(conn, %{"appointment_id" => appointment_id}) do
-    # In a real app, this would verify the doctor's access to this _appointment
+  # Handle the access appointment step.
+  # This is the entry point for _doctors accessing an appointment.
+  def accessappointment(conn, %{"appointment_id" => appointment_id}) do
+    # In a real app, this would verify the doctor's access to this appointment
     case get_appointment_data(appointment_id) do
       {:ok, appointment_data} ->
-        # Store _appointment data in session
+        # Store appointment data in session
         conn = put_session(conn, :appointment_data, appointment_data)
 
-        # Initialize the workflow for this _appointment
+        # Initialize the workflow for this appointment
         conn =
-          WorkflowValidator.init_workflow(conn, :doctor_flow, "_appointment-#{appointment_id}")
+          WorkflowValidator.init_workflow(conn, :doctor_flow, "appointment-#{appointment_id}")
 
         # Store user ID in session for tracking
         conn = put_session(conn, :user_id, appointment_data.doctor_id)
 
         workflow_state = conn.assigns[:workflow_state]
 
-        render(conn, :access_appointment,
+        render(conn, :accessappointment,
           workflow_state: workflow_state,
           appointment_data: appointment_data
         )
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Cannot access _appointment: #{reason}")
+        |> put_flash(:error, "Cannot access appointment: #{reason}")
         |> redirect(to: ~p"/doctor/dashboard")
     end
   end
 
   @doc """
-  Fallback for access_appointment when no appointment_id is provided.
+  Fallback for accessappointment when no appointment_id is provided.
   """
-  def access_appointment(conn, _params) do
+  def accessappointment(conn, _params) do
     # Show a list of available appointments
     appointments = list_doctor_appointments()
 
@@ -88,7 +88,7 @@ defmodule ClinicproWeb.DoctorFlowController do
   end
 
   @doc """
-  Process the access _appointment step and advance to fill medical details.
+  Process the access appointment step and advance to fill medical details.
   """
   def access_appointment_submit(conn, _params) do
     # Advance the workflow to the next step
@@ -99,7 +99,7 @@ defmodule ClinicproWeb.DoctorFlowController do
 
   @doc """
   Handle the fill medical details step.
-  This allows the doctor to fill in medical details for the _appointment.
+  This allows the doctor to fill in medical details for the appointment.
   """
   def fill_medical_details(conn, _params) do
     workflow_state = conn.assigns[:workflow_state]
@@ -167,7 +167,7 @@ defmodule ClinicproWeb.DoctorFlowController do
     medical_details = get_session(conn, :medical_details)
     diagnosis = get_session(conn, :diagnosis)
 
-    # Get existing prescriptions for this _appointment
+    # Get existing prescriptions for this appointment
     prescriptions = get_prescriptions(appointment_id)
 
     render(conn, :manage_prescriptions,
@@ -237,7 +237,7 @@ defmodule ClinicproWeb.DoctorFlowController do
     prescriptions = get_session(conn, :prescriptions) || []
 
     # Log the completion for development purposes
-    Logger.info("Doctor workflow completed for _appointment #{appointment_data.id}")
+    Logger.info("Doctor workflow completed for appointment #{appointment_data.id}")
     Logger.info("Medical details: #{inspect(medical_details)}")
     Logger.info("Diagnosis: #{inspect(diagnosis)}")
     Logger.info("Prescriptions: #{inspect(prescriptions)}")
@@ -286,7 +286,7 @@ defmodule ClinicproWeb.DoctorFlowController do
 
     Enum.map(1..5, fn i ->
       %{
-        id: "_appointment-#{i}",
+        id: "appointment-#{i}",
         patient_name: "Patient #{i * 10}",
         date: Date.utc_today() |> Date.add(i),
         time: "#{10 + i}:00",

@@ -1,0 +1,191 @@
+<div class="min-h-screen bg-gray-50">
+  <!-- Navigation -->
+  <nav class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <svg class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21a48.25 48.25 0 01-8.135-.687c-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+            </svg>
+          </div>
+          <div class="ml-4">
+            <h1 class="text-xl font-semibold text-gray-900">Doctor Dashboard</h1>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-gray-700">Welcome, Dr. <%= @doctor.name %></span>
+          <a href="/doctor/logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+            Logout
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+      <!-- Welcome Section -->
+      <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+        <div class="px-4 py-5 sm:p-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-2">Welcome to Your Dashboard</h2>
+          <p class="text-gray-600">Manage your appointments, patients, and medical records from here.</p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <!-- Today's Appointments -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m4 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Today's Appointments</dt>
+                  <dd class="text-lg font-medium text-gray-900"><%= length(@today_appointments) %></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Appointments -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Total Appointments</dt>
+                  <dd class="text-lg font-medium text-gray-900"><%= @total_appointments %></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Appointments -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Pending</dt>
+                  <dd class="text-lg font-medium text-gray-900"><%= @pending_appointments %></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patients -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Patients</dt>
+                  <dd class="text-lg font-medium text-gray-900"><%= length(@recent_patients) %></dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+        <!-- View Patients -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Patient Management</h3>
+            <p class="text-gray-600 mb-4">View and manage your patients</p>
+            <a href="/doctor/patients" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+              View Patients
+            </a>
+          </div>
+        </div>
+
+        <!-- View Appointments -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Appointments</h3>
+            <p class="text-gray-600 mb-4">Manage your appointment schedule</p>
+            <a href="/doctor/appointments" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+              View Appointments
+            </a>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Quick Actions</h3>
+            <p class="text-gray-600 mb-4">Access frequently used features</p>
+            <div class="space-y-2">
+              <a href="/doctor/appointments" class="block text-blue-600 hover:text-blue-800 text-sm">Today's Schedule</a>
+              <a href="/doctor/patients" class="block text-blue-600 hover:text-blue-800 text-sm">Recent Patients</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Appointments -->
+      <%= if length(@today_appointments) > 0 do %>
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Today's Appointments</h3>
+            <div class="space-y-3">
+              <%= for appointment <- @today_appointments do %>
+                <div class="flex items-center justify-between py-2 border-b border-gray-200">
+                  <div>
+                    <p class="text-sm font-medium text-gray-900"><%= "#{appointment.patient.first_name} #{appointment.patient.last_name}" %></p>
+                    <p class="text-sm text-gray-500">
+                      <%= Calendar.strftime(appointment.date, "%I:%M %p") %> - 
+                      <%= appointment.status %>
+                    </p>
+                  </div>
+                  <div class="flex space-x-2">
+                    <a href={~p"/doctor/appointments/#{appointment.id}"} class="text-blue-600 hover:text-blue-800 text-sm">
+                      View
+                    </a>
+                    <a href={~p"/doctor/patients/#{appointment.patient.id}"} class="text-green-600 hover:text-green-800 text-sm">
+                      Patient
+                    </a>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Today's Appointments</h3>
+            <p class="text-gray-500">No appointments scheduled for today.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

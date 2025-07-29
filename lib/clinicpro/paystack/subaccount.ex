@@ -16,7 +16,7 @@ defmodule Clinicpro.Paystack.Subaccount do
   alias __MODULE__
 
   schema "paystack_subaccounts" do
-    field :_clinic_id, :integer
+    field :clinic_id, :integer
     field :business_name, :string
     field :settlement_bank, :string
     field :account_number, :string
@@ -34,7 +34,7 @@ defmodule Clinicpro.Paystack.Subaccount do
   def changeset(subaccount, attrs) do
     subaccount
     |> cast(attrs, [
-      :_clinic_id,
+      :clinic_id,
       :business_name,
       :settlement_bank,
       :account_number,
@@ -44,7 +44,7 @@ defmodule Clinicpro.Paystack.Subaccount do
       :active
     ])
     |> validate_required([
-      :_clinic_id,
+      :clinic_id,
       :business_name,
       :settlement_bank,
       :account_number,
@@ -54,7 +54,7 @@ defmodule Clinicpro.Paystack.Subaccount do
       greater_than_or_equal_to: 0,
       less_than_or_equal_to: 100
     )
-    |> unique_constraint([:_clinic_id, :subaccount_code])
+    |> unique_constraint([:clinic_id, :subaccount_code])
     |> maybe_deactivate_other_subaccounts()
   end
 
@@ -80,7 +80,7 @@ defmodule Clinicpro.Paystack.Subaccount do
              attrs["account_number"],
              attrs["percentage_charge"],
              attrs["description"],
-             attrs["_clinic_id"],
+             attrs["clinic_id"],
              attrs["active"]
            ) do
       # Then save to our database with the subaccount code from Paystack
@@ -107,11 +107,32 @@ defmodule Clinicpro.Paystack.Subaccount do
 
   """
   def update(subaccount, attrs) do
-    # TODO: Implement Paystack API update call when needed
-
-    subaccount
-    |> changeset(attrs)
-    |> Repo.update()
+    # Update the subaccount on Paystack if subaccount_code is present
+    if subaccount.subaccount_code do
+      # Call Paystack API to update the subaccount
+      with {:ok, _paystack_response} <-
+             API.update_subaccount(
+               subaccount.subaccount_code,
+               attrs["business_name"] || subaccount.business_name,
+               attrs["settlement_bank"] || subaccount.settlement_bank,
+               attrs["account_number"] || subaccount.account_number,
+               attrs["percentage_charge"] || subaccount.percentage_charge,
+               attrs["description"] || subaccount.description,
+               attrs["active"] || subaccount.active
+             ) do
+        # Then update our local record
+        subaccount
+        |> changeset(attrs)
+        |> Repo.update()
+      else
+        {:error, reason} -> {:error, reason}
+      end
+    else
+      # If no subaccount_code, just update our local record
+      subaccount
+      |> changeset(attrs)
+      |> Repo.update()
+    end
   end
 
   @doc """
@@ -135,11 +156,53 @@ defmodule Clinicpro.Paystack.Subaccount do
   end
 
   @doc """
+  Gets a Paystack subaccount by ID and clinic ID.
+
+  ## Parameters
+
+  * `id` - ID of the subaccount
+  * `clinic_id` - ID of the clinic
+
+  ## Returns
+
+  * `{:ok, subaccount}` - The subaccount
+  * `{:error, :not_found}` - Subaccount not found
+
+  """
+  def get_by_id_and_clinic(id, clinic_id) do
+    case Repo.get_by(Subaccount, id: id, clinic_id: clinic_id) do
+      nil -> {:error, :not_found}
+      subaccount -> {:ok, subaccount}
+    end
+  end
+
+  @doc """
+  Gets a Paystack subaccount by subaccount code.
+
+  ## Parameters
+
+  * `subaccount_code` - Paystack subaccount code
+  * `clinic_id` - ID of the clinic
+
+  ## Returns
+
+  * `{:ok, subaccount}` - The subaccount
+  * `{:error, :not_found}` - Subaccount not found
+
+  """
+  def get_by_subaccount_code(subaccount_code, clinic_id) do
+    case Repo.get_by(Subaccount, subaccount_code: subaccount_code, clinic_id: clinic_id) do
+      nil -> {:error, :not_found}
+      subaccount -> {:ok, subaccount}
+    end
+  end
+
+  @doc """
   Gets the active Paystack subaccount for a clinic.
 
   ## Parameters
 
-  * `_clinic_id` - ID of the clinic
+  * `clinic_id` - ID of the clinic
 
   ## Returns
 
@@ -147,8 +210,8 @@ defmodule Clinicpro.Paystack.Subaccount do
   * `{:error, :not_found}` - No active subaccount found
 
   """
-  def get_active(clinic_id) do
-    case Repo.one(from s in Subaccount, where: s._clinic_id == ^clinic_id and s.active == true) do
+  def getactive(clinic_id) do
+    case Repo.one(from s in Subaccount, where: s.clinic_id == ^clinic_id and s.active == true) do
       nil -> {:error, :not_found}
       subaccount -> {:ok, subaccount}
     end
@@ -159,7 +222,7 @@ defmodule Clinicpro.Paystack.Subaccount do
 
   ## Parameters
 
-  * `_clinic_id` - ID of the clinic
+  * `clinic_id` - ID of the clinic
 
   ## Returns
 
@@ -169,7 +232,7 @@ defmodule Clinicpro.Paystack.Subaccount do
   def list_by_clinic(clinic_id) do
     Repo.all(
       from s in Subaccount,
-        where: s._clinic_id == ^clinic_id,
+        where: s.clinic_id == ^clinic_id,
         order_by: [desc: s.active, desc: s.inserted_at]
     )
   end
@@ -190,8 +253,8 @@ defmodule Clinicpro.Paystack.Subaccount do
   def activate(id) do
     Repo.transaction(fn ->
       with {:ok, subaccount} <- get(id),
-           :ok <- deactivate_all_for_clinic(subaccount._clinic_id),
-           {:ok, updated_subaccount} <- Repo.update(changeset(subaccount, %{is_active: true})) do
+           :ok <- deactivate_all_for_clinic(subaccount.clinic_id),
+           {:ok, updated_subaccount} <- Repo.update(changeset(subaccount, %{isactive: true})) do
         updated_subaccount
       else
         {:error, reason} -> Repo.rollback(reason)
@@ -214,7 +277,7 @@ defmodule Clinicpro.Paystack.Subaccount do
   """
   def deactivate(id) do
     with {:ok, subaccount} <- get(id) do
-      Repo.update(changeset(subaccount, %{is_active: false}))
+      Repo.update(changeset(subaccount, %{isactive: false}))
     end
   end
 
@@ -241,9 +304,9 @@ defmodule Clinicpro.Paystack.Subaccount do
 
   # Deactivate all other subaccounts for the clinic if this one is being activated
   defp maybe_deactivate_other_subaccounts(changeset) do
-    case get_change(changeset, :is_active) do
+    case get_change(changeset, :isactive) do
       true ->
-        clinic_id = get_field(changeset, :_clinic_id)
+        clinic_id = get_field(changeset, :clinic_id)
         deactivate_all_for_clinic(clinic_id)
         changeset
 
@@ -254,8 +317,8 @@ defmodule Clinicpro.Paystack.Subaccount do
 
   # Deactivate all subaccounts for a clinic
   defp deactivate_all_for_clinic(clinic_id) do
-    from(s in Subaccount, where: s._clinic_id == ^clinic_id)
-    |> Repo.update_all(set: [is_active: false])
+    from(s in Subaccount, where: s.clinic_id == ^clinic_id)
+    |> Repo.update_all(set: [isactive: false])
 
     :ok
   end

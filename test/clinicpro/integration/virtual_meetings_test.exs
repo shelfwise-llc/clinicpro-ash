@@ -44,8 +44,7 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
   setup do
     # Create a test clinic with virtual meeting configuration
     {:ok, clinic} =
-      %Clinic{}
-      |> Clinic.changeset(@valid_clinic_attrs)
+      %Clinicpro.Clinics.Clinic{}
       |> Repo.insert()
 
     # Set up virtual meeting config for the clinic
@@ -92,21 +91,26 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
 
   describe "virtual meetings integration" do
     test "get_or_generate_meeting_link creates a meeting link for a virtual appointment", %{
+      clinic: clinic,
+      doctor: doctor,
+      patient: patient,
       appointment: appointment
     } do
-      # Import the controller to access private functions
-      import ClinicproWeb.AppointmentController, only: [get_or_generate_meeting_link: 1]
+      # Create a connection with the patient logged in
+      conn =
+        build_conn()
+        |> init_test_session(current_patient: patient)
 
-      # Call the function
-      link = get_or_generate_meeting_link(appointment)
+      # Call the controller action
+      conn = ClinicproWeb.AppointmentController.virtual_link(conn, %{"id" => appointment.id})
 
       # Assert that a link was generated
-      assert link != nil
-      assert String.length(link) > 0
+      assert conn.assigns.appointment.meeting_link != nil
+      assert String.length(conn.assigns.appointment.meeting_link) > 0
 
       # Verify that the appointment was updated with the link
       updated_appointment = Repo.get(Appointment, appointment.id)
-      assert updated_appointment.meeting_link == link
+      assert updated_appointment.meeting_link == conn.assigns.appointment.meeting_link
     end
 
     test "virtual_link action renders the meeting link for a paid virtual appointment", %{
@@ -120,7 +124,7 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
           appointment_id: appointment.id,
           amount: 1000.0,
           status: "paid",
-          payment_method: "M-Pesa"
+          payment_method: "Paystack"
         })
 
       # Log in as the patient
@@ -145,7 +149,7 @@ defmodule Clinicpro.Integration.VirtualMeetingsTest do
           appointment_id: appointment.id,
           amount: 1000.0,
           status: "pending",
-          payment_method: "M-Pesa"
+          payment_method: "Paystack"
         })
 
       # Log in as the patient

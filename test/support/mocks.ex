@@ -11,9 +11,7 @@ defmodule Clinicpro.Mocks do
   Mox.defmock(Clinicpro.MockAsh.PatientsMock, for: Clinicpro.MockAsh.PatientsBehaviour)
   Mox.defmock(Clinicpro.MockAsh.ClinicsMock, for: Clinicpro.MockAsh.ClinicsBehaviour)
 
-  # Define mocks for M-Pesa STK Push and PaymentProcessor
-  Mox.defmock(Clinicpro.MPesa.STKPushMock, for: Clinicpro.MPesa.STKPushBehaviour)
-
+  # Define mocks for PaymentProcessor
   Mox.defmock(Clinicpro.Invoices.PaymentProcessorMock,
     for: Clinicpro.Invoices.PaymentProcessorBehaviour
   )
@@ -52,30 +50,7 @@ defmodule Clinicpro.MockAsh.ClinicsBehaviour do
   @callback update_clinic(String.t(), map()) :: {:ok, map()} | {:error, any()}
 end
 
-defmodule Clinicpro.MPesa.STKPushMock do
-  @moduledoc """
-  Mock implementation of the M-Pesa STK Push module for testing.
-  """
-
-  @behaviour Clinicpro.MPesa.STKPushBehaviour
-
-  @doc """
-  Mock implementation of the STK Push request.
-  This function is mocked in tests to return different responses.
-  """
-  @impl true
-  def request(phone_number, amount, reference, clinic_id) do
-    # Default implementation that will be overridden by Mox in tests
-    {:ok,
-     %{
-       "MerchantRequestID" => "mock-merchant-request-id-#{clinic_id}",
-       "CheckoutRequestID" => "mock-checkout-request-id-#{clinic_id}",
-       "ResponseCode" => "0",
-       "ResponseDescription" => "Success. Request accepted for processing",
-       "CustomerMessage" => "Success. Request accepted for processing"
-     }}
-  end
-end
+# M-Pesa STKPushMock removed - using Paystack instead
 
 defmodule Clinicpro.Invoices.PaymentProcessorMock do
   @moduledoc """
@@ -95,10 +70,10 @@ defmodule Clinicpro.Invoices.PaymentProcessorMock do
   end
 
   @doc """
-  Mock implementation of the process_mpesa_payment function.
+  Mock implementation of the process_payment function.
   """
   @impl true
-  def process_mpesa_payment(invoice, phone_number, opts \\ []) do
+  def process_payment(invoice, phone_number, opts \\ []) do
     # Default implementation that will be overridden by Mox in tests
     {:ok,
      %{
@@ -109,8 +84,6 @@ defmodule Clinicpro.Invoices.PaymentProcessorMock do
        amount: invoice.total,
        phone_number: phone_number,
        status: "pending",
-       merchant_request_id: "mock-merchant-request-id",
-       checkout_request_id: "mock-checkout-request-id",
        reference: invoice.reference_number
      }}
   end

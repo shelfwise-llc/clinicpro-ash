@@ -18,7 +18,7 @@ defmodule Clinicpro.Paystack.Payment do
   - `amount` - The amount to charge in the smallest currency unit (kobo for NGN, cents for USD)
   - `reference` - The reference for the _transaction (usually invoice number)
   - `description` - Description of the _transaction
-  - `_clinic_id` - The ID of the clinic initiating the payment
+  - `clinic_id` - The ID of the clinic initiating the payment
   - `metadata` - Additional metadata for the _transaction (optional)
 
   ## Returns
@@ -26,16 +26,16 @@ defmodule Clinicpro.Paystack.Payment do
   - `{:ok, %{authorization_url: url, access_code: code, reference: ref}}` - If successful
   - `{:error, reason}` - If failed
   """
-  def initialize_transaction(email, amount, reference, description, _clinic_id, metadata \\ %{}) do
-    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id),
-         {:ok, subaccount} <- get_clinic_subaccount(_clinic_id) do
+  def initialize_transaction(email, amount, reference, _description, clinic_id, metadata \\ %{}) do
+    with {:ok, secret_key} <- Config.get_secret_key(clinic_id),
+         {:ok, subaccount} <- get_clinic_subaccount(clinic_id) do
       # Build the payload
       payload = %{
         email: email,
         amount: amount,
         reference: reference,
-        callback_url: get_callback_url(_clinic_id),
-        metadata: Map.merge(metadata, %{_clinic_id: _clinic_id}),
+        callback_url: get_callback_url(clinic_id),
+        metadata: Map.merge(metadata, %{clinic_id: clinic_id}),
         subaccount: subaccount.subaccount_code,
         transaction_charge: subaccount.percentage_charge
       }
@@ -65,15 +65,15 @@ defmodule Clinicpro.Paystack.Payment do
   ## Parameters
 
   - `reference` - The reference to verify
-  - `_clinic_id` - The ID of the clinic that initiated the payment
+  - `clinic_id` - The ID of the clinic that initiated the payment
 
   ## Returns
 
   - `{:ok, verification_data}` - If successful
   - `{:error, reason}` - If failed
   """
-  def verify_transaction(reference, _clinic_id) do
-    with {:ok, secret_key} <- Config.get_secret_key(_clinic_id) do
+  def verify_transaction(reference, clinic_id) do
+    with {:ok, secret_key} <- Config.get_secret_key(clinic_id) do
       case Http.get("/_transaction/verify/#{reference}", secret_key) do
         {:ok, %{"status" => true, "data" => data}} ->
           # Extract relevant verification data
@@ -155,15 +155,15 @@ defmodule Clinicpro.Paystack.Payment do
 
   # Private functions
 
-  defp get_clinic_subaccount(_clinic_id) do
-    case SubAccount.get_active_subaccount(_clinic_id) do
+  defp get_clinic_subaccount(clinic_id) do
+    case SubAccount.get_active_subaccount(clinic_id) do
       {:ok, subaccount} -> {:ok, subaccount}
       {:error, :no_active_subaccount} -> {:error, :no_active_subaccount}
     end
   end
 
-  defp get_callback_url(_clinic_id) do
-    case Config.get_active_config(_clinic_id) do
+  defp get_callback_url(clinic_id) do
+    case Config.get_active_config(clinic_id) do
       {:ok, config} -> config.webhook_url
       _unused -> Application.get_env(:clinicpro, :paystack_default_callback_url)
     end

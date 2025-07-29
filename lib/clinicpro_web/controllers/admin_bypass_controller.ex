@@ -46,7 +46,7 @@ defmodule ClinicproWeb.AdminBypassController do
     recent_activity = get_recent_activity()
     invoice_stats = get_invoice_stats()
     recent_invoices = Invoice.list_recent_invoices(5)
-    recent_transactions = Clinicpro.MPesa.list_recent_transactions(5)
+    recent_transactions = Clinicpro.Paystack.list_recent_transactions(5)
 
     render(conn, :index,
       page_title: "Admin Dashboard",
@@ -180,12 +180,12 @@ defmodule ClinicproWeb.AdminBypassController do
     render(conn, :appointments, page_title: "Appointments", appointments: appointments)
   end
 
-  def new_appointment(conn, _params) do
+  def newappointment(conn, _params) do
     _doctors = Doctor.list_doctors()
     _patients = Patient.list_patients()
-    changeset = Appointment.change_appointment(%Appointment{})
+    changeset = Appointment.changeappointment(%Appointment{})
 
-    render(conn, :new_appointment,
+    render(conn, :newappointment,
       page_title: "New Appointment",
       changeset: changeset,
       _doctors: _doctors,
@@ -193,9 +193,9 @@ defmodule ClinicproWeb.AdminBypassController do
     )
   end
 
-  def create_appointment(conn, %{"_appointment" => appointment_params}) do
-    case Appointment.create_appointment(appointment_params) do
-      {:ok, _appointment} ->
+  def createappointment(conn, %{"appointment" => appointment_params}) do
+    case Appointment.createappointment(appointment_params) do
+      {:ok, appointment} ->
         conn
         |> put_flash(:info, "Appointment created successfully.")
         |> redirect(to: ~p"/admin/appointments")
@@ -204,7 +204,7 @@ defmodule ClinicproWeb.AdminBypassController do
         _doctors = Doctor.list_doctors()
         _patients = Patient.list_patients()
 
-        render(conn, :new_appointment,
+        render(conn, :newappointment,
           page_title: "New Appointment",
           changeset: changeset,
           _doctors: _doctors,
@@ -213,26 +213,26 @@ defmodule ClinicproWeb.AdminBypassController do
     end
   end
 
-  def edit_appointment(conn, %{"id" => appointment_id}) do
-    _appointment = Appointment.get_appointment!(appointment_id)
+  def editappointment(conn, %{"id" => appointment_id}) do
+    appointment = Appointment.getappointment!(appointment_id)
     _doctors = Doctor.list_doctors()
     _patients = Patient.list_patients()
-    changeset = Appointment.change_appointment(_appointment)
+    changeset = Appointment.changeappointment(appointment)
 
-    render(conn, :edit_appointment,
+    render(conn, :editappointment,
       page_title: "Edit Appointment",
-      _appointment: _appointment,
+      appointment: appointment,
       changeset: changeset,
       _doctors: _doctors,
       _patients: _patients
     )
   end
 
-  def update_appointment(conn, %{"id" => appointment_id, "_appointment" => appointment_params}) do
-    _appointment = Appointment.get_appointment!(appointment_id)
+  def updateappointment(conn, %{"id" => appointment_id, "appointment" => appointment_params}) do
+    appointment = Appointment.getappointment!(appointment_id)
 
-    case Appointment.update_appointment(_appointment, appointment_params) do
-      {:ok, _appointment} ->
+    case Appointment.updateappointment(appointment, appointment_params) do
+      {:ok, appointment} ->
         conn
         |> put_flash(:info, "Appointment updated successfully.")
         |> redirect(to: ~p"/admin/appointments")
@@ -241,9 +241,9 @@ defmodule ClinicproWeb.AdminBypassController do
         _doctors = Doctor.list_doctors()
         _patients = Patient.list_patients()
 
-        render(conn, :edit_appointment,
+        render(conn, :editappointment,
           page_title: "Edit Appointment",
-          _appointment: _appointment,
+          appointment: appointment,
           changeset: changeset,
           _doctors: _doctors,
           _patients: _patients
@@ -251,9 +251,9 @@ defmodule ClinicproWeb.AdminBypassController do
     end
   end
 
-  def delete_appointment(conn, %{"id" => appointment_id}) do
-    _appointment = Appointment.get_appointment!(appointment_id)
-    {:ok, _unused} = Appointment.delete_appointment(_appointment)
+  def deleteappointment(conn, %{"id" => appointment_id}) do
+    appointment = Appointment.getappointment!(appointment_id)
+    {:ok, _unused} = Appointment.deleteappointment(appointment)
 
     conn
     |> put_flash(:info, "Appointment deleted successfully.")
@@ -283,7 +283,7 @@ defmodule ClinicproWeb.AdminBypassController do
 
   # Invoice Reports and Analytics
   @doc """
-  Renders the invoice reports and analytics _page.
+  Renders the invoice reports and analytics page.
   Supports filtering and visualization of invoice data.
   """
   def invoice_reports(conn, params) do
@@ -297,7 +297,7 @@ defmodule ClinicproWeb.AdminBypassController do
       end_date: params["end_date"],
       status: params["status"],
       patient_id: params["patient_id"],
-      _clinic_id: params["_clinic_id"],
+      clinic_id: params["clinic_id"],
       min_amount: params["min_amount"],
       max_amount: params["max_amount"]
     }
@@ -317,7 +317,7 @@ defmodule ClinicproWeb.AdminBypassController do
       "end_date" => params["end_date"],
       "status" => params["status"],
       "patient_id" => params["patient_id"],
-      "_clinic_id" => params["_clinic_id"],
+      "clinic_id" => params["clinic_id"],
       "min_amount" => params["min_amount"],
       "max_amount" => params["max_amount"]
     }
@@ -342,7 +342,7 @@ defmodule ClinicproWeb.AdminBypassController do
       end_date: params["end_date"],
       status: params["status"],
       patient_id: params["patient_id"],
-      _clinic_id: params["_clinic_id"],
+      clinic_id: params["clinic_id"],
       min_amount: params["min_amount"],
       max_amount: params["max_amount"]
     }

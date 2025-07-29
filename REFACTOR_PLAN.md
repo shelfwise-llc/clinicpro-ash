@@ -56,9 +56,9 @@
 - [ ] Test end-to-end payment flow
 
 ### 3.3 Remove M-Pesa Integration
-- [ ] Remove M-Pesa modules and dependencies
-- [ ] Clean up M-Pesa references in payment processor
-- [ ] Update multi-tenant architecture to use Paystack only
+- ✅ Remove M-Pesa modules and dependencies
+- ✅ Clean up M-Pesa references in payment processor
+- ✅ Update multi-tenant architecture to use Paystack only
 
 ## Phase 4: Testing & Deployment
 

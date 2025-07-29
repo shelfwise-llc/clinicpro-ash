@@ -5,13 +5,15 @@ defmodule Clinicpro.Doctor do
   alias Clinicpro.Repo
   alias Clinicpro.Appointment
 
-  schema "_doctors" do
+  schema "doctors" do
     field :active, :boolean, default: true
     field :name, :string
     field :status, :string, default: "Active"
     field :email, :string
     field :specialty, :string
     field :phone, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
 
     has_many :appointments, Appointment
 
@@ -23,10 +25,36 @@ defmodule Clinicpro.Doctor do
   """
   def changeset(doctor, attrs) do
     doctor
-    |> cast(attrs, [:name, :specialty, :email, :phone, :status, :active])
+    |> cast(attrs, [:name, :specialty, :email, :phone, :status, :active, :password])
     |> validate_required([:name, :specialty, :email])
     |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
     |> unique_constraint(:email)
+    |> validate_password()
+    |> maybe_hash_password()
+  end
+
+  defp validate_password(changeset) do
+    password = get_change(changeset, :password)
+    
+    if password do
+      case Clinicpro.Auth.PasswordValidator.validate_password(password) do
+        {:ok, _} -> changeset
+        {:error, message} -> add_error(changeset, :password, message)
+      end
+    else
+      changeset
+    end
+  end
+
+  defp maybe_hash_password(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
+    put_change(changeset, :password_hash, hash_password(password))
+  end
+
+  defp maybe_hash_password(changeset), do: changeset
+
+  defp hash_password(password) do
+    # Simple hash for demo - in production use bcrypt or similar
+    :crypto.hash(:sha256, password) |> Base.encode16() |> String.downcase()
   end
 
   @doc """
@@ -70,7 +98,7 @@ defmodule Clinicpro.Doctor do
   """
   def list(_opts) do
     __MODULE__
-    |> filter_by_active(_opts)
+    |> filter_byactive(_opts)
     |> filter_by_name(_opts)
     |> filter_by_email(_opts)
     |> filter_by_specialty(_opts)
@@ -81,17 +109,17 @@ defmodule Clinicpro.Doctor do
   @doc """
   Lists all active _doctors.
   """
-  def list_active do
+  def listactive do
     __MODULE__
     |> where(active: true)
     |> Repo.all()
   end
 
   # Private filter functions
-  defp filter_by_active(query, %{active: active}) when is_boolean(active),
+  defp filter_byactive(query, %{active: active}) when is_boolean(active),
     do: where(query, [d], d.active == ^active)
 
-  defp filter_by_active(query, _unused), do: query
+  defp filter_byactive(query, _unused), do: query
 
   defp filter_by_name(query, %{name: name}) when is_binary(name) and name != "",
     do: where(query, [d], ilike(d.name, ^"%#{name}%"))
@@ -137,5 +165,26 @@ defmodule Clinicpro.Doctor do
   """
   def delete(doctor) do
     Repo.delete(doctor)
+  end
+
+  @doc """
+  Authenticates a doctor with email and password.
+  """
+  def authenticate(email, password) do
+    case Repo.get_by(__MODULE__, email: email) do
+      nil ->
+        {:error, "Invalid email or password"}
+
+      doctor ->
+        if verify_password(password, doctor.password_hash) do
+          {:ok, doctor}
+        else
+          {:error, "Invalid email or password"}
+        end
+    end
+  end
+
+  defp verify_password(password, hash) do
+    hash_password(password) == hash
   end
 end

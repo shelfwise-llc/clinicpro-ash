@@ -31,7 +31,9 @@ defmodule ClinicproWeb.AdminController do
   Display the admin login page.
   """
   def login(conn, _params) do
-    render(conn, :login)
+    conn
+    |> put_layout(html: :root)
+    |> render("login.html")
   end
 
   @doc """
@@ -163,7 +165,7 @@ defmodule ClinicproWeb.AdminController do
   Display the form to add a new patient.
   """
   def new_patient(conn, _params) do
-    changeset = Clinicpro.Patient.change(%Clinicpro.Patient{})
+    changeset = Clinicpro.Patient.changeset(%Clinicpro.Patient{}, %{})
     render(conn, :new_patient, changeset: changeset)
   end
 
@@ -190,7 +192,7 @@ defmodule ClinicproWeb.AdminController do
   def edit_patient(conn, %{"id" => patient_id}) do
     case get_patient(patient_id) do
       {:ok, patient} ->
-        changeset = Clinicpro.Patient.change(patient)
+        changeset = Clinicpro.Patient.changeset(patient, %{})
         render(conn, :edit_patient, patient: patient, changeset: changeset)
 
       {:error, reason} ->
@@ -254,11 +256,11 @@ defmodule ClinicproWeb.AdminController do
   @doc """
   Display the form to add a new appointment.
   """
-  def new_appointment(conn, _params) do
-    doctors = Clinicpro.Doctor.list_active()
-    patients = Clinicpro.Patient.list_active()
+  def newappointment(conn, _params) do
+    doctors = Clinicpro.Doctor.listactive()
+    patients = Clinicpro.Patient.listactive()
 
-    render(conn, :new_appointment,
+    render(conn, :newappointment,
       doctors: doctors,
       patients: patients
     )
@@ -267,20 +269,20 @@ defmodule ClinicproWeb.AdminController do
   @doc """
   Process the form to add a new appointment.
   """
-  def create_appointment(conn, %{"appointment" => appointment_params}) do
+  def createappointment(conn, %{"appointment" => appointment_params}) do
     case Clinicpro.Appointment.create(appointment_params) do
-      {:ok, appointment} ->
+      {:ok, _appointment} ->
         conn
         |> put_flash(:info, "Appointment created successfully")
         |> redirect(to: ~p"/admin/appointments")
 
       {:error, changeset} ->
-        doctors = Clinicpro.Doctor.list_active()
-        patients = Clinicpro.Patient.list_active()
+        doctors = Clinicpro.Doctor.listactive()
+        patients = Clinicpro.Patient.listactive()
 
         conn
         |> put_flash(:error, "Error creating appointment: #{error_messages(changeset)}")
-        |> render(:new_appointment,
+        |> render(:newappointment,
           doctors: doctors,
           patients: patients,
           changeset: changeset
@@ -291,14 +293,14 @@ defmodule ClinicproWeb.AdminController do
   @doc """
   Display the form to edit an appointment.
   """
-  def edit_appointment(conn, %{"id" => appointment_id}) do
-    case get_appointment(appointment_id) do
+  def editappointment(conn, %{"id" => appointment_id}) do
+    case getappointment(appointment_id) do
       {:ok, appointment} ->
-        doctors = Clinicpro.Doctor.list_active()
-        patients = Clinicpro.Patient.list_active()
+        doctors = Clinicpro.Doctor.listactive()
+        patients = Clinicpro.Patient.listactive()
         changeset = Clinicpro.Appointment.change(appointment)
 
-        render(conn, :edit_appointment,
+        render(conn, :editappointment,
           appointment: appointment,
           doctors: doctors,
           patients: patients,
@@ -315,27 +317,27 @@ defmodule ClinicproWeb.AdminController do
   @doc """
   Process the form to update an appointment.
   """
-  def update_appointment(conn, %{"id" => appointment_id, "appointment" => appointment_params}) do
+  def updateappointment(conn, %{"id" => appointment_id, "appointment" => appointment_params}) do
     case Clinicpro.Appointment.update(appointment_id, appointment_params) do
-      {:ok, appointment} ->
+      {:ok, _appointment} ->
         conn
         |> put_flash(:info, "Appointment updated successfully")
         |> redirect(to: ~p"/admin/appointments")
 
       {:error, changeset} ->
-        doctors = Clinicpro.Doctor.list_active()
-        patients = Clinicpro.Patient.list_active()
+        doctors = Clinicpro.Doctor.listactive()
+        patients = Clinicpro.Patient.listactive()
 
         conn
         |> put_flash(:error, "Error updating appointment: #{error_messages(changeset)}")
-        |> redirect(to: ~p"/admin/edit_appointment/#{appointment_id}")
+        |> redirect(to: ~p"/admin/editappointment/#{appointment_id}")
     end
   end
 
   @doc """
   Process the request to delete an appointment.
   """
-  def delete_appointment(conn, %{"id" => appointment_id}) do
+  def deleteappointment(conn, %{"id" => appointment_id}) do
     case Clinicpro.Appointment.get(appointment_id) do
       nil ->
         conn
@@ -345,7 +347,7 @@ defmodule ClinicproWeb.AdminController do
       appointment ->
         # Update the appointment status to cancelled instead of hard deleting
         case Clinicpro.Appointment.update(appointment, %{status: "cancelled"}) do
-          {:ok, updated} ->
+          {:ok, _updated} ->
             conn
             |> put_flash(:info, "Appointment cancelled successfully")
             |> redirect(to: ~p"/admin/appointments")
@@ -398,7 +400,7 @@ defmodule ClinicproWeb.AdminController do
 
   # Private helpers
 
-  defp ensure_authenticated_admin(conn, opts) do
+  defp ensure_authenticated_admin(conn, _opts) do
     admin_id = get_session(conn, :admin_id)
 
     if admin_id do
@@ -487,10 +489,11 @@ defmodule ClinicproWeb.AdminController do
     |> Enum.take(5)
   end
 
-  defp get_doctors do
-    # Get _doctors from the database
-    Clinicpro.Doctor.list()
-  end
+  # Unused function
+  # defp get_doctors do
+  #   # Get doctors from the database
+  #   Clinicpro.Doctor.list()
+  # end
 
   defp get_doctor(doctor_id) do
     # Get doctor from the database with appointments preloaded
@@ -500,10 +503,11 @@ defmodule ClinicproWeb.AdminController do
     end
   end
 
-  defp get_patients do
-    # Get _patients from the database
-    Clinicpro.Patient.list()
-  end
+  # Unused function
+  # defp get_patients do
+  #   # Get patients from the database
+  #   Clinicpro.Patient.list()
+  # end
 
   defp get_patient(patient_id) do
     # Get patient from the database with appointments preloaded
@@ -513,12 +517,13 @@ defmodule ClinicproWeb.AdminController do
     end
   end
 
-  defp get_appointments do
-    # Get appointments from the database with _doctors and _patients preloaded
-    Clinicpro.Appointment.list_with_associations()
-  end
+  # Unused function
+  # defp get_appointments do
+  #   # Get appointments from the database with doctors and patients preloaded
+  #   Clinicpro.Appointment.list_with_associations()
+  # end
 
-  defp get_appointment(appointment_id) do
+  defp getappointment(appointment_id) do
     # Get appointment from the database with doctor and patient preloaded
     case Clinicpro.Appointment.get_with_associations(appointment_id) do
       nil -> {:error, "Appointment not found"}
@@ -575,10 +580,11 @@ defmodule ClinicproWeb.AdminController do
     render(conn, :doctors, doctors: doctors)
   end
 
-  defp get_admins do
-    # Get admins from the database
-    Clinicpro.Admin.list()
-  end
+  # Unused function
+  # defp get_admins do
+  #   # Get admins from the database
+  #   Clinicpro.Admin.list()
+  # end
 
   # Helper to format changeset errors into a readable string
   defp error_messages(changeset) do

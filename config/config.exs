@@ -55,7 +55,9 @@ config :esbuild,
 # Guardian configuration for JWT authentication
 config :clinicpro, Clinicpro.Auth.Guardian,
   issuer: "clinicpro",
-  secret_key: System.get_env("GUARDIAN_SECRET_KEY") || "dev_only_guardian_secret_key_please_change_in_production_at_least_64_bytes_long",
+  secret_key:
+    System.get_env("GUARDIAN_SECRET_KEY") ||
+      "dev_only_guardian_secret_key_please_change_in_production_at_least_64_bytes_long",
   ttl: {30, :day}
 
 # Configure JSON:API

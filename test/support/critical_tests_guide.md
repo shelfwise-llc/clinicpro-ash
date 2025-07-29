@@ -7,7 +7,7 @@ This guide explains how to tag tests as "critical" for deployment validation.
 Critical tests verify essential functionality that must work for a successful deployment:
 
 - Authentication flows
-- Payment processing (M-Pesa, Paystack)
+- Payment processing (Paystack)
 - Multi-tenant clinic isolation
 - Core appointment scheduling
 - Patient data security
@@ -45,7 +45,6 @@ Here are examples of tests that should be tagged as critical:
    - Multi-tenant authentication isolation
 
 2. **Payment Processing**
-   - M-Pesa STK push functionality
    - Paystack payment processing
    - Transaction isolation between clinics
 

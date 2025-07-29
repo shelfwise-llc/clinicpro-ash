@@ -62,7 +62,6 @@ echo
 
 # Step 5: Fix unused aliases
 echo "Step 5: Fixing unused aliases..."
-find lib -type f -name "*.ex" -exec sed -i 's/alias Clinicpro\.MPesa\.Transaction/# alias Clinicpro.MPesa.Transaction/g' {} \;
 find lib -type f -name "*.ex" -exec sed -i 's/alias Clinicpro\.VirtualMeetings\.Appointment/# alias Clinicpro.VirtualMeetings.Appointment/g' {} \;
 find lib -type f -name "*.ex" -exec sed -i 's/alias Clinicpro\.VirtualMeetings\.Client/# alias Clinicpro.VirtualMeetings.Client/g' {} \;
 find lib -type f -name "*.ex" -exec sed -i 's/alias Clinicpro\.Repo/# alias Clinicpro.Repo/g' {} \;

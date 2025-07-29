@@ -31,7 +31,6 @@ echo
 
 # Step 2: Fix unused aliases
 echo "Step 2: Fixing unused aliases..."
-find lib -name "*.ex" -exec sed -i 's/alias Clinicpro.MPesa.Transaction/# alias Clinicpro.MPesa.Transaction/g' {} \;
 find lib -name "*.ex" -exec sed -i 's/alias Clinicpro.VirtualMeetings.Appointment/# alias Clinicpro.VirtualMeetings.Appointment/g' {} \;
 find lib -name "*.ex" -exec sed -i 's/alias Clinicpro.VirtualMeetings.Client/# alias Clinicpro.VirtualMeetings.Client/g' {} \;
 find lib -name "*.ex" -exec sed -i 's/alias Clinicpro.Repo/# alias Clinicpro.Repo/g' {} \;
@@ -50,18 +49,6 @@ echo
 
 # Step 4: Fix undefined functions by creating stub implementations
 echo "Step 4: Creating stub implementations for undefined functions..."
-cat > lib/clinicpro/mpesa/transaction.ex << 'EOL'
-defmodule Clinicpro.MPesa.Transaction do
-  @moduledoc """
-  Stub module for MPesa Transaction functionality
-  """
-
-  def get_latest_for_invoice(invoice_id) do
-    # Stub implementation
-    {:ok, %{status: "PENDING"}}
-  end
-end
-EOL
 
 cat > lib/clinicpro/invoice.ex << 'EOL'
 defmodule Clinicpro.Invoice do
@@ -72,23 +59,6 @@ defmodule Clinicpro.Invoice do
   def get_by_id(id, _opts \\ []) do
     # Stub implementation
     {:ok, %{id: id, patient_id: "patient_#{id}"}}
-  end
-end
-EOL
-
-cat > lib/clinicpro/mpesa/config.ex << 'EOL'
-defmodule Clinicpro.MPesa.Config do
-  @moduledoc """
-  Stub module for MPesa Config functionality
-  """
-
-  def find_by_shortcode(shortcode) do
-    get_shortcode(shortcode)
-  end
-
-  def get_shortcode(shortcode) do
-    # Stub implementation
-    {:ok, %{clinic_id: "clinic_#{shortcode}"}}
   end
 end
 EOL

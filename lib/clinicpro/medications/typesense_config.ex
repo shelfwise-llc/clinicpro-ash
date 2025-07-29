@@ -27,15 +27,15 @@ defmodule Clinicpro.Medications.TypesenseConfig do
   Returns the collection name for a specific clinic.
   This ensures multi-tenant isolation of medication data.
   """
-  def collection_name(_clinic_id) when is_binary(_clinic_id) do
-    "medications_#{_clinic_id}"
+  def collection_name(clinic_id) when is_binary(clinic_id) do
+    "medications_#{clinic_id}"
   end
 
   @doc """
   Creates the medication collection for a specific clinic if it doesn't exist.
   """
-  def create_collection_if_not_exists(_clinic_id) when is_binary(_clinic_id) do
-    collection_name = collection_name(_clinic_id)
+  def create_collection_if_not_exists(clinic_id) when is_binary(clinic_id) do
+    collection_name = collection_name(clinic_id)
 
     # Check if collection exists
     case Typesense.collections(client()) do
@@ -100,11 +100,11 @@ defmodule Clinicpro.Medications.TypesenseConfig do
   @doc """
   Indexes a medication in the clinic's Typesense collection.
   """
-  def index_medication(_clinic_id, medication) do
-    collection_name = collection_name(_clinic_id)
+  def index_medication(clinic_id, medication) do
+    collection_name = collection_name(clinic_id)
 
     # Ensure collection exists
-    create_collection_if_not_exists(_clinic_id)
+    create_collection_if_not_exists(clinic_id)
 
     # Index the medication
     Typesense.create_document(client(), collection_name, medication)
@@ -113,8 +113,8 @@ defmodule Clinicpro.Medications.TypesenseConfig do
   @doc """
   Searches for medications in the clinic's Typesense collection.
   """
-  def search_medications(_clinic_id, query, options \\ %{}) do
-    collection_name = collection_name(_clinic_id)
+  def search_medications(clinic_id, query, options \\ %{}) do
+    collection_name = collection_name(clinic_id)
 
     # Default search parameters
     search_params =
@@ -123,7 +123,7 @@ defmodule Clinicpro.Medications.TypesenseConfig do
           "q" => query,
           "query_by" => "name,code",
           "sort_by" => "name:asc",
-          "_per_page" => 10
+          "_perpage" => 10
         },
         options
       )
@@ -143,8 +143,8 @@ defmodule Clinicpro.Medications.TypesenseConfig do
     clinic_ids = Repo.all(from(c in Clinic, select: c.id))
 
     # Create collections for each clinic
-    Enum.each(clinic_ids, fn _clinic_id ->
-      create_collection_if_not_exists(_clinic_id)
+    Enum.each(clinic_ids, fn clinic_id ->
+      create_collection_if_not_exists(clinic_id)
     end)
   end
 end

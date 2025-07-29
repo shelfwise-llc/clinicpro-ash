@@ -214,9 +214,14 @@ defmodule Clinicpro.Accounts do
       {:ok, %{to: ..., body: ...}}
 
   """
-  def deliver_auth_user_reset_password_instructions(%AuthUser{} = auth_user, reset_password_url_fun)
+  def deliver_auth_user_reset_password_instructions(
+        %AuthUser{} = auth_user,
+        reset_password_url_fun
+      )
       when is_function(reset_password_url_fun, 1) do
-    {encoded_token, auth_user_token} = AuthUserToken.build_email_token(auth_user, "reset_password")
+    {encoded_token, auth_user_token} =
+      AuthUserToken.build_email_token(auth_user, "reset_password")
+
     Repo.insert!(auth_user_token)
     Email.deliver_reset_password_instructions(auth_user, reset_password_url_fun.(encoded_token))
   end

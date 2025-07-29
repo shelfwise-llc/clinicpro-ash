@@ -1,7 +1,7 @@
 defmodule Clinicpro.Auth.OTPConfig do
   @moduledoc """
   Schema for storing clinic-specific OTP delivery configurations.
-  This follows the same multi-tenant pattern as the M-Pesa configuration.
+  This follows the same multi-tenant pattern as the Paystack configuration.
   """
 
   use Ecto.Schema

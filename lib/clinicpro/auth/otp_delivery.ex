@@ -44,7 +44,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
 
   @doc """
   Gets the delivery configuration for a specific clinic and method.
-  This follows the same pattern as the M-Pesa configuration management.
+  This follows the same pattern as the Paystack configuration management.
   """
   def get_delivery_config(clinic_identifier, method) do
     # In a real implementation, this would fetch configuration from the database
@@ -157,7 +157,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
   end
 
   # These functions would typically fetch configuration from a database
-  # Similar to how the M-Pesa integration handles configuration
+  # Similar to how the Paystack integration handles configuration
 
   defp get_sms_provider(_clinic) do
     # This would be fetched from the clinic's configuration

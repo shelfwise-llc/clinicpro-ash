@@ -7,25 +7,16 @@ echo "Starting test files reorganization..."
 
 # Create necessary directories
 echo "Creating directories..."
-mkdir -p test/clinicpro/mpesa
+mkdir -p test/clinicpro/paystack
 mkdir -p test/clinicpro/admin_bypass
 mkdir -p test/clinicpro/auth
 mkdir -p test/clinicpro/workflow
 mkdir -p test/clinicpro/integration
 mkdir -p test/support/scripts
 mkdir -p test/support/shell
-mkdir -p docs/mpesa
 
-# Move M-Pesa test files
-echo "Moving M-Pesa test files..."
-[ -f mpesa_core_test.exs ] && mv mpesa_core_test.exs test/clinicpro/mpesa/core_test.exs
-[ -f mpesa_focused_test.exs ] && mv mpesa_focused_test.exs test/clinicpro/mpesa/focused_test.exs
-[ -f mpesa_module_test.exs ] && mv mpesa_module_test.exs test/clinicpro/mpesa/module_test.exs
-[ -f mpesa_multi_clinic_test.exs ] && mv mpesa_multi_clinic_test.exs test/clinicpro/mpesa/multi_clinic_test.exs
-[ -f mpesa_sandbox_test.exs ] && mv mpesa_sandbox_test.exs test/clinicpro/mpesa/sandbox_test.exs
-[ -f mpesa_standalone_test.exs ] && mv mpesa_standalone_test.exs test/clinicpro/mpesa/standalone_test.exs
-[ -f test_mpesa.exs ] && mv test_mpesa.exs test/clinicpro/mpesa/mpesa_test.exs
-[ -f test_mpesa_only.exs ] && mv test_mpesa_only.exs test/clinicpro/mpesa/mpesa_only_test.exs
+# Move Paystack test files (if any exist)
+echo "Moving Paystack test files..."
 
 # Move admin bypass test files
 echo "Moving admin bypass test files..."
@@ -67,25 +58,24 @@ echo "Moving shell scripts..."
 
 # Move documentation
 echo "Moving documentation..."
-[ -f README_MPESA.md ] && mv README_MPESA.md docs/mpesa/README.md
 
 # Create wrapper scripts in the root directory
 echo "Creating wrapper scripts..."
 
-# Create M-Pesa test runner
-cat > run_mpesa_tests.exs << 'EOF'
-# Run all M-Pesa tests
-IO.puts("Running all M-Pesa tests...")
-Code.require_file("test/support/scripts/run_mpesa_tests.exs")
+# Create Paystack test runner
+cat > run_paystack_tests.exs << 'EOF'
+# Run all Paystack tests
+IO.puts("Running all Paystack tests...")
+Code.require_file("test/support/scripts/run_paystack_tests.exs")
 EOF
 
-# Create the actual M-Pesa test runner in the new location
-cat > test/support/scripts/run_mpesa_tests.exs << 'EOF'
+# Create the actual Paystack test runner in the new location
+cat > test/support/scripts/run_paystack_tests.exs << 'EOF'
 ExUnit.start()
 
-# Run all M-Pesa tests
-IO.puts("Loading M-Pesa tests...")
-Enum.each(Path.wildcard("test/clinicpro/mpesa/*_test.exs"), &Code.require_file/1)
+# Run all Paystack tests
+IO.puts("Loading Paystack tests...")
+Enum.each(Path.wildcard("test/clinicpro/paystack/*_test.exs"), &Code.require_file/1)
 EOF
 
 # Create admin bypass test runner

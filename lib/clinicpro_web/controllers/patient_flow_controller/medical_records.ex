@@ -6,7 +6,7 @@ defmodule ClinicproWeb.PatientFlowController.MedicalRecords do
   plug :ensure_authenticated_patient when action in [:index, :show]
 
   @doc """
-  Display the patient's medical records index _page.
+  Display the patient's medical records index page.
   """
   def index(conn, _params) do
     patient_id = get_session(conn, :user_id)

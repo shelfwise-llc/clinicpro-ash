@@ -1,7 +1,7 @@
 defmodule Clinicpro.PaystackWebhookLogTest do
   use Clinicpro.DataCase
   use ClinicproWeb.ConnCase
-  import Mock
+  import Mox
 
   alias Clinicpro.Paystack
   alias Clinicpro.Paystack.{Config, Transaction, WebhookLog, Callback}
@@ -140,11 +140,10 @@ defmodule Clinicpro.PaystackWebhookLogTest do
   describe "Callback.retry_webhook/2" do
     test "retries a failed webhook for a specific clinic", %{webhook_log2: webhook_log2} do
       # Mock the process_event function to return :ok
-      with_mock Callback, process_event: fn _payload, _webhook_log -> :ok end do
-        assert {:ok, updated_log} = Callback.retry_webhook(webhook_log2.id, @clinic_2_id)
-        assert updated_log.status == "processed"
-        assert length(updated_log.processing_history) > length(webhook_log2.processing_history)
-      end
+      Mox.expect(Callback, :process_event, fn _payload, _webhook_log -> :ok end)
+      assert {:ok, updated_log} = Callback.retry_webhook(webhook_log2.id, @clinic_2_id)
+      assert updated_log.status == "processed"
+      assert length(updated_log.processing_history) > length(webhook_log2.processing_history)
     end
 
     test "returns error when webhook not found" do
@@ -219,33 +218,29 @@ defmodule Clinicpro.PaystackWebhookLogTest do
     end
 
     test "retry_webhook/2 retries a failed webhook", %{conn: conn, webhook_log2: webhook_log2} do
-      with_mock Callback, retry_webhook: fn _id, _clinic_id -> {:ok, webhook_log2} end do
-        conn =
-          get(
-            conn,
-            Routes.paystack_admin_path(conn, :retry_webhook, @clinic_2_id, webhook_log2.id)
-          )
+      Mox.expect(Callback, :retry_webhook, fn _id, _clinic_id -> {:ok, webhook_log2} end)
+      conn =
+        build_conn()
+        |> bypass_through(ClinicproWeb.Router, :browser)
+        |> post("/admin/paystack/webhooks/#{webhook_log2.id}/retry?clinic_id=#{@clinic_2_id}")
 
-        assert redirected_to(conn) ==
-                 Routes.paystack_admin_path(conn, :webhook_details, @clinic_2_id, webhook_log2.id)
+      assert html_response(conn, 302)
+      assert redirected_to(conn) == "/admin/paystack/webhooks?clinic_id=#{@clinic_2_id}"
 
-        assert get_flash(conn, :info) == "Webhook processing retried successfully."
-      end
+      assert get_flash(conn, :info) == "Webhook processing retried successfully."
     end
 
     test "retry_webhook/2 handles retry failure", %{conn: conn, webhook_log2: webhook_log2} do
-      with_mock Callback, retry_webhook: fn _id, _clinic_id -> {:error, :some_error} end do
-        conn =
-          get(
-            conn,
-            Routes.paystack_admin_path(conn, :retry_webhook, @clinic_2_id, webhook_log2.id)
-          )
+      Mox.expect(Callback, :retry_webhook, fn _id, _clinic_id -> {:error, :some_error} end)
+      conn =
+        build_conn()
+        |> bypass_through(ClinicproWeb.Router, :browser)
+        |> post("/admin/paystack/webhooks/#{webhook_log2.id}/retry?clinic_id=#{@clinic_2_id}")
 
-        assert redirected_to(conn) ==
-                 Routes.paystack_admin_path(conn, :webhook_details, @clinic_2_id, webhook_log2.id)
+      assert html_response(conn, 302)
+      assert redirected_to(conn) == "/admin/paystack/webhooks?clinic_id=#{@clinic_2_id}"
 
-        assert get_flash(conn, :error) =~ "Failed to retry webhook"
-      end
+      assert get_flash(conn, :error) =~ "Failed to retry webhook"
     end
   end
 end

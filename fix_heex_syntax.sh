@@ -12,7 +12,7 @@ echo "2. Fixing class attributes with interpolation..."
 find lib -name "*.heex" | xargs sed -i 's/class="[^"]*<%= \([^%]*\) %>[^"]*"/class={"#{&}"}/g'
 
 echo "3. Running mix format to check syntax..."
-mix format lib/clinicpro_web/templates/mpesa_admin/test_stk_push.html.heex
+mix format
 
 echo "✅ HEEx syntax fixes applied!"
 echo "📋 Check if any manual fixes are still needed."

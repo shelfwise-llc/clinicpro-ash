@@ -38,10 +38,10 @@ defmodule ClinicproWeb.RouterAdminBypass do
 
     # Appointments management
     get "/appointments", AdminBypassController, :appointments
-    get "/appointments/new", AdminBypassController, :new_appointment
-    post "/appointments", AdminBypassController, :create_appointment
-    get "/appointments/:id/edit", AdminBypassController, :edit_appointment
-    put "/appointments/:id", AdminBypassController, :update_appointment
-    delete "/appointments/:id", AdminBypassController, :delete_appointment
+    get "/appointments/new", AdminBypassController, :newappointment
+    post "/appointments", AdminBypassController, :createappointment
+    get "/appointments/:id/edit", AdminBypassController, :editappointment
+    put "/appointments/:id", AdminBypassController, :updateappointment
+    delete "/appointments/:id", AdminBypassController, :deleteappointment
   end
 end

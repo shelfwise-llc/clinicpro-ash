@@ -14,6 +14,8 @@ defmodule Clinicpro.Application do
       {Phoenix.PubSub, name: Clinicpro.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Clinicpro.Finch},
+      # Start the authentication rate limiter
+      Clinicpro.Auth.RateLimiter,
       # Start a worker by calling: Clinicpro.Worker.start_link(arg)
       # {Clinicpro.Worker, arg},
       # Start to serve requests, typically the last entry

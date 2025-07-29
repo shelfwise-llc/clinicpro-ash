@@ -6,29 +6,33 @@ defmodule ClinicproWeb.PaystackAdminController do
   alias Clinicpro.Paystack.{Config, Subaccount, Transaction, WebhookLog, Callback}
   # # alias Clinicpro.Repo
 
+  def init(opts) do
+    opts
+  end
+
   # Dashboard
-  def index(conn, %{"clinic_id" => clinic_id_param}) do
+  def dashboard(conn, %{"clinic_id" => clinic_id_param}) do
     clinic_id = String.to_integer(clinic_id_param)
 
     # Get configuration status
     has_active_config =
       case Paystack.get_active_config(clinic_id) do
-        {:ok, config} -> true
-        _unused -> false
+        {:ok, _config} -> true
+        _error -> false
       end
 
     # Get active config environment if available
     config_environment =
       case Paystack.get_active_config(clinic_id) do
         {:ok, config} -> config.environment
-        _unused -> nil
+        _error -> nil
       end
 
     # Get subaccount stats
     subaccounts = Paystack.list_subaccounts(clinic_id)
-    has_active_subaccount = Enum.any?(subaccounts, & &1.is_active)
+    has_active_subaccount = Enum.any?(subaccounts, & &1.isactive)
     subaccount_count = length(subaccounts)
-    active_subaccount_count = Enum.count(subaccounts, & &1.is_active)
+    active_subaccount_count = Enum.count(subaccounts, & &1.isactive)
 
     # Get transaction stats
     transactions = Paystack.list_transactions(clinic_id)
@@ -47,6 +51,9 @@ defmodule ClinicproWeb.PaystackAdminController do
     )
   end
 
+  # Alias for backward compatibility
+  def index(conn, params), do: dashboard(conn, params)
+
   # Configurations
   def list_configs(conn, %{"clinic_id" => clinic_id_param}) do
     clinic_id = String.to_integer(clinic_id_param)
@@ -57,7 +64,7 @@ defmodule ClinicproWeb.PaystackAdminController do
 
   def new_config(conn, %{"clinic_id" => clinic_id_param}) do
     clinic_id = String.to_integer(clinic_id_param)
-    changeset = Paystack.change_config(%Config{_clinic_id: clinic_id})
+    changeset = Paystack.change_config(%Config{clinic_id: clinic_id})
 
     render(conn, :config_form,
       clinic_id: clinic_id,
@@ -74,7 +81,7 @@ defmodule ClinicproWeb.PaystackAdminController do
       {:ok, _config} ->
         conn
         |> put_flash(:info, "Paystack configuration created successfully.")
-        |> redirect(to: Routes.paystack_admin_path(conn, :test_payment, clinic_id))
+        |> redirect(to: Routes.paystack_admin_path(conn, :dashboard, clinic_id))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, :config_form,
@@ -83,6 +90,20 @@ defmodule ClinicproWeb.PaystackAdminController do
           config: nil,
           action: Routes.paystack_admin_path(conn, :create_config, clinic_id)
         )
+    end
+  end
+
+  def show_config(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+    clinic_id = String.to_integer(clinic_id_param)
+
+    case Paystack.get_config(id, clinic_id) do
+      {:ok, config} ->
+        render(conn, :show_config, clinic_id: clinic_id, config: config)
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Configuration not found.")
+        |> redirect(to: Routes.paystack_admin_path(conn, :list_configs, clinic_id))
     end
   end
 
@@ -107,8 +128,8 @@ defmodule ClinicproWeb.PaystackAdminController do
     end
   end
 
-  def update_config(conn, %{"clinic_id" => clinic_id, "id" => id, "config" => config_params}) do
-    clinic_id = String.to_integer(clinic_id)
+  def update_config(conn, %{"clinic_id" => clinic_id_param, "id" => id, "config" => config_params}) do
+    clinic_id = String.to_integer(clinic_id_param)
 
     case Paystack.get_config(id, clinic_id) do
       {:ok, config} ->
@@ -116,7 +137,7 @@ defmodule ClinicproWeb.PaystackAdminController do
           {:ok, _updated_config} ->
             conn
             |> put_flash(:info, "Paystack configuration updated successfully.")
-            |> redirect(to: Routes.paystack_admin_path(conn, :test_payment, clinic_id))
+            |> redirect(to: Routes.paystack_admin_path(conn, :dashboard, clinic_id))
 
           {:error, %Ecto.Changeset{} = changeset} ->
             render(conn, :config_form,
@@ -134,14 +155,14 @@ defmodule ClinicproWeb.PaystackAdminController do
     end
   end
 
-  def activate_config(conn, %{"clinic_id" => clinic_id, "id" => id}) do
-    clinic_id = String.to_integer(clinic_id)
+  def activate_config(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+    clinic_id = String.to_integer(clinic_id_param)
 
     case Paystack.activate_config(id, clinic_id) do
       {:ok, _config} ->
         conn
         |> put_flash(:info, "Paystack configuration activated successfully.")
-        |> redirect(to: Routes.paystack_admin_path(conn, :test_payment, clinic_id))
+        |> redirect(to: Routes.paystack_admin_path(conn, :dashboard, clinic_id))
 
       {:error, _reason} ->
         conn
@@ -150,8 +171,24 @@ defmodule ClinicproWeb.PaystackAdminController do
     end
   end
 
-  def delete_config(conn, %{"clinic_id" => clinic_id, "id" => id}) do
-    clinic_id = String.to_integer(clinic_id)
+  def deactivate_config(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+    clinic_id = String.to_integer(clinic_id_param)
+
+    case Paystack.deactivate_config(id, clinic_id) do
+      {:ok, _config} ->
+        conn
+        |> put_flash(:info, "Paystack configuration deactivated successfully.")
+        |> redirect(to: Routes.paystack_admin_path(conn, :dashboard, clinic_id))
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Failed to deactivate configuration.")
+        |> redirect(to: Routes.paystack_admin_path(conn, :list_configs, clinic_id))
+    end
+  end
+
+  def delete_config(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+    clinic_id = String.to_integer(clinic_id_param)
 
     case Paystack.get_config(id, clinic_id) do
       {:ok, config} ->
@@ -159,7 +196,7 @@ defmodule ClinicproWeb.PaystackAdminController do
           {:ok, _deleted_config} ->
             conn
             |> put_flash(:info, "Paystack configuration deleted successfully.")
-            |> redirect(to: Routes.paystack_admin_path(conn, :test_payment, clinic_id))
+            |> redirect(to: Routes.paystack_admin_path(conn, :dashboard, clinic_id))
 
           {:error, _reason} ->
             conn
@@ -179,43 +216,38 @@ defmodule ClinicproWeb.PaystackAdminController do
     clinic_id = String.to_integer(clinic_id_param)
     subaccounts = Paystack.list_subaccounts(clinic_id)
 
+    # Check if there's an active subaccount
+    has_active_subaccount =
+      case Paystack.get_active_subaccount(clinic_id) do
+        {:ok, _subaccount} -> true
+        _error -> false
+      end
+      
     # Check if there's an active config
     has_active_config =
       case Paystack.get_active_config(clinic_id) do
         {:ok, _config} -> true
-        _unused -> false
+        _error -> false
       end
 
     render(conn, :list_subaccounts,
       clinic_id: clinic_id,
       subaccounts: subaccounts,
+      has_active_subaccount: has_active_subaccount,
       has_active_config: has_active_config
     )
   end
 
   def new_subaccount(conn, %{"clinic_id" => clinic_id_param}) do
     clinic_id = String.to_integer(clinic_id_param)
+    changeset = Paystack.change_subaccount(%Subaccount{clinic_id: clinic_id})
 
-    # Check if there's an active config
-    case Paystack.get_active_config(clinic_id) do
-      {:ok, _config} ->
-        changeset = Paystack.change_subaccount(%Subaccount{_clinic_id: clinic_id})
-
-        render(conn, :subaccount_form,
-          clinic_id: clinic_id,
-          changeset: changeset,
-          subaccount: nil,
-          action: Routes.paystack_admin_path(conn, :create_subaccount, clinic_id)
-        )
-
-      {:error, _reason} ->
-        conn
-        |> put_flash(
-          :error,
-          "You need an active Paystack configuration before creating subaccounts."
-        )
-        |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
-    end
+    render(conn, :subaccount_form,
+      clinic_id: clinic_id,
+      changeset: changeset,
+      subaccount: nil,
+      action: Routes.paystack_admin_path(conn, :create_subaccount, clinic_id)
+    )
   end
 
   def create_subaccount(conn, %{"clinic_id" => clinic_id_param, "subaccount" => subaccount_params}) do
@@ -224,7 +256,7 @@ defmodule ClinicproWeb.PaystackAdminController do
     case Paystack.create_subaccount(subaccount_params, clinic_id) do
       {:ok, _subaccount} ->
         conn
-        |> put_flash(:info, "Paystack subaccount created successfully.")
+        |> put_flash(:info, "Subaccount created successfully.")
         |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -234,6 +266,20 @@ defmodule ClinicproWeb.PaystackAdminController do
           subaccount: nil,
           action: Routes.paystack_admin_path(conn, :create_subaccount, clinic_id)
         )
+    end
+  end
+
+  def show_subaccount(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+    clinic_id = String.to_integer(clinic_id_param)
+
+    case Paystack.get_subaccount(id, clinic_id) do
+      {:ok, subaccount} ->
+        render(conn, :show_subaccount, clinic_id: clinic_id, subaccount: subaccount)
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Subaccount not found.")
+        |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
     end
   end
 
@@ -270,7 +316,7 @@ defmodule ClinicproWeb.PaystackAdminController do
         case Paystack.update_subaccount(subaccount, subaccount_params) do
           {:ok, _updated_subaccount} ->
             conn
-            |> put_flash(:info, "Paystack subaccount updated successfully.")
+            |> put_flash(:info, "Subaccount updated successfully.")
             |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
 
           {:error, %Ecto.Changeset{} = changeset} ->
@@ -278,8 +324,7 @@ defmodule ClinicproWeb.PaystackAdminController do
               clinic_id: clinic_id,
               changeset: changeset,
               subaccount: subaccount,
-              action:
-                Routes.paystack_admin_path(conn, :update_subaccount, clinic_id, subaccount.id)
+              action: Routes.paystack_admin_path(conn, :update_subaccount, clinic_id, subaccount.id)
             )
         end
 
@@ -296,12 +341,28 @@ defmodule ClinicproWeb.PaystackAdminController do
     case Paystack.activate_subaccount(id, clinic_id) do
       {:ok, _subaccount} ->
         conn
-        |> put_flash(:info, "Paystack subaccount activated successfully.")
+        |> put_flash(:info, "Subaccount activated successfully.")
         |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
 
       {:error, _reason} ->
         conn
         |> put_flash(:error, "Failed to activate subaccount.")
+        |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
+    end
+  end
+
+  def deactivate_subaccount(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+    clinic_id = String.to_integer(clinic_id_param)
+
+    case Paystack.deactivate_subaccount(id, clinic_id) do
+      {:ok, _subaccount} ->
+        conn
+        |> put_flash(:info, "Subaccount deactivated successfully.")
+        |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
+
+      {:error, _reason} ->
+        conn
+        |> put_flash(:error, "Failed to deactivate subaccount.")
         |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
     end
   end
@@ -314,7 +375,7 @@ defmodule ClinicproWeb.PaystackAdminController do
         case Paystack.delete_subaccount(subaccount) do
           {:ok, _deleted_subaccount} ->
             conn
-            |> put_flash(:info, "Paystack subaccount deleted successfully.")
+            |> put_flash(:info, "Subaccount deleted successfully.")
             |> redirect(to: Routes.paystack_admin_path(conn, :list_subaccounts, clinic_id))
 
           {:error, _reason} ->
@@ -331,45 +392,19 @@ defmodule ClinicproWeb.PaystackAdminController do
   end
 
   # Transactions
-  def list_transactions(conn, %{"clinic_id" => clinic_id_param} = params) do
+  def list_transactions(conn, %{"clinic_id" => clinic_id_param}) do
     clinic_id = String.to_integer(clinic_id_param)
+    transactions = Paystack.list_transactions(clinic_id)
 
-    # Extract filter params with defaults
-    page = String.to_integer(Map.get(params, "page", "1"))
-    per_page = String.to_integer(Map.get(params, "per_page", "10"))
-    status = Map.get(params, "status", "")
-    search = Map.get(params, "search", "")
-
-    # Get filtered transactions with pagination
-    {transactions, total_count} =
-      Paystack.list_transactions_paginated(
-        clinic_id,
-        page,
-        per_page,
-        %{status: status, search: search}
-      )
-
-    render(conn, :list_transactions,
-      clinic_id: clinic_id,
-      transactions: transactions,
-      total_count: total_count,
-      page: page,
-      per_page: per_page,
-      status: status,
-      search: search
-    )
+    render(conn, :list_transactions, clinic_id: clinic_id, transactions: transactions)
   end
 
-  def transaction_details(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
+  def show_transaction(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
     clinic_id = String.to_integer(clinic_id_param)
 
-    case Paystack.get_transaction_with_events(id, clinic_id) do
-      {:ok, %{transaction: transaction, events: events}} ->
-        render(conn, :transaction_details,
-          clinic_id: clinic_id,
-          transaction: transaction,
-          events: events
-        )
+    case Paystack.get_transaction(id, clinic_id) do
+      {:ok, transaction} ->
+        render(conn, :show_transaction, clinic_id: clinic_id, transaction: transaction)
 
       {:error, _reason} ->
         conn
@@ -385,12 +420,12 @@ defmodule ClinicproWeb.PaystackAdminController do
       {:ok, _transaction} ->
         conn
         |> put_flash(:info, "Transaction verified successfully.")
-        |> redirect(to: Routes.paystack_admin_path(conn, :transaction_details, clinic_id, id))
+        |> redirect(to: Routes.paystack_admin_path(conn, :show_transaction, clinic_id, id))
 
       {:error, reason} ->
         conn
         |> put_flash(:error, "Failed to verify transaction: #{reason}")
-        |> redirect(to: Routes.paystack_admin_path(conn, :transaction_details, clinic_id, id))
+        |> redirect(to: Routes.paystack_admin_path(conn, :show_transaction, clinic_id, id))
     end
   end
 
@@ -405,26 +440,26 @@ defmodule ClinicproWeb.PaystackAdminController do
         active_subaccount =
           case Paystack.get_active_subaccount(clinic_id) do
             {:ok, subaccount} -> subaccount
-            _unused -> nil
+            _error -> nil
           end
 
-        changeset = Paystack.change_transaction(%Transaction{_clinic_id: clinic_id})
+        changeset = Paystack.change_transaction(%Transaction{clinic_id: clinic_id})
 
         render(conn, :test_payment_form,
           clinic_id: clinic_id,
           changeset: changeset,
           active_subaccount: active_subaccount,
-          action: Routes.paystack_admin_path(conn, :create_test_payment, clinic_id)
+          action: Routes.paystack_admin_path(conn, :process_test_payment, clinic_id)
         )
 
       {:error, _reason} ->
         conn
         |> put_flash(:error, "You need an active Paystack configuration to make test payments.")
-        |> redirect(to: Routes.paystack_admin_path(conn, :index, clinic_id))
+        |> redirect(to: Routes.paystack_admin_path(conn, :dashboard, clinic_id))
     end
   end
 
-  def create_test_payment(conn, %{
+  def process_test_payment(conn, %{
         "clinic_id" => clinic_id_param,
         "transaction" => transaction_params
       }) do
@@ -438,7 +473,7 @@ defmodule ClinicproWeb.PaystackAdminController do
       if use_subaccount do
         case Paystack.get_active_subaccount(clinic_id) do
           {:ok, subaccount} -> subaccount.id
-          _unused -> nil
+          _error -> nil
         end
       else
         nil
@@ -452,7 +487,7 @@ defmodule ClinicproWeb.PaystackAdminController do
       })
 
     case Paystack.initiate_payment(payment_params) do
-      {:ok, %{authorization_url: url, transaction: transaction}} ->
+      {:ok, %{authorization_url: url, transaction: _transaction}} ->
         conn
         |> put_flash(:info, "Test payment initiated successfully.")
         |> redirect(external: url)
@@ -461,65 +496,36 @@ defmodule ClinicproWeb.PaystackAdminController do
         active_subaccount =
           case Paystack.get_active_subaccount(clinic_id) do
             {:ok, subaccount} -> subaccount
-            _unused -> nil
+            _error -> nil
           end
 
         changeset =
-          Paystack.change_transaction(%Transaction{_clinic_id: clinic_id})
+          Paystack.change_transaction(%Transaction{clinic_id: clinic_id})
           |> Ecto.Changeset.add_error(:base, reason)
 
         render(conn, :test_payment_form,
           clinic_id: clinic_id,
           changeset: changeset,
           active_subaccount: active_subaccount,
-          action: Routes.paystack_admin_path(conn, :create_test_payment, clinic_id)
+          action: Routes.paystack_admin_path(conn, :process_test_payment, clinic_id)
         )
     end
   end
 
-  # Webhook Logs
-  def webhook_logs(conn, %{"clinic_id" => clinic_id_param} = params) do
+  # Webhook logs
+  def webhook_logs(conn, %{"clinic_id" => clinic_id_param}) do
     clinic_id = String.to_integer(clinic_id_param)
+    webhook_logs = Paystack.list_webhook_logs(clinic_id)
 
-    # Extract filter params with defaults
-    page = String.to_integer(Map.get(params, "page", "1"))
-    per_page = String.to_integer(Map.get(params, "per_page", "20"))
-
-    # Extract filters
-    filters = %{
-      event_type: Map.get(params, "event_type", ""),
-      status: Map.get(params, "status", ""),
-      reference: Map.get(params, "reference", ""),
-      date_from: parse_date(Map.get(params, "date_from", "")),
-      date_to: parse_date(Map.get(params, "date_to", ""))
-    }
-
-    # Get filtered webhook logs with pagination
-    {webhook_logs, total_count} = WebhookLog.list(clinic_id, filters, page, per_page)
-
-    # Get unique event types for filter dropdown
-    event_types = get_unique_event_types(clinic_id)
-
-    render(conn, :webhook_log,
-      clinic_id: clinic_id,
-      webhook_logs: webhook_logs,
-      total_count: total_count,
-      page: page,
-      per_page: per_page,
-      filters: filters,
-      event_types: event_types
-    )
+    render(conn, :webhook_logs, clinic_id: clinic_id, webhook_logs: webhook_logs)
   end
 
   def webhook_details(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
     clinic_id = String.to_integer(clinic_id_param)
 
-    case WebhookLog.get_with_transaction(id, clinic_id) do
+    case Paystack.get_webhook_log(id, clinic_id) do
       {:ok, webhook_log} ->
-        render(conn, :webhook_details,
-          clinic_id: clinic_id,
-          webhook_log: webhook_log
-        )
+        render(conn, :webhook_details, clinic_id: clinic_id, webhook_log: webhook_log)
 
       {:error, _reason} ->
         conn
@@ -531,7 +537,7 @@ defmodule ClinicproWeb.PaystackAdminController do
   def retry_webhook(conn, %{"clinic_id" => clinic_id_param, "id" => id}) do
     clinic_id = String.to_integer(clinic_id_param)
 
-    case Callback.retry_webhook(id, clinic_id) do
+    case Paystack.retry_webhook(id, clinic_id) do
       {:ok, _webhook_log} ->
         conn
         |> put_flash(:info, "Webhook processing retried successfully.")
@@ -539,30 +545,18 @@ defmodule ClinicproWeb.PaystackAdminController do
 
       {:error, reason} ->
         conn
-        |> put_flash(:error, "Failed to retry webhook: #{inspect(reason)}")
+        |> put_flash(:error, "Failed to retry webhook: #{reason}")
         |> redirect(to: Routes.paystack_admin_path(conn, :webhook_details, clinic_id, id))
     end
   end
 
   # Helper functions
-
   defp parse_date(""), do: nil
 
   defp parse_date(date_string) do
     case Date.from_iso8601(date_string) do
       {:ok, date} -> date
-      _unused -> nil
+      _error -> nil
     end
-  end
-
-  defp get_unique_event_types(clinic_id) do
-    # Query for distinct event types
-    query =
-      from w in WebhookLog,
-        where: w.clinic_id == ^clinic_id,
-        distinct: true,
-        select: w.event_type
-
-    Clinicpro.Repo.all(query) |> Enum.reject(&is_nil/1)
   end
 end

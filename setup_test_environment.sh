@@ -1,14 +1,13 @@
 #!/bin/bash
 
-# Script to set up environment variables for testing M-Pesa and Virtual Meetings integration
+# Script to set up environment variables for testing Paystack and Virtual Meetings integration
 
 echo "Setting up environment variables for testing..."
 
-# M-Pesa API credentials (replace with actual test credentials)
-export MPESA_CONSUMER_KEY="your_consumer_key"
-export MPESA_CONSUMER_SECRET="your_consumer_secret"
-export MPESA_PASSKEY="your_passkey"
-export MPESA_SHORTCODE="your_shortcode"
+# Paystack API credentials (replace with actual test credentials)
+export PAYSTACK_PUBLIC_KEY="pk_test_your_public_key"
+export PAYSTACK_SECRET_KEY="sk_test_your_secret_key"
+export PAYSTACK_WEBHOOK_URL="https://yourdomain.com/webhooks/paystack"
 
 # Google Meet API credentials
 # This should be the contents of the service account JSON file

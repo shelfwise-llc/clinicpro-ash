@@ -28,7 +28,7 @@ defmodule Clinicpro.AdminBypass.Seeder do
     {:ok, patient4} = create_patient("David", "Wilson", "1995-12-03", "male")
 
     # Seed appointments
-    create_appointment(
+    createappointment(
       doctor1,
       patient1,
       "2025-08-01",
@@ -38,7 +38,7 @@ defmodule Clinicpro.AdminBypass.Seeder do
       "Annual checkup"
     )
 
-    create_appointment(
+    createappointment(
       doctor2,
       patient2,
       "2025-08-02",
@@ -48,7 +48,7 @@ defmodule Clinicpro.AdminBypass.Seeder do
       "Headache consultation"
     )
 
-    create_appointment(
+    createappointment(
       doctor3,
       patient3,
       "2025-08-03",
@@ -58,7 +58,7 @@ defmodule Clinicpro.AdminBypass.Seeder do
       "Child vaccination"
     )
 
-    create_appointment(
+    createappointment(
       doctor1,
       patient4,
       "2025-08-04",
@@ -68,7 +68,7 @@ defmodule Clinicpro.AdminBypass.Seeder do
       "Heart examination"
     )
 
-    create_appointment(
+    createappointment(
       doctor2,
       patient1,
       "2025-08-05",
@@ -110,8 +110,8 @@ defmodule Clinicpro.AdminBypass.Seeder do
     })
   end
 
-  defp create_appointment(doctor, patient, date, start_time, end_time, status, reason) do
-    Appointment.create_appointment(%{
+  defp createappointment(doctor, patient, date, start_time, end_time, status, reason) do
+    Appointment.createappointment(%{
       doctor_id: doctor.id,
       patient_id: patient.id,
       date: Date.from_iso8601!(date),

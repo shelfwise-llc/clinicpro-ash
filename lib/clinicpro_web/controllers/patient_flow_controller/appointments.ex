@@ -27,7 +27,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
        when action in [:confirm]
 
   @doc """
-  Display the patient's appointments index _page.
+  Display the patient's appointments index page.
   """
   def index(conn, _params) do
     patient_id = get_session(conn, :user_id)
@@ -45,7 +45,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   def show(conn, %{"id" => appointment_id}) do
     patient_id = get_session(conn, :user_id)
 
-    case get_appointment(appointment_id, patient_id) do
+    case getappointment(appointment_id, patient_id) do
       {:ok, appointment} ->
         render(conn, :appointment_detail,
           appointment: appointment,
@@ -95,7 +95,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   end
 
   @doc """
-  Display the date selection _page.
+  Display the date selection page.
   """
   def select_date(conn, _params) do
     patient_id = get_session(conn, :user_id)
@@ -129,7 +129,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
   end
 
   @doc """
-  Display the appointment confirmation _page.
+  Display the appointment confirmation page.
   """
   def confirm(conn, _params) do
     patient_id = get_session(conn, :user_id)
@@ -235,7 +235,7 @@ defmodule ClinicproWeb.PatientFlowController.Appointments do
     end)
   end
 
-  defp get_appointment(appointment_id, _patient_id) do
+  defp getappointment(appointment_id, _patient_id) do
     # This is a placeholder implementation
     # In a real app, this would fetch data from a database and verify patient access
 

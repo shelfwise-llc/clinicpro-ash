@@ -2,89 +2,206 @@ defmodule ClinicproWeb.InvoiceController do
   use ClinicproWeb, :controller
   # # alias Clinicpro.Repo
   alias Clinicpro.AdminBypass.{Invoice, Patient, Doctor, Appointment}
-  alias Clinicpro.MPesa
   alias Phoenix.PubSub
   alias Clinicpro.Invoices
-  alias Clinicpro.MPesa.InvoiceIntegration
+
+  def init(opts) do
+    opts
+  end
 
   # List invoices for a clinic
-  def index(conn, %{"_clinic_id" => _clinic_id} = params) do
-    with {:ok, clinic} <- get_clinic(_clinic_id) do
-      _page = Map.get(params, "_page", "1") |> String.to_integer()
-      _per_page = 20
+  def index(conn, %{"clinic_id" => clinic_id} = params) do
+    # Start with raw value - no pipe chain
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        page = String.to_integer(Map.get(params, "page", "1"))
+        perpage = 20
 
-      # Extract filter parameters
-      status = Map.get(params, "status")
-      patient_id = Map.get(params, "patient_id")
+        # Extract filter parameters
+        status = Map.get(params, "status")
+        patient_id = Map.get(params, "patient_id")
 
-      # Apply filters
-      filters = %{_clinic_id: _clinic_id}
-      filters = if status, do: Map.put(filters, :status, status), else: filters
-      filters = if patient_id, do: Map.put(filters, :patient_id, patient_id), else: filters
+        # Apply filters - start with raw value
+        base_filters = %{clinic_id: clinic_id}
 
-      invoices = Invoice.list_invoices(filters)
+        filters_with_status =
+          if status, do: Map.put(base_filters, :status, status), else: base_filters
 
-      # Get statistics for the dashboard
-      stats = Invoice.get_stats_for_clinic(_clinic_id)
+        final_filters =
+          if patient_id,
+            do: Map.put(filters_with_status, :patient_id, patient_id),
+            else: filters_with_status
 
-      # Get _patients for filter dropdown
-      _patients = Patient.list_patients()
+        invoices = Invoice.list_invoices(final_filters)
 
-      render(conn, :index,
-        _clinic_id: _clinic_id,
-        clinic_name: clinic.name,
-        invoices: invoices,
-        stats: stats,
-        _patients: _patients,
-        status: status,
-        patient_id: patient_id
-      )
+        # Get statistics for the dashboard
+        stats = Invoice.get_stats_for_clinic(clinic_id)
+
+        # Get patients for filter dropdown
+        _patients = Patient.list_patients()
+
+        render(conn, :index,
+          clinic_id: clinic_id,
+          clinic_name: clinic.name,
+          invoices: invoices,
+          stats: stats,
+          _patients: _patients,
+          status: status,
+          patient_id: patient_id
+        )
+
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
     end
   end
 
   # Show invoice details
-  def show(conn, %{"_clinic_id" => _clinic_id, "id" => id}) do
-    with {:ok, clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        # Get M-Pesa transactions for this invoice
-        transactions = InvoiceIntegration.get_invoice_transactions(id, _clinic_id)
+  def show(conn, %{"clinic_id" => clinic_id, "id" => id}) do
+    # Use case instead of with to reduce nesting
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_show_invoice(conn, clinic_id, clinic, invoice)
 
-        # Get payment status
-        payment_status = InvoiceIntegration.get_invoice_payment_status(id, _clinic_id)
-
-        render(conn, :show,
-          _clinic_id: _clinic_id,
-          clinic_name: clinic.name,
-          invoice: invoice,
-          transactions: transactions,
-          payment_status: payment_status
-        )
-      end
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
     end
   end
 
+  # Handle showing invoice with reduced nesting
+  defp handle_show_invoice(conn, clinic_id, _clinic, invoice)
+       when invoice.clinic_id != clinic_id do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "Invoice not found")
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+  end
+
+  defp handle_show_invoice(conn, clinic_id, clinic, invoice) do
+    # Get M-Pesa transactions for this invoice
+    transactions = InvoiceIntegration.get_invoice_transactions(invoice.id, clinic_id)
+
+    # Get payment status
+    payment_status = InvoiceIntegration.get_invoice_payment_status(invoice.id, clinic_id)
+
+    render(conn, :show,
+      clinic_id: clinic_id,
+      clinic_name: clinic.name,
+      invoice: invoice,
+      transactions: transactions,
+      payment_status: payment_status
+    )
+  end
+
   # New invoice form
-  def new(conn, %{"_clinic_id" => _clinic_id}) do
-    with {:ok, clinic} <- get_clinic(_clinic_id) do
-      changeset =
-        Invoice.change_invoice(%Invoice{
-          _clinic_id: _clinic_id,
-          # Default due date: 30 days from today
-          due_date: Date.utc_today() |> Date.add(30)
-        })
+  def new(conn, %{"clinic_id" => clinic_id}) do
+    # Use case instead of with to reduce nesting
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        # Get today's date and add 30 days without pipe chain
+        today = Date.utc_today()
+        due_date = Date.add(today, 30)
 
+        changeset =
+          Invoice.change_invoice(%Invoice{
+            clinic_id: clinic_id,
+            # Default due date: 30 days from today
+            due_date: due_date
+          })
+
+        _patients = Patient.list_patients()
+        appointments = Appointment.list_appointments_for_clinic(clinic_id)
+
+        render(conn, :new,
+          clinic_id: clinic_id,
+          clinic_name: clinic.name,
+          changeset: changeset,
+          _patients: _patients,
+          appointments: appointments
+        )
+
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
+    end
+  end
+
+  # Create invoice
+  def create(conn, %{"clinic_id" => clinic_id, "invoice" => invoice_params}) do
+    # Use case instead of with to reduce nesting
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        # Ensure clinic_id is set
+        invoice_params = Map.put(invoice_params, "clinic_id", clinic_id)
+        handle_create_invoice(conn, clinic, clinic_id, invoice_params)
+
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
+    end
+  end
+
+  # Private helper function to handle invoice creation
+  defp handle_create_invoice(conn, clinic, clinic_id, invoice_params) do
+    case Invoice.create_invoice(invoice_params) do
+      {:ok, invoice} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :info, "Invoice created successfully.")
+
+        redirect(conn_with_flash,
+          to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}"
+        )
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        _patients = Patient.list_patients()
+        appointments = Appointment.list_appointments_for_clinic(clinic_id)
+
+        render(conn, :new,
+          clinic_id: clinic_id,
+          clinic_name: clinic.name,
+          changeset: changeset,
+          _patients: _patients,
+          appointments: appointments
+        )
+    end
+  end
+
+  # Edit invoice form
+  def edit(conn, %{"clinic_id" => clinic_id, "id" => id}) do
+    # Use case instead of with to reduce nesting
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_edit_invoice(conn, clinic, clinic_id, invoice)
+
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
+    end
+  end
+
+  # Private helper function to handle invoice editing
+  defp handle_edit_invoice(conn, clinic, clinic_id, invoice) do
+    # Check if invoice belongs to this clinic
+    if invoice.clinic_id != clinic_id do
+      # Avoid pipe chain by using intermediate variable
+      conn_with_flash = put_flash(conn, :error, "Invoice not found")
+      redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+    else
+      changeset = Invoice.change_invoice(invoice)
       _patients = Patient.list_patients()
-      appointments = Appointment.list_appointments_for_clinic(_clinic_id)
+      appointments = Appointment.list_appointments_for_clinic(clinic_id)
 
-      render(conn, :new,
-        _clinic_id: _clinic_id,
+      render(conn, :edit,
+        clinic_id: clinic_id,
         clinic_name: clinic.name,
+        invoice: invoice,
         changeset: changeset,
         _patients: _patients,
         appointments: appointments
@@ -92,194 +209,209 @@ defmodule ClinicproWeb.InvoiceController do
     end
   end
 
-  # Create invoice
-  def create(conn, %{"_clinic_id" => _clinic_id, "invoice" => invoice_params}) do
-    with {:ok, clinic} <- get_clinic(_clinic_id) do
-      # Ensure _clinic_id is set
-      invoice_params = Map.put(invoice_params, "_clinic_id", _clinic_id)
+  # Update invoice
+  def update(conn, %{"clinic_id" => clinic_id, "id" => id, "invoice" => invoice_params}) do
+    # Use case instead of with to reduce nesting
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_update_invoice(conn, clinic, clinic_id, invoice, invoice_params)
 
-      case Invoice.create_invoice(invoice_params) do
-        {:ok, invoice} ->
-          conn
-          |> put_flash(:info, "Invoice created successfully.")
-          |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
-
-        {:error, %Ecto.Changeset{} = changeset} ->
-          _patients = Patient.list_patients()
-          appointments = Appointment.list_appointments_for_clinic(_clinic_id)
-
-          render(conn, :new,
-            _clinic_id: _clinic_id,
-            clinic_name: clinic.name,
-            changeset: changeset,
-            _patients: _patients,
-            appointments: appointments
-          )
-      end
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
     end
   end
 
-  # Edit invoice form
-  def edit(conn, %{"_clinic_id" => _clinic_id, "id" => id}) do
-    with {:ok, clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        changeset = Invoice.change_invoice(invoice)
+  # Private helper function to handle invoice updating
+  defp handle_update_invoice(conn, clinic, clinic_id, invoice, invoice_params) do
+    # Check if invoice belongs to this clinic
+    if invoice.clinic_id != clinic_id do
+      # Avoid pipe chain by using intermediate variable
+      conn_with_flash = put_flash(conn, :error, "Invoice not found")
+      redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+    else
+      handle_invoice_update_result(conn, clinic, clinic_id, invoice, invoice_params)
+    end
+  end
+
+  # Private helper function to handle invoice update result
+  defp handle_invoice_update_result(conn, clinic, clinic_id, invoice, invoice_params) do
+    case Invoice.update_invoice(invoice, invoice_params) do
+      {:ok, updated_invoice} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :info, "Invoice updated successfully.")
+
+        redirect(conn_with_flash,
+          to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{updated_invoice.id}"
+        )
+
+      {:error, %Ecto.Changeset{} = changeset} ->
         _patients = Patient.list_patients()
-        appointments = Appointment.list_appointments_for_clinic(_clinic_id)
+        appointments = Appointment.list_appointments_for_clinic(clinic_id)
 
         render(conn, :edit,
-          _clinic_id: _clinic_id,
+          clinic_id: clinic_id,
           clinic_name: clinic.name,
           invoice: invoice,
           changeset: changeset,
           _patients: _patients,
           appointments: appointments
         )
-      end
-    end
-  end
-
-  # Update invoice
-  def update(conn, %{"_clinic_id" => _clinic_id, "id" => id, "invoice" => invoice_params}) do
-    with {:ok, clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        case Invoice.update_invoice(invoice, invoice_params) do
-          {:ok, updated_invoice} ->
-            conn
-            |> put_flash(:info, "Invoice updated successfully.")
-            |> redirect(
-              to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{updated_invoice.id}"
-            )
-
-          {:error, %Ecto.Changeset{} = changeset} ->
-            _patients = Patient.list_patients()
-            appointments = Appointment.list_appointments_for_clinic(_clinic_id)
-
-            render(conn, :edit,
-              _clinic_id: _clinic_id,
-              clinic_name: clinic.name,
-              invoice: invoice,
-              changeset: changeset,
-              _patients: _patients,
-              appointments: appointments
-            )
-        end
-      end
     end
   end
 
   # Delete invoice
-  def delete(conn, %{"_clinic_id" => _clinic_id, "id" => id}) do
-    with {:ok, _clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        # Only allow deletion of pending invoices
-        if invoice.status == "pending" do
-          {:ok, _unused} = Invoice.delete_invoice(invoice)
+  def delete(conn, %{"clinic_id" => clinic_id, "id" => id}) do
+    # Use case instead of with to reduce nesting
+    case get_clinic(clinic_id) do
+      {:ok, _clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_delete_invoice(conn, clinic_id, invoice)
 
-          conn
-          |> put_flash(:info, "Invoice deleted successfully.")
-          |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-        else
-          conn
-          |> put_flash(:error, "Only pending invoices can be deleted.")
-          |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
-        end
-      end
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
+    end
+  end
+
+  # Private helper function to handle invoice deletion
+  defp handle_delete_invoice(conn, clinic_id, invoice) do
+    # Check if invoice belongs to this clinic
+    if invoice.clinic_id != clinic_id do
+      # Avoid pipe chain by using intermediate variable
+      conn_with_flash = put_flash(conn, :error, "Invoice not found")
+      redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+    else
+      handle_invoice_deletion_status(conn, clinic_id, invoice)
+    end
+  end
+
+  # Private helper function to handle invoice deletion based on status
+  defp handle_invoice_deletion_status(conn, clinic_id, invoice) do
+    # Only allow deletion of pending invoices
+    if invoice.status == "pending" do
+      {:ok, _unused} = Invoice.delete_invoice(invoice)
+
+      # Avoid pipe chain by using intermediate variable
+      conn_with_flash = put_flash(conn, :info, "Invoice deleted successfully.")
+      redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+    else
+      # Avoid pipe chain by using intermediate variable
+      conn_with_flash = put_flash(conn, :error, "Only pending invoices can be deleted.")
+      redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
     end
   end
 
   # Process payment form
-  def payment_form(conn, %{"_clinic_id" => _clinic_id, "id" => id}) do
-    with {:ok, clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        # Only allow payment for pending or partial invoices
-        if invoice.status in ["pending", "partial"] do
-          # Pre-fill phone from patient if available
-          payment_phone =
-            if invoice.patient && invoice.patient.phone, do: invoice.patient.phone, else: ""
+  def payment_form(conn, %{"clinic_id" => clinic_id, "id" => id}) do
+    # Use case instead of with to reduce nesting depth
+    case get_clinic(clinic_id) do
+      {:ok, clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_payment_form(conn, clinic_id, clinic, invoice)
 
-          changeset = Invoice.change_invoice(invoice, %{payment_phone: payment_phone})
-
-          render(conn, :payment_form,
-            _clinic_id: _clinic_id,
-            clinic_name: clinic.name,
-            invoice: invoice,
-            changeset: changeset
-          )
-        else
-          conn
-          |> put_flash(:error, "This invoice cannot be paid.")
-          |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
-        end
-      end
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
     end
   end
 
+  # Handle payment form logic with reduced nesting
+  defp handle_payment_form(conn, clinic_id, _clinic, invoice)
+       when invoice.clinic_id != clinic_id do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "Invoice not found")
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+  end
+
+  defp handle_payment_form(conn, clinic_id, clinic, invoice)
+       when invoice.status in ["pending", "partial"] do
+    # Pre-fill phone from patient if available
+    payment_phone =
+      if invoice.patient && invoice.patient.phone, do: invoice.patient.phone, else: ""
+
+    changeset = Invoice.change_invoice(invoice, %{payment_phone: payment_phone})
+
+    render(conn, :payment_form,
+      clinic_id: clinic_id,
+      clinic_name: clinic.name,
+      invoice: invoice,
+      changeset: changeset
+    )
+  end
+
+  defp handle_payment_form(conn, clinic_id, _clinic, invoice) do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "This invoice cannot be paid.")
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
+  end
+
   # Process payment
-  def process_payment(conn, %{"_clinic_id" => _clinic_id, "id" => id, "payment" => payment_params}) do
-    with {:ok, _clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        # Only allow payment for pending or partial invoices
-        if invoice.status in ["pending", "partial"] do
-          phone = Map.get(payment_params, "phone")
-          amount = Map.get(payment_params, "amount") |> Decimal.new()
+  def process_payment(conn, %{"clinic_id" => clinic_id, "id" => id, "payment" => payment_params}) do
+    # Use case instead of with to reduce nesting depth
+    case get_clinic(clinic_id) do
+      {:ok, _clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_process_payment(conn, clinic_id, invoice, payment_params)
 
-          case Invoice.process_payment(invoice, phone, amount) do
-            {:ok, _transaction} ->
-              # Subscribe to _transaction updates
-              PubSub.subscribe(Clinicpro.PubSub, "mpesa:_transaction:#{_transaction.reference}")
-
-              conn
-              |> put_flash(
-                :info,
-                "Payment initiated. Please check your phone to complete the payment."
-              )
-              |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
-
-            {:error, reason} ->
-              conn
-              |> put_flash(:error, "Failed to initiate payment: #{inspect(reason)}")
-              |> redirect(
-                to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}/payment"
-              )
-          end
-        else
-          conn
-          |> put_flash(:error, "This invoice cannot be paid.")
-          |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
-        end
-      end
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
     end
+  end
+
+  # Handle payment processing with reduced nesting
+  defp handle_process_payment(conn, clinic_id, invoice, _payment_params)
+       when invoice.clinic_id != clinic_id do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "Invoice not found")
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+  end
+
+  defp handle_process_payment(conn, clinic_id, invoice, payment_params)
+       when invoice.status in ["pending", "partial"] do
+    phone = Map.get(payment_params, "phone")
+    amount = Decimal.new(Map.get(payment_params, "amount"))
+
+    case Invoice.process_payment(invoice, phone, amount) do
+      {:ok, transaction} -> handle_successful_payment(conn, clinic_id, invoice, transaction)
+      {:error, reason} -> handle_failed_payment(conn, clinic_id, invoice, reason)
+    end
+  end
+
+  defp handle_successful_payment(conn, clinic_id, invoice, transaction) do
+    # Subscribe to transaction updates
+    PubSub.subscribe(Clinicpro.PubSub, "paystack:_transaction:#{transaction.reference}")
+
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash =
+      put_flash(
+        conn,
+        :info,
+        "Payment initiated. Please check your phone to complete the payment."
+      )
+
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
+  end
+
+  defp handle_failed_payment(conn, clinic_id, invoice, reason) do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "Failed to initiate payment: #{inspect(reason)}")
+
+    redirect(conn_with_flash,
+      to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}/payment"
+    )
+  end
+
+  defp handle_process_payment(conn, clinic_id, invoice, _payment_params) do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "This invoice cannot be paid.")
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}")
   end
 
   # Patient invoices
@@ -295,40 +427,60 @@ defmodule ClinicproWeb.InvoiceController do
 
   # Initiates an STK Push payment for an invoice.
   def initiate_payment(conn, %{
-        "_clinic_id" => _clinic_id,
+        "clinic_id" => clinic_id,
         "id" => id,
         "phone_number" => phone_number
       }) do
-    with {:ok, _clinic} <- get_clinic(_clinic_id),
-         invoice <- Invoice.get_invoice!(id) do
-      # Check if invoice belongs to this clinic
-      if invoice._clinic_id != _clinic_id do
-        conn
-        |> put_flash(:error, "Invoice not found")
-        |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices")
-      else
-        case InvoiceIntegration.initiate_stk_push_for_invoice(id, _clinic_id, phone_number) do
-          {:ok, _transaction} ->
-            conn
-            |> put_flash(
-              :info,
-              "Payment request sent to #{phone_number}. Please check your phone to complete the payment."
-            )
-            |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
+    # Use case instead of with to reduce nesting depth
+    case get_clinic(clinic_id) do
+      {:ok, _clinic} ->
+        invoice = Invoice.get_invoice!(id)
+        handle_initiate_payment(conn, clinic_id, invoice, phone_number)
 
-          {:error, reason} ->
-            conn
-            |> put_flash(:error, "Failed to initiate payment: #{reason}")
-            |> redirect(to: ~p"/admin_bypass/clinics/#{_clinic_id}/invoices/#{invoice.id}")
-        end
-      end
+      {:error, _reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Clinic not found")
+        redirect(conn_with_flash, to: ~p"/admin_bypass/clinics")
+    end
+  end
+
+  # Private helper function to handle payment initiation
+  defp handle_initiate_payment(conn, clinic_id, invoice, phone_number)
+       when invoice.clinic_id != clinic_id do
+    # Avoid pipe chain by using intermediate variable
+    conn_with_flash = put_flash(conn, :error, "Invoice not found")
+    redirect(conn_with_flash, to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices")
+  end
+
+  defp handle_initiate_payment(conn, clinic_id, invoice, phone_number) do
+    case InvoiceIntegration.initiate_stk_push_for_invoice(invoice.id, clinic_id, phone_number) do
+      {:ok, _transaction} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash =
+          put_flash(
+            conn,
+            :info,
+            "Payment request sent to #{phone_number}. Please check your phone to complete the payment."
+          )
+
+        redirect(conn_with_flash,
+          to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}"
+        )
+
+      {:error, reason} ->
+        # Avoid pipe chain by using intermediate variable
+        conn_with_flash = put_flash(conn, :error, "Failed to initiate payment: #{reason}")
+
+        redirect(conn_with_flash,
+          to: ~p"/admin_bypass/clinics/#{clinic_id}/invoices/#{invoice.id}"
+        )
     end
   end
 
   # Private functions
 
-  defp get_clinic(_clinic_id) do
-    case Repo.get(Doctor, _clinic_id) do
+  defp get_clinic(clinic_id) do
+    case Repo.get(Doctor, clinic_id) do
       nil -> {:error, :not_found}
       clinic -> {:ok, clinic}
     end

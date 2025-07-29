@@ -15,11 +15,6 @@ services:
       PHX_HOST: ${PHX_HOST:-localhost}
       POOL_SIZE: ${POOL_SIZE:-10}
       SEED_DATABASE: ${SEED_DATABASE:-true}
-      # M-Pesa placeholders
-      MPESA_DEFAULT_CONSUMER_KEY: ${MPESA_DEFAULT_CONSUMER_KEY:-placeholder_key}
-      MPESA_DEFAULT_CONSUMER_SECRET: ${MPESA_DEFAULT_CONSUMER_SECRET:-placeholder_secret}
-      MPESA_DEFAULT_PASSKEY: ${MPESA_DEFAULT_PASSKEY:-placeholder_passkey}
-      MPESA_DEFAULT_SHORTCODE: ${MPESA_DEFAULT_SHORTCODE:-placeholder_shortcode}
       # Paystack placeholders
       PAYSTACK_PUBLIC_KEY: ${PAYSTACK_PUBLIC_KEY:-placeholder_public_key}
       PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY:-placeholder_secret_key}

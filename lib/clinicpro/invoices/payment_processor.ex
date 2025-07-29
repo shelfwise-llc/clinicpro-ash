@@ -1,95 +1,96 @@
 defmodule Clinicpro.Invoices.PaymentProcessor do
   @moduledoc """
-  Handles invoice-triggered payment status updates linked to M-Pesa transactions.
+  Handles invoice-triggered payment status updates linked to Paystack transactions.
   Provides functionality for initiating payments, processing callbacks, and updating invoice statuses.
   Supports multi-tenant architecture with clinic-specific configurations.
   """
 
-  alias Clinicpro.Invoices
-  alias Clinicpro.MPesa.STKPush
-  alias Clinicpro.MPesa.Transaction
-  alias Clinicpro.MPesa.Config
-  alias Clinicpro.Appointments
+  alias Clinicpro.Invoices.Invoice
+  alias Clinicpro.PaystackLegacy
+  alias Clinicpro.PaystackLegacy.Transaction
+  alias Clinicpro.PaystackLegacy.Config
   alias Clinicpro.Clinics
   alias Clinicpro.Notifications
+  alias Clinicpro.Appointments.Appointment
 
   require Logger
 
   @doc """
-  Initiates an M-Pesa STK push payment request for an invoice.
+  Initiates a Paystack payment request for an invoice.
 
   ## Parameters
 
   - invoice: The invoice to process payment for
-  - phone_number: The patient's phone number to send the STK push to
-  - callback_url: Optional callback URL for the STK push response
+  - email: The patient's email address for the payment
+  - callback_url: Optional callback URL for the payment response
 
   ## Returns
 
-  - `{:ok, %{checkout_request_id: String.t(), merchant_request_id: String.t()}}` on success
+  - `{:ok, %{reference: String.t(), authorization_url: String.t()}}` on success
   - `{:error, reason}` on failure
   """
   @spec initiate_payment(map(), String.t(), String.t() | nil) :: {:ok, map()} | {:error, any()}
-  def initiate_payment(invoice, phone_number, callback_url \\ nil) do
+  def initiate_payment(invoice, email, callback_url \\ nil) do
     # Get the clinic ID from the invoice
     clinic_id = get_clinic_id_from_invoice(invoice)
 
-    # Format the phone number to ensure it's in the correct format (254XXXXXXXXX)
-    formatted_phone = format_phone_number(phone_number)
-
-    # Get the clinic-specific M-Pesa configuration
-    mpesa_config = Config.get_config(clinic_id)
+    # Get the clinic-specific Paystack configuration
+    paystack_config = Config.get_config(clinic_id)
 
     # Set up the callback URL (use the provided one or the default for the clinic)
-    final_callback_url = callback_url || mpesa_config.stk_callback_url
+    final_callback_url = callback_url || paystack_config.callback_url
 
-    # Prepare the STK push parameters
-    stk_params = %{
-      phone_number: formatted_phone,
-      amount: invoice.amount,
+    # Prepare the payment parameters
+    payment_params = %{
+      email: email,
+      # Convert to kobo/cents
+      amount: Decimal.mult(invoice.amount, Decimal.new(100)) |> Decimal.to_integer(),
       reference: invoice.reference_number,
-      description: "Payment for #{invoice.description}",
-      callback_url: final_callback_url,
-      clinic_id: clinic_id
+      metadata: %{
+        invoice_id: invoice.id,
+        clinic_id: clinic_id,
+        description: "Payment for #{invoice.description}"
+      },
+      callback_url: final_callback_url
     }
 
-    # Initiate the STK push
-    case STKPush.initiate(stk_params) do
-      {:ok, %{checkout_request_id: checkout_id, merchant_request_id: merchant_id} = response} ->
-        # Create a transaction record
-        {:ok, transaction} =
-          Transaction.create(%{
-            checkout_request_id: checkout_id,
-            merchant_request_id: merchant_id,
-            invoice_id: invoice.id,
-            amount: invoice.amount,
-            phone_number: formatted_phone,
-            status: "pending",
-            clinic_id: clinic_id,
-            reference: invoice.reference_number
-          })
+    # Attempt to initiate the Paystack payment
+    case Paystack.initiate_payment(payment_params) do
+      {:ok, %{transaction: transaction, authorization_url: _url}} ->
+        # Transaction record is already created by Paystack.initiate_payment
+        _transaction = %{
+          invoice_id: invoice.id,
+          reference: transaction.reference,
+          email: email,
+          amount: invoice.amount,
+          status: "pending",
+          payment_method: "paystack",
+          clinic_id: clinic_id,
+          authorization_url: transaction.authorization_url
+        }
 
         # Update the invoice status to "payment_initiated"
         {:ok, _updated_invoice} =
-          Invoices.update_invoice_status(invoice, %{
+          Clinicpro.Invoices.update_invoice_status(invoice, %{
             payment_status: "payment_initiated",
-            payment_method: "mpesa",
+            payment_method: "paystack",
             last_payment_attempt: DateTime.utc_now()
           })
 
-        {:ok, response}
+        {:ok,
+         %{reference: transaction.reference, authorization_url: transaction.authorization_url}}
 
       {:error, reason} = error ->
         # Log the error
         Logger.error(
-          "Failed to initiate M-Pesa payment for invoice #{invoice.id}: #{inspect(reason)}"
+          "Failed to initiate Paystack payment for invoice #{invoice.id}: #{inspect(reason)}"
         )
 
         # Update the invoice with the failed status
         {:ok, _updated_invoice} =
-          Invoices.update_invoice_status(invoice, %{
+          Clinicpro.Invoices.update_invoice_status(invoice, %{
             payment_status: "payment_failed",
-            payment_method: "mpesa",
+            payment_method: "paystack",
             last_payment_attempt: DateTime.utc_now(),
             payment_error: inspect(reason)
           })
@@ -99,12 +100,12 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   end
 
   @doc """
-  Processes an M-Pesa callback for an STK push transaction.
+  Processes a Paystack callback for a transaction.
   Updates the transaction and invoice status based on the callback result.
 
   ## Parameters
 
-  - callback_data: The callback data received from M-Pesa
+  - callback_data: The callback data received from Paystack
 
   ## Returns
 
@@ -113,39 +114,40 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   """
   @spec process_callback(map()) :: {:ok, map()} | {:error, any()}
   def process_callback(callback_data) do
-    # Extract the relevant data from the callback
-    %{
-      "CheckoutRequestID" => checkout_request_id,
-      "MerchantRequestID" => _merchant_request_id,
-      "ResultCode" => result_code
-    } = callback_data
+    with reference <- Map.get(callback_data, "reference"),
+         {:ok, transaction} <- {:ok, Transaction.get_by_reference(reference, 1)},
+         invoice_id <- transaction.invoice_id,
+         invoice <- Clinicpro.AdminBypass.Invoice.get(invoice_id) do
+      # Get the status from the callback data
+      status = Map.get(callback_data, "status", "failed")
 
-    # Find the transaction by the checkout request ID
-    case Transaction.get_by_checkout_request_id(checkout_request_id) do
-      nil ->
-        {:error, :transaction_not_found}
+      # Update the transaction status
+      {:ok, transaction} =
+        Transaction.update(transaction, %{
+          status: status,
+          callback_data: callback_data
+        })
 
-      foundtransaction ->
-        # Get the invoice associated with the transaction
-        invoice = Invoices.get_invoice(foundtransaction.invoice_id)
-
-        if is_nil(invoice) do
-          {:error, :invoice_not_found}
-        else
-          # Process the result based on the result code
-          if result_code == "0" do
-            # Payment successful
-            process_successful_payment(foundtransaction, invoice, callback_data)
-          else
-            # Payment failed
-            process_failed_payment(foundtransaction, invoice, callback_data)
-          end
-        end
+      handle_callback_result(transaction, invoice, callback_data, status)
     end
   end
 
+  defp handle_callback_result(_transaction, nil, _callback_data, _status) do
+    {:error, :invoice_not_found}
+  end
+
+  defp handle_callback_result(transaction, invoice, callback_data, "success") do
+    # Payment successful
+    process_successful_payment(transaction, invoice, callback_data)
+  end
+
+  defp handle_callback_result(transaction, invoice, callback_data, _status) do
+    # Payment failed
+    process_failed_payment(transaction, invoice, callback_data)
+  end
+
   @doc """
-  Checks the status of a pending M-Pesa transaction for an invoice.
+  Checks the status of a pending Paystack transaction for an invoice.
 
   ## Parameters
 
@@ -159,108 +161,95 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
   @spec check_payment_status(map()) :: {:ok, atom()} | {:error, any()}
   def check_payment_status(invoice) do
     # Find the latest transaction for this invoice
-    case Transaction.get_latest_for_invoice(invoice.id) do
+    # Get transaction by invoice reference (using invoice.id as reference)
+    case Transaction.get_by_reference(invoice.id, 1) do
       nil ->
         {:ok, :notransaction}
 
       transaction ->
-        # Get the clinic ID from the transaction
-        clinic_id = transaction.clinic_id
+        # Get the clinic ID from the transaction and verify payment
+        verify_transaction_payment(transaction, invoice)
+    end
+  end
 
-        # Get the clinic-specific M-Pesa configuration
-        mpesa_config = Config.get_config(clinic_id)
+  # Helper function to verify payment status and process accordingly
+  defp verify_transaction_payment(transaction, invoice) do
+    # Get the clinic ID from the transaction
+    clinic_id = transaction.clinic_id
 
-        # Check the status of the transaction with M-Pesa
-        case STKPush.query_status(transaction.checkout_request_id, mpesa_config) do
-          {:ok, %{result_code: "0"}} ->
-            # Payment was successful, update the transaction and invoice
-            process_successful_payment(transaction, invoice, %{
-              "ResultCode" => "0",
-              "ResultDesc" => "The service request is processed successfully."
-            })
+    # Get the clinic-specific Paystack configuration
+    _paystack_config = Config.get_config(clinic_id)
 
-          {:ok, %{result_code: code, result_desc: desc}} when code != "0" ->
-            # Payment failed
-            process_failed_payment(transaction, invoice, %{
-              "ResultCode" => code,
-              "ResultDesc" => desc
-            })
+    # Query the transaction status from Paystack
+    case Paystack.verify_payment(transaction.reference, clinic_id) do
+      {:ok, %{status: "success"}} ->
+        # Payment was successful, update the transaction and invoice
+        process_successful_payment(transaction, invoice, %{
+          "status" => "success",
+          "message" => "Payment was successful"
+        })
 
-          {:error, reason} ->
-            # Error checking status, but don't update the transaction yet
-            Logger.error("Error checking M-Pesa transaction status: #{inspect(reason)}")
-            {:error, reason}
-        end
+      {:ok, %{status: status, message: message}}
+      when status in ["failed", "abandoned", "cancelled"] ->
+        # Payment failed, update the transaction and invoice
+        process_failed_payment(transaction, invoice, %{
+          "status" => status,
+          "message" => message
+        })
+
+      {:ok, %{status: "pending"}} ->
+        # Payment is still pending
+        {:ok, :pending}
+
+      {:error, reason} ->
+        # Error checking the status, log it but don't update the transaction yet
+        Logger.error("Error checking Paystack transaction status: #{inspect(reason)}")
+        {:error, reason}
     end
   end
 
   # Private functions
 
-  defp process_successful_payment(transaction, invoice, callback_data) do
-    # Extract additional data from the callback
-    mpesa_receipt = callback_data["MpesaReceiptNumber"] || "N/A"
-
-    transaction_date =
-      callback_data["TransactionDate"] || DateTime.utc_now() |> DateTime.to_string()
-
-    # Update the transaction status
-    {:ok, updatedtransaction} =
+  defp process_successful_payment(transaction, invoice, response) do
+    # Update the transaction record
+    {:ok, updated_transaction} =
       Transaction.update(transaction, %{
         status: "completed",
-        mpesa_receipt_number: mpesa_receipt,
-        transaction_date: transaction_date,
-        result_code: "0",
-        result_description: "Success"
+        paystack_reference: response["reference"],
+        response_data: response
       })
 
     # Update the invoice status
     {:ok, updated_invoice} =
-      Invoices.update_invoice_status(invoice, %{
+      Clinicpro.Invoices.update_invoice_status(invoice, %{
         status: "paid",
         payment_status: "completed",
         payment_date: DateTime.utc_now(),
-        payment_reference: mpesa_receipt
+        payment_reference: response["reference"]
       })
 
-    # If this is an appointment invoice, update the appointment status
-    if invoice.appointment_id do
-      appointment = Appointment.get(invoice.appointment_id)
+    # Update appointment if needed
+    update_appointment_if_needed(invoice)
 
-      if appointment do
-        {:ok, _} =
-          Appointment.update(appointment, %{
-            payment_status: "paid"
-          })
-
-        # Send confirmation notification to the patient
-        send_payment_confirmation_notification(appointment, updated_invoice)
-      end
-    end
-
-    {:ok, %{invoice: updated_invoice, transaction: updatedtransaction}}
+    {:ok, %{invoice: updated_invoice, transaction: updated_transaction}}
   end
 
-  defp process_failed_payment(transaction, invoice, callback_data) do
-    # Extract data from the callback
-    result_code = callback_data["ResultCode"]
-    result_desc = callback_data["ResultDesc"] || "Payment failed"
-
-    # Update the transaction status
-    {:ok, updatedtransaction} =
+  defp process_failed_payment(transaction, invoice, response) do
+    # Update the transaction record
+    {:ok, updated_transaction} =
       Transaction.update(transaction, %{
         status: "failed",
-        result_code: result_code,
-        result_description: result_desc
+        response_data: response
       })
 
     # Update the invoice status
     {:ok, updated_invoice} =
-      Invoices.update_invoice_status(invoice, %{
+      Clinicpro.Invoices.update_invoice_status(invoice, %{
         payment_status: "failed",
-        payment_error: result_desc
+        payment_error: response["message"] || "Payment failed"
       })
 
-    {:ok, %{invoice: updated_invoice, transaction: updatedtransaction}}
+    {:ok, %{invoice: updated_invoice, transaction: updated_transaction}}
   end
 
   defp send_payment_confirmation_notification(appointment, invoice) do
@@ -268,7 +257,8 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     phone_number = appointment.patient.phone_number
 
     # Get the clinic details
-    clinic = Clinics.get_clinic(get_clinic_id_from_appointment(appointment))
+    clinic =
+      Clinicpro.Clinics.get(Clinicpro.Clinics.Clinic, get_clinic_id_fromappointment(appointment))
 
     # Prepare the notification message
     message = """
@@ -282,27 +272,27 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
     """
 
     # Send the SMS notification
-    Notifications.send_sms(phone_number, message, get_clinic_id_from_appointment(appointment))
+    Notifications.send_sms(phone_number, message, get_clinic_id_fromappointment(appointment))
   end
 
   defp get_clinic_id_from_invoice(invoice) do
     cond do
-      # If the invoice has a _clinic_id, use that
-      invoice._clinic_id && invoice._clinic_id != "" ->
-        invoice._clinic_id
+      # If the invoice has a clinic_id, use that
+      invoice.clinic_id && invoice.clinic_id != "" ->
+        invoice.clinic_id
 
       # If the invoice is for an appointment, get the clinic ID from the appointment
       invoice.appointment_id ->
-        appointment = Appointment.get(invoice.appointment_id)
-        get_clinic_id_from_appointment(appointment)
+        appointment = Clinicpro.Appointment.get(invoice.appointment_id)
+        get_clinic_id_fromappointment(appointment)
 
       # Otherwise, fall back to a default clinic ID
       true ->
-        Application.get_env(:clinicpro, :default_clinic_id, "clinic_001")
+        Application.get_env(:clinicpro, :defaultclinic_id, "clinic_001")
     end
   end
 
-  defp get_clinic_id_from_appointment(appointment) do
+  defp get_clinic_id_fromappointment(appointment) do
     cond do
       # If the appointment has a clinic_id, use that
       appointment.clinic_id && appointment.clinic_id != "" ->
@@ -315,7 +305,7 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
 
       # Otherwise, fall back to a default clinic ID
       true ->
-        Application.get_env(:clinicpro, :default_clinic_id, "clinic_001")
+        Application.get_env(:clinicpro, :defaultclinic_id, "clinic_001")
     end
   end
 
@@ -344,6 +334,18 @@ defmodule Clinicpro.Invoices.PaymentProcessor do
       # Return as is if none of the above match
       true ->
         digits_only
+    end
+  end
+
+  defp update_appointment_if_needed(invoice) do
+    if invoice.appointment_id do
+      # Get the appointment
+      appointment = Clinicpro.Appointment.get(invoice.appointment_id)
+
+      # Update appointment payment status if needed
+      if appointment && invoice.status == "paid" do
+        Clinicpro.Appointment.update(appointment, %{payment_status: "paid"})
+      end
     end
   end
 end

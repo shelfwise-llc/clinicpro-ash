@@ -1,0 +1,97 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full mx-auto space-y-8">
+    <div>
+      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        Book Appointment
+      </h2>
+      <p class="mt-2 text-center text-sm text-gray-600">
+        Schedule your appointment with our healthcare professionals
+      </p>
+    </div>
+
+    <form class="mt-8 space-y-6" action={~p"/patient/book-appointment"} method="POST">
+      <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+
+      <div class="space-y-4">
+        <div>
+          <label for="appointment_type" class="block text-sm font-medium text-gray-700">
+            Appointment Type
+          </label>
+          <select
+            id="appointment_type"
+            name="appointment[type]"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="">Select appointment type</option>
+            <option value="consultation">General Consultation</option>
+            <option value="checkup">Regular Checkup</option>
+            <option value="followup">Follow-up</option>
+            <option value="emergency">Emergency</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="preferred_date" class="block text-sm font-medium text-gray-700">
+            Preferred Date
+          </label>
+          <input
+            id="preferred_date"
+            name="appointment[preferred_date]"
+            type="date"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          />
+        </div>
+
+        <div>
+          <label for="preferred_time" class="block text-sm font-medium text-gray-700">
+            Preferred Time
+          </label>
+          <select
+            id="preferred_time"
+            name="appointment[preferred_time]"
+            required
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          >
+            <option value="">Select time</option>
+            <option value="09:00">9:00 AM</option>
+            <option value="10:00">10:00 AM</option>
+            <option value="11:00">11:00 AM</option>
+            <option value="14:00">2:00 PM</option>
+            <option value="15:00">3:00 PM</option>
+            <option value="16:00">4:00 PM</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="reason" class="block text-sm font-medium text-gray-700">
+            Reason for Visit
+          </label>
+          <textarea
+            id="reason"
+            name="appointment[reason]"
+            rows="3"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            placeholder="Please describe your symptoms or reason for the appointment"
+          ></textarea>
+        </div>
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          Book Appointment
+        </button>
+      </div>
+    </form>
+
+    <div class="text-center">
+      <a href={~p"/patient/dashboard"} class="text-blue-600 hover:text-blue-500">
+        ← Back to Dashboard
+      </a>
+    </div>
+  </div>
+</div>

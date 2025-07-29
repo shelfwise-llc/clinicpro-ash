@@ -16,15 +16,15 @@ defmodule Clinicpro.VirtualMeetings.Config do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to get the configuration for
+  * `clinic_id` - The ID of the clinic to get the configuration for
 
   ## Returns
 
   * `{:ok, config}` - On success, returns the configuration map
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def get_clinic_config(_clinic_id) do
-    case Repo.get(Clinic, _clinic_id) do
+  def get_clinic_config(clinic_id) do
+    case Repo.get(Clinic, clinic_id) do
       nil ->
         {:error, :clinic_not_found}
 
@@ -180,7 +180,7 @@ defmodule Clinicpro.VirtualMeetings.Config do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to set the configuration for
+  * `clinic_id` - The ID of the clinic to set the configuration for
   * `config` - The configuration map to set
 
   ## Returns
@@ -188,8 +188,8 @@ defmodule Clinicpro.VirtualMeetings.Config do
   * `{:ok, clinic}` - On success, returns the updated clinic
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def set_clinic_config(_clinic_id, config) do
-    case Repo.get(Clinic, _clinic_id) do
+  def set_clinic_config(clinic_id, config) do
+    case Repo.get(Clinic, clinic_id) do
       nil ->
         {:error, :clinic_not_found}
 
@@ -205,7 +205,7 @@ defmodule Clinicpro.VirtualMeetings.Config do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to set the adapter for
+  * `clinic_id` - The ID of the clinic to set the adapter for
   * `adapter` - The adapter module to use
 
   ## Returns
@@ -213,11 +213,11 @@ defmodule Clinicpro.VirtualMeetings.Config do
   * `{:ok, clinic}` - On success, returns the updated clinic
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def set_clinic_adapter(_clinic_id, adapter) do
-    case get_clinic_config(_clinic_id) do
+  def set_clinic_adapter(clinic_id, adapter) do
+    case get_clinic_config(clinic_id) do
       {:ok, config} ->
         updated_config = Map.put(config, :adapter, adapter)
-        set_clinic_config(_clinic_id, updated_config)
+        set_clinic_config(clinic_id, updated_config)
 
       error ->
         error
@@ -229,7 +229,7 @@ defmodule Clinicpro.VirtualMeetings.Config do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to set the base URL for
+  * `clinic_id` - The ID of the clinic to set the base URL for
   * `base_url` - The base URL to use
 
   ## Returns
@@ -237,11 +237,11 @@ defmodule Clinicpro.VirtualMeetings.Config do
   * `{:ok, clinic}` - On success, returns the updated clinic
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def set_clinic_base_url(_clinic_id, base_url) do
-    case get_clinic_config(_clinic_id) do
+  def set_clinic_base_url(clinic_id, base_url) do
+    case get_clinic_config(clinic_id) do
       {:ok, config} ->
         updated_config = Map.put(config, :base_url, base_url)
-        set_clinic_config(_clinic_id, updated_config)
+        set_clinic_config(clinic_id, updated_config)
 
       error ->
         error
@@ -253,7 +253,7 @@ defmodule Clinicpro.VirtualMeetings.Config do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to set the credentials for
+  * `clinic_id` - The ID of the clinic to set the credentials for
   * `credentials` - The credentials to use
 
   ## Returns
@@ -261,11 +261,11 @@ defmodule Clinicpro.VirtualMeetings.Config do
   * `{:ok, clinic}` - On success, returns the updated clinic
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def set_clinic_google_api_credentials(_clinic_id, credentials) do
-    case get_clinic_config(_clinic_id) do
+  def set_clinic_google_api_credentials(clinic_id, credentials) do
+    case get_clinic_config(clinic_id) do
       {:ok, config} ->
         updated_config = Map.put(config, :google_api_credentials, credentials)
-        set_clinic_config(_clinic_id, updated_config)
+        set_clinic_config(clinic_id, updated_config)
 
       error ->
         error
@@ -277,7 +277,7 @@ defmodule Clinicpro.VirtualMeetings.Config do
 
   ## Parameters
 
-  * `_clinic_id` - The ID of the clinic to set the credentials for
+  * `clinic_id` - The ID of the clinic to set the credentials for
   * `credentials` - The credentials to use
 
   ## Returns
@@ -285,11 +285,11 @@ defmodule Clinicpro.VirtualMeetings.Config do
   * `{:ok, clinic}` - On success, returns the updated clinic
   * `{:error, reason}` - On failure, returns an error reason
   """
-  def set_clinic_zoom_api_credentials(_clinic_id, credentials) do
-    case get_clinic_config(_clinic_id) do
+  def set_clinic_zoom_api_credentials(clinic_id, credentials) do
+    case get_clinic_config(clinic_id) do
       {:ok, config} ->
         updated_config = Map.put(config, :zoom_api_credentials, credentials)
-        set_clinic_config(_clinic_id, updated_config)
+        set_clinic_config(clinic_id, updated_config)
 
       error ->
         error

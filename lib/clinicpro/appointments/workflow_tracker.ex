@@ -1,6 +1,6 @@
 defmodule Clinicpro.Appointments.WorkflowTracker do
   @moduledoc """
-  Tracks and manages workflow states for different _appointment flows.
+  Tracks and manages workflow states for different appointment flows.
   """
 
   @doc """
@@ -16,7 +16,7 @@ defmodule Clinicpro.Appointments.WorkflowTracker do
       ],
       doctor_flow: [
         :list_appointments,
-        :access_appointment,
+        :accessappointment,
         :fill_medical_details,
         :record_diagnosis,
         :save_to_profile

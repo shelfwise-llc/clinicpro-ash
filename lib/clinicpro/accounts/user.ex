@@ -75,8 +75,12 @@ defmodule Clinicpro.Accounts.LegacyUser do
     |> validate_required([:password])
     |> validate_length(:password, min: 8, max: 72)
     # Examples of additional password validation:
-    |> validate_format(:password, ~r/[a-z]/, message: "must have at least one lowercase character")
-    |> validate_format(:password, ~r/[A-Z]/, message: "must have at least one uppercase character")
+    |> validate_format(:password, ~r/[a-z]/,
+      message: "must have at least one lowercase character"
+    )
+    |> validate_format(:password, ~r/[A-Z]/,
+      message: "must have at least one uppercase character"
+    )
     |> validate_format(:password, ~r/[0-9]/, message: "must have at least one digit")
   end
 

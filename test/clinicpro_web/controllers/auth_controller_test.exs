@@ -1,5 +1,6 @@
 defmodule ClinicproWeb.AuthControllerTest do
   use ClinicproWeb.ConnCase
+  import Mox
 
   alias Clinicpro.Accounts
   alias Clinicpro.Accounts.AuthUser

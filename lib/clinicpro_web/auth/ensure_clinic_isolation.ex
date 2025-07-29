@@ -13,7 +13,7 @@ defmodule ClinicproWeb.Auth.EnsureClinicIsolation do
   @doc """
   Initialize the plug with options.
   """
-  def init(opts), do: opts
+  def init(_opts), do: _opts
 
   @doc """
   Call function for the plug.
@@ -22,8 +22,8 @@ defmodule ClinicproWeb.Auth.EnsureClinicIsolation do
   unless the user is an admin.
   """
   def call(conn, _opts) do
-    user_clinic_id = get_user_clinic_id(conn)
-    param_clinic_id = get_clinic_id_from_params(conn)
+    userclinic_id = get_userclinic_id(conn)
+    paramclinic_id = get_clinic_id_from_params(conn)
     user_role = get_user_role(conn)
 
     cond do
@@ -32,11 +32,11 @@ defmodule ClinicproWeb.Auth.EnsureClinicIsolation do
         conn
 
       # If no clinic_id in params, allow the request (non-clinic specific endpoint)
-      is_nil(param_clinic_id) ->
+      is_nil(paramclinic_id) ->
         conn
 
       # If user's clinic_id matches param clinic_id, allow the request
-      user_clinic_id == param_clinic_id ->
+      userclinic_id == paramclinic_id ->
         conn
 
       # Otherwise, deny access
@@ -50,7 +50,7 @@ defmodule ClinicproWeb.Auth.EnsureClinicIsolation do
   end
 
   # Get the user's clinic_id from the connection
-  defp get_user_clinic_id(conn) do
+  defp get_userclinic_id(conn) do
     case Guardian.Plug.current_resource(conn) do
       %AuthUser{clinic_id: clinic_id} -> clinic_id
       _ -> nil

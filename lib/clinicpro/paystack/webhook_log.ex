@@ -4,7 +4,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
 
   This module tracks all incoming webhook events from Paystack,
   their processing status, and related _transaction information.
-  It maintains proper multi-tenant isolation through _clinic_id.
+  It maintains proper multi-tenant isolation through clinic_id.
   """
 
   use Ecto.Schema
@@ -22,7 +22,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
     field :processing_time_ms, :integer
 
     # Multi-tenant field
-    field :_clinic_id, :integer
+    field :clinic_id, :integer
 
     # Associations
     belongs_to :_transaction, Transaction
@@ -37,7 +37,7 @@ defmodule Clinicpro.Paystack.WebhookLog do
     timestamps()
   end
 
-  @required_fields [:event_type, :reference, :payload, :status, :_clinic_id]
+  @required_fields [:event_type, :reference, :payload, :status, :clinic_id]
   @optional_fields [:error_message, :processing_time_ms, :transaction_id]
 
   @doc """
@@ -78,10 +78,10 @@ defmodule Clinicpro.Paystack.WebhookLog do
   @doc """
   Gets a webhook log by ID, ensuring clinic isolation.
   """
-  def get(id, _clinic_id) do
+  def get(id, clinic_id) do
     query =
       from w in __MODULE__,
-        where: w.id == ^id and w._clinic_id == ^_clinic_id
+        where: w.id == ^id and w.clinic_id == ^clinic_id
 
     case Repo.one(query) do
       nil -> {:error, :not_found}
@@ -92,10 +92,10 @@ defmodule Clinicpro.Paystack.WebhookLog do
   @doc """
   Lists webhook logs for a clinic with optional filtering and pagination.
   """
-  def list(_clinic_id, filters \\ %{}, _page \\ 1, _per_page \\ 20) do
+  def list(clinic_id, filters \\ %{}, page \\ 1, _perpage \\ 20) do
     query =
       from w in __MODULE__,
-        where: w._clinic_id == ^_clinic_id,
+        where: w.clinic_id == ^clinic_id,
         order_by: [desc: w.inserted_at]
 
     # Apply filters
@@ -107,8 +107,8 @@ defmodule Clinicpro.Paystack.WebhookLog do
     # Apply pagination
     query =
       query
-      |> limit(^_per_page)
-      |> offset(^((_page - 1) * _per_page))
+      |> limit(^_perpage)
+      |> offset(^((page - 1) * _perpage))
 
     # Execute query
     webhook_logs = Repo.all(query)
@@ -119,10 +119,10 @@ defmodule Clinicpro.Paystack.WebhookLog do
   @doc """
   Gets a webhook log with its associated _transaction.
   """
-  def get_with_transaction(id, _clinic_id) do
+  def get_with_transaction(id, clinic_id) do
     query =
       from w in __MODULE__,
-        where: w.id == ^id and w._clinic_id == ^_clinic_id,
+        where: w.id == ^id and w.clinic_id == ^clinic_id,
         preload: [:_transaction]
 
     case Repo.one(query) do

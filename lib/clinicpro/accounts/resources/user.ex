@@ -20,7 +20,7 @@ defmodule Clinicpro.Accounts.User do
     attribute(:email, :ci_string, allow_nil?: false)
     attribute(:first_name, :string, allow_nil?: true)
     attribute(:last_name, :string, allow_nil?: true)
-    attribute(:is_active, :boolean, default: true)
+    attribute(:isactive, :boolean, default: true)
     timestamps()
   end
 
@@ -55,7 +55,7 @@ defmodule Clinicpro.Accounts.User do
     #   accept [:email, :first_name, :last_name]
     #   
     #   # This validation is required for AshAuthentication
-    #   validate {Ash.Changeset.change_attribute(:is_active, true), []}
+    #   validate {Ash.Changeset.change_attribute(:isactive, true), []}
     # end
   end
 

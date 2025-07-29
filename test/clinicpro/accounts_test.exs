@@ -45,37 +45,67 @@ defmodule Clinicpro.AccountsTest do
     end
 
     test "validates email and password when given" do
-      {:error, changeset} = Accounts.register_user(%{email: "not valid", password: "short", clinic_id: Ecto.UUID.generate()})
+      {:error, changeset} =
+        Accounts.register_user(%{
+          email: "not valid",
+          password: "short",
+          clinic_id: Ecto.UUID.generate()
+        })
 
       assert %{
                email: ["must have the @ sign and no spaces"],
-               password: ["must have at least one lowercase character",
-                          "must have at least one uppercase character",
-                          "must have at least one digit"]
+               password: [
+                 "must have at least one lowercase character",
+                 "must have at least one uppercase character",
+                 "must have at least one digit"
+               ]
              } = errors_on(changeset)
     end
 
     test "validates maximum values for email and password for security" do
       too_long = String.duplicate("db", 100)
-      {:error, changeset} = Accounts.register_user(%{email: too_long, password: too_long, clinic_id: Ecto.UUID.generate()})
+
+      {:error, changeset} =
+        Accounts.register_user(%{
+          email: too_long,
+          password: too_long,
+          clinic_id: Ecto.UUID.generate()
+        })
+
       assert "should be at most 160 character(s)" in errors_on(changeset).email
       assert "should be at most 72 character(s)" in errors_on(changeset).password
     end
 
     test "validates email uniqueness" do
       %{email: email} = user_fixture()
-      {:error, changeset} = Accounts.register_user(%{email: email, password: "valid_password", clinic_id: Ecto.UUID.generate()})
+
+      {:error, changeset} =
+        Accounts.register_user(%{
+          email: email,
+          password: "valid_password",
+          clinic_id: Ecto.UUID.generate()
+        })
+
       assert "has already been taken" in errors_on(changeset).email
 
       # Now try with the upper cased email too, to check that email case is ignored.
-      {:error, changeset} = Accounts.register_user(%{email: String.upcase(email), password: "valid_password", clinic_id: Ecto.UUID.generate()})
+      {:error, changeset} =
+        Accounts.register_user(%{
+          email: String.upcase(email),
+          password: "valid_password",
+          clinic_id: Ecto.UUID.generate()
+        })
+
       assert "has already been taken" in errors_on(changeset).email
     end
 
     test "registers users with a hashed password" do
       email = unique_user_email()
       clinic_id = Ecto.UUID.generate()
-      {:ok, user} = Accounts.register_user(%{email: email, password: "valid_password", clinic_id: clinic_id})
+
+      {:ok, user} =
+        Accounts.register_user(%{email: email, password: "valid_password", clinic_id: clinic_id})
+
       assert user.email == email
       assert user.clinic_id == clinic_id
       assert is_binary(user.password_hash)
@@ -86,22 +116,35 @@ defmodule Clinicpro.AccountsTest do
   describe "authenticate_user_by_email_password/2" do
     test "returns the user if the email and password are valid" do
       %{id: id} = user = user_fixture()
-      assert {:ok, %User{id: ^id}} = Accounts.authenticate_user_by_email_password(user.email, valid_user_password())
+
+      assert {:ok, %User{id: ^id}} =
+               Accounts.authenticate_user_by_email_password(user.email, valid_user_password())
     end
 
     test "returns error if the email is not registered" do
-      assert {:error, :invalid_credentials} = Accounts.authenticate_user_by_email_password("unknown@example.com", "hello world!")
+      assert {:error, :invalid_credentials} =
+               Accounts.authenticate_user_by_email_password("unknown@example.com", "hello world!")
     end
 
     test "returns error if the password is not valid" do
       user = user_fixture()
-      assert {:error, :invalid_credentials} = Accounts.authenticate_user_by_email_password(user.email, "invalid")
+
+      assert {:error, :invalid_credentials} =
+               Accounts.authenticate_user_by_email_password(user.email, "invalid")
     end
 
     test "respects clinic_id when provided" do
       %{id: id, clinic_id: clinic_id} = user = user_fixture()
-      assert {:ok, %User{id: ^id}} = Accounts.authenticate_user_by_email_password(user.email, valid_user_password(), clinic_id: clinic_id)
-      assert {:error, :invalid_credentials} = Accounts.authenticate_user_by_email_password(user.email, valid_user_password(), clinic_id: Ecto.UUID.generate())
+
+      assert {:ok, %User{id: ^id}} =
+               Accounts.authenticate_user_by_email_password(user.email, valid_user_password(),
+                 clinic_id: clinic_id
+               )
+
+      assert {:error, :invalid_credentials} =
+               Accounts.authenticate_user_by_email_password(user.email, valid_user_password(),
+                 clinic_id: Ecto.UUID.generate()
+               )
     end
   end
 
@@ -190,9 +233,11 @@ defmodule Clinicpro.AccountsTest do
         })
 
       assert %{
-               password: ["must have at least one lowercase character",
-                          "must have at least one uppercase character",
-                          "must have at least one digit"],
+               password: [
+                 "must have at least one lowercase character",
+                 "must have at least one uppercase character",
+                 "must have at least one digit"
+               ],
                password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end
@@ -206,14 +251,21 @@ defmodule Clinicpro.AccountsTest do
     test "updates the password", %{user: user} do
       {:ok, updated_user} = Accounts.reset_user_password(user, %{password: "NewPassword123"})
       assert is_nil(updated_user.password)
-      assert Accounts.authenticate_user_by_email_password(user.email, "NewPassword123") == {:ok, updated_user}
+
+      assert Accounts.authenticate_user_by_email_password(user.email, "NewPassword123") ==
+               {:ok, updated_user}
     end
   end
 
   describe "verify_user_token/2" do
     test "returns user id with valid token and context" do
       user = user_fixture()
-      token = extract_user_token(fn url -> Accounts.deliver_user_reset_password_instructions(user, url) end)
+
+      token =
+        extract_user_token(fn url ->
+          Accounts.deliver_user_reset_password_instructions(user, url)
+        end)
+
       assert {:ok, user_id} = Accounts.verify_user_token(token, "reset_password")
       assert user_id == user.id
     end

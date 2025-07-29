@@ -17,11 +17,11 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
   @zoom_api_base_url "https://api.zoom.us/v2"
 
   @doc """
-  Creates a new Zoom meeting for an _appointment.
+  Creates a new Zoom meeting for an appointment.
 
   ## Parameters
 
-  * `_appointment` - The _appointment to create a meeting for
+  * `appointment` - The appointment to create a meeting for
   * `_opts` - Additional options for the meeting creation
 
   ## Returns
@@ -30,10 +30,10 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
   * `{:error, reason}` - On failure, returns an error reason
   """
   @impl true
-  def create_meeting(_appointment, _opts \\ []) do
-    with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
-         {:ok, token} <- get_access_token(_appointment._clinic_id),
-         {:ok, meeting} <- create_zoom_meeting(token, _appointment, _opts) do
+  def create_meeting(appointment, _opts \\ []) do
+    with {:ok, appointment} <- get_appointment_with_associations(appointment),
+         {:ok, token} <- get_access_token(appointment.clinic_id),
+         {:ok, meeting} <- create_zoom_meeting(token, appointment, _opts) do
       # Extract meeting details from the created meeting
       meeting_data = %{
         url: meeting["join_url"],
@@ -63,7 +63,7 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
 
   ## Parameters
 
-  * `_appointment` - The _appointment with the meeting to update
+  * `appointment` - The appointment with the meeting to update
   * `_opts` - Additional options for the meeting update
 
   ## Returns
@@ -72,11 +72,11 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
   * `{:error, reason}` - On failure, returns an error reason
   """
   @impl true
-  def update_meeting(_appointment, _opts \\ []) do
-    with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
-         meeting_data <- extract_meeting_data(_appointment),
-         {:ok, token} <- get_access_token(_appointment._clinic_id),
-         {:ok, meeting} <- update_zoom_meeting(token, _appointment, meeting_data, _opts) do
+  def update_meeting(appointment, _opts \\ []) do
+    with {:ok, appointment} <- get_appointment_with_associations(appointment),
+         meeting_data <- extract_meeting_data(appointment),
+         {:ok, token} <- get_access_token(appointment.clinic_id),
+         {:ok, meeting} <- update_zoom_meeting(token, appointment, meeting_data, _opts) do
       # Extract updated meeting details
       updated_meeting_data = %{
         url: meeting["join_url"],
@@ -105,7 +105,7 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
 
   ## Parameters
 
-  * `_appointment` - The _appointment with the meeting to delete
+  * `appointment` - The appointment with the meeting to delete
   * `_opts` - Additional options for the meeting deletion
 
   ## Returns
@@ -114,10 +114,10 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
   * `{:error, reason}` - On failure, returns an error reason
   """
   @impl true
-  def delete_meeting(_appointment, _opts \\ []) do
-    with {:ok, _appointment} <- get_appointment_with_associations(_appointment),
-         meeting_data <- extract_meeting_data(_appointment),
-         {:ok, token} <- get_access_token(_appointment._clinic_id),
+  def delete_meeting(appointment, _opts \\ []) do
+    with {:ok, appointment} <- get_appointment_with_associations(appointment),
+         meeting_data <- extract_meeting_data(appointment),
+         {:ok, token} <- get_access_token(appointment.clinic_id),
          {:ok, _response} <- delete_zoom_meeting(token, meeting_data, _opts) do
       :ok
     else
@@ -133,21 +133,21 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
 
   # Private functions
 
-  defp get_appointment_with_associations(%Appointment{} = _appointment) do
-    _appointment = Repo.preload(_appointment, [:patient, :doctor, :clinic])
-    {:ok, _appointment}
+  defp get_appointment_with_associations(%Appointment{} = appointment) do
+    appointment = Repo.preload(appointment, [:patient, :doctor, :clinic])
+    {:ok, appointment}
   end
 
   defp get_appointment_with_associations(appointment_id) when is_integer(appointment_id) do
-    case Appointment.get_appointment(appointment_id) do
-      {:ok, _appointment} -> get_appointment_with_associations(_appointment)
+    case Appointment.getappointment(appointment_id) do
+      {:ok, appointment} -> get_appointment_with_associations(appointment)
       error -> error
     end
   end
 
-  defp get_access_token(_clinic_id) do
+  defp get_access_token(clinic_id) do
     # First try to get clinic-specific credentials
-    case get_zoom_credentials(_clinic_id) do
+    case get_zoom_credentials(clinic_id) do
       {:ok, credentials} ->
         generate_access_token(credentials)
 
@@ -160,11 +160,11 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     end
   end
 
-  defp get_zoom_credentials(_clinic_id \\ nil) do
+  defp get_zoom_credentials(clinic_id \\ nil) do
     cond do
-      # Try to get clinic-specific credentials if _clinic_id is provided
-      not is_nil(_clinic_id) ->
-        case Clinicpro.VirtualMeetings.Config.get_clinic_config(_clinic_id) do
+      # Try to get clinic-specific credentials if clinic_id is provided
+      not is_nil(clinic_id) ->
+        case Clinicpro.VirtualMeetings.Config.get_clinic_config(clinic_id) do
           {:ok, %{zoom_api_credentials: credentials}} when not is_nil(credentials) ->
             {:ok, credentials}
 
@@ -242,7 +242,7 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     {:ok, token}
   end
 
-  defp create_zoom_meeting(token, _appointment, _opts) do
+  defp create_zoom_meeting(token, appointment, _opts) do
     url = "#{@zoom_api_base_url}/users/me/meetings"
 
     headers = [
@@ -250,10 +250,10 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
       {"Content-Type", "application/json"}
     ]
 
-    # Format _appointment details for the meeting
-    topic = format_meeting_topic(_appointment)
-    start_time = format_meeting_start_time(_appointment)
-    duration = _appointment.duration || 30
+    # Format appointment details for the meeting
+    topic = format_meeting_topic(appointment)
+    start_time = format_meeting_start_time(appointment)
+    duration = appointment.duration || 30
 
     body =
       Jason.encode!(%{
@@ -286,7 +286,7 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     end
   end
 
-  defp update_zoom_meeting(token, _appointment, meeting_data, _opts) do
+  defp update_zoom_meeting(token, appointment, meeting_data, _opts) do
     meeting_id = meeting_data[:meeting_id]
 
     if is_nil(meeting_id) do
@@ -299,10 +299,10 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
         {"Content-Type", "application/json"}
       ]
 
-      # Format _appointment details for the meeting
-      topic = format_meeting_topic(_appointment)
-      start_time = format_meeting_start_time(_appointment)
-      duration = _appointment.duration || 30
+      # Format appointment details for the meeting
+      topic = format_meeting_topic(appointment)
+      start_time = format_meeting_start_time(appointment)
+      duration = appointment.duration || 30
 
       body =
         Jason.encode!(%{
@@ -376,26 +376,26 @@ defmodule Clinicpro.VirtualMeetings.ZoomAdapter do
     end
   end
 
-  defp extract_meeting_data(_appointment) do
-    case _appointment.meeting_data do
+  defp extract_meeting_data(appointment) do
+    case appointment.meeting_data do
       nil -> %{}
       meeting_data when is_map(meeting_data) -> meeting_data
       _unused -> %{}
     end
   end
 
-  defp format_meeting_topic(_appointment) do
-    patient_name = "#{_appointment.patient.first_name} #{_appointment.patient.last_name}"
-    doctor_name = "#{_appointment.doctor.first_name} #{_appointment.doctor.last_name}"
+  defp format_meeting_topic(appointment) do
+    patient_name = "#{appointment.patient.first_name} #{appointment.patient.last_name}"
+    doctor_name = "#{appointment.doctor.first_name} #{appointment.doctor.last_name}"
 
-    "ClinicPro: #{patient_name} _appointment with Dr. #{doctor_name}"
+    "ClinicPro: #{patient_name} appointment with Dr. #{doctor_name}"
   end
 
-  defp format_meeting_start_time(_appointment) do
+  defp format_meeting_start_time(appointment) do
     naive_datetime =
       NaiveDateTime.new!(
-        _appointment.appointment_date,
-        _appointment.appointment_time
+        appointment.appointment_date,
+        appointment.appointment_time
       )
 
     # Convert to DateTime with UTC timezone
