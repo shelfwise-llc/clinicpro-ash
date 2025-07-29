@@ -71,7 +71,7 @@ jobs:
 
   build-and-deploy:
     needs: test
-    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/cleanup/mpesa-removal')
     runs-on: ubuntu-latest
     
 
