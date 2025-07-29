@@ -87,7 +87,7 @@ jobs:
     - name: Deploy to Railway
       run: |
         echo "Deploying to Railway..."
-        railway link --project 77c00a97-4d76-42e6-827f-e8a61a64642b
-        railway up --detach
+        RAILWAY_TOKEN=$RAILWAY_TOKEN railway link --project 77c00a97-4d76-42e6-827f-e8a61a64642b
+        RAILWAY_TOKEN=$RAILWAY_TOKEN railway up --detach
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
