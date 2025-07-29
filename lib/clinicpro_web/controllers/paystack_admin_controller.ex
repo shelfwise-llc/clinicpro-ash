@@ -222,7 +222,7 @@ defmodule ClinicproWeb.PaystackAdminController do
         {:ok, _subaccount} -> true
         _error -> false
       end
-      
+
     # Check if there's an active config
     has_active_config =
       case Paystack.get_active_config(clinic_id) do
@@ -324,7 +324,8 @@ defmodule ClinicproWeb.PaystackAdminController do
               clinic_id: clinic_id,
               changeset: changeset,
               subaccount: subaccount,
-              action: Routes.paystack_admin_path(conn, :update_subaccount, clinic_id, subaccount.id)
+              action:
+                Routes.paystack_admin_path(conn, :update_subaccount, clinic_id, subaccount.id)
             )
         end
 

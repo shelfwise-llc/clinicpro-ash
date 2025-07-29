@@ -10,6 +10,7 @@ defmodule ClinicproWeb.PatientAuthController do
   """
   def request_otp(conn, %{"clinic_id" => clinic_id}) do
     changeset = Patient.changeset(%Patient{}, %{})
+
     conn
     |> put_layout(html: :root)
     |> render("request_otp.html", changeset: changeset, clinic_id: clinic_id)
@@ -22,6 +23,7 @@ defmodule ClinicproWeb.PatientAuthController do
     # Default to clinic_id 1 or fetch from config if available
     clinic_id = Application.get_env(:clinicpro, :default_clinic_id, "1")
     changeset = Patient.changeset(%Patient{}, %{})
+
     conn
     |> put_layout(html: :root)
     |> render("request_otp.html", changeset: changeset, clinic_id: clinic_id)
@@ -33,7 +35,7 @@ defmodule ClinicproWeb.PatientAuthController do
   def send_otp(conn, %{"patient" => patient_params, "clinic_id" => clinic_id}) do
     # First, try to find the patient by phone number or email
     patient = find_or_create_patient(patient_params, clinic_id)
-    
+
     case OTP.send_otp(patient.id, clinic_id) do
       {:ok, %{otp: otp, contact: contact}} ->
         # In production, you would not expose the OTP in the session
@@ -59,7 +61,7 @@ defmodule ClinicproWeb.PatientAuthController do
     clinic_id = Application.get_env(:clinicpro, :default_clinic_id, "1")
     # First, try to find the patient by phone number or email
     patient = find_or_create_patient(patient_params, clinic_id)
-    
+
     case OTP.send_otp(patient.id, clinic_id) do
       {:ok, %{otp: otp, contact: contact}} ->
         # In production, you would not expose the OTP in the session
@@ -106,7 +108,10 @@ defmodule ClinicproWeb.PatientAuthController do
 
       _patient_id ->
         # Get the clinic_id from the session or use default
-        clinic_id = get_session(conn, :pending_otpclinic_id) || Application.get_env(:clinicpro, :default_clinic_id, "1")
+        clinic_id =
+          get_session(conn, :pending_otpclinic_id) ||
+            Application.get_env(:clinicpro, :default_clinic_id, "1")
+
         conn
         |> put_layout(html: :root)
         |> render("verify_otp.html", clinic_id: clinic_id)
@@ -154,7 +159,9 @@ defmodule ClinicproWeb.PatientAuthController do
   def verify_otp(conn, %{"otp" => otp}) do
     patient_id = get_session(conn, :pending_otp_patient_id)
     # Get the clinic_id from the session or use default
-    clinic_id = get_session(conn, :pending_otpclinic_id) || Application.get_env(:clinicpro, :default_clinic_id, "1")
+    clinic_id =
+      get_session(conn, :pending_otpclinic_id) ||
+        Application.get_env(:clinicpro, :default_clinic_id, "1")
 
     case OTP.validate_otp(patient_id, clinic_id, otp) do
       {:ok, _otp_secret} ->
@@ -255,7 +262,7 @@ defmodule ClinicproWeb.PatientAuthController do
     # Get patient from session
     patient_id = get_session(conn, :patient_id)
     clinic_id = get_session(conn, :clinic_id)
-    
+
     # For now, render a simple booking form
     conn
     |> put_layout(html: :root)
@@ -268,12 +275,13 @@ defmodule ClinicproWeb.PatientAuthController do
   def create_appointment(conn, %{"appointment" => appointment_params}) do
     patient_id = get_session(conn, :patient_id)
     clinic_id = get_session(conn, :clinic_id)
-    
+
     # Add patient and clinic info to params
-    full_params = appointment_params
-    |> Map.put("patient_id", patient_id)
-    |> Map.put("clinic_id", clinic_id)
-    
+    full_params =
+      appointment_params
+      |> Map.put("patient_id", patient_id)
+      |> Map.put("clinic_id", clinic_id)
+
     # For now, just redirect back with success message
     conn
     |> put_flash(:info, "Appointment booking request submitted successfully!")

@@ -1,7 +1,7 @@
 defmodule Clinicpro.PaystackLegacy.Subaccount do
   @moduledoc """
   Legacy Subaccount module for Paystack integration.
-  
+
   This module provides legacy Paystack Subaccount functions for backward compatibility.
   It delegates to the new Paystack Subaccount implementation.
   """

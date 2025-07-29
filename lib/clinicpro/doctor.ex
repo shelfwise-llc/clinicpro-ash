@@ -35,7 +35,7 @@ defmodule Clinicpro.Doctor do
 
   defp validate_password(changeset) do
     password = get_change(changeset, :password)
-    
+
     if password do
       case Clinicpro.Auth.PasswordValidator.validate_password(password) do
         {:ok, _} -> changeset
@@ -46,7 +46,9 @@ defmodule Clinicpro.Doctor do
     end
   end
 
-  defp maybe_hash_password(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
+  defp maybe_hash_password(
+         %Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset
+       ) do
     put_change(changeset, :password_hash, hash_password(password))
   end
 

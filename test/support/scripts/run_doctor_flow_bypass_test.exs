@@ -137,16 +137,16 @@ defmodule DoctorFlowBypassTest do
     IO.puts("2. Import the bypass routes in your router.ex file")
     IO.puts("3. Use the bypass controller endpoints at /doctor/appointments")
   end
-  
+
   # Run function to execute the test
   def run do
     # Run the test logic directly
     run_test_logic()
-    
+
     # Print results
     IO.puts("Doctor flow bypass test completed.")
   end
-  
+
   # Helper function to run test logic
   def run_test_logic do
     mock_data = create_mock_data()
@@ -186,7 +186,7 @@ defmodule DoctorFlowBypassTest do
     medical_details_state = %{workflow_type: :doctor_flow, current_step: :fill_medical_details}
     diagnosis_state = %{workflow_type: :doctor_flow, current_step: :record_diagnosis}
     completed_state = %{workflow_type: :doctor_flow, current_step: :complete_appointment}
-    
+
     transitions = [
       {scheduled_state, :access_appointment},
       {in_progress_state, :fill_medical_details},
@@ -196,8 +196,13 @@ defmodule DoctorFlowBypassTest do
 
     Enum.each(transitions, fn {state, next_step} ->
       case WorkflowValidator.validate_transition(state, next_step) do
-        :ok -> IO.puts("Transition from #{state.current_step} -> #{next_step} validation passed!")
-        error -> IO.puts("Transition from #{state.current_step} -> #{next_step} validation failed: #{inspect(error)}")
+        :ok ->
+          IO.puts("Transition from #{state.current_step} -> #{next_step} validation passed!")
+
+        error ->
+          IO.puts(
+            "Transition from #{state.current_step} -> #{next_step} validation failed: #{inspect(error)}"
+          )
       end
     end)
 

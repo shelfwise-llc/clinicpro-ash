@@ -1,7 +1,7 @@
 defmodule Clinicpro.PaystackLegacy.API do
   @moduledoc """
   Legacy API module for Paystack integration.
-  
+
   This module provides legacy Paystack API functions for backward compatibility.
   It delegates to the new Paystack API implementation.
   """
@@ -13,7 +13,15 @@ defmodule Clinicpro.PaystackLegacy.API do
   Initializes a transaction on Paystack.
   Delegates to the new API implementation.
   """
-  def initialize_transaction(email, amount, reference, callback_url, metadata, subaccount \\ nil, clinic_id) do
+  def initialize_transaction(
+        email,
+        amount,
+        reference,
+        callback_url,
+        metadata,
+        subaccount \\ nil,
+        clinic_id
+      ) do
     NewAPI.initialize_transaction(
       email,
       amount,
@@ -43,8 +51,12 @@ defmodule Clinicpro.PaystackLegacy.API do
     case function_exported?(NewAPI, :get_transaction_with_events, 2) do
       true ->
         NewAPI.get_transaction_with_events(reference, clinic_id)
+
       false ->
-        Logger.warning("NewAPI.get_transaction_with_events/2 not implemented, returning mock data")
+        Logger.warning(
+          "NewAPI.get_transaction_with_events/2 not implemented, returning mock data"
+        )
+
         {:ok, %{"data" => %{"events" => []}}}
     end
   end

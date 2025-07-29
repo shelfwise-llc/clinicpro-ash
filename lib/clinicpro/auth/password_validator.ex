@@ -19,22 +19,24 @@ defmodule Clinicpro.Auth.PasswordValidator do
     cond do
       String.length(password) < @min_length ->
         {:error, "Password must be at least #{@min_length} characters long"}
-      
+
       String.length(password) > @max_length ->
         {:error, "Password must be less than #{@max_length} characters long"}
-      
+
       true ->
         {:ok, password}
     end
   end
 
   defp validate_complexity({:error, _} = error), do: error
+
   defp validate_complexity({:ok, password}) do
     checks = [
       {~r/[a-z]/, "Password must contain at least one lowercase letter"},
       {~r/[A-Z]/, "Password must contain at least one uppercase letter"},
       {~r/[0-9]/, "Password must contain at least one number"},
-      {~r/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/, "Password must contain at least one special character"}
+      {~r/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/,
+       "Password must contain at least one special character"}
     ]
 
     case Enum.find(checks, fn {regex, _msg} -> !Regex.match?(regex, password) end) do
@@ -44,11 +46,17 @@ defmodule Clinicpro.Auth.PasswordValidator do
   end
 
   defp validate_common_passwords({:error, _} = error), do: error
+
   defp validate_common_passwords({:ok, password}) do
     # List of common passwords to reject
     common_passwords = [
-      "password123", "admin123", "doctor123", "clinicpro123",
-      "123456789012", "qwertyuiop12", "password1234"
+      "password123",
+      "admin123",
+      "doctor123",
+      "clinicpro123",
+      "123456789012",
+      "qwertyuiop12",
+      "password1234"
     ]
 
     if Enum.any?(common_passwords, &String.contains?(String.downcase(password), &1)) do
@@ -69,9 +77,13 @@ defmodule Clinicpro.Auth.PasswordValidator do
   defp ensure_complexity(password) do
     # Ensure generated password meets complexity requirements
     password
-    |> String.replace_at(0, "A")  # Uppercase
-    |> String.replace_at(1, "a")  # Lowercase  
-    |> String.replace_at(2, "1")  # Number
-    |> String.replace_at(3, "!")  # Special char
+    # Uppercase
+    |> String.replace_at(0, "A")
+    # Lowercase  
+    |> String.replace_at(1, "a")
+    # Number
+    |> String.replace_at(2, "1")
+    # Special char
+    |> String.replace_at(3, "!")
   end
 end

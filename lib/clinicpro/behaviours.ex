@@ -20,8 +20,6 @@ defmodule Clinicpro.Invoices.PaymentProcessorBehaviour do
   """
   @callback check_payment_status(Invoice.t()) :: {:ok, atom()} | {:error, String.t()}
 
-
-
   @doc """
   Marks an invoice as paid and updates related records.
 

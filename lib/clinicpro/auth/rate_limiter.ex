@@ -2,7 +2,7 @@ defmodule Clinicpro.Auth.RateLimiter do
   @moduledoc """
   Production-grade rate limiting for authentication attempts
   """
-  
+
   use GenServer
   require Logger
 
@@ -24,42 +24,42 @@ defmodule Clinicpro.Auth.RateLimiter do
   def check_rate_limit(identifier, ip_address \\ nil) do
     key = rate_limit_key(identifier, ip_address)
     now = System.system_time(:second)
-    
+
     case :ets.lookup(@table_name, key) do
       [] ->
         # First attempt
         :ets.insert(@table_name, {key, 1, now, nil})
         {:ok, @max_attempts - 1}
-        
+
       [{^key, attempts, first_attempt, locked_until}] ->
         cond do
           # Account is locked
           locked_until && now < locked_until ->
             remaining_lockout = locked_until - now
             {:error, :locked, remaining_lockout}
-            
+
           # Reset window if enough time has passed
           now - first_attempt > 3600 ->
             :ets.insert(@table_name, {key, 1, now, nil})
             {:ok, @max_attempts - 1}
-            
+
           # Within rate limit
           attempts < @max_attempts ->
             :ets.update_counter(@table_name, key, {2, 1})
             {:ok, @max_attempts - attempts - 1}
-            
+
           # Exceeded rate limit - lock account
           true ->
-            lockout_until = now + (@lockout_duration_minutes * 60)
+            lockout_until = now + @lockout_duration_minutes * 60
             :ets.insert(@table_name, {key, attempts + 1, first_attempt, lockout_until})
-            
+
             # Log security event
-            Logger.warn("Account locked due to too many failed attempts", 
-              identifier: identifier, 
+            Logger.warn("Account locked due to too many failed attempts",
+              identifier: identifier,
               ip_address: ip_address,
               attempts: attempts + 1
             )
-            
+
             {:error, :rate_limited, @lockout_duration_minutes}
         end
     end
@@ -68,9 +68,9 @@ defmodule Clinicpro.Auth.RateLimiter do
   def record_successful_login(identifier, ip_address \\ nil) do
     key = rate_limit_key(identifier, ip_address)
     :ets.delete(@table_name, key)
-    
-    Logger.info("Successful login", 
-      identifier: identifier, 
+
+    Logger.info("Successful login",
+      identifier: identifier,
       ip_address: ip_address
     )
   end
@@ -78,9 +78,9 @@ defmodule Clinicpro.Auth.RateLimiter do
   def unlock_account(identifier, ip_address \\ nil) do
     key = rate_limit_key(identifier, ip_address)
     :ets.delete(@table_name, key)
-    
-    Logger.info("Account manually unlocked", 
-      identifier: identifier, 
+
+    Logger.info("Account manually unlocked",
+      identifier: identifier,
       ip_address: ip_address
     )
   end
@@ -88,21 +88,22 @@ defmodule Clinicpro.Auth.RateLimiter do
   def get_account_status(identifier, ip_address \\ nil) do
     key = rate_limit_key(identifier, ip_address)
     now = System.system_time(:second)
-    
+
     case :ets.lookup(@table_name, key) do
-      [] -> 
+      [] ->
         {:ok, %{attempts: 0, locked: false, remaining_attempts: @max_attempts}}
-        
+
       [{^key, attempts, _first_attempt, locked_until}] ->
         locked = locked_until && now < locked_until
         remaining_lockout = if locked, do: locked_until - now, else: 0
-        
-        {:ok, %{
-          attempts: attempts,
-          locked: locked,
-          remaining_attempts: max(0, @max_attempts - attempts),
-          remaining_lockout_seconds: remaining_lockout
-        }}
+
+        {:ok,
+         %{
+           attempts: attempts,
+           locked: locked,
+           remaining_attempts: max(0, @max_attempts - attempts),
+           remaining_lockout_seconds: remaining_lockout
+         }}
     end
   end
 
@@ -127,10 +128,10 @@ defmodule Clinicpro.Auth.RateLimiter do
 
   defp cleanup_expired_entries do
     now = System.system_time(:second)
-    
+
     # Remove entries older than 24 hours
-    cutoff = now - (24 * 3600)
-    
+    cutoff = now - 24 * 3600
+
     :ets.select_delete(@table_name, [
       {{:_, :_, :"$1", :_}, [{:<, :"$1", cutoff}], [true]}
     ])

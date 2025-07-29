@@ -11,7 +11,7 @@ defmodule Clinicpro.TestHelpers do
   alias Clinicpro.AdminBypass.Appointment
   alias Clinicpro.Paystack.Transaction
 
-  @doc """
+  @doc \"""
   Creates a test clinic with the given name and configuration.
   """
   def create_test_clinic(name, attrs \\ %{}) do

@@ -219,6 +219,7 @@ defmodule Clinicpro.PaystackWebhookLogTest do
 
     test "retry_webhook/2 retries a failed webhook", %{conn: conn, webhook_log2: webhook_log2} do
       Mox.expect(Callback, :retry_webhook, fn _id, _clinic_id -> {:ok, webhook_log2} end)
+
       conn =
         build_conn()
         |> bypass_through(ClinicproWeb.Router, :browser)
@@ -232,6 +233,7 @@ defmodule Clinicpro.PaystackWebhookLogTest do
 
     test "retry_webhook/2 handles retry failure", %{conn: conn, webhook_log2: webhook_log2} do
       Mox.expect(Callback, :retry_webhook, fn _id, _clinic_id -> {:error, :some_error} end)
+
       conn =
         build_conn()
         |> bypass_through(ClinicproWeb.Router, :browser)

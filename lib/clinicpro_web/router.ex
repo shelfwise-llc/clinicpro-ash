@@ -130,7 +130,7 @@ defmodule ClinicproWeb.Router do
     # Admin Paystack routes
     scope "/admin/clinics/:clinic_id/paystack", ClinicproWeb do
       pipe_through [:admin_layout, :require_admin_login]
-      
+
       # Dashboard and main routes
       get "/", PaystackAdminController, :dashboard
       get "/new", PaystackAdminController, :new_config
@@ -143,7 +143,7 @@ defmodule ClinicproWeb.Router do
       get "/:id/activate", PaystackAdminController, :activate_config
       post "/:id/activate", PaystackAdminController, :activate_config
       post "/:id/deactivate", PaystackAdminController, :deactivate_config
-      
+
       # Configuration management
       get "/configs", PaystackAdminController, :list_configs
       get "/configs/new", PaystackAdminController, :new_config
@@ -172,7 +172,7 @@ defmodule ClinicproWeb.Router do
       get "/transactions", PaystackAdminController, :list_transactions
       get "/transactions/:id", PaystackAdminController, :show_transaction
       post "/transactions/:id/verify", PaystackAdminController, :verify_transaction
-      
+
       # Test payment
       get "/test-payment", PaystackAdminController, :test_payment_form
       post "/test-payment", PaystackAdminController, :process_test_payment

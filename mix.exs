@@ -100,8 +100,6 @@ defmodule Clinicpro.MixProject do
       # Testing Tools
       {:mox, "~> 1.0", only: :test},
 
-
-
       # OTP Authentication
       {:nimble_totp, "~> 1.0"},
 

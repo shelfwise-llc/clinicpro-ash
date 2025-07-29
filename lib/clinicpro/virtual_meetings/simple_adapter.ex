@@ -93,7 +93,7 @@ defmodule Clinicpro.VirtualMeetings.SimpleAdapter do
                created_at: DateTime.utc_now(),
                token: token
              }}
-          
+
           :error ->
             # Generate a new meeting
             base_url = get_base_url()
@@ -109,7 +109,7 @@ defmodule Clinicpro.VirtualMeetings.SimpleAdapter do
                token: token
              }}
         end
-      
+
       _ ->
         # Generate a new meeting
         base_url = get_base_url()
@@ -189,6 +189,7 @@ defmodule Clinicpro.VirtualMeetings.SimpleAdapter do
     case String.split(url, "/") do
       [_scheme, _domain | path_parts] ->
         List.last(path_parts)
+
       _ ->
         generate_token()
     end
@@ -200,6 +201,7 @@ defmodule Clinicpro.VirtualMeetings.SimpleAdapter do
     case String.split(url, "/") do
       [_scheme, _domain | path_parts] ->
         {:ok, List.last(path_parts)}
+
       _ ->
         :error
     end

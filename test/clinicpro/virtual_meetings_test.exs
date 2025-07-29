@@ -47,11 +47,14 @@ defmodule Clinicpro.VirtualMeetingsTest do
   describe "simple adapter" do
     setup do
       # Create an actual clinic record for testing
-      {:ok, clinic} = %Clinicpro.Clinics.Clinic{
-        id: Ecto.UUID.generate(),
-        inserted_at: DateTime.utc_now(),
-        updated_at: DateTime.utc_now()
-      } |> Repo.insert()
+      {:ok, clinic} =
+        %Clinicpro.Clinics.Clinic{
+          id: Ecto.UUID.generate(),
+          inserted_at: DateTime.utc_now(),
+          updated_at: DateTime.utc_now()
+        }
+        |> Repo.insert()
+
       clinic_id = clinic.id
 
       {:ok, doctor} =
@@ -69,7 +72,8 @@ defmodule Clinicpro.VirtualMeetingsTest do
           doctor_id: doctor.id,
           date: appointment_date,
           start_time: appointment_time,
-          end_time: Time.add(appointment_time, 30 * 60), # 30 minutes duration
+          # 30 minutes duration
+          end_time: Time.add(appointment_time, 30 * 60),
           appointment_type: "virtual",
           status: "pending"
         })
@@ -147,11 +151,14 @@ defmodule Clinicpro.VirtualMeetingsTest do
   describe "payment flow integration" do
     setup do
       # Create an actual clinic record for testing
-      {:ok, clinic} = %Clinicpro.Clinics.Clinic{
-        id: Ecto.UUID.generate(),
-        inserted_at: DateTime.utc_now(),
-        updated_at: DateTime.utc_now()
-      } |> Repo.insert()
+      {:ok, clinic} =
+        %Clinicpro.Clinics.Clinic{
+          id: Ecto.UUID.generate(),
+          inserted_at: DateTime.utc_now(),
+          updated_at: DateTime.utc_now()
+        }
+        |> Repo.insert()
+
       clinic_id = clinic.id
 
       {:ok, doctor} =
@@ -169,18 +176,21 @@ defmodule Clinicpro.VirtualMeetingsTest do
           doctor_id: doctor.id,
           date: appointment_date,
           start_time: appointment_time,
-          end_time: Time.add(appointment_time, 30 * 60), # 30 minutes duration
+          # 30 minutes duration
+          end_time: Time.add(appointment_time, 30 * 60),
           appointment_type: "virtual",
           status: "scheduled"
         })
 
       # Create a mock Paystack transaction
       transaction_ref = "ps_ref_#{:rand.uniform(1_000_000)}"
+
       transaction = %Clinicpro.Paystack.Transaction{
         clinic_id: clinic_id,
         reference: transaction_ref,
         email: "patient@example.com",
-        amount: 100000,  # Paystack uses amounts in kobo/cents
+        # Paystack uses amounts in kobo/cents
+        amount: 100_000,
         status: "success",
         paystack_reference: "ps_ref_#{:rand.uniform(1_000_000)}",
         description: "Consultation fee",

@@ -83,22 +83,32 @@ defmodule Clinicpro.Invoices do
           Channel: #{transaction.channel || "N/A"}
           """
 
-          case Invoice.update_invoice(invoice, %{status: "paid", notes: append_notes(invoice.notes, notes)}) do
+          case Invoice.update_invoice(invoice, %{
+                 status: "paid",
+                 notes: append_notes(invoice.notes, notes)
+               }) do
             {:ok, updated_invoice} ->
               # Broadcast the payment completion
               broadcast_payment_completed(updated_invoice, transaction)
-              
+
               # Process the appointment if applicable
               case process_appointment_after_payment(updated_invoice) do
                 {:ok, _appointment} ->
-                  Logger.info("Successfully processed appointment for invoice #{updated_invoice.id}")
+                  Logger.info(
+                    "Successfully processed appointment for invoice #{updated_invoice.id}"
+                  )
+
                   {:ok, updated_invoice}
+
                 {:error, reason} ->
-                  Logger.error("Failed to process appointment for invoice #{updated_invoice.id}: #{inspect(reason)}")
+                  Logger.error(
+                    "Failed to process appointment for invoice #{updated_invoice.id}: #{inspect(reason)}"
+                  )
+
                   # We still return success for the payment processing even if appointment processing fails
                   {:ok, updated_invoice}
               end
-            
+
             {:error, reason} ->
               Logger.error("Failed to update invoice #{invoice.id}: #{inspect(reason)}")
               {:error, reason}

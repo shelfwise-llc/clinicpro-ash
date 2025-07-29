@@ -437,7 +437,16 @@ defmodule Clinicpro.Paystack.Transaction do
   * `{:ok, transaction}` - On success
   * `{:error, reason}` - On failure
   """
-  def initialize_payment(email, amount, reference, callback_url, metadata, description, subaccount \\ nil, clinic_id) do
+  def initialize_payment(
+        email,
+        amount,
+        reference,
+        callback_url,
+        metadata,
+        description,
+        subaccount \\ nil,
+        clinic_id
+      ) do
     # Create a transaction record first
     attrs = %{
       email: email,
@@ -449,24 +458,25 @@ defmodule Clinicpro.Paystack.Transaction do
     }
 
     with {:ok, transaction} <- create(attrs),
-         {:ok, paystack_response} <- Clinicpro.Paystack.API.initialize_transaction(
-           email,
-           amount,
-           reference,
-           callback_url,
-           metadata,
-           subaccount,
-           clinic_id
-         ) do
+         {:ok, paystack_response} <-
+           Clinicpro.Paystack.API.initialize_transaction(
+             email,
+             amount,
+             reference,
+             callback_url,
+             metadata,
+             subaccount,
+             clinic_id
+           ) do
       # Extract data from Paystack response
       data = paystack_response["data"]
-      
+
       # Update transaction with Paystack response data
       attrs = %{
         authorization_url: data["authorization_url"],
         access_code: data["access_code"]
       }
-      
+
       update_transaction(transaction, attrs)
     else
       {:error, reason} -> {:error, reason}
@@ -494,11 +504,12 @@ defmodule Clinicpro.Paystack.Transaction do
 
       transaction ->
         # Call Paystack API to verify the payment
-        with {:ok, paystack_response} <- Clinicpro.Paystack.API.verify_transaction(reference, clinic_id) do
+        with {:ok, paystack_response} <-
+               Clinicpro.Paystack.API.verify_transaction(reference, clinic_id) do
           # Extract relevant data from the response
           data = paystack_response["data"]
           status = if data["status"] == "success", do: "success", else: "failed"
-          
+
           # Update the transaction with verification data
           update_transaction(transaction, %{
             status: status,

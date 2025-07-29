@@ -14,7 +14,6 @@
       <form action={~p"/patient/send-otp?clinic_id=#{@clinic_id}"} method="POST" class="space-y-6">
         <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
         <input type="hidden" name="clinic_id" value={@clinic_id} />
-        
         <!-- Phone Number Field -->
         <div>
           <label for="phone_number" class="block text-sm font-medium text-gray-700">
@@ -35,7 +34,6 @@
         <div class="text-center my-2">
           <span class="px-2 text-gray-500">OR</span>
         </div>
-        
         <!-- Email Field -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">

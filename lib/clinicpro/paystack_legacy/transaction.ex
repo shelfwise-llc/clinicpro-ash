@@ -1,7 +1,7 @@
 defmodule Clinicpro.PaystackLegacy.Transaction do
   @moduledoc """
   Legacy Transaction module for Paystack integration.
-  
+
   This module provides legacy Paystack Transaction functions for backward compatibility.
   It delegates to the new Paystack Transaction implementation following Paystack's official API.
   """
@@ -12,46 +12,61 @@ defmodule Clinicpro.PaystackLegacy.Transaction do
 
   @doc """
   Initializes a payment transaction.
-  
+
   Following Paystack's official API documentation for transaction initialization.
   See: https://paystack.com/docs/api/transaction/#initialize
-  
+
   ## Parameters
-  
+
   * `email` - Customer's email address
   * `amount` - Amount in the smallest currency unit (e.g., kobo for NGN)
   * `reference` - Unique transaction reference
   * `callback_url` - URL to redirect after payment
   * `metadata` - Additional data for the transaction
   * `clinic_id` - ID of the clinic processing the payment
-  
+
   ## Returns
-  
+
   * `{:ok, response}` - Success response with authorization URL
   * `{:error, reason}` - Error reason
   """
   def initialize_payment(email, amount, reference, callback_url, metadata, clinic_id) do
     if function_exported?(NewTransaction, :initialize_payment, 6) do
-      NewTransaction.initialize_payment(email, amount, reference, callback_url, metadata, clinic_id)
+      NewTransaction.initialize_payment(
+        email,
+        amount,
+        reference,
+        callback_url,
+        metadata,
+        clinic_id
+      )
     else
       # Fallback to direct API call
-      PaystackAPI.initialize_transaction(email, amount, reference, callback_url, metadata, nil, clinic_id)
+      PaystackAPI.initialize_transaction(
+        email,
+        amount,
+        reference,
+        callback_url,
+        metadata,
+        nil,
+        clinic_id
+      )
     end
   end
 
   @doc """
   Verifies a payment transaction.
-  
+
   Following Paystack's official API documentation for transaction verification.
   See: https://paystack.com/docs/api/transaction/#verify
-  
+
   ## Parameters
-  
+
   * `reference` - Transaction reference to verify
   * `clinic_id` - ID of the clinic that processed the payment
-  
+
   ## Returns
-  
+
   * `{:ok, transaction}` - Success response with transaction details
   * `{:error, reason}` - Error reason
   """
@@ -66,13 +81,13 @@ defmodule Clinicpro.PaystackLegacy.Transaction do
 
   @doc """
   Gets transaction statistics for a clinic.
-  
+
   ## Parameters
-  
+
   * `clinic_id` - ID of the clinic
-  
+
   ## Returns
-  
+
   * `{:ok, stats}` - Success response with transaction stats
   * `{:error, reason}` - Error reason
   """

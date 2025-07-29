@@ -37,7 +37,9 @@ defmodule ClinicproWeb.PaymentHTML do
           </p>
 
           <div class="mt-4">
-            <p class="text-sm text-gray-600">Payment integration is being set up. Please check back later.</p>
+            <p class="text-sm text-gray-600">
+              Payment integration is being set up. Please check back later.
+            </p>
           </div>
         </div>
       <% end %>

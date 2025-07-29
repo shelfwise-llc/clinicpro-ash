@@ -18,6 +18,7 @@ defmodule ClinicproWeb.Plugs.EnsureAdminAuth do
         |> put_flash(:error, "You must be logged in as an admin to access this page.")
         |> redirect(to: Routes.admin_path(conn, :login))
         |> halt()
+
       _admin_id ->
         conn
     end
