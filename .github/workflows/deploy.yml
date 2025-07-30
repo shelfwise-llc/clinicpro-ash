@@ -85,4 +85,5 @@ jobs:
         echo "Deploying to Railway..."
         echo "Using Railway CLI version: $(railway --version)"
         echo "RAILWAY_TOKEN is set: ${{ secrets.RAILWAY_TOKEN != '' }}"
+        railway link --environment production --project desirable-integrity
         railway up --detach
