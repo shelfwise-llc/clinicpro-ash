@@ -73,21 +73,14 @@ jobs:
     needs: test
     if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/cleanup/mpesa-removal')
     runs-on: ubuntu-latest
-    
-
-      
+    container: ghcr.io/railwayapp/cli:latest
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      CI: true
     steps:
     - uses: actions/checkout@v4
-        
-    - name: Install Railway CLI
-      run: |
-        curl -fsSL https://railway.app/install.sh | sh
-        echo "$HOME/.railway/bin" >> $GITHUB_PATH
         
     - name: Deploy to Railway
       run: |
         echo "Deploying to Railway..."
-        RAILWAY_TOKEN=$RAILWAY_TOKEN railway link --project 77c00a97-4d76-42e6-827f-e8a61a64642b
-        RAILWAY_TOKEN=$RAILWAY_TOKEN railway up --detach
-      env:
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        railway up --detach
