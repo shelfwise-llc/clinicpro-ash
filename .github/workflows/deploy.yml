@@ -73,17 +73,74 @@ jobs:
     needs: test
     if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/cleanup/mpesa-removal')
     runs-on: ubuntu-latest
-    container: ghcr.io/railwayapp/cli:latest
     steps:
     - uses: actions/checkout@v4
-        
-    - name: Deploy to Railway
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+    
+    - name: Install Kamal
+      run: gem install kamal
+      
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ghcr.io/${{ github.repository }}:${{ github.sha }},ghcr.io/${{ github.repository }}:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          MIX_ENV=prod
+    
+    - name: Install Railway CLI
+      run: |
+        curl -fsSL https://railway.app/install.sh | sh
+        railway --version
+    
+    - name: Link Railway project
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        CI: true
       run: |
-        echo "Deploying to Railway..."
-        echo "Using Railway CLI version: $(railway --version)"
-        echo "RAILWAY_TOKEN is set: ${{ secrets.RAILWAY_TOKEN != '' }}"
+        echo "Linking Railway project..."
         railway link --environment production --project desirable-integrity
-        railway up --detach
+    
+    - name: Deploy with Kamal
+      env:
+        KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+        PHX_HOST: clinicpro-ash-production.up.railway.app
+        PHX_SERVER: true
+        PORT: 4000
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        echo "Deploying with Kamal..."
+        # Update deploy.yml with the current image tag
+        sed -i "s|image:.*|image: ghcr.io/${{ github.repository }}:${{ github.sha }}|" config/deploy.yml
+        
+        # Deploy using Kamal
+        kamal deploy
+        
+    - name: Verify deployment
+      run: |
+        echo "Verifying deployment..."
+        # Wait for deployment to complete
+        sleep 30
+        
+        # Run verification script
+        chmod +x ./verify_deployment.sh
+        ./verify_deployment.sh https://clinicpro-ash-production.up.railway.app || true
