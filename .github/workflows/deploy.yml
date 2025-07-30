@@ -116,7 +116,7 @@ jobs:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
         echo "Linking Railway project..."
-        railway link --environment production --project desirable-integrity
+        railway link --environment production --project desirable-integrity --service clinicpro-ash
     
     - name: Deploy with Kamal
       env:
