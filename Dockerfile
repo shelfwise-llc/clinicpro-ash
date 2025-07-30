@@ -4,6 +4,9 @@ FROM hexpm/elixir:1.14.5-erlang-25.3.2-debian-bullseye-20230522 as build
 RUN apt-get update -y && apt-get install -y build-essential git nodejs npm postgresql-client \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
+# Pre-install esbuild to avoid download issues during build
+RUN npm install -g esbuild@0.17.11
+
 # Set environment variables
 ENV MIX_ENV=prod \
     LANG=C.UTF-8
@@ -30,7 +33,7 @@ COPY . .
 RUN mix compile
 
 # Build assets using Mix tasks
-RUN mix esbuild default --minify
+RUN mix esbuild.install --if-missing && mix esbuild default --minify
 RUN mix tailwind default --minify
 RUN mix phx.digest
 
