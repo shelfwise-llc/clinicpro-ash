@@ -8,26 +8,26 @@ defmodule ClinicproWeb.GuestBookingController do
 
   # Specific step requirements for each action
   plug WorkflowValidator,
-       [workflow: :guest_booking, required_step: :initiate, redirect_to: "/guest_booking"]
+       [workflow: :guest_booking, required_step: :initiate, redirect_to: "/booking"]
        when action in [:type]
 
   plug WorkflowValidator,
-       [workflow: :guest_booking, required_step: :select_type, redirect_to: "/guest_booking/type"]
+       [workflow: :guest_booking, required_step: :select_type, redirect_to: "/booking/type"]
        when action in [:phone]
 
   plug WorkflowValidator,
        [
          workflow: :guest_booking,
          required_step: :collect_phone,
-         redirect_to: "/guest_booking/phone"
+         redirect_to: "/booking/phone"
        ]
        when action in [:invoice]
 
   plug WorkflowValidator,
        [
          workflow: :guest_booking,
-         required_step: :generate_invoice,
-         redirect_to: "/guest_booking/invoice"
+         required_step: :review_invoice,
+         redirect_to: "/booking/invoice"
        ]
        when action in [:profile]
 
@@ -35,10 +35,39 @@ defmodule ClinicproWeb.GuestBookingController do
   Start the guest booking process.
   """
   def index(conn, _params) do
+    # For guest users, we'll use a temporary ID if not already set
+    user_id = get_session(conn, :user_id) || "guest-#{System.unique_integer([:positive])}"
+    
+    # Store the user_id in session for subsequent steps
+    conn = put_session(conn, :user_id, user_id)
+    
     # Get the workflow state from the connection
     workflow_state = conn.assigns[:workflow_state]
+    
+    IO.inspect(workflow_state, label: "WORKFLOW STATE IN CONTROLLER")
 
-    render(conn, :index, workflow_state: workflow_state)
+    conn
+    |> put_layout(html: {ClinicproWeb.Layouts, :clinicpro})
+    |> assign(:page_title, "Book an Appointment")
+    |> assign(:workflow_state, workflow_state)
+    |> render(:initiate)
+  end
+
+  @doc """
+  Initiate the guest booking process (POST handler for the start button).
+  """
+  def initiate(conn, _params) do
+    # For guest users, we'll use a temporary ID if not already set
+    user_id = get_session(conn, :user_id) || "guest-#{System.unique_integer([:positive])}"
+    
+    # Store the user_id in session for subsequent steps
+    conn = put_session(conn, :user_id, user_id)
+    
+    # Advance the workflow to the next step (select_type)
+    conn = WorkflowValidator.advance_workflow(conn, user_id, &Clinicpro.Appointments.WorkflowTracker.available_workflows/0)
+
+    # Redirect to the next step (type selection)
+    redirect(conn, to: ~p"/booking/type")
   end
 
   @doc """

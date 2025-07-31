@@ -11,13 +11,16 @@ defmodule ClinicproWeb.GuestBookingHTML do
 
   def workflow_progress(assigns) do
     steps = Clinicpro.Appointments.WorkflowTracker.available_workflows()[:guest_booking]
-    current_step = assigns.workflow_state.current_step
+    current_step = assigns[:workflow_state].current_step
 
     # Find the index of the current step
     current_index = Enum.find_index(steps, fn step -> step == current_step end)
 
-    assigns = assign(assigns, :steps, steps)
-    assigns = assign(assigns, :current_index, current_index)
+    # Create a new assigns map with the additional values
+    assigns = Map.merge(assigns, %{
+      steps: steps,
+      current_index: current_index
+    })
 
     ~H"""
     <div class={"workflow-progress #{@class}"}>
