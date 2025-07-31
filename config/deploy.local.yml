@@ -1,0 +1,45 @@
+# Local development configuration for Kamal
+service: clinicpro-local
+image: clinicpro-local
+
+servers:
+  web:
+    - localhost
+
+registry:
+  server: ghcr.io
+  username: local
+  password: local
+
+builder:
+  arch: amd64
+  context: .
+  dockerfile: Dockerfile
+  args:
+    MIX_ENV: dev
+
+env:
+  clear:
+    MIX_ENV: dev
+    PHX_SERVER: "true"
+    PORT: 4000
+    PHX_HOST: localhost
+  secret:
+    - DATABASE_URL
+    - SECRET_KEY_BASE
+
+accessories:
+  postgres:
+    image: postgres:15
+    port: 5432
+    env:
+      clear:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: clinicpro_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+boot:
+  limit: 1
+  wait: 5

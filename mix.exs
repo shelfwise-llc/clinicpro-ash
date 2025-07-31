@@ -55,7 +55,8 @@ defmodule Clinicpro.MixProject do
       {:phoenix_live_view, "~> 0.18"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      # Using Bun for asset building instead of esbuild hex package
+      # {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
@@ -130,9 +131,9 @@ defmodule Clinicpro.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
-      "assets.build": ["tailwind default", "esbuild default"],
-      "assets.deploy": ["tailwind default --minify", "esbuild default --minify", "phx.digest"]
+      "assets.setup": ["tailwind.install --if-missing"],
+      "assets.build": ["tailwind default", "cmd --cd assets node build.js"],
+      "assets.deploy": ["tailwind default --minify", "cmd --cd assets NODE_ENV=production node build.js --minify", "phx.digest"]
     ]
   end
 end

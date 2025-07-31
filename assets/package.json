@@ -4,12 +4,17 @@
   "description": "ClinicPro application assets",
   "main": "js/app.js",
   "scripts": {
-    "deploy": "echo 'Assets will be built using mix tasks'"
+    "build": "node build.js",
+    "watch": "node build.js --watch",
+    "deploy": "NODE_ENV=production node build.js --minify"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/shelfwise-llc/clinicpro-ash.git"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "esbuild": "^0.17.11"
+  }
 }

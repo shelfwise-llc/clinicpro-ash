@@ -1,13 +1,13 @@
 # Name of your application. Used to uniquely configure containers.
-service: clinicpro
+service: clinicpro-ash
 
 # Name of the container image.
-image: shelfwise-llc/clinicpro
+image: ghcr.io/shelfwise-llc/clinicpro-ash:latest
 
 # Deploy to these servers - Railway will provide the actual server details
 servers:
   web:
-    - <%= ENV["RAILWAY_SERVER_HOST"] || "localhost" %>
+    - clinicpro-ash-production.up.railway.app
 
 # Configure for Railway deployment - no SSL proxy needed as Railway handles this
 # proxy:
@@ -35,6 +35,7 @@ env:
     MIX_ENV: prod
     PHX_SERVER: "true"
     PORT: 4000
+    PHX_HOST: clinicpro-ash-production.up.railway.app
   secret:
     - DATABASE_URL
     - SECRET_KEY_BASE

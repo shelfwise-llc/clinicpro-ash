@@ -265,6 +265,13 @@ defmodule ClinicproWeb.Router do
   end
 
   # Browser routes
+  # Health check endpoint - accessible without authentication
+  scope "/", ClinicproWeb do
+    pipe_through :health_check
+    
+    get "/health", HealthController, :check
+  end
+
   scope "/", ClinicproWeb do
     pipe_through :browser
 

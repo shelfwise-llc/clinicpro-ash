@@ -1,11 +1,23 @@
 FROM hexpm/elixir:1.14.5-erlang-25.3.2-debian-bullseye-20230522 as build
 
 # Install build dependencies
-RUN apt-get update -y && apt-get install -y build-essential git nodejs npm postgresql-client \
+RUN apt-get update -y && apt-get install -y build-essential git nodejs postgresql-client curl coreutils unzip \
     && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
-# Pre-install esbuild to avoid download issues during build
-RUN npm install -g esbuild@0.17.11
+# Install Bun for faster asset building
+RUN curl -fsSL https://bun.sh/install | bash \
+    && mv /root/.bun/bin/bun /usr/local/bin/bun \
+    && chmod +x /usr/local/bin/bun
+
+# Install Node.js for better compatibility with npm packages
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Clear any existing node_modules and install fresh dependencies
+RUN npm cache clean --force
+
+# Ensure node_modules is clean to avoid platform conflicts
+RUN rm -rf assets/node_modules
 
 # Set environment variables
 ENV MIX_ENV=prod \
@@ -32,8 +44,12 @@ COPY . .
 # Compile the project for production
 RUN mix compile
 
-# Build assets using Mix tasks
-RUN mix esbuild.install --if-missing && mix esbuild default --minify
+# Install asset dependencies with Bun
+RUN cd assets && bun install
+
+# Build assets using Bun
+RUN cd assets && NODE_ENV=production bun run deploy
+
 RUN mix tailwind default --minify
 RUN mix phx.digest
 

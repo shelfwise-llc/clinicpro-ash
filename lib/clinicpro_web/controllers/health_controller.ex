@@ -1,6 +1,6 @@
 defmodule ClinicproWeb.HealthController do
   use ClinicproWeb, :controller
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
 
   @doc """
   Enhanced health check endpoint to verify the application is running and database is connected.
@@ -8,7 +8,7 @@ defmodule ClinicproWeb.HealthController do
   - 200 OK if everything is working
   - 500 Internal Server Error if database connection fails
   """
-  def index(conn, _params) do
+  def check(conn, _params) do
     try do
       # Try to query the database to verify connection
       {:ok, _unused} = Repo.query("SELECT 1")
