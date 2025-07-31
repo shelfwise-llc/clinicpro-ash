@@ -23,15 +23,15 @@ defmodule Clinicpro.Paystack.Http do
     url = build_url(endpoint, base_url)
     headers = build_headers(secret_key)
 
-    case HTTPoison.get(url, headers) do
-      {:ok, %HTTPoison.Response{status_code: status_code, body: body}}
+    case Req.get(url, headers: headers) do
+      {:ok, %Req.Response{status: status_code, body: body}}
       when status_code in 200..299 ->
         {:ok, Jason.decode!(body)}
 
-      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+      {:ok, %Req.Response{status: status_code, body: body}} ->
         {:error, "HTTP Error #{status_code}: #{body}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, reason} ->
         {:error, "HTTP Request Failed: #{inspect(reason)}"}
     end
   end
@@ -54,17 +54,16 @@ defmodule Clinicpro.Paystack.Http do
   def post(endpoint, payload, secret_key, base_url \\ nil) do
     url = build_url(endpoint, base_url)
     headers = build_headers(secret_key)
-    body = Jason.encode!(payload)
 
-    case HTTPoison.post(url, body, headers) do
-      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}}
+    case Req.post(url, json: payload, headers: headers) do
+      {:ok, %Req.Response{status: status_code, body: body}}
       when status_code in 200..299 ->
-        {:ok, Jason.decode!(response_body)}
+        {:ok, Jason.decode!(body)}
 
-      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}} ->
-        {:error, "HTTP Error #{status_code}: #{response_body}"}
+      {:ok, %Req.Response{status: status_code, body: body}} ->
+        {:error, "HTTP Error #{status_code}: #{body}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, reason} ->
         {:error, "HTTP Request Failed: #{inspect(reason)}"}
     end
   end
@@ -87,17 +86,16 @@ defmodule Clinicpro.Paystack.Http do
   def put(endpoint, payload, secret_key, base_url \\ nil) do
     url = build_url(endpoint, base_url)
     headers = build_headers(secret_key)
-    body = Jason.encode!(payload)
 
-    case HTTPoison.put(url, body, headers) do
-      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}}
+    case Req.put(url, json: payload, headers: headers) do
+      {:ok, %Req.Response{status: status_code, body: response_body}}
       when status_code in 200..299 ->
         {:ok, Jason.decode!(response_body)}
 
-      {:ok, %HTTPoison.Response{status_code: status_code, body: response_body}} ->
+      {:ok, %Req.Response{status: status_code, body: response_body}} ->
         {:error, "HTTP Error #{status_code}: #{response_body}"}
 
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, reason} ->
         {:error, "HTTP Request Failed: #{inspect(reason)}"}
     end
   end

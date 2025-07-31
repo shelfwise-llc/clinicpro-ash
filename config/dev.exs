@@ -25,10 +25,7 @@ config :clinicpro, ClinicproWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "o9oeThPnTtYYOylMubBJjXneYDQEpzKKGQruHrvpyOUt/Cdq37Rd1N7IqVPq7puX",
   watchers: [
-    bun: [
-      "run", "watch",
-      cd: Path.expand("../assets", __DIR__)
-    ],
+    esbuild: {Esbuild, :install_and_run, [:clinicpro, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:clinicpro, ~w(--watch)]}
   ]
 

@@ -5,7 +5,7 @@ defmodule Clinicpro.Appointment do
   alias Clinicpro.Repo
   alias Clinicpro.Doctor
   alias Clinicpro.Patient
-  alias Clinicpro.Clinic
+  alias Clinicpro.Clinics.Clinic
 
   schema "appointments" do
     field :status, :string, default: "Scheduled"

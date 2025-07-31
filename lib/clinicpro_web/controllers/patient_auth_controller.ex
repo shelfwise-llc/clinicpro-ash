@@ -3,7 +3,7 @@ defmodule ClinicproWeb.PatientAuthController do
 
   alias Clinicpro.Auth.OTP
   alias Clinicpro.Patient
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
 
   @doc """
   Renders the form to request an OTP.
@@ -42,7 +42,7 @@ defmodule ClinicproWeb.PatientAuthController do
         # This is just for development convenience
         conn
         |> put_session(:pending_otp_patient_id, patient.id)
-        |> put_session(:pending_otpclinic_id, clinic_id)
+        |> put_session(:pending_otp_clinic_id, clinic_id)
         |> put_flash(:info, "OTP sent to #{contact}. For development: #{otp}")
         |> redirect(to: ~p"/patient/verify-otp?clinic_id=#{clinic_id}")
 
@@ -68,9 +68,9 @@ defmodule ClinicproWeb.PatientAuthController do
         # This is just for development convenience
         conn
         |> put_session(:pending_otp_patient_id, patient.id)
-        |> put_session(:pending_otpclinic_id, clinic_id)
+        |> put_session(:pending_otp_clinic_id, clinic_id)
         |> put_flash(:info, "OTP sent to #{contact}. For development: #{otp}")
-        |> redirect(to: ~p"/patient/verify-otp")
+        |> redirect(to: ~p"/patient/verify-otp?clinic_id=#{clinic_id}")
 
       {:error, reason} ->
         conn
@@ -109,7 +109,7 @@ defmodule ClinicproWeb.PatientAuthController do
       _patient_id ->
         # Get the clinic_id from the session or use default
         clinic_id =
-          get_session(conn, :pending_otpclinic_id) ||
+          get_session(conn, :pending_otp_clinic_id) ||
             Application.get_env(:clinicpro, :default_clinic_id, "1")
 
         conn
@@ -123,7 +123,7 @@ defmodule ClinicproWeb.PatientAuthController do
   """
   def verify_otp(conn, %{"otp" => otp, "clinic_id" => clinic_id}) do
     patient_id = get_session(conn, :pending_otp_patient_id)
-    clinic_id = get_session(conn, :pending_otpclinic_id)
+    clinic_id = get_session(conn, :pending_otp_clinic_id)
 
     case OTP.validate_otp(patient_id, clinic_id, otp) do
       {:ok, _otp_secret} ->
@@ -132,7 +132,7 @@ defmodule ClinicproWeb.PatientAuthController do
 
         conn
         |> delete_session(:pending_otp_patient_id)
-        |> delete_session(:pending_otpclinic_id)
+        |> delete_session(:pending_otp_clinic_id)
         |> put_session(:patient_id, patient_id)
         |> put_session(:clinic_id, clinic_id)
         |> put_flash(
@@ -160,7 +160,7 @@ defmodule ClinicproWeb.PatientAuthController do
     patient_id = get_session(conn, :pending_otp_patient_id)
     # Get the clinic_id from the session or use default
     clinic_id =
-      get_session(conn, :pending_otpclinic_id) ||
+      get_session(conn, :pending_otp_clinic_id) ||
         Application.get_env(:clinicpro, :default_clinic_id, "1")
 
     case OTP.validate_otp(patient_id, clinic_id, otp) do
@@ -170,7 +170,7 @@ defmodule ClinicproWeb.PatientAuthController do
 
         conn
         |> delete_session(:pending_otp_patient_id)
-        |> delete_session(:pending_otpclinic_id)
+        |> delete_session(:pending_otp_clinic_id)
         |> put_session(:patient_id, patient_id)
         |> put_session(:clinic_id, clinic_id)
         |> put_flash(
@@ -182,7 +182,7 @@ defmodule ClinicproWeb.PatientAuthController do
       {:error, :invalid_otp} ->
         conn
         |> put_flash(:error, "Invalid OTP. Please try again.")
-        |> redirect(to: ~p"/patient/verify-otp")
+        |> redirect(to: ~p"/patient/verify-otp?clinic_id=#{clinic_id}")
 
       {:error, reason} ->
         conn

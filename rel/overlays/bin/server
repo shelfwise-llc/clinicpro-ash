@@ -53,7 +53,7 @@ wait_for_postgres() {
     echo "Attempt $i: Checking database connection..."
     
     # More robust check that prints error messages for debugging
-    if /app/bin/clinicpro eval "IO.puts(\"Checking DB connection...\"); Clinicpro.Repo.query!(\"SELECT 1\"); IO.puts(\"Connection successful\"); :ok" 2>&1; then
+    if /app/bin/clinicpro eval "Application.ensure_all_started(:clinicpro); IO.puts(\"Checking DB connection...\"); Clinicpro.Repo.query!(\"SELECT 1\"); IO.puts(\"Connection successful\"); :ok" 2>&1; then
       echo "Database connection successful!"
       break
     elif [ $i -eq 30 ]; then

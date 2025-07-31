@@ -1,0 +1,48 @@
+<div class="mx-auto max-w-sm">
+  <.header class="text-center">
+    Sign in with Magic Link
+    <:subtitle>
+      Enter your email and we'll send you a magic link to sign in.
+    </:subtitle>
+  </.header>
+
+  <%= if @email_sent do %>
+    <div class="mt-4">
+      <div class="text-center">
+        <.icon name="hero-envelope" class="mx-auto h-12 w-12 text-green-500" />
+        <p class="mt-4 text-lg font-semibold text-gray-800">
+          Magic link sent!
+        </p>
+        <p class="mt-2 text-gray-600">
+          Check your email for the magic link to sign in.
+        </p>
+      </div>
+    </div>
+  <% else %>
+    <.simple_form
+      for={@form}
+      id="magic-link-form"
+      phx-submit="send_magic_link"
+      phx-change="validate"
+    >
+      <.input field={@form[:email]} type="email" label="Email" required />
+      <:actions>
+        <.button phx-disable-with="Sending..." class="w-full">
+          Send Magic Link
+        </.button>
+      </:actions>
+    </.simple_form>
+
+    <%= if @error do %>
+      <div class="mt-4 text-center text-red-600">
+        <%= @error %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="mt-6 text-center text-sm text-gray-500">
+    <.link href="/" class="text-blue-600 hover:underline">
+      Back to Home
+    </.link>
+  </div>
+</div>

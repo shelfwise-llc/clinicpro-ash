@@ -8,7 +8,7 @@ defmodule Clinicpro.VirtualMeetings.Config do
   """
 
   require Logger
-  # # alias Clinicpro.Repo
+  alias Clinicpro.Repo
   alias Clinicpro.Clinics.Clinic
 
   @doc """

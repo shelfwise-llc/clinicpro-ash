@@ -74,31 +74,28 @@ jobs:
     if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/cleanup/mpesa-removal')
     runs-on: ubuntu-latest
     steps:
-    # Skip Docker build as it was causing GitHub Container Registry issues
-    # We'll deploy directly to Railway instead
-    
     - uses: actions/checkout@v4
     
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.2'
-        bundler-cache: true
-    
-    - name: Install Kamal
-      run: gem install kamal
-      
     - name: Install Railway CLI
       run: |
         curl -fsSL https://railway.app/install.sh | sh
         railway --version
     
-    - name: Link Railway project
+    - name: Set Railway environment variables
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       run: |
-        echo "Linking Railway project..."
+        echo "Setting Railway environment variables..."
+        SECRET_KEY_BASE=$(openssl rand -base64 64 | tr -d '\n')
         railway link --environment production --project desirable-integrity --service clinicpro-ash
+        railway variables --set "SECRET_KEY_BASE=$SECRET_KEY_BASE"
+        railway variables --set "DATABASE_URL=ecto://postgres:XkggcTaQwXrloywONDieBlwLeGSGEhDS@postgres-p8mu.railway.internal:5432/railway"
+        railway variables --set "PHX_SERVER=true"
+        railway variables --set "PHX_HOST=clinicpro-ash-production.up.railway.app"
+        railway variables --set "PORT=4000"
+        railway variables --set "ECTO_IPV6=true"
+        railway variables --set "LANG=en_US.UTF-8"
+        railway variables --set "LC_CTYPE=en_US.UTF-8"
     
     - name: Deploy to Railway
       run: |

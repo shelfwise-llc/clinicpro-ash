@@ -55,8 +55,8 @@ defmodule Clinicpro.MixProject do
       {:phoenix_live_view, "~> 0.18"},
       {:floki, ">= 0.30.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      # Using Bun for asset building instead of esbuild hex package
-      # {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      # Using esbuild for asset building
+      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
@@ -84,8 +84,6 @@ defmodule Clinicpro.MixProject do
       # Authentication
       # For secure password hashing
       {:argon2_elixir, "~> 3.0"},
-      # For admin authentication
-      {:bcrypt_elixir, "~> 3.0"},
 
       # Guardian for JWT Authentication
       {:guardian, "~> 2.3"},
@@ -108,8 +106,8 @@ defmodule Clinicpro.MixProject do
       {:google_api_calendar, "~> 0.26.0"},
       {:goth, "~> 1.3"},
 
-      # HTTP Client for API Integration
-      {:httpoison, "~> 2.2"},
+      # HTTP Client for API Integration - using Req instead of HTTPoison
+      {:req, "~> 0.4"},
       {:oauth2, "~> 2.0"},
       {:ex_typesense, "~> 0.6.0"},
 
@@ -133,7 +131,11 @@ defmodule Clinicpro.MixProject do
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing"],
       "assets.build": ["tailwind default", "cmd --cd assets node build.js"],
-      "assets.deploy": ["tailwind default --minify", "cmd --cd assets NODE_ENV=production node build.js --minify", "phx.digest"]
+      "assets.deploy": [
+        "tailwind default --minify",
+        "cmd --cd assets NODE_ENV=production node build.js --minify",
+        "phx.digest"
+      ]
     ]
   end
 end

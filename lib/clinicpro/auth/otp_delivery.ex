@@ -6,7 +6,7 @@ defmodule Clinicpro.Auth.OTPDelivery do
 
   alias Clinicpro.Repo
   alias Clinicpro.Patient
-  alias Clinicpro.Clinic
+  alias Clinicpro.Clinics.Clinic
 
   @doc """
   Sends an OTP to a patient via their preferred contact method (SMS or email).

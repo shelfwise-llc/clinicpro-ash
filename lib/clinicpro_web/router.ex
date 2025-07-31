@@ -268,7 +268,7 @@ defmodule ClinicproWeb.Router do
   # Health check endpoint - accessible without authentication
   scope "/", ClinicproWeb do
     pipe_through :health_check
-    
+
     get "/health", HealthController, :check
   end
 
@@ -308,6 +308,12 @@ defmodule ClinicproWeb.Router do
       post "/verify-otp", PatientAuthController, :verify_otp
       post "/logout", PatientAuthController, :logout
     end
+
+    # Magic Link Authentication Routes
+    live "/patient/magic-link", ClinicproWeb.Patient.AuthLive, :index
+    live "/doctor/magic-link", ClinicproWeb.Doctor.AuthLive, :index
+    live "/admin/magic-link", ClinicproWeb.Admin.AuthLive, :index
+    live "/magic-link", MagicLinkLive, :index
 
     # Protected Patient Routes
     scope "/patient" do

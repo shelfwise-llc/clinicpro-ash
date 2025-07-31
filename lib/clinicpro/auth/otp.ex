@@ -8,7 +8,7 @@ defmodule Clinicpro.Auth.OTP do
   alias Clinicpro.Auth.OTPDelivery
   alias Clinicpro.Repo
   alias Clinicpro.Patient
-  alias Clinicpro.Clinic
+  alias Clinicpro.Clinics.Clinic
 
   # OTP validity period in seconds (30 seconds is standard for TOTP)
   @otp_validity_period 30
