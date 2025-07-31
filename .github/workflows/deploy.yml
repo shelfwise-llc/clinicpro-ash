@@ -74,17 +74,10 @@ jobs:
     if: always() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/cleanup/mpesa-removal')
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    # Skip Docker build as it was causing GitHub Container Registry issues
+    # We'll deploy directly to Railway instead
     
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v2
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v4
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
@@ -95,17 +88,6 @@ jobs:
     - name: Install Kamal
       run: gem install kamal
       
-    - name: Build and push Docker image
-      uses: docker/build-push-action@v4
-      with:
-        context: .
-        push: true
-        tags: ghcr.io/${{ github.repository }}:${{ github.sha }},ghcr.io/${{ github.repository }}:latest
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        build-args: |
-          MIX_ENV=prod
-    
     - name: Install Railway CLI
       run: |
         curl -fsSL https://railway.app/install.sh | sh
@@ -118,22 +100,12 @@ jobs:
         echo "Linking Railway project..."
         railway link --environment production --project desirable-integrity --service clinicpro-ash
     
-    - name: Deploy with Kamal
-      env:
-        KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
-        PHX_HOST: clinicpro-ash-production.up.railway.app
-        PHX_SERVER: true
-        PORT: 4000
-        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    - name: Deploy to Railway
       run: |
-        echo "Deploying with Kamal..."
-        # Update deploy.yml with the current image tag
-        sed -i "s|image:.*|image: ghcr.io/${{ github.repository }}:${{ github.sha }}|" config/deploy.yml
-        
-        # Deploy using Kamal
-        kamal deploy
+        echo "Deploying to Railway..."
+        railway up
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         
     - name: Verify deployment
       run: |
